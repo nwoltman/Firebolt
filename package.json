@@ -1,0 +1,27 @@
+{
+  "name": "FireBolt",
+  "version": "0.2.1",
+  "description": "A Fast and Lightweight JavaScript Library for Modern Browsers",
+  "author": {
+    "name": "Nathan Woltman"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/FireBoltJS/FireBolt.git"
+  },
+  "keywords": [
+    "firebolt",
+    "javascript",
+    "library"
+  ],
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/FireBoltJS/FireBolt/blob/master/LICENSE"
+    }
+  ],
+  "maintainers": {
+    "name": "Nathan Woltman",
+    "email": "nwoltman@outlook.com"
+  }
+}
