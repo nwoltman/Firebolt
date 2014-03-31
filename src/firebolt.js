@@ -103,7 +103,7 @@ $window.$tag = function(tagName) {
 /**
  * Returns a duplicate of the array, leaving the original array intact.
  * 
- * @function clone
+ * @function prototype.clone
  * @returns {Array} A copy of the array.
  * @memberOf Array
  * @author Nathan Woltman
@@ -121,7 +121,7 @@ Array[prototype].clone = function() {
 /**
  * Determines if the input item is in the array.
  * 
- * @function contains
+ * @function prototype.contains
  * @returns {Boolean} <code>true</code> if the item is in the array; else <code>false</code>.
  * @memberOf Array
  * @author Nathan Woltman
@@ -133,7 +133,7 @@ Array[prototype].contains = function(e) {
 /**
  * Returns an array containing every item that is in both this array and the input array.
  * 
- * @function intersect
+ * @function prototype.intersect
  * @returns {Array} An array that is the intersection of this array and the input array.
  * @memberOf Array
  * @author Nathan Woltman
@@ -154,7 +154,7 @@ Array[prototype].intersect = function(b) {
 /**
  * Returns the last item of the array.
  * 
- * @function last
+ * @function prototype.last
  * @returns {*} The last item in the array, or undefined if the array is empty.
  * @memberOf Array
  * @author Nathan Woltman
@@ -166,7 +166,7 @@ Array[prototype].last = function() {
 /**
  * Returns an array containing every item that is only in one of this array or the input array.
  * 
- * @function union
+ * @function prototype.union
  * @returns {Array} An array that is the union of this array and the input array.
  * @memberOf Array
  * @author Nathan Woltman
@@ -228,7 +228,7 @@ document.ready = function(callback) {
  * Returns a list of the elements within the element that match the specifed CSS selector.<br />
  * Alias of Element.querySelectorAll()
  * 
- * @function $
+ * @function prototype.$
  * @param {String} selector
  * @returns {NodeList} A list of selected elements.
  * @memberOf Element
@@ -242,7 +242,7 @@ Element[prototype].$ = function(selector) {
  * Returns the first element within the element that matches the specified CSS selector.<br />
  * Alias of Element.querySelector().
  * 
- * @function $1
+ * @function prototype.$1
  * @param {String} selector
  * @returns {?Element}
  * @memberOf Element
@@ -256,7 +256,7 @@ Element[prototype].$1 = function(selector) {
  * Returns a list of the elements within the element with the specified class name.<br />
  * Alias of Element.getElementsByClassName().
  * 
- * @function $class
+ * @function prototype.$class
  * @param {String} className
  * @returns {HTMLCollection|NodeList} A collection of elements with the specified class name.
  * @memberOf Element
@@ -270,7 +270,7 @@ Element[prototype].$class = function(className) {
  * Returns a list of the elements within the element with the specified tag name.<br />
  * Alias of Element.getElementsByTagName().
  * 
- * @function $tag
+ * @function prototype.$tag
  * @param {String} tagName
  * @returns {HTMLCollection|NodeList} A collection of elements with the specified tag name.
  * @memberOf Element
@@ -283,7 +283,7 @@ Element[prototype].$tag = function(tagName) {
 /**
  * Adds the specified class to the element if the element doesn't already have it.
  * 
- * @function addClass
+ * @function prototype.addClass
  * @param {String} className - The class to be added to the element.
  * @memberOf Element
  * @author Nathan Woltman
@@ -305,10 +305,10 @@ Element[prototype].addClass = function(className) {
 /**
  * Gets or sets the specified attribute/attributes of the element.
  * 
- * @function attr
+ * @function prototype.attr
  * @param {String|Object} attribute - The name of the attribute who's value should be returned or set or an object of attribute-value pairs to set.
  * @param {String} [value] - The value to set the attribute to.
- * @returns {?} The value of the property being retrieved (or the element itself if the function was called to set properties).
+ * @returns {?String} The value of the property being retrieved.
  * @memberOf Element
  * @author Nathan Woltman
  */
@@ -331,7 +331,7 @@ Element[prototype].attr = function(attr, value) {
 /**
  * Removes all of the element's child nodes.
  * 
- * @function empty
+ * @function prototype.empty
  * @memberOf Element
  * @author Nathan Woltman
  */
@@ -342,7 +342,7 @@ Element[prototype].empty = function() {
 /**
  * Determines if the element's class list has the specified class name.
  * 
- * @function hasClass
+ * @function prototype.hasClass
  * @param {String} className - A string containing a single class name.
  * @returns {Boolean} <code>true</code> if the class name is in the element's class list; else <code>false</code>.
  * @memberOf Element
@@ -356,9 +356,9 @@ Element[prototype].hasClass = function(className) {
 /**
  * Gets or set the element's inner HTML.
  * 
- * @function html
+ * @function prototype.html
  * @param {String} [innerHTML] - A string of HTML to set as the content of the element.
- * @returns {String|HTMLElement} The element's inner HTML (or if the element's HTML was being set, the element itself is returned).
+ * @returns {String} The element's inner HTML.
  * @memberOf Element
  * @author Nathan Woltman
  */
@@ -374,7 +374,7 @@ Element[prototype].html = function(innerHTML) {
 /**
  * Determines if the element matches the specified CSS selector.
  * 
- * @function matches
+ * @function prototype.matches
  * @param {String} selector - A CSS selector string.
  * @returns {Boolean} <code>true</code> if the element matches the selector; else <code>false</code>.
  * @memberOf Element
@@ -385,7 +385,7 @@ Element[prototype].matches = Element[prototype].matches || Element[prototype].we
 /**
  * Gets or set the element's inner HTML.
  * 
- * @function prepend
+ * @function prototype.prepend
  * @param {...(String|Node|Node[])} content - One or more DOM elements, arrays of elements, or HTML strings to insert at the beginning of this element.
  * @memberOf Element
  * @author Nathan Woltman
@@ -401,10 +401,10 @@ Element[prototype].prepend = function() {
 /**
  * Gets or sets the specified property/properties of the element.
  * 
- * @function prop
+ * @function prototype.prop
  * @param {String|Object} property - The name of the property who's value should be returned or set or an object of property-value pairs to set.
  * @param {String} [value] - The value to set the property to.
- * @returns {?} The value of the property being retrieved (or the element itself if the function was called to set properties).
+ * @returns {?} The value of the property being retrieved.
  * @memberOf Element
  * @author Nathan Woltman
  */
@@ -427,7 +427,7 @@ Element[prototype].prop = function(prop, value) {
 /**
  * Removes the specified attribute from the element.
  * 
- * @function removeAttr
+ * @function prototype.removeAttr
  * @param {String} attribute - The name of the attribute to remove.
  * @memberOf Element
  * @author Nathan Woltman
@@ -441,7 +441,7 @@ Element[prototype].removeAttr = function(attribute) {
 /**
  * Removes the input class from the element if the element currently has it.
  * 
- * @function removeClass
+ * @function prototype.removeClass
  * @param {String} className - The class to be removed from the element.
  * @memberOf Element
  * @author Nathan Woltman
@@ -476,7 +476,7 @@ Element[prototype].removeClass = function(className) {
 /**
  * Removes the specified property from the element.
  * 
- * @function removeProp
+ * @function prototype.removeProp
  * @param {String} property - The name of the property to remove.
  * @memberOf Element
  * @author Nathan Woltman
@@ -490,7 +490,7 @@ Element[prototype].removeProp = function(property) {
 /**
  * Toggles the specified class for the element.
  * 
- * @function toggleClass
+ * @function prototype.toggleClass
  * @param {String} className - The class to be toggled.
  * @memberOf Element
  * @author Nathan Woltman
@@ -542,8 +542,8 @@ Element[prototype].toggleClass = function(className) {
  * @author Nathan Woltman
  * @example
  * $('button.btn-success') // Returns an array of all button elements with the class "btn-success"
- * $('str <p>content</p>') // Creates a set of nodes and returns it as a NodeList
- * $.create('div')         // Calls FireBolt's <code>create()</code> method to create a new div element 
+ * $('str &lt;p&gt;content&lt;/p&gt;') // Creates a set of nodes and returns it as a NodeList
+ * $.create('div') // Calls FireBolt's `create()` method to create a new div element 
  */
 function FireBolt(str) {
 	if (rgxHtml.test(str)) {
@@ -614,7 +614,7 @@ FireBolt.ready = document.ready;
 /**
  * Converts an array of nodes to a non-live NodeList containing only DOM Elements.
  * 
- * @param {Node[]} elements - An array containing nodes that are in currently in the document (this will not work if the nodes are not in the document).
+ * @param {Array.<Node>} elements - An array containing nodes that are in currently in the document (this will not work if the nodes are not in the document).
  * @returns {NodeList} The original array of elements converted to a NodeList containing only nodes of the original list that are of node type 1 (Element).
  * @memberOf FireBolt
  * @author Nathan Woltman
@@ -637,9 +637,9 @@ FireBolt.toDeadNodeList = function(elements) {
 /**
  * Delays a function call for the specified number of milliseconds.
  * 
- * @function delay
+ * @function prototype.delay
  * @param {Number} ms - The number of milliseconds to wait before calling the functions.
- * @returns {Object} An object that can be used to cancel the timer before the callback is called by calling object.clear().
+ * @returns {Object} An object that can be used to cancel the timer before the callback is called by calling `object.clear()`.
  * @memberOf Function
  * @author Nathan Woltman
  */
@@ -666,7 +666,7 @@ Function[prototype].delay = function(ms) {
 /**
  * Gets or set the element's CSS style.
  * 
- * @function css
+ * @function prototype.css
  * @param {String|Object} [prop] - The property of the element's CSS to get or set, or an object of properties and values to set the element's CSS to.
  * @param {String} [value] - A value to set for the specified property.
  * @returns {string|Object|HTMLElement} The value of the specifed property, or if no property is specified, the element's computed style object is returned
@@ -698,7 +698,7 @@ HTMLElement[prototype].css = function(prop, value) {
 /**
  * Hides the element by setting its display style to 'none'.
  * 
- * @function hide
+ * @function prototype.hide
  * @memberOf HTMLElement
  * @author Nathan Woltman
  */
@@ -713,7 +713,7 @@ HTMLElement[prototype].hide = function() {
 /**
  * Gets the element's current coordinates.
  * 
- * @function offset
+ * @function prototype.offset
  * @returns {{top: number, left: number}} An object containing the coordinates detailing the element's distance from the top and left of the screen.
  * @memberOf HTMLElement
  * @author Nathan Woltman
@@ -745,7 +745,7 @@ HTMLElement[prototype].offset = function() {
  * FireBolt determines the element's default display style and sets it to that (NOTE:
  * the element's default display style may be 'none' and hence the element would not be shown).
  * 
- * @function show
+ * @function prototype.show
  * @param {Number|String} [style] - The style of display the element should be shown with. Possibilities are:
  * <ul>
  * <li>0 => 'block'</li>
@@ -797,7 +797,7 @@ HTMLElement[prototype].show = function(style) {
 /**
  * Inserts the specified node directly after this node.
  * 
- * @function after
+ * @function prototype.after
  * @param {Node|String|?} node - The node to insert. If the input parameter is not a Node, it is converted to a TextNode before being inserted.
  * @returns {Node} The node being inserted.
  * @memberOf Node
@@ -815,7 +815,7 @@ Node[prototype].after = function(node) {
 /**
  * Inserts the specified node directly before this node.
  * 
- * @function before
+ * @function prototype.before
  * @param {Node|String|?} node - The node to insert. If the input parameter is not a Node, it is converted to a TextNode before being inserted.
  * @returns {Node} The inserted node.
  * @memberOf Node
@@ -834,7 +834,7 @@ Node[prototype].before = function(node) {
 /**
  * Inserts this node directly after the specified node.
  * 
- * @function insertAfter
+ * @function prototype.insertAfter
  * @param {Node} node - The node after which this node should be inserted.
  * @returns {Node} This node.
  * @memberOf Node
@@ -849,7 +849,7 @@ Node[prototype].insertAfter = function(node) {
 /**
  * Removes this node from the DOM.
  * 
- * @function remove
+ * @function prototype.remove
  * @memberOf Node
  * @author Nathan Woltman
  */
@@ -938,11 +938,11 @@ function getFirstSetEach(funcName, numArgs) {
 }
 
 /**
- * Adds the element, list of elements, or queried elements to the existing list and returns the result.
+ * Adds the element, list of elements, or queried elements to a copy of the existing list and returns the result.
  * 
- * @function add
- * @param {Element|NodeList|HTMLCollection|string} e
- * @returns {NodeList|HTMLCollection} The result of adding the new item(s) to the current list;
+ * @function prototype.add
+ * @param {Element|NodeList|HTMLCollection|String} e
+ * @returns {NodeList} The result of adding the new item(s) to the current list.
  * @memberOf NodeList
  * @author Nathan Woltman
  */
@@ -959,7 +959,7 @@ NodeList[prototype].add = function(e) {
 /**
  * Adds the input class name to all elements in the collection.
  * 
- * @function addClass
+ * @function prototype.addClass
  * @param {String} className - The class to be added to each element in the collection.
  * @memberOf NodeList
  * @author Nathan Woltman
@@ -969,7 +969,7 @@ NodeList[prototype].addClass = callOnEach('addClass');
 /**
  * Gets or sets the specified attribute/attributes for each element in the list.
  * 
- * @function attr
+ * @function prototype.attr
  * @param {String|Object} attribute - The name of the attribute who's value should be returned or set or an object of attribute-value pairs to set.
  * @param {String} [value] - The value to set the attribute to.
  * @returns {?} The value of the property being retrieved (or the NodeList itself if the function was called to set properties).
@@ -981,7 +981,7 @@ NodeList[prototype].attr = getFirstSetEach('attr', 2);
 /**
  * Clicks each element in the collection.
  * 
- * @function click
+ * @function prototype.click
  * @memberOf NodeList
  * @author Nathan Woltman
  */
@@ -990,7 +990,7 @@ NodeList[prototype].click = callOnEach('click');
 /**
  * Gets or set the CSS style of each element in the list.
  * 
- * @function css
+ * @function prototype.css
  * @param {String|Object} [prop] - The name of the CSS property to get or set, or an object of property-value pairs to set.
  * @param {String} [value] - A value to set for the specified property.
  * @returns {String|Object|HTMLElement} The value of the specifed property, or if no property is specified, the first element's computed style object is returned
@@ -1003,7 +1003,7 @@ NodeList[prototype].css = getFirstSetEach('css', 2);
 /**
  * Removes all child nodes from each element in the list.
  * 
- * @function empty
+ * @function prototype.empty
  * @memberOf NodeList
  * @author Nathan Woltman
  */
@@ -1012,8 +1012,9 @@ NodeList[prototype].empty = callOnEach('empty');
 /**
  * Reduce the set of matched elements to those that match the selector or pass the function's test.
  * 
- * @function filter
+ * @function prototype.filter
  * @param {String|Function} selector - CSS selector string or function that returns a value that evaluates to a boolean.
+ * @memberOf NodeList
  * @returns {NodeList} 
  */
 NodeList[prototype].filter = function(selector) {
@@ -1041,7 +1042,7 @@ NodeList[prototype].filter = function(selector) {
 /**
  * Hides each element in the collection by setting its display style to 'none'.
  * 
- * @function hide
+ * @function prototype.hide
  * @memberOf NodeList
  * @author Nathan Woltman
  */
@@ -1050,7 +1051,7 @@ NodeList[prototype].hide = callOnEach('hide');
 /**
  * Gets or set the inner HTML of each element in the list.
  * 
- * @function html
+ * @function prototype.html
  * @param {String} [innerHTML] - A string of HTML to set as the content of each element.
  * @returns {String|HTMLElement} The element's inner HTML (or if the elements' HTML was being set, the NodeList itself is returned).
  * @memberOf NodeList
@@ -1061,7 +1062,7 @@ NodeList[prototype].html = getFirstSetEach('html', 1);
 /**
  * Converts a NodeList to a non-live NodeList.
  * 
- * @function kill
+ * @function prototype.kill
  * @returns {NodeList} A non-live NodeList containing only nodes of the original list that are of node type 1 (Element).
  * @memberOf NodeList
  * @author Nathan Woltman
@@ -1074,7 +1075,7 @@ NodeList[prototype].kill = function() {
 /**
  * Gets or sets the specified property/properties for each element in the list.
  * 
- * @function prop
+ * @function prototype.prop
  * @param {String|Object} property - The name of the property who's value should be returned or set or an object of property-value pairs to set.
  * @param {String} [value] - The value to set the property to.
  * @returns {?} The value of the property being retrieved (or the NodeList itself if the function was called to set properties).
@@ -1086,7 +1087,7 @@ NodeList[prototype].prop = getFirstSetEach('prop', 2);
 /**
  * Removes all nodes in the collection from the DOM tree.
  * 
- * @function remove
+ * @function prototype.remove
  * @memberOf NodeList
  * @author Nathan Woltman
  */
@@ -1109,7 +1110,7 @@ NodeList[prototype].remove = function() {
 /**
  * Removes the specified attribute from each element in the list.
  * 
- * @function removeAttr
+ * @function prototype.removeAttr
  * @param {String} attribute - The name of the attribute to be removed.
  * @memberOf NodeList
  * @author Nathan Woltman
@@ -1128,10 +1129,13 @@ NodeList[prototype].removeAttr = callOnEach('removeAttr');
  * 
  * To avoid this the problems caused by this, use a non-live NodeList as in the following alternative methods:
  * 
- * <pre class="prettyprint">$('.someClass').removeClass('someClass');
- * $class('someClass').kill().removeClass('someClass');</pre>
+ * <pre class="prettyprint">
+ * $('.someClass').removeClass('someClass');
+ * $class('someClass').kill().removeClass('someClass');
+ * </pre>
  * 
- * @function removeClass
+ * 
+ * @function prototype.removeClass
  * @param {String} className - The class to be removed from each element in the collection.
  * @memberOf NodeList
  * @author Nathan Woltman
@@ -1141,7 +1145,7 @@ NodeList[prototype].removeClass = callOnEach('removeClass');
 /**
  * Removes the specified property from each element in the list.
  * 
- * @function removeProp
+ * @function prototype.removeProp
  * @param {String} property - The name of the property to remove.
  * @memberOf NodeList
  * @author Nathan Woltman
@@ -1151,8 +1155,8 @@ NodeList[prototype].removeProp = callOnEach('removeProp');
 /**
  * Shows each element in the set. For specifics, see {@link HTMLElement.show()}.
  * 
- * @function show
- * @param {number|string} [style] - The style of display the element should be shown with.
+ * @function prototype.show
+ * @param {Number|String} [style] - The style of display the element should be shown with.
  * @memberOf HTMLElement
  * @see Element.show
  * @author Nathan Woltman
@@ -1160,9 +1164,9 @@ NodeList[prototype].removeProp = callOnEach('removeProp');
 NodeList[prototype].show = callOnEach('show');
 
 /**
- * Converts a NodeList to an Array.
+ * Converts the current NodeList to an Array.
  * 
- * @function toArray
+ * @function prototype.toArray
  * @returns {Array.<Node>} An Array containing the same elements as the NodeList;
  * @memberOf NodeList
  * @author Nathan Woltman
@@ -1174,7 +1178,7 @@ NodeList[prototype].toArray = function() {
 /**
  * Toggles the input class name for all elements in the list.
  * 
- * @function toggleClass
+ * @function prototype.toggleClass
  * @param {String} className - The class to be toggled for each element in the collection.
  * @memberOf NodeList
  * @author Nathan Woltman
@@ -1209,7 +1213,7 @@ Object.getOwnPropertyNames(NodeList[prototype]).forEach(function(methodName) {
 /**
  * Returns a string representation of the number padded with leading 0s so that the string's length is at least equal to length. Takes an optional radix argument which specifies the base to use for conversion.
  * 
- * @function toPaddedString
+ * @function prototype.toPaddedString
  * @param {Number} length - The minimum length for the resulting string.
  * @param {Number} [radix=10] - Defines which base to use for representing the numeric value. Must be an integer between 2 and 36.
  * @memberOf Number
@@ -1243,7 +1247,7 @@ if (!"".contains) {
 	/**
 	 * Determines whether the passed in string is in the current string.
 	 *
-	 * @function contains
+	 * @function prototype.contains
 	 * @param {String} searchString - The string to be searched for.
 	 * @param {Number} [position=0] - The position in this string at which to begin the search; defaults to 0.
 	 * @returns {Boolean} REM jsdoc3\doc\%OUTPUT_DIR%
@@ -1264,7 +1268,7 @@ if (!"".endsWith) {
 	/**
 	 * Determines whether a string ends with the characters of another string.
 	 *
-	 * @function endsWith
+	 * @function prototype.endsWith
 	 * @param {String} searchString - The characters to be searched for at the end of this string.
 	 * @returns {Boolean} <code>true</code> if this string ends with the search string; else <code>false</code>.
 	 * @memberOf String
@@ -1283,7 +1287,7 @@ if (!"".repeat) {
 	/**
 	 * Copies the current string a given number of times and returns the new string.
 	 *
-	 * @function repeat
+	 * @function prototype.repeat
 	 * @param {Number} count - An integer between 0 and +∞ : [ 0, +∞).
 	 * @returns {String}
 	 * @memberOf String
@@ -1308,7 +1312,7 @@ if (!"".startsWith) {
 	/**
 	 * Determines whether a string starts with the characters of another string.
 	 *
-	 * @function startsWith
+	 * @function prototype.startsWith
 	 * @param {String} searchString - The characters to be searched for at the start of this string.
 	 * @returns {Boolean} <code>true</code> if this string starts with the search string; else <code>false</code>.
 	 * @memberOf String
@@ -1326,7 +1330,7 @@ if (!"".startsWith) {
 /**
  * Returns the string split into an array of substrings (tokens) that were separated by white-space.
  *
- * @function tokenize
+ * @function prototype.tokenize
  * @returns {String[]} The string split into an array of tokens.
  * @memberOf String
  * @author Nathan Woltman
