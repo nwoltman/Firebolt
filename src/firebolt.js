@@ -909,20 +909,6 @@ function callOnEach(funcName) {
 }
 
 /** 
- * Calls the function with the passed in name on each element in a clone of an enumerable.
- * 
- * @param {String} funcName - The name of a function.
- * @returns {Array|NodeList|HTMLCollection} A reference to the cloned enumerable
- * @this An enumerable such as an Array, NodeList, or HTMLCollection.
- * @author Nathan Woltman
- */
-function callOnEachDead(funcName) {
-	return function() {
-		return callOnEach(funcName).apply(this.toArray(), arguments);
-	};
-}
-
-/** 
  * Returns a function that calls the function with the passed in name on each element in an enumerable
  * unless the number of arguments passed to the function is less than the specified number or the first
  * argument passed in is an object, in which case the result of calling the function of the first element
@@ -1133,12 +1119,24 @@ NodeList[prototype].removeAttr = callOnEach('removeAttr');
 /**
  * Removes the input class name from all elements in the list.
  * 
+ * <h3>Warning:</h3>
+ * 
+ * Due to the fact that NodeLists returned by the {@linkcode $class|$class()} function
+ * are live, the follwing code will cause undesirable behaviour:
+ * 
+ * <pre class="prettyprint">$class('someClass').removeClass('someClass');</pre>
+ * 
+ * To avoid this the problems caused by this, use a non-live NodeList as in the following alternative methods:
+ * 
+ * <pre class="prettyprint">$('.someClass').removeClass('someClass');
+ * $class('someClass').kill().removeClass('someClass');</pre>
+ * 
  * @function removeClass
  * @param {String} className - The class to be removed from each element in the collection.
  * @memberOf NodeList
  * @author Nathan Woltman
  */
-NodeList[prototype].removeClass = callOnEachDead('removeClass');
+NodeList[prototype].removeClass = callOnEach('removeClass');
 
 /**
  * Removes the specified property from each element in the list.
@@ -1164,8 +1162,8 @@ NodeList[prototype].show = callOnEach('show');
 /**
  * Converts a NodeList to an Array.
  * 
- * @function to Array
- * @returns {Array} An Array containing the same elements as the NodeList;
+ * @function toArray
+ * @returns {Array.<Node>} An Array containing the same elements as the NodeList;
  * @memberOf NodeList
  * @author Nathan Woltman
  */
@@ -1181,7 +1179,7 @@ NodeList[prototype].toArray = function() {
  * @memberOf NodeList
  * @author Nathan Woltman
  */
-NodeList[prototype].toggleClass = callOnEachDead('toggleClass');
+NodeList[prototype].toggleClass = callOnEach('toggleClass');
 
 // #endregion NodeList
 
