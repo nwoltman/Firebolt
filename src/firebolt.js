@@ -157,10 +157,8 @@ Array[prototype].equals = function(array) {
  * [1, 2, 3].intersect([2, 3, 4]);  // [2, 3]
  */
 Array[prototype].intersect = function(b) {
-	var intersection = [],
-		i = 0;
-	for (; i < b.length; i++) {
-		if (this.contains(b[i])) {
+	for (var intersection = [], i = 0; i < b.length; i++) {
+		if (this.contains(b[i]) && !intersection.contains(b[i])) {
 			intersection.push(b[i]);
 		}
 	}
@@ -185,18 +183,59 @@ Array[prototype].last = function() {
  * @returns {Array} An array that is the union of this array and the input array.
  * @author Nathan Woltman
  * @example
- * [1, 2, 3].union([2, 3, 4]);  // [1, 2, 3, 4]
+ * [1, 2, 3].union([2, 3, 4]);  // returns [1, 2, 3, 4]
  */
 Array[prototype].union = function(b) {
-	var union = [],
-		i = 0;
-	union.push.apply(union, this);
-	for (; i < b.length; i++) {
-		if (!this.contains(b[i])) {
+	for (var union = this.unique(), i = 0; i < b.length; i++) {
+		if (!union.contains(b[i])) {
 			union.push(b[i]);
 		}
 	}
 	return union;
+};
+
+/**
+ * Returns a duplicate-free clone of the array.
+ * 
+ * @function Array.prototype.unique
+ * @returns {Array} An array of unique items.
+ * @author Nathan Woltman
+ * @example
+ * [1, 2, 3, 2, 1].unique();  // returns [1, 2, 3]
+ */
+Array[prototype].unique = function() {
+	for (var uniqueClone = [], i = 0; i < this.length; i++) {
+		if (!uniqueClone.contains(this[i])) {
+			uniqueClone.push(this[i]);
+		}
+	}
+	return uniqueClone;
+};
+
+/**
+ * Returns a copy of the current array without any elements from the input parameters.
+ * 
+ * @function Array.prototype.without
+ * @param {...?} items - One or more items to leave out of the returned array.
+ * @returns {Array}
+ * @author Nathan Woltman
+ * @example
+ * [1, 2, 3, 4, 5, 6].without(3, 4, 6); // returns [1, 2, 5]
+ */
+Array[prototype].without = function() {
+	var array = [],
+		i = 0,
+		j;
+	skip:
+	for (; i < this.length; i++) {
+		for (j = 0; j < arguments.length; j++) {
+			if (this[i] === arguments[j]) {
+				continue skip;
+			}
+		}
+		array.push(this[i]);
+	}
+	return array;
 };
 
 // #endregion Array
@@ -875,6 +914,7 @@ Object.getOwnPropertyNames(Array[prototype]).forEach(function(methodName) {
 			case 'intersect':
 			case 'slice':
 			case 'union':
+			case 'without':
 				NodeList[prototype][methodName] = function() {
 					return FireBolt.toDeadNodeList(Array[prototype][methodName].apply(this, arguments));
 				}	
