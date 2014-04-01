@@ -124,6 +124,30 @@ Array[prototype].contains = function(e) {
 };
 
 /**
+ * Determines if the arrays are equal by doing a shallow comparison of their elements using strict equality.<br />
+ * NOTE: The order of elements in the arrays DOES matter. The elements must be found in the same order for the arrays to be considered equal.
+ * 
+ * @function Array.prototype.equals
+ * @param {Array} array - An array to compare the current array to.
+ * @returns {Boolean} `true` if the arrays are equal; else `false`.
+ * @author Nathan Woltman
+ */
+Array[prototype].equals = function(array) {
+	if (this === array) { //Easy check
+		return true;
+	}
+	if (this.length != array.length) {
+		return false;
+	}
+	for (var i = 0; i < array.length; i++) {
+		if (this[i] !== array[i]) {
+			return false;
+		}
+	}
+	return true;
+};
+
+/**
  * Returns an array containing every item that is in both this array and the input array.
  * 
  * @function Array.prototype.intersect
@@ -586,13 +610,13 @@ FireBolt.ready = document.ready;
 /**
  * Converts an array of nodes to a non-live NodeList containing only DOM Elements.
  * 
- * @param {Array.<Node>} elements - An array containing nodes that are in currently in the document (this will not work if the nodes are not in the document).
+ * @param {Array.<Node>|NodeList} elements - An array containing nodes that are in currently in the document (this will not work if the nodes are not in the document).
  * @returns {NodeList} The original array of elements converted to a NodeList containing only nodes of the original list that are of node type 1 (Element).
  * @memberOf FireBolt
  * @author Nathan Woltman
  */
 FireBolt.toDeadNodeList = function(elements) {
-	elements.attr(NodeListIdentifier, '');
+	NodeList.prototype.attr.call(elements, NodeListIdentifier, '');
 	return this('[' + NodeListIdentifier + ']').removeAttr(NodeListIdentifier);
 };
 
@@ -838,9 +862,10 @@ Node[prototype].remove = function() {
 Object.getOwnPropertyNames(Array[prototype]).forEach(function(methodName) {
 	if (!NodeList[prototype][methodName]) {
 		switch (methodName) {
+			case 'contains':
+			case 'equals':
 			case 'indexOf':
 			case 'lastIndexOf':
-			case 'contains':
 			case 'last':
 				NodeList[prototype][methodName] = Array[prototype][methodName];
 				break;
