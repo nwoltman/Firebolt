@@ -539,9 +539,7 @@ function FireBolt(str) {
 FireBolt.create = function(tagName, attributes) {
 	var el = document.createElement(tagName);
 	if (attributes) {
-		for (var attrType in attributes) {
-			el.setAttribute(attrType, attributes[attrType]);
-		}
+		el.attr(attributes);
 	}
 	return el;
 };
@@ -640,27 +638,34 @@ Function[prototype].delay = function(ms) {
  * Gets or set the element's CSS style.
  * 
  * @function HTMLElement.prototype.css
- * @param {String|Object} [prop] - The property of the element's CSS to get or set, or an object of properties and values to set the element's CSS to.
+ * @param {String|Object} [prop] - The property of the element's CSS to get or set, a CSS string to set as the element's style, or an object of property-value pairs to set the element's CSS to.
  * @param {String} [value] - A value to set for the specified property.
  * @returns {String|Object} The value of the specifed property, or if no property is specified, the element's computed style object is returned.
  * @author Nathan Woltman
  */
 HTMLElement[prototype].css = function(prop, value) {
-	if (typeof prop === 'undefined') {
-		return getComputedStyle(this);
-	}
-	else if (typeof prop === 'string') {
-		if (typeof value === 'undefined') {
-			return getComputedStyle(this)[prop];
+	if (typeof prop == 'string') {
+		if (typeof value == 'undefined') {
+			if (!/:/.test(prop)) {
+				//Get the specified property
+				return getComputedStyle(this)[prop];
+			}
+			//Else set the element's css text
+			this.style.cssText = prop;
 		}
 		else {
+			//Set the specified property
 			this.style[prop] = value;
 		}
 	}
-	else if (typeof prop === 'object') {
-		for (var propType in prop) {
-			this.style[propType] = prop[propType];
+	else if (typeof prop == 'object') {
+		//Set all specifed properties
+		for (var propName in prop) {
+			this.style[propName] = prop[propName];
 		}
+	}
+	else {
+		return getComputedStyle(this);
 	}
 
 	return this;
@@ -860,7 +865,7 @@ Object.getOwnPropertyNames(Array[prototype]).forEach(function(methodName) {
  * @this An enumerable such as an Array, NodeList, or HTMLCollection.
  * @author Nathan Woltman
  */
-function callOnEach(funcName) {
+function callOnEachElement(funcName) {
 	return function() {
 		for (var i = 0; i < this.length; i++) {
 			if (this[i].nodeType == 1) this[i][funcName].apply(this[i], arguments);
@@ -881,7 +886,7 @@ function callOnEach(funcName) {
  * @this An enumerable such as an Array, NodeList, or HTMLCollection.
  * @author Nathan Woltman
  */
-function getFirstSetEach(funcName, numArgs) {
+function getFirstSetEachElement(funcName, numArgs) {
 	return function() {
 		var items = this,
 			i = 0;
@@ -923,7 +928,7 @@ NodeList[prototype].add = function(e) {
  * @param {String} className - The class to be added to each element in the collection.
  * @author Nathan Woltman
  */
-NodeList[prototype].addClass = callOnEach('addClass');
+NodeList[prototype].addClass = callOnEachElement('addClass');
 
 /**
  * Gets or sets the specified attribute/attributes for each element in the list.
@@ -934,7 +939,7 @@ NodeList[prototype].addClass = callOnEach('addClass');
  * @returns {?String} The value of the property being retrieved (or the NodeList itself if the function was called to set properties).
  * @author Nathan Woltman
  */
-NodeList[prototype].attr = getFirstSetEach('attr', 2);
+NodeList[prototype].attr = getFirstSetEachElement('attr', 2);
 
 /**
  * Clicks each element in the collection.
@@ -942,7 +947,7 @@ NodeList[prototype].attr = getFirstSetEach('attr', 2);
  * @function NodeList.prototype.click
  * @author Nathan Woltman
  */
-NodeList[prototype].click = callOnEach('click');
+NodeList[prototype].click = callOnEachElement('click');
 
 /**
  * Gets or set the CSS style of each element in the list.
@@ -954,7 +959,7 @@ NodeList[prototype].click = callOnEach('click');
  * @memberOf NodeList
  * @author Nathan Woltman
  */
-NodeList[prototype].css = getFirstSetEach('css', 2);
+NodeList[prototype].css = getFirstSetEachElement('css', 2);
 
 /**
  * Removes all child nodes from each element in the list.
@@ -962,7 +967,7 @@ NodeList[prototype].css = getFirstSetEach('css', 2);
  * @function NodeList.prototype.empty
  * @author Nathan Woltman
  */
-NodeList[prototype].empty = callOnEach('empty');
+NodeList[prototype].empty = callOnEachElement('empty');
 
 /**
  * Reduce the set of matched elements to those that match the selector or pass the function's test.
@@ -999,7 +1004,7 @@ NodeList[prototype].filter = function(selector) {
  * @function NodeList.prototype.hide
  * @author Nathan Woltman
  */
-NodeList[prototype].hide = callOnEach('hide');
+NodeList[prototype].hide = callOnEachElement('hide');
 
 /**
  * Gets or set the inner HTML of each element in the list.
@@ -1009,7 +1014,7 @@ NodeList[prototype].hide = callOnEach('hide');
  * @returns {String|HTMLElement} The element's inner HTML (or if the elements' HTML was being set, the NodeList itself is returned).
  * @author Nathan Woltman
  */
-NodeList[prototype].html = getFirstSetEach('html', 1);
+NodeList[prototype].html = getFirstSetEachElement('html', 1);
 
 /**
  * Converts a NodeList to a non-live NodeList.
@@ -1032,7 +1037,7 @@ NodeList[prototype].kill = function() {
  * @returns {?} The value of the property being retrieved (or the NodeList itself if the function was called to set properties).
  * @author Nathan Woltman
  */
-NodeList[prototype].prop = getFirstSetEach('prop', 2);
+NodeList[prototype].prop = getFirstSetEachElement('prop', 2);
 
 /**
  * Removes all nodes in the collection from the DOM tree.
@@ -1063,7 +1068,7 @@ NodeList[prototype].remove = function() {
  * @param {String} attribute - The name of the attribute to be removed.
  * @author Nathan Woltman
  */
-NodeList[prototype].removeAttr = callOnEach('removeAttr');
+NodeList[prototype].removeAttr = callOnEachElement('removeAttr');
 
 /**
  * Removes the input class name from all elements in the list.
@@ -1086,7 +1091,7 @@ NodeList[prototype].removeAttr = callOnEach('removeAttr');
  * @param {String} className - The class to be removed from each element in the collection.
  * @author Nathan Woltman
  */
-NodeList[prototype].removeClass = callOnEach('removeClass');
+NodeList[prototype].removeClass = callOnEachElement('removeClass');
 
 /**
  * Removes the specified property from each element in the list.
@@ -1095,7 +1100,7 @@ NodeList[prototype].removeClass = callOnEach('removeClass');
  * @param {String} property - The name of the property to remove.
  * @author Nathan Woltman
  */
-NodeList[prototype].removeProp = callOnEach('removeProp');
+NodeList[prototype].removeProp = callOnEachElement('removeProp');
 
 /**
  * Shows each element in the set. For specifics, see {@link HTMLElement.show()}.
@@ -1105,7 +1110,7 @@ NodeList[prototype].removeProp = callOnEach('removeProp');
  * @see Element.show
  * @author Nathan Woltman
  */
-NodeList[prototype].show = callOnEach('show');
+NodeList[prototype].show = callOnEachElement('show');
 
 /**
  * Converts the current NodeList to an Array.
@@ -1125,7 +1130,7 @@ NodeList[prototype].toArray = function() {
  * @param {String} className - The class to be toggled for each element in the collection.
  * @author Nathan Woltman
  */
-NodeList[prototype].toggleClass = callOnEach('toggleClass');
+NodeList[prototype].toggleClass = callOnEachElement('toggleClass');
 
 // #endregion NodeList
 
