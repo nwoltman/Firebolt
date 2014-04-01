@@ -214,7 +214,7 @@ ArrayPrototype.last = function() {
  * Removes all occurrences of the passed in items from the array if they exist in the array.
  * 
  * @function Array.prototype.remove
- * @param {...?} items - Items to remove from the array.
+ * @param {...*} items - Items to remove from the array.
  * @returns {Array} A reference to the array.
  * @author Nathan Woltman
  */
@@ -267,7 +267,7 @@ ArrayPrototype.unique = function() {
  * Returns a copy of the current array without any elements from the input parameters.
  * 
  * @function Array.prototype.without
- * @param {...?} items - One or more items to leave out of the returned array.
+ * @param {...*} items - One or more items to leave out of the returned array.
  * @returns {Array}
  * @author Nathan Woltman
  * @example
@@ -685,7 +685,7 @@ FireBolt.delay = function(callback, ms) {
  * <li>an empty string (unless the `allowEmptyString` parameter is set to `true`)</li>
  * </ul>
  * 
- * @param {?} value - The value to be tested.
+ * @param {*} value - The value to be tested.
  * @param {Boolean} [allowEmptyString=false] - Set this to true to deem zero-length strings as not empty.
  * @returns {Boolean}
  * @memberOf FireBolt
@@ -957,10 +957,10 @@ NodePrototype.remove = function() {
 };
 
 /**
- * Gets or sets this node's text content.
+ * Gets or sets this node's text content (specifically uses the native JavaScript property `Node.textContent`).
  * 
  * @function Node.prototype.text
- * @param {String|?} [text] - The text or content that will be converted to a string to be set as the node's text content.
+ * @param {String|*} [text] - The text or content that will be converted to a string to be set as the node's text content.
  * @returns {String} The node's text content.
  * @author Nathan Woltman
  */
@@ -1275,8 +1275,9 @@ NodeListPrototype.show = callOnEachElement('show');
  * Gets or sets this text content of each node in the list.
  * 
  * @function NodeList.prototype.text
- * @param {String|?} [text] - The text or content that will be converted to a string to be set as each nodes' text content.
+ * @param {String|*} [text] - The text or content that will be converted to a string to be set as each nodes' text content.
  * @returns {String} The combined text content of each node in the list and their descendants.
+ * @see Node#text
  * @author Nathan Woltman
  */
 NodeListPrototype.text = function(text) {
