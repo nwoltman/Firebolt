@@ -503,18 +503,19 @@ Element[prototype].toggleClass = function(className) {
  */
 
 /**
- * Returns a list of the elements within the document that match the specifed CSS selector.<br />
- * Alias of `document.querySelectorAll()`.<br />
+ * Returns a list of the elements either found in the DOM that match the passed in CSS selector or created by passing an HTML string.<br />
+ * When passed a CSS selector string, acts as an alias of `document.querySelectorAll()`.<br />
  * Also represents the global FireBolt object and can be referenced by the synonyms FB and $ (on pages without jQuery).
  * 
- * @memberOf FireBolt
  * @function
  * @param {String} str - A CSS selector string or an HTML string.
- * @returns {NodeList} A list of selected or created elements.
+ * @returns {NodeList} A non-live list of selected or created elements.
+ * @memberOf FireBolt
  * @author Nathan Woltman
  * @example
- * $('button.btn-success') // Returns an array of all button elements with the class "btn-success"
- * $('str <p>content</p>') // Creates a set of nodes and returns it as a NodeList
+ * $('button.btn-success') // Returns all button elements with the class "btn-success"
+ * $('str <p>content</p>') // Creates a set of nodes and returns it as a NodeList (in this case ["str ", <p>content</p>])
+ * $('1<br>2<br>3 >');     // Returns ["1", <br>​, "2", <br>​, "3 >"]
  * $.create('div')         // Calls FireBolt's `create()` method to create a new div element 
  */
 function FireBolt(str) {
@@ -526,7 +527,8 @@ function FireBolt(str) {
 }
 
 /**
- * Creates a new element with the specified tag name and attributes (optional).
+ * Creates a new element with the specified tag name and attributes (optional).<br />
+ * Partially an alias of `document.createElement()`.
  * 
  * @param {String} tagName
  * @param {Object} [attributes] - The JSON-formatted attributes that the element should have once constructed.
