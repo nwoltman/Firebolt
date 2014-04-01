@@ -719,13 +719,13 @@ FireBolt.ready = document.ready;
 /**
  * Converts an array of nodes to a non-live NodeList containing only DOM Elements.
  * 
- * @param {Array.<Node>|NodeList} elements - An array containing nodes that are in currently in the document (this will not work if the nodes are not in the document).
+ * @param {Array.<Node>|NodeList} elements - An array containing nodes that are in the current documentElement (this will not work if the nodes are not in the current documentElement).
  * @returns {NodeList} The original array of elements converted to a NodeList containing only nodes of the original list that are of node type 1 (Element).
  * @memberOf FireBolt
  * @author Nathan Woltman
  */
 FireBolt.toDeadNodeList = function(elements) {
-	NodeList.prototype.attr.call(elements, NodeListIdentifier, '');
+	NodeListPrototype.attr.call(elements, NodeListIdentifier, '');
 	return this('[' + NodeListIdentifier + ']').removeAttr(NodeListIdentifier);
 };
 
