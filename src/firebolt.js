@@ -1347,10 +1347,10 @@ if (!"".startsWith) {
  * @author Nathan Woltman
  * @example
  * var str = "The boy who lived.";
- * str.tokenize();  // ["The", "boy", "who", "lived."]
+ * str.tokenize();  // returns ["The", "boy", "who", "lived."]
  */
 StringPrototype.tokenize = function() {
-	return this.match(rgxNonWhitespace);
+	return this.match(rgxNonWhitespace) || [];
 };
 
 //#endregion String
