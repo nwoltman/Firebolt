@@ -96,6 +96,40 @@ $window.$tag = function(tagName) {
  */
 
 /**
+ * Removes all `null`, `undefined`, and zero-length strings (if the `allowEmptyStrings` paramenter is not set to a truthy value) from the array.
+ * 
+ * @function Array.prototype.clean
+ * @param {Boolean} [allowEmptyStrings=false] - Set this to `true` to keep zero-length strings in the array.
+ * @returns {Array} A reference to the array.
+ * @author Nathan Woltman
+ */
+ArrayPrototype.clean = function(allowEmptyStrings) {
+	for (var i = 0; i < this.length; i++) {
+		while (i < this.length && FireBolt.isEmpty(this[i], allowEmptyStrings)) {
+			this.splice(i, 1);
+		}
+	}
+	return this;
+};
+
+/**
+ * Returns a copy of the array with all `null`, `undefined`, and zero-length strings (if the `allowEmptyStrings` paramenter is not set to a truthy value) removed.
+ * 
+ * @function Array.prototype.cleaned
+ * @param {Boolean} [allowEmptyStrings=false] - Set this to `true` to keep zero-length strings in the returned array.
+ * @returns {Array} The cleaned array.
+ * @author Nathan Woltman
+ */
+ArrayPrototype.cleaned = function(allowEmptyStrings) {
+	for (var array = [], i = 0; i < this.length; i++) {
+		if (!FireBolt.isEmpty(this[i], allowEmptyStrings)) {
+			array.push(this[i]);
+		}
+	}
+	return array;
+};
+
+/**
  * Returns a duplicate of the array, leaving the original array intact.
  * 
  * @function Array.prototype.clone
@@ -568,7 +602,7 @@ ElementPrototype.toggleClass = function(className) {
 /**
  * Returns a list of the elements either found in the DOM that match the passed in CSS selector or created by passing an HTML string.<br />
  * When passed a CSS selector string, acts as an alias of `document.querySelectorAll()`.<br />
- * Also represents the global FireBolt object and can be referenced by the synonyms FB and $ (on pages without jQuery).
+ * Also represents the global FireBolt singleton object and can be referenced by the synonyms FB and $ (on pages without jQuery).
  * 
  * @function
  * @param {String} str - A CSS selector string or an HTML string.
@@ -610,9 +644,9 @@ FireBolt.create = function(tagName, attributes) {
 /**
  * Calls the passed in function after the specified amount of time in milliseconds.
  * 
- * @param {Function} func - The function to be called after the specified amount of time.
+ * @param {Function} callback - A function to be called after the specified amount of time.
  * @param {Number} ms - An integer between 0 and +∞ : [ 0, +∞).
- * @returns {Object}
+ * @returns {Object} An object that can be used to cancel the callback before it is executed by calling `object.clear()`.
  * @memberOf FireBolt
  * @author Nathan Woltman
  */
@@ -623,6 +657,25 @@ FireBolt.delay = function(callback, ms) {
 			clearTimeout(clearRef);
 		};
 	};
+};
+
+/**
+ * Determines if the passed in value is considered empty. The value is considered empty if it is one of the following:
+ * <ul>
+ * <li>`null`</li>
+ * <li>`undefined`</li>
+ * <li>a zero-length array</li>
+ * <li>an empty string (unless the `allowEmptyString` parameter is set to `true`)</li>
+ * </ul>
+ * 
+ * @param {?} value - The value to be tested.
+ * @param {Boolean} [allowEmptyString=false] - Set this to true to deem zero-length strings as not empty.
+ * @returns {Boolean}
+ * @memberOf FireBolt
+ * @author Nathan Woltman
+ */
+FireBolt.isEmpty = function(value, allowEmptyString) {
+	return value == null || typeof value == 'object' && value.length == 0 || typeof value == 'string' && !allowEmptyString && !value;
 };
 
 /**
@@ -674,7 +727,7 @@ FireBolt.toDeadNodeList = function(elements) {
  * 
  * @function Function.prototype.delay
  * @param {Number} ms - The number of milliseconds to wait before calling the functions.
- * @returns {Object} An object that can be used to cancel the timer before the callback is called by calling `object.clear()`.
+ * @returns {Object} An object that can be used to cancel the callback before it is executed by calling `object.clear()`.
  * @author Nathan Woltman
  */
 Function[prototype].delay = function(ms) {
