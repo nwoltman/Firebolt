@@ -211,6 +211,23 @@ ArrayPrototype.last = function() {
 };
 
 /**
+ * Removes all occurrences of the passed in items from the array if they exist in the array.
+ * 
+ * @function Array.prototype.remove
+ * @param {...?} items - Items to remove from the array.
+ * @returns {Array} A reference to the array.
+ * @author Nathan Woltman
+ */
+ArrayPrototype.remove = function() {
+	for (var i = 0, rindex; i < arguments.length; i++) {
+		while ((rindex = this.indexOf(arguments[i])) >= 0) {
+			this.splice(rindex, 1);
+		}
+	}
+	return this;
+};
+
+/**
  * Returns an array containing every item that is only in one of this array or the input array.
  * 
  * @function Array.prototype.union
