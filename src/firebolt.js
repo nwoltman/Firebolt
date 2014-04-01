@@ -10,12 +10,12 @@
 var $window = window,
 	document = $window.document,
 	prototype = 'prototype',
-	Array = $window.Array,
-	Element = $window.Element,
-	HTMLElement = $window.HTMLElement,
-	Node = $window.Node,
-	NodeList = $window.NodeList,
-	String = $window.String;
+	ArrayPrototype = Array[prototype],
+	ElementPrototype = Element[prototype],
+	HTMLElementPrototype = HTMLElement[prototype],
+	NodePrototype = Node[prototype],
+	NodeListPrototype = NodeList[prototype],
+	StringPrototype = String[prototype];
 
 
 //#region ======================= Global Selectors ===========================
@@ -102,7 +102,7 @@ $window.$tag = function(tagName) {
  * @returns {Array} A copy of the array.
  * @author Nathan Woltman
  */
-Array[prototype].clone = function() {
+ArrayPrototype.clone = function() {
 	var length = this.length,
 		arr = new Array(length),
 		i = 0;
@@ -119,7 +119,7 @@ Array[prototype].clone = function() {
  * @returns {Boolean} `true` if the item is in the array; else `false`.
  * @author Nathan Woltman
  */
-Array[prototype].contains = function(e) {
+ArrayPrototype.contains = function(e) {
 	return this.indexOf(e) != -1;
 };
 
@@ -132,7 +132,7 @@ Array[prototype].contains = function(e) {
  * @returns {Boolean} `true` if the arrays are equal; else `false`.
  * @author Nathan Woltman
  */
-Array[prototype].equals = function(array) {
+ArrayPrototype.equals = function(array) {
 	if (this === array) { //Easy check
 		return true;
 	}
@@ -156,7 +156,7 @@ Array[prototype].equals = function(array) {
  * @example
  * [1, 2, 3].intersect([2, 3, 4]);  // [2, 3]
  */
-Array[prototype].intersect = function(b) {
+ArrayPrototype.intersect = function(b) {
 	for (var intersection = [], i = 0; i < b.length; i++) {
 		if (this.contains(b[i]) && !intersection.contains(b[i])) {
 			intersection.push(b[i]);
@@ -172,7 +172,7 @@ Array[prototype].intersect = function(b) {
  * @returns {*} The last item in the array, or undefined if the array is empty.
  * @author Nathan Woltman
  */
-Array[prototype].last = function() {
+ArrayPrototype.last = function() {
 	return this[this.length - 1];
 };
 
@@ -185,7 +185,7 @@ Array[prototype].last = function() {
  * @example
  * [1, 2, 3].union([2, 3, 4]);  // returns [1, 2, 3, 4]
  */
-Array[prototype].union = function(b) {
+ArrayPrototype.union = function(b) {
 	for (var union = this.unique(), i = 0; i < b.length; i++) {
 		if (!union.contains(b[i])) {
 			union.push(b[i]);
@@ -203,7 +203,7 @@ Array[prototype].union = function(b) {
  * @example
  * [1, 2, 3, 2, 1].unique();  // returns [1, 2, 3]
  */
-Array[prototype].unique = function() {
+ArrayPrototype.unique = function() {
 	for (var uniqueClone = [], i = 0; i < this.length; i++) {
 		if (!uniqueClone.contains(this[i])) {
 			uniqueClone.push(this[i]);
@@ -222,7 +222,7 @@ Array[prototype].unique = function() {
  * @example
  * [1, 2, 3, 4, 5, 6].without(3, 4, 6); // returns [1, 2, 5]
  */
-Array[prototype].without = function() {
+ArrayPrototype.without = function() {
 	var array = [],
 		i = 0,
 		j;
@@ -284,7 +284,7 @@ document.ready = function(callback) {
  * @returns {NodeList} A list of selected elements.
  * @author Nathan Woltman
  */
-Element[prototype].$ = function(selector) {
+ElementPrototype.$ = function(selector) {
 	return this.querySelectorAll(selector);
 };
 
@@ -297,7 +297,7 @@ Element[prototype].$ = function(selector) {
  * @returns {?Element}
  * @author Nathan Woltman
  */
-Element[prototype].$1 = function(selector) {
+ElementPrototype.$1 = function(selector) {
 	return this.querySelector(selector);
 };
 
@@ -310,7 +310,7 @@ Element[prototype].$1 = function(selector) {
  * @returns {HTMLCollection|NodeList} A collection of elements with the specified class name.
  * @author Nathan Woltman
  */
-Element[prototype].$class = function(className) {
+ElementPrototype.$class = function(className) {
 	return this.getElementsByClassName(className);
 };
 
@@ -323,7 +323,7 @@ Element[prototype].$class = function(className) {
  * @returns {HTMLCollection|NodeList} A collection of elements with the specified tag name.
  * @author Nathan Woltman
  */
-Element[prototype].$tag = function(tagName) {
+ElementPrototype.$tag = function(tagName) {
 	return this.getElementsByTagName(tagName);
 };
 
@@ -334,7 +334,7 @@ Element[prototype].$tag = function(tagName) {
  * @param {String} className - The class to be added to the element.
  * @author Nathan Woltman
  */
-Element[prototype].addClass = function(className) {
+ElementPrototype.addClass = function(className) {
 	if (!this.className) {
 		this.className = className;
 	}
@@ -357,7 +357,7 @@ Element[prototype].addClass = function(className) {
  * @returns {?String} The value of the property being retrieved.
  * @author Nathan Woltman
  */
-Element[prototype].attr = function(attr, value) {
+ElementPrototype.attr = function(attr, value) {
 	if (typeof value == 'undefined') {
 		if (typeof attr == 'string') {
 			return this.getAttribute(attr);
@@ -379,7 +379,7 @@ Element[prototype].attr = function(attr, value) {
  * @function Element.prototype.empty
  * @author Nathan Woltman
  */
-Element[prototype].empty = function() {
+ElementPrototype.empty = function() {
 	return this.html('');
 };
 
@@ -391,7 +391,7 @@ Element[prototype].empty = function() {
  * @returns {Boolean} `true` if the class name is in the element's class list; else `false`.
  * @author Nathan Woltman
  */
-Element[prototype].hasClass = function(className) {
+ElementPrototype.hasClass = function(className) {
 	if (!_isOldIE) return this.classList.contains(className);
 	return new RegExp('(?:\\s|^)' + className + '(?:\\s|$)').test(this.className);
 };
@@ -404,7 +404,7 @@ Element[prototype].hasClass = function(className) {
  * @returns {String} The element's inner HTML.
  * @author Nathan Woltman
  */
-Element[prototype].html = function(innerHTML) {
+ElementPrototype.html = function(innerHTML) {
 	if (typeof innerHTML == 'undefined') {
 		return this.innerHTML;
 	}
@@ -421,7 +421,7 @@ Element[prototype].html = function(innerHTML) {
  * @returns {Boolean} `true` if the element matches the selector; else `false`.
  * @author Nathan Woltman
  */
-Element[prototype].matches = Element[prototype].matches || Element[prototype].webkitMatchesSelector || Element[prototype].mozMatchesSelector || Element[prototype].msMatchesSelector;
+ElementPrototype.matches = ElementPrototype.matches || ElementPrototype.webkitMatchesSelector || ElementPrototype.mozMatchesSelector || ElementPrototype.msMatchesSelector;
 
 /**
  * Gets or set the element's inner HTML.
@@ -430,7 +430,7 @@ Element[prototype].matches = Element[prototype].matches || Element[prototype].we
  * @param {...(String|Node|Array.<Node>)} content - One or more DOM elements, arrays of elements, or HTML strings to insert at the beginning of this element.
  * @author Nathan Woltman
  */
-Element[prototype].prepend = function() {
+ElementPrototype.prepend = function() {
 	for (var items = arguments, i = 0; i < items.length; i++) {
 		
 	}
@@ -447,7 +447,7 @@ Element[prototype].prepend = function() {
  * @returns {?} The value of the property being retrieved.
  * @author Nathan Woltman
  */
-Element[prototype].prop = function(prop, value) {
+ElementPrototype.prop = function(prop, value) {
 	if (typeof value == 'undefined') {
 		if (typeof prop == 'string') {
 			return this[prop];
@@ -470,7 +470,7 @@ Element[prototype].prop = function(prop, value) {
  * @param {String} attribute - The name of the attribute to remove.
  * @author Nathan Woltman
  */
-Element[prototype].removeAttr = function(attribute) {
+ElementPrototype.removeAttr = function(attribute) {
 	this.removeAttribute(attribute);
 
 	return this;
@@ -483,7 +483,7 @@ Element[prototype].removeAttr = function(attribute) {
  * @param {String} className - The class to be removed from the element.
  * @author Nathan Woltman
  */
-Element[prototype].removeClass = function(className) {
+ElementPrototype.removeClass = function(className) {
 	if (_isChrome || _isOldIE) {
 		var changed = false,
 			classes = this.className.split(/\s+/),
@@ -517,7 +517,7 @@ Element[prototype].removeClass = function(className) {
  * @param {String} property - The name of the property to remove.
  * @author Nathan Woltman
  */
-Element[prototype].removeProp = function(property) {
+ElementPrototype.removeProp = function(property) {
 	this[property] = null;
 
 	return this;
@@ -530,7 +530,7 @@ Element[prototype].removeProp = function(property) {
  * @param {String} className - The class to be toggled.
  * @author Nathan Woltman
  */
-Element[prototype].toggleClass = function(className) {
+ElementPrototype.toggleClass = function(className) {
 	if (this.className) {
 		if (this.hasClass(className)) {
 			var classes = this.className.split(rgxWhitespace),
@@ -706,7 +706,7 @@ Function[prototype].delay = function(ms) {
  * @returns {String|Object} The value of the specifed property, or if no property is specified, the element's computed style object is returned.
  * @author Nathan Woltman
  */
-HTMLElement[prototype].css = function(prop, value) {
+HTMLElementPrototype.css = function(prop, value) {
 	if (typeof prop == 'string') {
 		if (typeof value == 'undefined') {
 			if (!/:/.test(prop)) {
@@ -740,7 +740,7 @@ HTMLElement[prototype].css = function(prop, value) {
  * @function HTMLElement.prototype.hide
  * @author Nathan Woltman
  */
-HTMLElement[prototype].hide = function() {
+HTMLElementPrototype.hide = function() {
 	//if (getComputedStyle(this).display !== "none") {
 		this.style.display = 'none';
 	//}
@@ -764,7 +764,7 @@ HTMLElement[prototype].hide = function() {
  * var offset = $id('a').offset();
  * alert( offset.top + ', ' + offset.left );  //  10, 20
  */
-HTMLElement[prototype].offset = function() {
+HTMLElementPrototype.offset = function() {
 	var el = this,
 		offset = {
 			top: 0,
@@ -793,7 +793,7 @@ HTMLElement[prototype].offset = function() {
  * If the arguement is left blank, the element's default style will be used.
  * @author Nathan Woltman
  */
-HTMLElement[prototype].show = function(style) {
+HTMLElementPrototype.show = function(style) {
 	if (typeof style == 'number') {
 		switch (style) {
 			case 0:
@@ -835,7 +835,7 @@ HTMLElement[prototype].show = function(style) {
  * @returns {Node} The node being inserted.
  * @author Nathan Woltman
  */
-Node[prototype].after = function(node) {
+NodePrototype.after = function(node) {
 	if (!node.nodeType) {
 		node = document.createTextNode(node);
 	}
@@ -852,7 +852,7 @@ Node[prototype].after = function(node) {
  * @returns {Node} The inserted node.
  * @author Nathan Woltman
  */
-Node[prototype].before = function(node) {
+NodePrototype.before = function(node) {
 	if (!node.nodeType) {
 		node = document.createTextNode(node);
 	}
@@ -870,7 +870,7 @@ Node[prototype].before = function(node) {
  * @returns {Node} This node.
  * @author Nathan Woltman
  */
-Node[prototype].insertAfter = function(node) {
+NodePrototype.insertAfter = function(node) {
 	node.parentNode.insertBefore(this, node.nextSibling);
 
 	return this;
@@ -882,7 +882,7 @@ Node[prototype].insertAfter = function(node) {
  * @function Node.prototype.remove
  * @author Nathan Woltman
  */
-Node[prototype].remove = function() {
+NodePrototype.remove = function() {
 	this.parentNode.removeChild(this);
 };
 
@@ -900,8 +900,8 @@ Node[prototype].remove = function() {
  */
 
 /* Give NodeLists the same prototype functions as Arrays */
-Object.getOwnPropertyNames(Array[prototype]).forEach(function(methodName) {
-	if (!NodeList[prototype][methodName]) {
+Object.getOwnPropertyNames(ArrayPrototype).forEach(function(methodName) {
+	if (!NodeListPrototype[methodName]) {
 		switch (methodName) {
 			case 'contains':
 			case 'equals':
@@ -912,7 +912,7 @@ Object.getOwnPropertyNames(Array[prototype]).forEach(function(methodName) {
 			case 'reduce':
 			case 'reduceRight':
 			case 'some':
-				NodeList[prototype][methodName] = Array[prototype][methodName];
+				NodeListPrototype[methodName] = ArrayPrototype[methodName];
 				break;
 			//For these methods, the result must be converted back to a NodeList
 			case 'clone':
@@ -921,8 +921,8 @@ Object.getOwnPropertyNames(Array[prototype]).forEach(function(methodName) {
 			case 'slice':
 			case 'union':
 			case 'without':
-				NodeList[prototype][methodName] = function() {
-					return FireBolt.toDeadNodeList(Array[prototype][methodName].apply(this, arguments));
+				NodeListPrototype[methodName] = function() {
+					return FireBolt.toDeadNodeList(ArrayPrototype[methodName].apply(this, arguments));
 				}	
 		}
 	}
@@ -982,7 +982,7 @@ function getFirstSetEachElement(funcName, numArgs) {
  * @returns {NodeList} The result of adding the new item(s) to the current list.
  * @author Nathan Woltman
  */
-NodeList[prototype].add = function(e) {
+NodeListPrototype.add = function(e) {
 	if (typeof e == 'string') {
 		e = $(e);
 	}
@@ -999,7 +999,7 @@ NodeList[prototype].add = function(e) {
  * @param {String} className - The class to be added to each element in the collection.
  * @author Nathan Woltman
  */
-NodeList[prototype].addClass = callOnEachElement('addClass');
+NodeListPrototype.addClass = callOnEachElement('addClass');
 
 /**
  * Gets or sets the specified attribute/attributes for each element in the list.
@@ -1010,7 +1010,7 @@ NodeList[prototype].addClass = callOnEachElement('addClass');
  * @returns {?String} The value of the property being retrieved (or the NodeList itself if the function was called to set properties).
  * @author Nathan Woltman
  */
-NodeList[prototype].attr = getFirstSetEachElement('attr', 2);
+NodeListPrototype.attr = getFirstSetEachElement('attr', 2);
 
 /**
  * Clicks each element in the collection.
@@ -1018,7 +1018,7 @@ NodeList[prototype].attr = getFirstSetEachElement('attr', 2);
  * @function NodeList.prototype.click
  * @author Nathan Woltman
  */
-NodeList[prototype].click = callOnEachElement('click');
+NodeListPrototype.click = callOnEachElement('click');
 
 /**
  * Gets or set the CSS style of each element in the list.
@@ -1030,7 +1030,7 @@ NodeList[prototype].click = callOnEachElement('click');
  * @memberOf NodeList
  * @author Nathan Woltman
  */
-NodeList[prototype].css = getFirstSetEachElement('css', 2);
+NodeListPrototype.css = getFirstSetEachElement('css', 2);
 
 /**
  * Removes all child nodes from each element in the list.
@@ -1038,7 +1038,7 @@ NodeList[prototype].css = getFirstSetEachElement('css', 2);
  * @function NodeList.prototype.empty
  * @author Nathan Woltman
  */
-NodeList[prototype].empty = callOnEachElement('empty');
+NodeListPrototype.empty = callOnEachElement('empty');
 
 /**
  * Reduce the set of matched elements to those that match the selector or pass the function's test.
@@ -1047,7 +1047,7 @@ NodeList[prototype].empty = callOnEachElement('empty');
  * @param {String|Function} selector - CSS selector string or function that returns a value that determines if the element should be filtered out.
  * @returns {NodeList} 
  */
-NodeList[prototype].filter = function(selector) {
+NodeListPrototype.filter = function(selector) {
 	var filtration = [],
 		i = 0;
 	if (typeof selector == 'string') {
@@ -1075,7 +1075,7 @@ NodeList[prototype].filter = function(selector) {
  * @function NodeList.prototype.hide
  * @author Nathan Woltman
  */
-NodeList[prototype].hide = callOnEachElement('hide');
+NodeListPrototype.hide = callOnEachElement('hide');
 
 /**
  * Gets or set the inner HTML of each element in the list.
@@ -1085,7 +1085,7 @@ NodeList[prototype].hide = callOnEachElement('hide');
  * @returns {String|HTMLElement} The element's inner HTML (or if the elements' HTML was being set, the NodeList itself is returned).
  * @author Nathan Woltman
  */
-NodeList[prototype].html = getFirstSetEachElement('html', 1);
+NodeListPrototype.html = getFirstSetEachElement('html', 1);
 
 /**
  * Converts a NodeList to a non-live NodeList.
@@ -1094,7 +1094,7 @@ NodeList[prototype].html = getFirstSetEachElement('html', 1);
  * @returns {NodeList} A non-live NodeList containing only nodes of the original list that are of node type 1 (Element).
  * @author Nathan Woltman
  */
-NodeList[prototype].kill = function() {
+NodeListPrototype.kill = function() {
 	this.attr(NodeListIdentifier, '');
 	return FireBolt('[' + NodeListIdentifier + ']').removeAttr(NodeListIdentifier);
 };
@@ -1108,7 +1108,7 @@ NodeList[prototype].kill = function() {
  * @returns {?} The value of the property being retrieved (or the NodeList itself if the function was called to set properties).
  * @author Nathan Woltman
  */
-NodeList[prototype].prop = getFirstSetEachElement('prop', 2);
+NodeListPrototype.prop = getFirstSetEachElement('prop', 2);
 
 /**
  * Removes all nodes in the collection from the DOM tree.
@@ -1116,7 +1116,7 @@ NodeList[prototype].prop = getFirstSetEachElement('prop', 2);
  * @function NodeList.prototype.remove
  * @author Nathan Woltman
  */
-NodeList[prototype].remove = function() {
+NodeListPrototype.remove = function() {
 	var origLen = this.length;
 	if (origLen == 0) return;
 	this[0].remove();
@@ -1139,7 +1139,7 @@ NodeList[prototype].remove = function() {
  * @param {String} attribute - The name of the attribute to be removed.
  * @author Nathan Woltman
  */
-NodeList[prototype].removeAttr = callOnEachElement('removeAttr');
+NodeListPrototype.removeAttr = callOnEachElement('removeAttr');
 
 /**
  * Removes the input class name from all elements in the list.
@@ -1162,7 +1162,7 @@ NodeList[prototype].removeAttr = callOnEachElement('removeAttr');
  * @param {String} className - The class to be removed from each element in the collection.
  * @author Nathan Woltman
  */
-NodeList[prototype].removeClass = callOnEachElement('removeClass');
+NodeListPrototype.removeClass = callOnEachElement('removeClass');
 
 /**
  * Removes the specified property from each element in the list.
@@ -1171,7 +1171,7 @@ NodeList[prototype].removeClass = callOnEachElement('removeClass');
  * @param {String} property - The name of the property to remove.
  * @author Nathan Woltman
  */
-NodeList[prototype].removeProp = callOnEachElement('removeProp');
+NodeListPrototype.removeProp = callOnEachElement('removeProp');
 
 /**
  * Shows each element in the set. For specifics, see {@link HTMLElement.show()}.
@@ -1181,7 +1181,7 @@ NodeList[prototype].removeProp = callOnEachElement('removeProp');
  * @see Element.show
  * @author Nathan Woltman
  */
-NodeList[prototype].show = callOnEachElement('show');
+NodeListPrototype.show = callOnEachElement('show');
 
 /**
  * Converts the current NodeList to an Array.
@@ -1190,8 +1190,8 @@ NodeList[prototype].show = callOnEachElement('show');
  * @returns {Array.<Node>} An Array containing the same elements as the NodeList;
  * @author Nathan Woltman
  */
-NodeList[prototype].toArray = function() {
-	return Array.prototype.clone.call(this);
+NodeListPrototype.toArray = function() {
+	return ArrayPrototype.clone.call(this);
 };
 
 /**
@@ -1201,7 +1201,7 @@ NodeList[prototype].toArray = function() {
  * @param {String} className - The class to be toggled for each element in the collection.
  * @author Nathan Woltman
  */
-NodeList[prototype].toggleClass = callOnEachElement('toggleClass');
+NodeListPrototype.toggleClass = callOnEachElement('toggleClass');
 
 // #endregion NodeList
 
@@ -1214,9 +1214,9 @@ NodeList[prototype].toggleClass = callOnEachElement('toggleClass');
  */
 
 /* Give HTMLCollections the same prototype functions as NodeLists (if they don't already have them) */
-Object.getOwnPropertyNames(NodeList[prototype]).forEach(function(methodName) {
+Object.getOwnPropertyNames(NodeListPrototype).forEach(function(methodName) {
 	if (methodName != 'length' && !HTMLCollection[prototype][methodName]) {
-		HTMLCollection[prototype][methodName] = NodeList[prototype][methodName];
+		HTMLCollection[prototype][methodName] = NodeListPrototype[methodName];
 	}
 });
 
@@ -1274,7 +1274,7 @@ if (!"".contains) {
 	 * alert( str.contains(" is ") );    // true
 	 * alert( str.contains("summer") );  // false
 	 */
-	String[prototype].contains = function(searchString, position) {
+	StringPrototype.contains = function(searchString, position) {
 		return this.indexOf(searchString, position) >= 0;
 	};
 }
@@ -1292,7 +1292,7 @@ if (!"".endsWith) {
 	 * alert( str.endsWith("Gamling?") );  // true
 	 * alert( str.endsWith("am I") );      // false
 	 */
-	String[prototype].endsWith = function(searchString) {
+	StringPrototype.endsWith = function(searchString) {
 		return this.indexOf(searchString, this.length - searchString.length) >= 0;
 	};
 }
@@ -1311,7 +1311,7 @@ if (!"".repeat) {
 	 * "abc".repeat(2)  // "abcabc"
 	 * "0".repeat(5)    // "00000" 
 	 */
-	String[prototype].repeat = function(count) {
+	StringPrototype.repeat = function(count) {
 		var str = this,
 			i = 1;
 		for (; i < count; i++) {
@@ -1334,7 +1334,7 @@ if (!"".startsWith) {
 	 * alert( str.endsWith("Who") );   // true
 	 * alert( str.endsWith("am I") );  // false
 	 */
-	String[prototype].startsWith = function(searchString) {
+	StringPrototype.startsWith = function(searchString) {
 		return this.lastIndexOf(searchString, 0) == 0;
 	};
 }
@@ -1349,7 +1349,7 @@ if (!"".startsWith) {
  * var str = "The boy who lived.";
  * str.tokenize();  // ["The", "boy", "who", "lived."]
  */
-String[prototype].tokenize = function() {
+StringPrototype.tokenize = function() {
 	return this.match(rgxNonWhitespace);
 };
 
