@@ -893,7 +893,9 @@ Node[prototype].remove = function() {
 
 /**
  * The HTML DOM NodeList interface.<br />
- * It should be noted that elements in a NodeList are in the order they are found in the document.
+ * It should be noted that elements in a NodeList are always unique in the order they are found in the document.
+ * Furthermore, NodeLists cannot have their elements removed or have elements added them. To do these types of
+ * things, you must first convert the NodeList to an Array (see {@linkcode NodeList#toArray|NodeList.toArray()});
  * @namespace NodeList
  */
 
@@ -903,9 +905,13 @@ Object.getOwnPropertyNames(Array[prototype]).forEach(function(methodName) {
 		switch (methodName) {
 			case 'contains':
 			case 'equals':
+			case 'forEach':
 			case 'indexOf':
 			case 'lastIndexOf':
 			case 'last':
+			case 'reduce':
+			case 'reduceRight':
+			case 'some':
 				NodeList[prototype][methodName] = Array[prototype][methodName];
 				break;
 			//For these methods, the result must be converted back to a NodeList
@@ -1138,10 +1144,10 @@ NodeList[prototype].removeAttr = callOnEachElement('removeAttr');
 /**
  * Removes the input class name from all elements in the list.
  * 
- * <h4>Warning:</h4>
+ * <h5><strong>Warning:</strong></h5>
  * 
  * Due to the fact that NodeLists returned by the {@linkcode $class|$class()} function
- * are live, the follwing code will cause undesirable behaviour:
+ * are live, the following code will produce undesirable behaviour:
  * 
  * <pre class="prettyprint">$class('someClass').removeClass('someClass');</pre>
  * 
