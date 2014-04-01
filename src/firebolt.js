@@ -886,6 +886,24 @@ NodePrototype.remove = function() {
 	this.parentNode.removeChild(this);
 };
 
+/**
+ * Gets or sets this node's text content.
+ * 
+ * @function Node.prototype.text
+ * @param {String|?} [text] - The text or content that will be converted to a string to be set as the node's text content.
+ * @returns {String} The node's text content.
+ * @author Nathan Woltman
+ */
+NodePrototype.text = function(text) {
+	if (typeof text == 'undefined') {
+		return this.textContent;
+	}
+	//else
+	this.textContent = text;
+
+	return this;
+};
+
 // #endregion Node
 
 
@@ -1182,6 +1200,30 @@ NodeListPrototype.removeProp = callOnEachElement('removeProp');
  * @author Nathan Woltman
  */
 NodeListPrototype.show = callOnEachElement('show');
+
+/**
+ * Gets or sets this text content of each node in the list.
+ * 
+ * @function NodeList.prototype.text
+ * @param {String|?} [text] - The text or content that will be converted to a string to be set as each nodes' text content.
+ * @returns {String} The combined text content of each node in the list and their descendants.
+ * @author Nathan Woltman
+ */
+NodeListPrototype.text = function(text) {
+	var i = 0;
+	if (typeof text == 'undefined') {
+		for (text = ''; i < this.length; i++) {
+			text += this[i].textContent;
+		}
+		return text;
+	}
+	//else
+	for (; i < this.length; i++) {
+		this[i].textContent = text;
+	}
+
+	return this;
+};
 
 /**
  * Converts the current NodeList to an Array.
