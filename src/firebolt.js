@@ -1,5 +1,6 @@
 ﻿/*
  * FireBolt current core file.
+ * @author Nathan Woltman
  */
 
 (function() {
@@ -27,7 +28,6 @@ var $window = window,
  * @global
  * @param {String} selector
  * @returns {?Element}
- * @author Nathan Woltman
  */
 $window.$1 = function(selector) {
 	return document.querySelector(selector);
@@ -40,7 +40,6 @@ $window.$1 = function(selector) {
  * @global
  * @param {String} className
  * @returns {HTMLCollection|NodeList} A list of elements with the specified class name.
- * @author Nathan Woltman
  */
 $window.$class = function(className) {
 	return document.getElementsByClassName(className);
@@ -53,7 +52,6 @@ $window.$class = function(className) {
  * @global
  * @param {String} id
  * @returns {Element} The element with the specified id.
- * @author Nathan Woltman
  */
 $window.$id = function(id) {
 	return document.getElementById(id);
@@ -66,7 +64,6 @@ $window.$id = function(id) {
  * @global
  * @param {String} name
  * @returns {HTMLCollection|NodeList} A collection of elements with the specified name attribute.
- * @author Nathan Woltman
  */
 $window.$name = function(name) {
 	return document.getElementsByName(name);
@@ -79,7 +76,6 @@ $window.$name = function(name) {
  * @global
  * @param {String} tagName
  * @returns {HTMLCollection|NodeList} A collection of elements with the specified tag name.
- * @author Nathan Woltman
  */
 $window.$tag = function(tagName) {
 	return document.getElementsByTagName(tagName);
@@ -101,7 +97,6 @@ $window.$tag = function(tagName) {
  * @function Array.prototype.clean
  * @param {Boolean} [allowEmptyStrings=false] - Set this to `true` to keep zero-length strings in the array.
  * @returns {Array} A reference to the array.
- * @author Nathan Woltman
  */
 ArrayPrototype.clean = function(allowEmptyStrings) {
 	for (var i = 0; i < this.length; i++) {
@@ -118,7 +113,6 @@ ArrayPrototype.clean = function(allowEmptyStrings) {
  * @function Array.prototype.cleaned
  * @param {Boolean} [allowEmptyStrings=false] - Set this to `true` to keep zero-length strings in the returned array.
  * @returns {Array} The cleaned array.
- * @author Nathan Woltman
  */
 ArrayPrototype.cleaned = function(allowEmptyStrings) {
 	for (var array = [], i = 0; i < this.length; i++) {
@@ -134,7 +128,6 @@ ArrayPrototype.cleaned = function(allowEmptyStrings) {
  * 
  * @function Array.prototype.clone
  * @returns {Array} A copy of the array.
- * @author Nathan Woltman
  */
 ArrayPrototype.clone = function() {
 	var length = this.length,
@@ -151,7 +144,6 @@ ArrayPrototype.clone = function() {
  * 
  * @function Array.prototype.contains
  * @returns {Boolean} `true` if the item is in the array; else `false`.
- * @author Nathan Woltman
  */
 ArrayPrototype.contains = function(e) {
 	return this.indexOf(e) != -1;
@@ -164,7 +156,6 @@ ArrayPrototype.contains = function(e) {
  * @function Array.prototype.equals
  * @param {Array} array - An array to compare the current array to.
  * @returns {Boolean} `true` if the arrays are equal; else `false`.
- * @author Nathan Woltman
  */
 ArrayPrototype.equals = function(array) {
 	if (this === array) { //Easy check
@@ -186,7 +177,6 @@ ArrayPrototype.equals = function(array) {
  * 
  * @function Array.prototype.intersect
  * @returns {Array} An array that is the intersection of this array and the input array.
- * @author Nathan Woltman
  * @example
  * [1, 2, 3].intersect([2, 3, 4]);  // [2, 3]
  */
@@ -204,7 +194,6 @@ ArrayPrototype.intersect = function(b) {
  * 
  * @function Array.prototype.last
  * @returns {*} The last item in the array, or undefined if the array is empty.
- * @author Nathan Woltman
  */
 ArrayPrototype.last = function() {
 	return this[this.length - 1];
@@ -216,7 +205,6 @@ ArrayPrototype.last = function() {
  * @function Array.prototype.remove
  * @param {...*} items - Items to remove from the array.
  * @returns {Array} A reference to the array.
- * @author Nathan Woltman
  */
 ArrayPrototype.remove = function() {
 	for (var i = 0, rindex; i < arguments.length; i++) {
@@ -232,7 +220,6 @@ ArrayPrototype.remove = function() {
  * 
  * @function Array.prototype.union
  * @returns {Array} An array that is the union of this array and the input array.
- * @author Nathan Woltman
  * @example
  * [1, 2, 3].union([2, 3, 4]);  // returns [1, 2, 3, 4]
  */
@@ -250,7 +237,6 @@ ArrayPrototype.union = function(b) {
  * 
  * @function Array.prototype.unique
  * @returns {Array} An array of unique items.
- * @author Nathan Woltman
  * @example
  * [1, 2, 3, 2, 1].unique();  // returns [1, 2, 3]
  */
@@ -269,7 +255,6 @@ ArrayPrototype.unique = function() {
  * @function Array.prototype.without
  * @param {...*} items - One or more items to leave out of the returned array.
  * @returns {Array}
- * @author Nathan Woltman
  * @example
  * [1, 2, 3, 4, 5, 6].without(3, 4, 6); // returns [1, 2, 5]
  */
@@ -305,7 +290,6 @@ ArrayPrototype.without = function() {
  * 
  * @function Document.ready
  * @param {Function} callback - A function to execute once the DOM has been loaded.
- * @author Nathan Woltman
  */
 document.ready = function(callback) {
 	if (document.readyState == 'loading') {
@@ -333,7 +317,6 @@ document.ready = function(callback) {
  * @function Element.prototype.$
  * @param {String} selector
  * @returns {NodeList} A list of selected elements.
- * @author Nathan Woltman
  */
 ElementPrototype.$ = function(selector) {
 	return this.querySelectorAll(selector);
@@ -346,7 +329,6 @@ ElementPrototype.$ = function(selector) {
  * @function Element.prototype.$1
  * @param {String} selector
  * @returns {?Element}
- * @author Nathan Woltman
  */
 ElementPrototype.$1 = function(selector) {
 	return this.querySelector(selector);
@@ -359,7 +341,6 @@ ElementPrototype.$1 = function(selector) {
  * @function Element.prototype.$class
  * @param {String} className
  * @returns {HTMLCollection|NodeList} A collection of elements with the specified class name.
- * @author Nathan Woltman
  */
 ElementPrototype.$class = function(className) {
 	return this.getElementsByClassName(className);
@@ -372,7 +353,6 @@ ElementPrototype.$class = function(className) {
  * @function Element.prototype.$tag
  * @param {String} tagName
  * @returns {HTMLCollection|NodeList} A collection of elements with the specified tag name.
- * @author Nathan Woltman
  */
 ElementPrototype.$tag = function(tagName) {
 	return this.getElementsByTagName(tagName);
@@ -383,7 +363,6 @@ ElementPrototype.$tag = function(tagName) {
  * 
  * @function Element.prototype.addClass
  * @param {String} className - The class to be added to the element.
- * @author Nathan Woltman
  */
 ElementPrototype.addClass = function(className) {
 	if (!this.className) {
@@ -405,7 +384,6 @@ ElementPrototype.addClass = function(className) {
  * @function Element.prototype.attr
  * @param {String|Object} attribute - The name of the attribute who's value you want to get.
  * @returns {String} The value of the attribute being retrieved.
- * @author Nathan Woltman
  */
 /**
  * Sets the element's specified attribute.
@@ -413,14 +391,12 @@ ElementPrototype.addClass = function(className) {
  * @function Element.prototype.attr
  * @param {String} attribute - The name of the attribute who's value should be set.
  * @param {String} value - The value to set the specified attribute to.
- * @author Nathan Woltman
  */
 /**
  * Sets the specified attributes of the element.
  * 
  * @function Element.prototype.attr
  * @param {Object.<String, String>} attributes - The name of the attribute who's value should be set or an object of attribute-value pairs to set.
- * @author Nathan Woltman
  */
 ElementPrototype.attr = function(attr, value) {
 	if (typeof value == 'undefined') {
@@ -442,7 +418,6 @@ ElementPrototype.attr = function(attr, value) {
  * Removes all of the element's child nodes.
  * 
  * @function Element.prototype.empty
- * @author Nathan Woltman
  */
 ElementPrototype.empty = function() {
 	return this.html('');
@@ -454,7 +429,6 @@ ElementPrototype.empty = function() {
  * @function Element.prototype.hasClass
  * @param {String} className - A string containing a single class name.
  * @returns {Boolean} `true` if the class name is in the element's class list; else `false`.
- * @author Nathan Woltman
  */
 ElementPrototype.hasClass = function(className) {
 	if (!_isOldIE) return this.classList.contains(className);
@@ -466,14 +440,12 @@ ElementPrototype.hasClass = function(className) {
  * 
  * @function Element.prototype.html
  * @returns {String} The element's inner HTML.
- * @author Nathan Woltman
  */
 /**
  * Set the element's inner HTML.
  * 
  * @function Element.prototype.html
  * @param {String} innerHTML - A string of HTML to set as the content of the element.
- * @author Nathan Woltman
  */
 ElementPrototype.html = function(innerHTML) {
 	if (typeof innerHTML == 'undefined') {
@@ -490,7 +462,6 @@ ElementPrototype.html = function(innerHTML) {
  * @function Element.prototype.matches
  * @param {String} selector - A CSS selector string.
  * @returns {Boolean} `true` if the element matches the selector; else `false`.
- * @author Nathan Woltman
  */
 ElementPrototype.matches = ElementPrototype.matches || ElementPrototype.webkitMatchesSelector || ElementPrototype.mozMatchesSelector || ElementPrototype.msMatchesSelector;
 
@@ -499,7 +470,6 @@ ElementPrototype.matches = ElementPrototype.matches || ElementPrototype.webkitMa
  * 
  * @function Element.prototype.prepend
  * @param {...(String|Node|Array.<Node>)} content - One or more DOM elements, arrays of elements, or HTML strings to insert at the beginning of this element.
- * @author Nathan Woltman
  */
 ElementPrototype.prepend = function() {
 	for (var items = arguments, i = 0; i < items.length; i++) {
@@ -515,7 +485,6 @@ ElementPrototype.prepend = function() {
  * @function Element.prototype.prop
  * @param {String} property - The name of the property who's value you want to get.
  * @returns {?} The value of the property being retrieved.
- * @author Nathan Woltman
  */
 /**
  * Sets the specified property of the element.
@@ -523,14 +492,12 @@ ElementPrototype.prepend = function() {
  * @function Element.prototype.prop
  * @param {String} property - The name of the property to be set.
  * @param {*} value - The value to set the property to.
- * @author Nathan Woltman
  */
 /**
  * Sets the specified properties of the element.
  * 
  * @function Element.prototype.prop
  * @param {Object.<String, *>} properties - An object of property-value pairs to set.
- * @author Nathan Woltman
  */
 ElementPrototype.prop = function(prop, value) {
 	if (typeof value == 'undefined') {
@@ -553,7 +520,6 @@ ElementPrototype.prop = function(prop, value) {
  * 
  * @function Element.prototype.removeAttr
  * @param {String} attribute - The name of the attribute to remove.
- * @author Nathan Woltman
  */
 ElementPrototype.removeAttr = function(attribute) {
 	this.removeAttribute(attribute);
@@ -566,7 +532,6 @@ ElementPrototype.removeAttr = function(attribute) {
  * 
  * @function Element.prototype.removeClass
  * @param {String} className - The class to be removed from the element.
- * @author Nathan Woltman
  */
 ElementPrototype.removeClass = function(className) {
 	if (_isChrome || _isOldIE) {
@@ -600,7 +565,6 @@ ElementPrototype.removeClass = function(className) {
  * 
  * @function Element.prototype.removeProp
  * @param {String} property - The name of the property to remove.
- * @author Nathan Woltman
  */
 ElementPrototype.removeProp = function(property) {
 	this[property] = null;
@@ -613,7 +577,6 @@ ElementPrototype.removeProp = function(property) {
  * 
  * @function Element.prototype.toggleClass
  * @param {String} className - The class to be toggled.
- * @author Nathan Woltman
  */
 ElementPrototype.toggleClass = function(className) {
 	if (this.className) {
@@ -659,7 +622,6 @@ ElementPrototype.toggleClass = function(className) {
  * @param {String} str - A CSS selector string or an HTML string.
  * @returns {NodeList} A non-live list of selected or created elements.
  * @memberOf FireBolt
- * @author Nathan Woltman
  * @example
  * $('button.btn-success') // Returns all button elements with the class "btn-success"
  * $('str <p>content</p>') // Creates a set of nodes and returns it as a NodeList (in this case ["str ", <p>content</p>])
@@ -682,7 +644,6 @@ function FireBolt(str) {
  * @param {Object} [attributes] - The JSON-formatted attributes that the element should have once constructed.
  * @returns {Element}
  * @memberOf FireBolt
- * @author Nathan Woltman
  */
 FireBolt.create = function(tagName, attributes) {
 	var el = document.createElement(tagName);
@@ -699,7 +660,6 @@ FireBolt.create = function(tagName, attributes) {
  * @param {Number} ms - An integer between 0 and +∞ : [ 0, +∞).
  * @returns {Object} An object that can be used to cancel the callback before it is executed by calling `object.clear()`.
  * @memberOf FireBolt
- * @author Nathan Woltman
  */
 FireBolt.delay = function(callback, ms) {
 	return new function() {
@@ -723,7 +683,6 @@ FireBolt.delay = function(callback, ms) {
  * @param {Boolean} [allowEmptyString=false] - Set this to true to deem zero-length strings as not empty.
  * @returns {Boolean}
  * @memberOf FireBolt
- * @author Nathan Woltman
  */
 FireBolt.isEmpty = function(value, allowEmptyString) {
 	return value == null || typeof value == 'object' && value.length == 0 || typeof value == 'string' && !allowEmptyString && !value;
@@ -734,7 +693,6 @@ FireBolt.isEmpty = function(value, allowEmptyString) {
  * 
  * @returns {Boolean} `true` if the user is on a touchscreen device; else `false`.
  * @memberOf FireBolt
- * @author Nathan Woltman
  */
 FireBolt.isTouchDevice = function() {
 	return 'ontouchstart' in $window || 'onmsgesturechange' in $window;
@@ -746,7 +704,6 @@ FireBolt.isTouchDevice = function() {
  * @function
  * @see Document.ready
  * @memberOf FireBolt
- * @author Nathan Woltman
  */
 FireBolt.ready = document.ready;
 
@@ -756,7 +713,6 @@ FireBolt.ready = document.ready;
  * @param {Array.<Node>|NodeList} elements - An array containing nodes that are in the current documentElement (this will not work if the nodes are not in the current documentElement).
  * @returns {NodeList} The original array of elements converted to a NodeList containing only nodes of the original list that are of node type 1 (Element).
  * @memberOf FireBolt
- * @author Nathan Woltman
  */
 FireBolt.toDeadNodeList = function(elements) {
 	NodeListPrototype.attr.call(elements, NodeListIdentifier, '');
@@ -779,7 +735,6 @@ FireBolt.toDeadNodeList = function(elements) {
  * @function Function.prototype.delay
  * @param {Number} ms - The number of milliseconds to wait before calling the functions.
  * @returns {Object} An object that can be used to cancel the callback before it is executed by calling `object.clear()`.
- * @author Nathan Woltman
  */
 Function[prototype].delay = function(ms) {
 	var that = this;
@@ -806,7 +761,6 @@ Function[prototype].delay = function(ms) {
  * 
  * @function HTMLElement.prototype.css
  * @returns {Object.<String, String>} The element's computed style object.
- * @author Nathan Woltman
  */
 /**
  * Gets the value of element's specified style property.
@@ -814,7 +768,6 @@ Function[prototype].delay = function(ms) {
  * @function HTMLElement.prototype.css
  * @param {String} propertyName - The name of the style property who's value you want to retrieve.
  * @returns {String} The value of the specifed style property.
- * @author Nathan Woltman
  */
 /**
  * Sets the element's specified style property.
@@ -822,21 +775,18 @@ Function[prototype].delay = function(ms) {
  * @function HTMLElement.prototype.css
  * @param {String} propertyName - The name of the style property to set.
  * @param {String|Number} value - A value to set for the specified property.
- * @author Nathan Woltman
  */
 /**
  * Sets CSS style properties.
  * 
  * @function HTMLElement.prototype.css
  * @param {Object.<String, String|Number>} properties - An object of CSS property-values.
- * @author Nathan Woltman
  */
 /**
  * Explicitly sets the element's CSS style, removing or replacing any current inline style properties.
  * 
  * @function HTMLElement.prototype.css
  * @param {String} CSS - A CSS style string.
- * @author Nathan Woltman
  */
 HTMLElementPrototype.css = function(prop, value) {
 	if (typeof prop == 'string') {
@@ -870,7 +820,6 @@ HTMLElementPrototype.css = function(prop, value) {
  * Hides the element by setting its display style to 'none'.
  * 
  * @function HTMLElement.prototype.hide
- * @author Nathan Woltman
  */
 HTMLElementPrototype.hide = function() {
 	//if (getComputedStyle(this).display !== "none") {
@@ -885,7 +834,6 @@ HTMLElementPrototype.hide = function() {
  * 
  * @function HTMLElement.prototype.offset
  * @returns {{top: Number, left: Number}} An object containing the coordinates detailing the element's distance from the top and left of the screen.
- * @author Nathan Woltman
  * @example
  * // HTML
  * <body style="margin: 0">
@@ -923,7 +871,6 @@ HTMLElementPrototype.offset = function() {
  * </ul>
  * For other display types, only the string parameter will be accepted.<br />
  * If the arguement is left blank, the element's default style will be used.
- * @author Nathan Woltman
  */
 HTMLElementPrototype.show = function(style) {
 	if (typeof style == 'number') {
@@ -965,7 +912,6 @@ HTMLElementPrototype.show = function(style) {
  * @function Node.prototype.after
  * @param {Node|String|?} node - The node to insert. If the input parameter is not a Node, it is converted to a TextNode before being inserted.
  * @returns {Node} The node being inserted.
- * @author Nathan Woltman
  */
 NodePrototype.after = function(node) {
 	if (!node.nodeType) {
@@ -982,7 +928,6 @@ NodePrototype.after = function(node) {
  * @function Node.prototype.before
  * @param {Node|String|?} node - The node to insert. If the input parameter is not a Node, it is converted to a TextNode before being inserted.
  * @returns {Node} The inserted node.
- * @author Nathan Woltman
  */
 NodePrototype.before = function(node) {
 	if (!node.nodeType) {
@@ -1000,7 +945,6 @@ NodePrototype.before = function(node) {
  * @function Node.prototype.insertAfter
  * @param {Node} node - The node after which this node should be inserted.
  * @returns {Node} This node.
- * @author Nathan Woltman
  */
 NodePrototype.insertAfter = function(node) {
 	node.parentNode.insertBefore(this, node.nextSibling);
@@ -1012,7 +956,6 @@ NodePrototype.insertAfter = function(node) {
  * Removes this node from the DOM.
  * 
  * @function Node.prototype.remove
- * @author Nathan Woltman
  */
 NodePrototype.remove = function() {
 	this.parentNode.removeChild(this);
@@ -1023,14 +966,12 @@ NodePrototype.remove = function() {
  * 
  * @function Node.prototype.text
  * @returns {String} The node's text content.
- * @author Nathan Woltman
  */
 /**
  * Sets this node's text content (specifically uses the native JavaScript property `Node.textContent`).
  * 
  * @function Node.prototype.text
  * @param {String|*} text - The text or content that will be converted to a string to be set as the node's text content.
- * @author Nathan Woltman
  */
 NodePrototype.text = function(text) {
 	if (typeof text == 'undefined') {
@@ -1090,7 +1031,6 @@ Object.getOwnPropertyNames(ArrayPrototype).forEach(function(methodName) {
  * @param {String} funcName - The name of a function.
  * @returns {Array|NodeList|HTMLCollection} A reference to the enumerable
  * @this An enumerable such as an Array, NodeList, or HTMLCollection.
- * @author Nathan Woltman
  */
 function callOnEachElement(funcName) {
 	return function() {
@@ -1111,7 +1051,6 @@ function callOnEachElement(funcName) {
  * @param {Number} numArgs - The number of arguments that will be given to the function for setting. Anything less is for getting.
  * @returns {Array|NodeList|HTMLCollection} A reference to the enumerable.
  * @this An enumerable such as an Array, NodeList, or HTMLCollection.
- * @author Nathan Woltman
  */
 function getFirstSetEachElement(funcName, numArgs) {
 	return function() {
@@ -1136,7 +1075,6 @@ function getFirstSetEachElement(funcName, numArgs) {
  * @function NodeList.prototype.add
  * @param {Element|NodeList|HTMLCollection|String} e
  * @returns {NodeList} The result of adding the new item(s) to the current list.
- * @author Nathan Woltman
  */
 NodeListPrototype.add = function(e) {
 	if (typeof e == 'string') {
@@ -1153,7 +1091,6 @@ NodeListPrototype.add = function(e) {
  * 
  * @function NodeList.prototype.addClass
  * @param {String} className - The class to be added to each element in the collection.
- * @author Nathan Woltman
  */
 NodeListPrototype.addClass = callOnEachElement('addClass');
 
@@ -1163,7 +1100,6 @@ NodeListPrototype.addClass = callOnEachElement('addClass');
  * @function NodeList.prototype.attr
  * @param {String} attribute - The name of the attribute who's value you want to get.
  * @returns {String} The value of the attribute being retrieved.
- * @author Nathan Woltman
  */
 /**
  * Sets the specified attribute for each element in the list.
@@ -1171,14 +1107,12 @@ NodeListPrototype.addClass = callOnEachElement('addClass');
  * @function NodeList.prototype.attr
  * @param {String} attribute - The name of the attribute who's value should be set.
  * @param {String} value - The value to set the specified attribute to.
- * @author Nathan Woltman
  */
 /**
  * Sets attributes for each element in the list.
  * 
  * @function NodeList.prototype.attr
  * @param {Object.<String, String>} attributes - The name of the attribute who's value should be set or an object of attribute-value pairs to set.
- * @author Nathan Woltman
  */
 NodeListPrototype.attr = getFirstSetEachElement('attr', 2);
 
@@ -1186,7 +1120,6 @@ NodeListPrototype.attr = getFirstSetEachElement('attr', 2);
  * Clicks each element in the list.
  * 
  * @function NodeList.prototype.click
- * @author Nathan Woltman
  */
 NodeListPrototype.click = callOnEachElement('click');
 
@@ -1195,7 +1128,6 @@ NodeListPrototype.click = callOnEachElement('click');
  * 
  * @function NodeList.prototype.css
  * @returns {Object.<String, String>} The element's computed style object.
- * @author Nathan Woltman
  */
 /**
  * Gets the value of the specified style property of the first element in the list.
@@ -1203,7 +1135,6 @@ NodeListPrototype.click = callOnEachElement('click');
  * @function NodeList.prototype.css
  * @param {String} propertyName - The name of the style property who's value you want to retrieve.
  * @returns {String} The value of the specifed style property.
- * @author Nathan Woltman
  */
 /**
  * Sets the specified style property for each element in the list.
@@ -1211,21 +1142,18 @@ NodeListPrototype.click = callOnEachElement('click');
  * @function NodeList.prototype.css
  * @param {String} propertyName - The name of the style property to set.
  * @param {String|Number} value - A value to set for the specified property.
- * @author Nathan Woltman
  */
 /**
  * Sets CSS style properties for each element in the list.
  * 
  * @function NodeList.prototype.css
  * @param {Object.<String, String|Number>} properties - An object of CSS property-values.
- * @author Nathan Woltman
  */
 /**
  * Explicitly sets each elements' CSS style, removing or replacing any current inline style properties.
  * 
  * @function NodeList.prototype.css
  * @param {String} CSS - A CSS style string.
- * @author Nathan Woltman
  */
 NodeListPrototype.css = getFirstSetEachElement('css', 2);
 
@@ -1233,7 +1161,6 @@ NodeListPrototype.css = getFirstSetEachElement('css', 2);
  * Removes all child nodes from each element in the list.
  * 
  * @function NodeList.prototype.empty
- * @author Nathan Woltman
  */
 NodeListPrototype.empty = callOnEachElement('empty');
 
@@ -1271,7 +1198,6 @@ NodeListPrototype.filter = function(selector) {
  * 
  * @function NodeList.prototype.hide
  * @see HTMLElement#hide
- * @author Nathan Woltman
  */
 NodeListPrototype.hide = callOnEachElement('hide');
 
@@ -1280,14 +1206,12 @@ NodeListPrototype.hide = callOnEachElement('hide');
  * 
  * @function NodeList.prototype.html
  * @returns {String} The element's inner HTML.
- * @author Nathan Woltman
  */
 /**
  * Set the element's inner HTML.
  * 
  * @function Element.prototype.html
  * @param {String} innerHTML - A string of HTML to set as the content of the element.
- * @author Nathan Woltman
  */
 NodeListPrototype.html = getFirstSetEachElement('html', 1);
 
@@ -1296,7 +1220,6 @@ NodeListPrototype.html = getFirstSetEachElement('html', 1);
  * 
  * @function NodeList.prototype.kill
  * @returns {NodeList} A non-live NodeList containing only nodes of the original list that are of node type 1 ({@linkcode http://dom.spec.whatwg.org/#node|ELEMENT_NODE}).
- * @author Nathan Woltman
  */
 NodeListPrototype.kill = function() {
 	this.attr(NodeListIdentifier, '');
@@ -1309,7 +1232,6 @@ NodeListPrototype.kill = function() {
  * @function NodeList.prototype.prop
  * @param {String} property - The name of the property who's value you want to get.
  * @returns {?} The value of the property being retrieved.
- * @author Nathan Woltman
  */
 /**
  * Sets the specified property for each element in the list.
@@ -1317,14 +1239,12 @@ NodeListPrototype.kill = function() {
  * @function NodeList.prototype.prop
  * @param {String} property - The name of the property to be set.
  * @param {*} value - The value to set the property to.
- * @author Nathan Woltman
  */
 /**
  * Sets the specified properties of each element in the list.
  * 
  * @function NodeList.prototype.prop
  * @param {Object.<String, *>} properties - An object of property-value pairs to set.
- * @author Nathan Woltman
  */
 NodeListPrototype.prop = getFirstSetEachElement('prop', 2);
 
@@ -1332,7 +1252,6 @@ NodeListPrototype.prop = getFirstSetEachElement('prop', 2);
  * Removes all nodes in the collection from the DOM tree.
  * 
  * @function NodeList.prototype.remove
- * @author Nathan Woltman
  */
 NodeListPrototype.remove = function() {
 	var origLen = this.length;
@@ -1355,7 +1274,6 @@ NodeListPrototype.remove = function() {
  * 
  * @function NodeList.prototype.removeAttr
  * @param {String} attribute - The name of the attribute to be removed.
- * @author Nathan Woltman
  */
 NodeListPrototype.removeAttr = callOnEachElement('removeAttr');
 
@@ -1378,7 +1296,6 @@ NodeListPrototype.removeAttr = callOnEachElement('removeAttr');
  * 
  * @function NodeList.prototype.removeClass
  * @param {String} className - The class to be removed from each element in the collection.
- * @author Nathan Woltman
  */
 NodeListPrototype.removeClass = callOnEachElement('removeClass');
 
@@ -1387,7 +1304,6 @@ NodeListPrototype.removeClass = callOnEachElement('removeClass');
  * 
  * @function NodeList.prototype.removeProp
  * @param {String} property - The name of the property to remove.
- * @author Nathan Woltman
  */
 NodeListPrototype.removeProp = callOnEachElement('removeProp');
 
@@ -1397,7 +1313,6 @@ NodeListPrototype.removeProp = callOnEachElement('removeProp');
  * @function NodeList.prototype.show
  * @param {Number|String} [style] - The style of display the element should be shown with.
  * @see HTMLElement.show
- * @author Nathan Woltman
  */
 NodeListPrototype.show = callOnEachElement('show');
 
@@ -1406,14 +1321,12 @@ NodeListPrototype.show = callOnEachElement('show');
  * 
  * @function NodeList.prototype.text
  * @returns {String} The node's text content.
- * @author Nathan Woltman
  */
 /**
  * Sets text content of each node in the list.
  * 
  * @function NodeList.prototype.text
  * @param {String|*} text - The text or content that will be converted to a string to be set as each nodes' text content.
- * @author Nathan Woltman
  */
 NodeListPrototype.text = function(text) {
 	var i = 0;
@@ -1436,7 +1349,6 @@ NodeListPrototype.text = function(text) {
  * 
  * @function NodeList.prototype.toArray
  * @returns {Array.<Node>} An Array containing the same elements as the NodeList;
- * @author Nathan Woltman
  */
 NodeListPrototype.toArray = function() {
 	return ArrayPrototype.clone.call(this);
@@ -1447,7 +1359,6 @@ NodeListPrototype.toArray = function() {
  * 
  * @function NodeList.prototype.toggleClass
  * @param {String} className - The class to be toggled for each element in the collection.
- * @author Nathan Woltman
  */
 NodeListPrototype.toggleClass = callOnEachElement('toggleClass');
 
@@ -1482,7 +1393,6 @@ Object.getOwnPropertyNames(NodeListPrototype).forEach(function(methodName) {
  * @function Number.prototype.toPaddedString
  * @param {Number} length - The minimum length for the resulting string.
  * @param {Number} [radix=10] - Defines which base to use for representing the numeric value. Must be an integer between 2 and 36.
- * @author Nathan Woltman
  * @example
  * (255).toPaddedString(4);     // "0255"
  * (255).toPaddedString(4, 16); // "00ff"
@@ -1516,7 +1426,6 @@ if (!"".contains) {
 	 * @param {String} searchString - The string to be searched for.
 	 * @param {Number} [position=0] - The position in this string at which to begin the search; defaults to 0.
 	 * @returns {Boolean} `true` if this string contains the search string; else `false`.
-	 * @author Nathan Woltman
 	 * @example
 	 * var str = "Winter is coming.";
 	 * alert( str.contains(" is ") );    // true
@@ -1534,7 +1443,6 @@ if (!"".endsWith) {
 	 * @function String.prototype.endsWith
 	 * @param {String} searchString - The characters to be searched for at the end of this string.
 	 * @returns {Boolean} `true` if this string ends with the search string; else `false`.
-	 * @author Nathan Woltman
 	 * @example
 	 * var str = "Who am I, Gamling?";
 	 * alert( str.endsWith("Gamling?") );  // true
@@ -1552,7 +1460,6 @@ if (!"".repeat) {
 	 * @function String.prototype.repeat
 	 * @param {Number} count - An integer between 0 and +∞ : [ 0, +∞).
 	 * @returns {String}
-	 * @author Nathan Woltman
 	 * @example
 	 * "abc".repeat(0)  // ""
 	 * "abc".repeat(1)  // "abc"
@@ -1576,7 +1483,6 @@ if (!"".startsWith) {
 	 * @function String.prototype.startsWith
 	 * @param {String} searchString - The characters to be searched for at the start of this string.
 	 * @returns {Boolean} `true` if this string starts with the search string; else `false`.
-	 * @author Nathan Woltman
 	 * @example
 	 * var str = "Who am I, Gamling?";
 	 * alert( str.endsWith("Who") );   // true
@@ -1592,7 +1498,6 @@ if (!"".startsWith) {
  *
  * @function String.prototype.tokenize
  * @returns {String[]} An array of tokens.
- * @author Nathan Woltman
  * @example
  * var str = "The boy who lived.";
  * str.tokenize();  // returns ["The", "boy", "who", "lived."]
@@ -1649,7 +1554,6 @@ $window.$doc = document;
 
 /**
  * @class
- * @author Nathan Woltman
  * @example
  * // HTML
  * <div id="display">0</div>
