@@ -400,12 +400,26 @@ ElementPrototype.addClass = function(className) {
 };
 
 /**
- * Gets or sets the specified attribute/attributes of the element.
+ * Gets the value of the element's specified attribute.
  * 
  * @function Element.prototype.attr
- * @param {String|Object} attribute - The name of the attribute who's value should be returned or set or an object of attribute-value pairs to set.
- * @param {String} [value] - The value to set the attribute to.
- * @returns {?String} The value of the property being retrieved.
+ * @param {String|Object} attribute - The name of the attribute who's value you want to get.
+ * @returns {String} The value of the attribute being retrieved.
+ * @author Nathan Woltman
+ */
+/**
+ * Sets the element's specified attribute.
+ * 
+ * @function Element.prototype.attr
+ * @param {String} attribute - The name of the attribute who's value should be set.
+ * @param {String} value - The value to set the specified attribute to.
+ * @author Nathan Woltman
+ */
+/**
+ * Sets the specified attributes of the element.
+ * 
+ * @function Element.prototype.attr
+ * @param {Object.<String, String>} attributes - The name of the attribute who's value should be set or an object of attribute-value pairs to set.
  * @author Nathan Woltman
  */
 ElementPrototype.attr = function(attr, value) {
@@ -448,18 +462,24 @@ ElementPrototype.hasClass = function(className) {
 };
 
 /**
- * Gets or set the element's inner HTML.
+ * Gets the element's inner HTML.
  * 
  * @function Element.prototype.html
- * @param {String} [innerHTML] - A string of HTML to set as the content of the element.
  * @returns {String} The element's inner HTML.
+ * @author Nathan Woltman
+ */
+/**
+ * Set the element's inner HTML.
+ * 
+ * @function Element.prototype.html
+ * @param {String} innerHTML - A string of HTML to set as the content of the element.
  * @author Nathan Woltman
  */
 ElementPrototype.html = function(innerHTML) {
 	if (typeof innerHTML == 'undefined') {
-		return this.innerHTML;
+		return this.innerHTML; //Get
 	}
-	this.innerHTML = innerHTML;
+	this.innerHTML = innerHTML; //Set
 
 	return this;
 };
@@ -490,25 +510,39 @@ ElementPrototype.prepend = function() {
 };
 
 /**
- * Gets or sets the specified property/properties of the element.
+ * Gets the value of the element's specified property.
  * 
  * @function Element.prototype.prop
- * @param {String|Object} property - The name of the property who's value should be returned or set or an object of property-value pairs to set.
- * @param {String} [value] - The value to set the property to.
+ * @param {String} property - The name of the property who's value you want to get.
  * @returns {?} The value of the property being retrieved.
+ * @author Nathan Woltman
+ */
+/**
+ * Sets the specified property of the element.
+ * 
+ * @function Element.prototype.prop
+ * @param {String} property - The name of the property to be set.
+ * @param {*} value - The value to set the property to.
+ * @author Nathan Woltman
+ */
+/**
+ * Sets the specified properties of the element.
+ * 
+ * @function Element.prototype.prop
+ * @param {Object.<String, *>} properties - An object of property-value pairs to set.
  * @author Nathan Woltman
  */
 ElementPrototype.prop = function(prop, value) {
 	if (typeof value == 'undefined') {
 		if (typeof prop == 'string') {
-			return this[prop];
+			return this[prop]; //Get
 		}
 		for (var property in prop) {
-			this[property] = prop[property];
+			this[property] = prop[property]; //Set multiple
 		}
 	}
 	else {
-		this[prop] = value;
+		this[prop] = value; //Set single
 	}
 
 	return this;
@@ -768,12 +802,40 @@ Function[prototype].delay = function(ms) {
  */
 
 /**
- * Gets or set the element's CSS style.
+ * Gets the element's computed style object.
  * 
  * @function HTMLElement.prototype.css
- * @param {String|Object} [prop] - The property of the element's CSS to get or set, a CSS string to set as the element's style, or an object of property-value pairs to set the element's CSS to.
- * @param {String} [value] - A value to set for the specified property.
- * @returns {String|Object} The value of the specifed property, or if no property is specified, the element's computed style object is returned.
+ * @returns {Object.<String, String>} The element's computed style object.
+ * @author Nathan Woltman
+ */
+/**
+ * Gets the value of element's specified style property.
+ * 
+ * @function HTMLElement.prototype.css
+ * @param {String} propertyName - The name of the style property who's value you want to retrieve.
+ * @returns {String} The value of the specifed style property.
+ * @author Nathan Woltman
+ */
+/**
+ * Sets the element's specified style property.
+ * 
+ * @function HTMLElement.prototype.css
+ * @param {String} propertyName - The name of the style property to set.
+ * @param {String|Number} value - A value to set for the specified property.
+ * @author Nathan Woltman
+ */
+/**
+ * Sets CSS style properties.
+ * 
+ * @function HTMLElement.prototype.css
+ * @param {Object.<String, String|Number>} properties - An object of CSS property-values.
+ * @author Nathan Woltman
+ */
+/**
+ * Explicitly sets the element's CSS style, removing or replacing any current inline style properties.
+ * 
+ * @function HTMLElement.prototype.css
+ * @param {String} CSS - A CSS style string.
  * @author Nathan Woltman
  */
 HTMLElementPrototype.css = function(prop, value) {
@@ -819,10 +881,10 @@ HTMLElementPrototype.hide = function() {
 };
 
 /**
- * Gets the element's current coordinates.
+ * Gets the element's current coordinates relative to the document.
  * 
  * @function HTMLElement.prototype.offset
- * @returns {{top: number, left: number}} An object containing the coordinates detailing the element's distance from the top and left of the screen.
+ * @returns {{top: Number, left: Number}} An object containing the coordinates detailing the element's distance from the top and left of the screen.
  * @author Nathan Woltman
  * @example
  * // HTML
@@ -957,11 +1019,17 @@ NodePrototype.remove = function() {
 };
 
 /**
- * Gets or sets this node's text content (specifically uses the native JavaScript property `Node.textContent`).
+ * Gets this node's text content (specifically uses the native JavaScript property `Node.textContent`).
  * 
  * @function Node.prototype.text
- * @param {String|*} [text] - The text or content that will be converted to a string to be set as the node's text content.
  * @returns {String} The node's text content.
+ * @author Nathan Woltman
+ */
+/**
+ * Sets this node's text content (specifically uses the native JavaScript property `Node.textContent`).
+ * 
+ * @function Node.prototype.text
+ * @param {String|*} text - The text or content that will be converted to a string to be set as the node's text content.
  * @author Nathan Woltman
  */
 NodePrototype.text = function(text) {
@@ -1041,7 +1109,7 @@ function callOnEachElement(funcName) {
  * 
  * @param {String} funcName - The name of a function.
  * @param {Number} numArgs - The number of arguments that will be given to the function for setting. Anything less is for getting.
- * @returns {Array|NodeList|HTMLCollection} A reference to the enumerable
+ * @returns {Array|NodeList|HTMLCollection} A reference to the enumerable.
  * @this An enumerable such as an Array, NodeList, or HTMLCollection.
  * @author Nathan Woltman
  */
@@ -1090,18 +1158,32 @@ NodeListPrototype.add = function(e) {
 NodeListPrototype.addClass = callOnEachElement('addClass');
 
 /**
- * Gets or sets the specified attribute/attributes for each element in the list.
+ * Gets the value of the specified attribute of the first element in the list.
  * 
  * @function NodeList.prototype.attr
- * @param {String|Object} attribute - The name of the attribute who's value should be returned or set or an object of attribute-value pairs to set.
- * @param {String} [value] - The value to set the attribute to.
- * @returns {?String} The value of the property being retrieved (or the NodeList itself if the function was called to set properties).
+ * @param {String} attribute - The name of the attribute who's value you want to get.
+ * @returns {String} The value of the attribute being retrieved.
+ * @author Nathan Woltman
+ */
+/**
+ * Sets the specified attribute for each element in the list.
+ * 
+ * @function NodeList.prototype.attr
+ * @param {String} attribute - The name of the attribute who's value should be set.
+ * @param {String} value - The value to set the specified attribute to.
+ * @author Nathan Woltman
+ */
+/**
+ * Sets attributes for each element in the list.
+ * 
+ * @function NodeList.prototype.attr
+ * @param {Object.<String, String>} attributes - The name of the attribute who's value should be set or an object of attribute-value pairs to set.
  * @author Nathan Woltman
  */
 NodeListPrototype.attr = getFirstSetEachElement('attr', 2);
 
 /**
- * Clicks each element in the collection.
+ * Clicks each element in the list.
  * 
  * @function NodeList.prototype.click
  * @author Nathan Woltman
@@ -1109,13 +1191,40 @@ NodeListPrototype.attr = getFirstSetEachElement('attr', 2);
 NodeListPrototype.click = callOnEachElement('click');
 
 /**
- * Gets or set the CSS style of each element in the list.
+ * Gets the computed style object of the first element in the list.
  * 
  * @function NodeList.prototype.css
- * @param {String|Object} [prop] - The name of the CSS property to get or set, or an object of property-value pairs to set.
- * @param {String} [value] - A value to set for the specified property.
- * @returns {String|Object} The value of the specifed property, or if no property is specified, the first element's computed style object is returned.
- * @memberOf NodeList
+ * @returns {Object.<String, String>} The element's computed style object.
+ * @author Nathan Woltman
+ */
+/**
+ * Gets the value of the specified style property of the first element in the list.
+ * 
+ * @function NodeList.prototype.css
+ * @param {String} propertyName - The name of the style property who's value you want to retrieve.
+ * @returns {String} The value of the specifed style property.
+ * @author Nathan Woltman
+ */
+/**
+ * Sets the specified style property for each element in the list.
+ * 
+ * @function NodeList.prototype.css
+ * @param {String} propertyName - The name of the style property to set.
+ * @param {String|Number} value - A value to set for the specified property.
+ * @author Nathan Woltman
+ */
+/**
+ * Sets CSS style properties for each element in the list.
+ * 
+ * @function NodeList.prototype.css
+ * @param {Object.<String, String|Number>} properties - An object of CSS property-values.
+ * @author Nathan Woltman
+ */
+/**
+ * Explicitly sets each elements' CSS style, removing or replacing any current inline style properties.
+ * 
+ * @function NodeList.prototype.css
+ * @param {String} CSS - A CSS style string.
  * @author Nathan Woltman
  */
 NodeListPrototype.css = getFirstSetEachElement('css', 2);
@@ -1132,7 +1241,7 @@ NodeListPrototype.empty = callOnEachElement('empty');
  * Reduce the set of matched elements to those that match the selector or pass the function's test.
  * 
  * @function NodeList.prototype.filter
- * @param {String|Function} selector - CSS selector string or function that returns a value that determines if the element should be filtered out.
+ * @param {String|Function} selector - CSS selector string or function that returns a truthy value if the element should not be filtered out.
  * @returns {NodeList} 
  */
 NodeListPrototype.filter = function(selector) {
@@ -1158,19 +1267,26 @@ NodeListPrototype.filter = function(selector) {
 };
 
 /**
- * Hides each element in the collection by setting its display style to 'none'.
+ * Hides each element in the collection.
  * 
  * @function NodeList.prototype.hide
+ * @see HTMLElement#hide
  * @author Nathan Woltman
  */
 NodeListPrototype.hide = callOnEachElement('hide');
 
 /**
- * Gets or set the inner HTML of each element in the list.
+ * Gets the inner HTML of the first element in the list.
  * 
  * @function NodeList.prototype.html
- * @param {String} [innerHTML] - A string of HTML to set as the content of each element.
- * @returns {String|HTMLElement} The element's inner HTML (or if the elements' HTML was being set, the NodeList itself is returned).
+ * @returns {String} The element's inner HTML.
+ * @author Nathan Woltman
+ */
+/**
+ * Set the element's inner HTML.
+ * 
+ * @function Element.prototype.html
+ * @param {String} innerHTML - A string of HTML to set as the content of the element.
  * @author Nathan Woltman
  */
 NodeListPrototype.html = getFirstSetEachElement('html', 1);
@@ -1179,7 +1295,7 @@ NodeListPrototype.html = getFirstSetEachElement('html', 1);
  * Converts a NodeList to a non-live NodeList.
  * 
  * @function NodeList.prototype.kill
- * @returns {NodeList} A non-live NodeList containing only nodes of the original list that are of node type 1 (Element).
+ * @returns {NodeList} A non-live NodeList containing only nodes of the original list that are of node type 1 ({@linkcode http://dom.spec.whatwg.org/#node|ELEMENT_NODE}).
  * @author Nathan Woltman
  */
 NodeListPrototype.kill = function() {
@@ -1188,12 +1304,26 @@ NodeListPrototype.kill = function() {
 };
 
 /**
- * Gets or sets the specified property/properties for each element in the list.
+ * Gets the value of the specified property of the first element in the list.
  * 
  * @function NodeList.prototype.prop
- * @param {String|Object} property - The name of the property who's value should be returned or set or an object of property-value pairs to set.
- * @param {String} [value] - The value to set the property to.
- * @returns {?} The value of the property being retrieved (or the NodeList itself if the function was called to set properties).
+ * @param {String} property - The name of the property who's value you want to get.
+ * @returns {?} The value of the property being retrieved.
+ * @author Nathan Woltman
+ */
+/**
+ * Sets the specified property for each element in the list.
+ * 
+ * @function NodeList.prototype.prop
+ * @param {String} property - The name of the property to be set.
+ * @param {*} value - The value to set the property to.
+ * @author Nathan Woltman
+ */
+/**
+ * Sets the specified properties of each element in the list.
+ * 
+ * @function NodeList.prototype.prop
+ * @param {Object.<String, *>} properties - An object of property-value pairs to set.
  * @author Nathan Woltman
  */
 NodeListPrototype.prop = getFirstSetEachElement('prop', 2);
@@ -1262,22 +1392,27 @@ NodeListPrototype.removeClass = callOnEachElement('removeClass');
 NodeListPrototype.removeProp = callOnEachElement('removeProp');
 
 /**
- * Shows each element in the set. For specifics, see {@link HTMLElement.show()}.
+ * Shows each element in the set. For specifics, see {@link HTMLElement#show}.
  * 
  * @function NodeList.prototype.show
  * @param {Number|String} [style] - The style of display the element should be shown with.
- * @see Element.show
+ * @see HTMLElement.show
  * @author Nathan Woltman
  */
 NodeListPrototype.show = callOnEachElement('show');
 
 /**
- * Gets or sets this text content of each node in the list.
+ * Gets the text content of the first node in the list.
  * 
  * @function NodeList.prototype.text
- * @param {String|*} [text] - The text or content that will be converted to a string to be set as each nodes' text content.
- * @returns {String} The combined text content of each node in the list and their descendants.
- * @see Node#text
+ * @returns {String} The node's text content.
+ * @author Nathan Woltman
+ */
+/**
+ * Sets text content of each node in the list.
+ * 
+ * @function NodeList.prototype.text
+ * @param {String|*} text - The text or content that will be converted to a string to be set as each nodes' text content.
  * @author Nathan Woltman
  */
 NodeListPrototype.text = function(text) {
@@ -1456,7 +1591,7 @@ if (!"".startsWith) {
  * Returns the string split into an array of substrings (tokens) that were separated by white-space.
  *
  * @function String.prototype.tokenize
- * @returns {String[]} The string split into an array of tokens.
+ * @returns {String[]} An array of tokens.
  * @author Nathan Woltman
  * @example
  * var str = "The boy who lived.";
@@ -1470,7 +1605,7 @@ StringPrototype.tokenize = function() {
 
 
 /*
- * Private variables needed to improve function performance and compatibility with IE 9
+ * Private variables for improving function performance and compatibility with IE 9
  */
 var
 	/* Private Constants */
