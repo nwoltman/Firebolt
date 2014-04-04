@@ -545,7 +545,7 @@ ElementPrototype.removeAttr = function(attribute) {
 ElementPrototype.removeClass = function(className) {
 	if (_isChrome || _isOldIE) {
 		var changed = false,
-			classes = this.className.split(/\s+/),
+			classes = this.className.split(rgxWhitespace),
 			newClassName = '',
 			i = 0;
 		for (; i < classes.length; i++) {
