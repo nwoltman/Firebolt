@@ -115,10 +115,9 @@ ArrayPrototype.clean = function(allowEmptyStrings) {
  * @returns {Array} A copy of the array.
  */
 ArrayPrototype.clone = function() {
-	var length = this.length,
-		arr = new Array(length),
-		i = 0;
-	for (; i < length; i++) {
+	for (var len = this.length,
+			 arr = new Array(len),
+			 i = 0; i < len; i++) {
 		arr[i] = this[i];
 	}
 	return arr;
