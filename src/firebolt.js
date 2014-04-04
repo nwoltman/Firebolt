@@ -109,6 +109,15 @@ ArrayPrototype.clean = function(allowEmptyStrings) {
 };
 
 /**
+ * Removes all elements from the array.
+ * 
+ * @function Array.prototype.clear
+ */
+ArrayPrototype.clear = function() {
+	this.length = 0;
+};
+
+/**
  * Returns a duplicate of the array, leaving the original array intact.
  * 
  * @function Array.prototype.clone
