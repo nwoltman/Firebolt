@@ -411,9 +411,25 @@ ElementPrototype.attr = function(attr, value) {
  * Removes all of the element's child nodes.
  * 
  * @function Element.prototype.empty
+ * @chainable
+ * @example
+ * // HTML (before)
+ * <div id="mydiv">
+ *     <span>Inside Span</span>
+ *     Some Text
+ * </div>
+ *
+ * // JavaScript
+ * $id('mydiv').empty
+ *
+ * // HTML (after)
+ * <div id="mydiv"></div>
  */
 ElementPrototype.empty = function() {
-	return this.html('');
+	while (this.childNodes.length) {
+		this.removeChild(this.childNodes[0]);
+	}
+	return this;
 };
 
 /**
@@ -880,7 +896,9 @@ HTMLElementPrototype.show = function(style) {
 	}
 	if (typeof style !== 'string') {
 		//Create a temporary element of the same type as this element to figure out what the default display value should be
-		var temp = FireBolt.create(this.tagName, { style: 'width:0;height:0;border:0;margin:0;padding:0' }).insertAfter(document.body.lastChild);
+		var temp = FireBolt.create(this.tagName, {
+			style: 'width:0;height:0;border:0;margin:0;padding:0'
+		}).insertAfter(document.body.lastChild);
 		style = temp.css('display');
 		temp.remove();
 	}
@@ -1381,7 +1399,8 @@ Object.getOwnPropertyNames(NodeListPrototype).forEach(function(methodName) {
  */
 
 /**
- * Returns a string representation of the number padded with leading 0s so that the string's length is at least equal to length. Takes an optional radix argument which specifies the base to use for conversion.
+ * Returns a string representation of the number padded with leading 0s so that the string's length is at least equal to length.
+ * Takes an optional radix argument which specifies the base to use for conversion.
  * 
  * @function Number.prototype.toPaddedString
  * @param {Number} length - The minimum length for the resulting string.
