@@ -1,5 +1,5 @@
 ﻿/*
- * FireBolt current core file.
+ * Firebolt current core file.
  * @author Nathan Woltman
  */
 
@@ -101,7 +101,7 @@ $window.$tag = function(tagName) {
  */
 ArrayPrototype.clean = function(allowEmptyStrings) {
 	for (var i = 0; i < this.length; i++) {
-		while (i < this.length && FireBolt.isEmpty(this[i], allowEmptyStrings)) {
+		while (i < this.length && Firebolt.isEmpty(this[i], allowEmptyStrings)) {
 			this.splice(i, 1);
 		}
 	}
@@ -615,31 +615,31 @@ ElementPrototype.toggleClass = function(className) {
 // #endregion Element
 
 
-//#region =========================== FireBolt ===============================
+//#region =========================== Firebolt ===============================
 
 /**
- * The FireBolt namespace.
- * @namespace FireBolt
+ * The Firebolt namespace.
+ * @namespace Firebolt
  */
 
 /**
  * Returns a list of the elements either found in the DOM that match the passed in CSS selector or created by passing an HTML string.<br />
  * When passed a CSS selector string, acts as an alias of `document.querySelectorAll()`.<br />
- * Also represents the global FireBolt singleton object and can be referenced by the synonyms FB and $ (on pages without jQuery).
+ * Also represents the global Firebolt singleton object and can be referenced by the synonyms FB and $ (on pages without jQuery).
  * 
  * @function
  * @param {String} str - A CSS selector string or an HTML string.
  * @returns {NodeList} A non-live list of selected or created elements.
- * @memberOf FireBolt
+ * @memberOf Firebolt
  * @example
  * $('button.btn-success') // Returns all button elements with the class "btn-success"
  * $('str <p>content</p>') // Creates a set of nodes and returns it as a NodeList (in this case ["str ", <p>content</p>])
  * $('1<br>2<br>3 >');     // Returns ["1", <br>​, "2", <br>​, "3 >"]
- * $.create('div')         // Calls FireBolt's `create()` method to create a new div element 
+ * $.create('div')         // Calls Firebolt's `create()` method to create a new div element 
  */
-function FireBolt(str) {
+function Firebolt(str) {
 	if (rgxHtml.test(str)) {
-		return FireBolt.create('div').html(str).childNodes;
+		return Firebolt.create('div').html(str).childNodes;
 	}
 	//else
 	return document.querySelectorAll(str);
@@ -652,9 +652,9 @@ function FireBolt(str) {
  * @param {String} tagName
  * @param {Object} [attributes] - The JSON-formatted attributes that the element should have once constructed.
  * @returns {Element}
- * @memberOf FireBolt
+ * @memberOf Firebolt
  */
-FireBolt.create = function(tagName, attributes) {
+Firebolt.create = function(tagName, attributes) {
 	var el = document.createElement(tagName);
 	if (attributes) {
 		el.attr(attributes);
@@ -668,9 +668,9 @@ FireBolt.create = function(tagName, attributes) {
  * @param {Function} callback - A function to be called after the specified amount of time.
  * @param {Number} ms - An integer between 0 and +∞ : [ 0, +∞).
  * @returns {Object} An object that can be used to cancel the callback before it is executed by calling `object.clear()`.
- * @memberOf FireBolt
+ * @memberOf Firebolt
  */
-FireBolt.delay = function(callback, ms) {
+Firebolt.delay = function(callback, ms) {
 	return new function() {
 		var clearRef = setTimeout(callback, ms);
 		this.clear = function() {
@@ -691,9 +691,9 @@ FireBolt.delay = function(callback, ms) {
  * @param {*} value - The value to be tested.
  * @param {Boolean} [allowEmptyString=false] - Set this to true to deem zero-length strings as not empty.
  * @returns {Boolean}
- * @memberOf FireBolt
+ * @memberOf Firebolt
  */
-FireBolt.isEmpty = function(value, allowEmptyString) {
+Firebolt.isEmpty = function(value, allowEmptyString) {
 	return value == null || typeof value == 'object' && value.length == 0 || typeof value == 'string' && !allowEmptyString && !value;
 };
 
@@ -701,9 +701,9 @@ FireBolt.isEmpty = function(value, allowEmptyString) {
  * Determines if the user is on a touchscreen device.
  * 
  * @returns {Boolean} `true` if the user is on a touchscreen device; else `false`.
- * @memberOf FireBolt
+ * @memberOf Firebolt
  */
-FireBolt.isTouchDevice = function() {
+Firebolt.isTouchDevice = function() {
 	return 'ontouchstart' in $window || 'onmsgesturechange' in $window;
 };
 
@@ -712,23 +712,23 @@ FireBolt.isTouchDevice = function() {
  * 
  * @function
  * @see Document.ready
- * @memberOf FireBolt
+ * @memberOf Firebolt
  */
-FireBolt.ready = document.ready;
+Firebolt.ready = document.ready;
 
 /**
  * Converts an array of nodes to a non-live NodeList containing only DOM Elements.
  * 
  * @param {Array.<Node>|NodeList} elements - An array containing nodes that are in the current documentElement (this will not work if the nodes are not in the current documentElement).
  * @returns {NodeList} The original array of elements converted to a NodeList containing only nodes of the original list that are of node type 1 (Element).
- * @memberOf FireBolt
+ * @memberOf Firebolt
  */
-FireBolt.toDeadNodeList = function(elements) {
+Firebolt.toDeadNodeList = function(elements) {
 	NodeListPrototype.attr.call(elements, NodeListIdentifier, '');
 	return this('[' + NodeListIdentifier + ']').removeAttr(NodeListIdentifier);
 };
 
-//#endregion FireBolt
+//#endregion Firebolt
 
 
 //#region =========================== Function ===============================
@@ -868,7 +868,7 @@ HTMLElementPrototype.offset = function() {
 
 /**
  * Shows an element by giving it a certain display style. If no parameter is passed in,
- * FireBolt determines the element's default display style and sets it to that (NOTE:
+ * Firebolt determines the element's default display style and sets it to that (NOTE:
  * the element's default display style may be 'none' and hence the element would not be shown).
  * 
  * @function HTMLElement.prototype.show
@@ -896,7 +896,7 @@ HTMLElementPrototype.show = function(style) {
 	}
 	if (typeof style !== 'string') {
 		//Create a temporary element of the same type as this element to figure out what the default display value should be
-		var temp = FireBolt.create(this.tagName, {
+		var temp = Firebolt.create(this.tagName, {
 			style: 'width:0;height:0;border:0;margin:0;padding:0'
 		}).insertAfter(document.body.lastChild);
 		style = temp.css('display');
@@ -1030,7 +1030,7 @@ Object.getOwnPropertyNames(ArrayPrototype).forEach(function(methodName) {
 			case 'union':
 			case 'without':
 				NodeListPrototype[methodName] = function() {
-					return FireBolt.toDeadNodeList(ArrayPrototype[methodName].apply(this, arguments));
+					return Firebolt.toDeadNodeList(ArrayPrototype[methodName].apply(this, arguments));
 				}	
 		}
 	}
@@ -1201,7 +1201,7 @@ NodeListPrototype.filter = function(selector) {
 		}
 	}
 	else {
-		var nodes = FireBolt.toDeadNodeList(this);
+		var nodes = Firebolt.toDeadNodeList(this);
 		for (; i < nodes.length; i++) {
 			if (selector(i)) {
 				filtration.push(nodes[i]);
@@ -1209,7 +1209,7 @@ NodeListPrototype.filter = function(selector) {
 		}
 	}
 
-	return FireBolt.toDeadNodeList(filtration);
+	return Firebolt.toDeadNodeList(filtration);
 };
 
 /**
@@ -1242,7 +1242,7 @@ NodeListPrototype.html = getFirstSetEachElement('html', 1);
  */
 NodeListPrototype.kill = function() {
 	this.attr(NodeListIdentifier, '');
-	return FireBolt('[' + NodeListIdentifier + ']').removeAttr(NodeListIdentifier);
+	return Firebolt('[' + NodeListIdentifier + ']').removeAttr(NodeListIdentifier);
 };
 
 /**
@@ -1536,7 +1536,7 @@ StringPrototype.tokenize = function() {
 var
 	/* Private Constants */
 	_isChrome = !!$window.chrome && !($window.opera || navigator.userAgent.indexOf(' OPR/') >= 0),
-	_isOldIE = FireBolt.create('div').html('<!--[if lte IE9]><i></i><![endif]-->').$tag('i').length > 0,
+	_isOldIE = Firebolt.create('div').html('<!--[if lte IE9]><i></i><![endif]-->').$tag('i').length > 0,
 	NodeListIdentifier = '_fbnlid_',
 	
 	/* Pre-built RegExps */
@@ -1545,10 +1545,10 @@ var
 	rgxWhitespace = /\s+/;
 
 
-// Global FireBolt reference objects
-$window.FB = $window.FireBolt = FireBolt;
+// Global Firebolt reference objects
+$window.FB = $window.Firebolt = Firebolt;
 if (!$window.jQuery) {
-	$window.$ = FireBolt;
+	$window.$ = Firebolt;
 }
 
 /**
