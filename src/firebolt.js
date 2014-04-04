@@ -92,11 +92,12 @@ $window.$tag = function(tagName) {
  */
 
 /**
- * Removes all `null`, `undefined`, and zero-length strings (if the `allowEmptyStrings` paramenter is not set to a truthy value) from the array.
+ * Removes all `null`, `undefined`, and zero-length strings (unless the `allowEmptyStrings` parameter is set to a truthy value) from the array.
  * 
  * @function Array.prototype.clean
  * @param {Boolean} [allowEmptyStrings=false] - Set this to `true` to keep zero-length strings in the array.
  * @returns {Array} A reference to the array.
+ * @see Firebolt#isEmpty
  */
 ArrayPrototype.clean = function(allowEmptyStrings) {
 	for (var i = 0; i < this.length; i++) {
@@ -105,22 +106,6 @@ ArrayPrototype.clean = function(allowEmptyStrings) {
 		}
 	}
 	return this;
-};
-
-/**
- * Returns a copy of the array with all `null`, `undefined`, and zero-length strings (if the `allowEmptyStrings` paramenter is not set to a truthy value) removed.
- * 
- * @function Array.prototype.cleaned
- * @param {Boolean} [allowEmptyStrings=false] - Set this to `true` to keep zero-length strings in the returned array.
- * @returns {Array} The cleaned array.
- */
-ArrayPrototype.cleaned = function(allowEmptyStrings) {
-	for (var array = [], i = 0; i < this.length; i++) {
-		if (!FireBolt.isEmpty(this[i], allowEmptyStrings)) {
-			array.push(this[i]);
-		}
-	}
-	return array;
 };
 
 /**
