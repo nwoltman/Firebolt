@@ -1039,13 +1039,14 @@ Object.getOwnPropertyNames(ArrayPrototype).forEach(function(methodName) {
 /** 
  * Calls the function with the passed in name on each element in an enumerable.
  * 
+ * @private
  * @param {String} funcName - The name of a function.
  * @returns {Array|NodeList|HTMLCollection} A reference to the enumerable
  * @this An enumerable such as an Array, NodeList, or HTMLCollection.
  */
 function callOnEachElement(funcName) {
 	return function() {
-		for (var i = 0; i < this.length; i++) {
+		for (var i = 0, len = this.length; i < len; i++) {
 			if (this[i].nodeType == 1) this[i][funcName].apply(this[i], arguments);
 		}
 		return this;
@@ -1058,6 +1059,7 @@ function callOnEachElement(funcName) {
  * argument passed in is an object, in which case the result of calling the function of the first element
  * is returned.
  * 
+ * @private
  * @param {String} funcName - The name of a function.
  * @param {Number} numArgs - The number of arguments that will be given to the function for setting. Anything less is for getting.
  * @returns {Array|NodeList|HTMLCollection} A reference to the enumerable.
@@ -1066,15 +1068,21 @@ function callOnEachElement(funcName) {
 function getFirstSetEachElement(funcName, numArgs) {
 	return function() {
 		var items = this,
+			len = items.length,
 			i = 0;
 		if (arguments.length < numArgs && typeof arguments[0] != 'object') {
-			for (; i < items.length; i++) {
-				if (items[i].nodeType == 1) return items[i][funcName](arguments[0]);
+			for (; i < len; i++) {
+				if (items[i].nodeType == 1) {
+					return items[i][funcName](arguments[0]); //Allowed to assume at most one argument needed
+				}
 			}
 			return null;
 		}
-		for (; i < items.length; i++) {
-			if (items[i].nodeType == 1) items[i][funcName].apply(items[i], arguments);
+		//else
+		for (; i < len; i++) {
+			if (items[i].nodeType == 1) {
+				items[i][funcName].apply(items[i], arguments);
+			}
 		}
 		return items;
 	};
@@ -1265,16 +1273,17 @@ NodeListPrototype.prop = getFirstSetEachElement('prop', 2);
  * @function NodeList.prototype.remove
  */
 NodeListPrototype.remove = function() {
-	var origLen = this.length;
+	var origLen = this.length,
+		i = 1;
 	if (origLen == 0) return;
 	this[0].remove();
 	if (this.length == origLen) { //Non-live
-		for (var i = 1; i < origLen; i++) {
+		for (; i < origLen; i++) {
 			this[i].remove();
 		}
 	}
 	else { //Live
-		while (this.length) {
+		for (; i < origLen; i++) {
 			this[0].remove();
 		}
 	}
