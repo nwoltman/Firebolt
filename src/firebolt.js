@@ -694,7 +694,7 @@ Firebolt.delay = function(callback, ms) {
  * @memberOf Firebolt
  */
 Firebolt.isEmpty = function(value, allowEmptyString) {
-	return value == null || typeof value == 'object' && value.length == 0 || typeof value == 'string' && !allowEmptyString && !value;
+	return value == null || value instanceof Array && value.length == 0 || typeof value == 'string' && !allowEmptyString && !value;
 };
 
 /**
