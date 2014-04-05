@@ -1581,7 +1581,7 @@ Number[prototype].toPaddedString = function(length, radix) {
  * @namespace String
  */
 
-if (!"".contains) {
+if (!StringPrototype.contains) {
 	/**
 	 * Determines whether the passed in string is in the current string.
 	 *
@@ -1599,7 +1599,7 @@ if (!"".contains) {
 	};
 }
 
-if (!"".endsWith) {
+if (!StringPrototype.endsWith) {
 	/**
 	 * Determines whether a string ends with the characters of another string.
 	 *
@@ -1616,7 +1616,7 @@ if (!"".endsWith) {
 	};
 }
 
-if (!"".repeat) {
+if (!StringPrototype.repeat) {
 	/**
 	 * Copies the current string a given number of times and returns the new string.
 	 *
@@ -1639,7 +1639,7 @@ if (!"".repeat) {
 	};
 }
 
-if (!"".startsWith) {
+if (!StringPrototype.startsWith) {
 	/**
 	 * Determines whether a string starts with the characters of another string.
 	 *
