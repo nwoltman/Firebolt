@@ -1,25 +1,68 @@
 ﻿/*
  * Firebolt current core file.
  * @author Nathan Woltman
+ * @copyright 2014 Nathan Woltman, MIT https://github.com/FireboltJS/Firebolt/blob/master/LICENSE.txt
  */
 
-(function() {
+(function(window, document) {
 
 /*
  * Local variables that are compressed when this file is minified.
  */
-var $window = window,
-	document = $window.document,
-	prototype = 'prototype',
+var prototype = 'prototype',
 	ArrayPrototype = Array[prototype],
 	ElementPrototype = Element[prototype],
 	HTMLElementPrototype = HTMLElement[prototype],
 	NodePrototype = Node[prototype],
 	NodeListPrototype = NodeList[prototype],
-	StringPrototype = String[prototype];
+	StringPrototype = String[prototype],
+
+	NodeListIdentifier = '_fbnlid_',
+
+	/* Pre-built RegExps */
+	rgxHtml = /^[^[]*?</,
+	rgxNonWhitespace = /\S+/g,
+	rgxWhitespace = /\s+/;
 
 
-//#region ======================= Global Selectors ===========================
+//#region =========================== Globals ================================
+
+/**
+ * Firebolt namespace reference object.
+ * 
+ * @global
+ * @constant
+ * @see Firebolt.Firebolt
+ */
+window.FB = window.Firebolt = Firebolt;
+if (!window.jQuery) {
+	/**
+	 * Firebolt namespace reference object if jQuery is not also loaded onto the page.
+	 * 
+	 * @global
+	 * @constant
+	 * @see Firebolt.Firebolt
+	 */
+	window.$ = Firebolt;
+}
+
+/**
+ * The HTML document. Alias of `window.document`.
+ * 
+ * @global
+ * @constant
+ * @example window.document === $doc  // true
+ */
+window.$doc = document;
+
+/**
+ * The JavaScript Window object. Alias of `window`.
+ * 
+ * @global
+ * @constant
+ * @example window === $wnd  // true
+ */
+window.$wnd = window;
 
 /**
  * Returns the first element within the document that matches the specified CSS selector.<br />
@@ -29,7 +72,7 @@ var $window = window,
  * @param {String} selector
  * @returns {?Element}
  */
-$window.$1 = function(selector) {
+window.$1 = function(selector) {
 	return document.querySelector(selector);
 }
 
@@ -41,7 +84,7 @@ $window.$1 = function(selector) {
  * @param {String} className
  * @returns {HTMLCollection|NodeList} A list of elements with the specified class name.
  */
-$window.$class = function(className) {
+window.$class = function(className) {
 	return document.getElementsByClassName(className);
 }
 
@@ -53,7 +96,7 @@ $window.$class = function(className) {
  * @param {String} id
  * @returns {Element} The element with the specified id.
  */
-$window.$id = function(id) {
+window.$id = function(id) {
 	return document.getElementById(id);
 }
 
@@ -65,7 +108,7 @@ $window.$id = function(id) {
  * @param {String} name
  * @returns {HTMLCollection|NodeList} A collection of elements with the specified name attribute.
  */
-$window.$name = function(name) {
+window.$name = function(name) {
 	return document.getElementsByName(name);
 }
 
@@ -77,7 +120,7 @@ $window.$name = function(name) {
  * @param {String} tagName
  * @returns {HTMLCollection|NodeList} A collection of elements with the specified tag name.
  */
-$window.$tag = function(tagName) {
+window.$tag = function(tagName) {
 	return document.getElementsByTagName(tagName);
 }
 
@@ -625,11 +668,11 @@ ElementPrototype.toggleClass = function(className) {
 /**
  * Returns a list of the elements either found in the DOM that match the passed in CSS selector or created by passing an HTML string.<br />
  * When passed a CSS selector string, acts as an alias of `document.querySelectorAll()`.<br />
- * Also represents the global Firebolt singleton object and can be referenced by the synonyms FB and $ (on pages without jQuery).
+ * Also represents the Firebolt namespace object and can be referenced by the synonyms FB and $ (on pages without jQuery).
  * 
  * @function
  * @param {String} str - A CSS selector string or an HTML string.
- * @returns {NodeList} A non-live list of selected or created elements.
+ * @returns {NodeList} A non-live list of selected elements or newly created elements.
  * @memberOf Firebolt
  * @example
  * $('button.btn-success') // Returns all button elements with the class "btn-success"
@@ -704,7 +747,7 @@ Firebolt.isEmpty = function(value, allowEmptyString) {
  * @memberOf Firebolt
  */
 Firebolt.isTouchDevice = function() {
-	return 'ontouchstart' in $window || 'onmsgesturechange' in $window;
+	return 'ontouchstart' in window || 'onmsgesturechange' in window;
 };
 
 /**
@@ -1385,6 +1428,8 @@ NodeListPrototype.toggleClass = callOnEachElement('toggleClass');
 // #endregion NodeList
 
 
+//#region ========================= HTMLCollection ===========================
+
 /**
  * The DOM HTMLCollection interface.<br />
  * Has all the same functions as {@link NodeList}.
@@ -1398,6 +1443,8 @@ Object.getOwnPropertyNames(NodeListPrototype).forEach(function(methodName) {
 		HTMLCollection[prototype][methodName] = NodeListPrototype[methodName];
 	}
 });
+
+//#endregion HTMLCollection
 
 
 //#region ============================ Number ================================
@@ -1531,45 +1578,13 @@ StringPrototype.tokenize = function() {
 
 
 /*
- * Private variables for improving function performance and compatibility with IE 9
+ * Private, constant variables for improving function performance and compatibility with IE 9
  */
-var
-	/* Private Constants */
-	_isChrome = !!$window.chrome && !($window.opera || navigator.userAgent.indexOf(' OPR/') >= 0),
-	_isOldIE = Firebolt.create('div').html('<!--[if lte IE9]><i></i><![endif]-->').$tag('i').length > 0,
-	NodeListIdentifier = '_fbnlid_',
-	
-	/* Pre-built RegExps */
-	rgxHtml = /^[^[]*?</,
-	rgxNonWhitespace = /\S+/g,
-	rgxWhitespace = /\s+/;
+var _isChrome = !!window.chrome && !(window.opera || navigator.userAgent.indexOf(' OPR/') >= 0),
+	_isOldIE = Firebolt.create('div').html('<!--[if lte IE9]><i></i><![endif]-->').$tag('i').length > 0;
 
+})(window, document);
 
-// Global Firebolt reference objects
-$window.FB = $window.Firebolt = Firebolt;
-if (!$window.jQuery) {
-	$window.$ = Firebolt;
-}
-
-/**
- * The JavaScript Window object. Alias of `window`.
- * 
- * @global
- * @constant
- * @example window === $wnd  // true
- */
-$window.$wnd = $window;
-
-/**
- * The HTML document. Alias of `window.document`.
- * 
- * @global
- * @constant
- * @example window.document === $doc  // true
- */
-$window.$doc = document;
-
-})();
 
 //#region ============================ Timer =================================
 
