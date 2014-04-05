@@ -16,6 +16,9 @@ var prototype = 'prototype',
 	NodePrototype = Node[prototype],
 	NodeListPrototype = NodeList[prototype],
 	StringPrototype = String[prototype],
+	Object = window.Object,
+	defineProperty = Object.defineProperty,
+	defineProperties = Object.defineProperties,
 
 	NodeListIdentifier = '_fbnlid_',
 
@@ -175,181 +178,206 @@ window.$tag = function(tagName) {
  * @namespace Array
  */
 
-/**
- * Removes all `null`, `undefined`, and zero-length strings (unless the `allowEmptyStrings` parameter is set to a truthy value) from the array.
- * 
- * @function Array.prototype.clean
- * @param {Boolean} [allowEmptyStrings=false] - Set this to `true` to keep zero-length strings in the array.
- * @returns {Array} A reference to the array.
- * @see Firebolt#isEmpty
- */
-ArrayPrototype.clean = function(allowEmptyStrings) {
-	for (var i = 0; i < this.length; i++) {
-		while (i < this.length && Firebolt.isEmpty(this[i], allowEmptyStrings)) {
-			this.splice(i, 1);
-		}
-	}
-	return this;
-};
-
-/**
- * Removes all elements from the array.
- * 
- * @function Array.prototype.clear
- */
-ArrayPrototype.clear = function() {
-	this.length = 0;
-};
-
-/**
- * Returns a duplicate of the array, leaving the original array intact.
- * 
- * @function Array.prototype.clone
- * @returns {Array} A copy of the array.
- */
-ArrayPrototype.clone = function() {
-	for (var len = this.length,
-			 arr = new Array(len),
-			 i = 0; i < len; i++) {
-		arr[i] = this[i];
-	}
-	return arr;
-};
-
-/**
- * Determines if the input item is in the array.
- * 
- * @function Array.prototype.contains
- * @returns {Boolean} `true` if the item is in the array; else `false`.
- */
-ArrayPrototype.contains = function(e) {
-	return this.indexOf(e) != -1;
-};
-
-/**
- * Determines if the arrays are equal by doing a shallow comparison of their elements using strict equality.<br />
- * NOTE: The order of elements in the arrays DOES matter. The elements must be found in the same order for the arrays to be considered equal.
- * 
- * @function Array.prototype.equals
- * @param {Array} array - An array to compare the current array to.
- * @returns {Boolean} `true` if the arrays are equal; else `false`.
- */
-ArrayPrototype.equals = function(array) {
-	if (this === array) { //Easy check
-		return true;
-	}
-	if (this.length != array.length) {
-		return false;
-	}
-	for (var i = 0; i < array.length; i++) {
-		if (this[i] !== array[i]) {
-			return false;
-		}
-	}
-	return true;
-};
-
-/**
- * Returns an array containing every item that is in both this array and the input array.
- * 
- * @function Array.prototype.intersect
- * @returns {Array} An array that is the intersection of this array and the input array.
- * @example
- * [1, 2, 3].intersect([2, 3, 4]);  // [2, 3]
- */
-ArrayPrototype.intersect = function(b) {
-	for (var intersection = [], i = 0; i < b.length; i++) {
-		if (this.contains(b[i]) && !intersection.contains(b[i])) {
-			intersection.push(b[i]);
-		}
-	}
-	return intersection;
-};
-
-/**
- * Returns the last item of the array.
- * 
- * @function Array.prototype.last
- * @returns {*} The last item in the array, or undefined if the array is empty.
- */
-ArrayPrototype.last = function() {
-	return this[this.length - 1];
-};
-
-/**
- * Removes all occurrences of the passed in items from the array if they exist in the array.
- * 
- * @function Array.prototype.remove
- * @param {...*} items - Items to remove from the array.
- * @returns {Array} A reference to the array.
- */
-ArrayPrototype.remove = function() {
-	for (var i = 0, rindex; i < arguments.length; i++) {
-		while ((rindex = this.indexOf(arguments[i])) >= 0) {
-			this.splice(rindex, 1);
-		}
-	}
-	return this;
-};
-
-/**
- * Returns an array containing every item that is only in one of this array or the input array.
- * 
- * @function Array.prototype.union
- * @returns {Array} An array that is the union of this array and the input array.
- * @example
- * [1, 2, 3].union([2, 3, 4]);  // returns [1, 2, 3, 4]
- */
-ArrayPrototype.union = function(b) {
-	for (var union = this.unique(), i = 0; i < b.length; i++) {
-		if (!union.contains(b[i])) {
-			union.push(b[i]);
-		}
-	}
-	return union;
-};
-
-/**
- * Returns a duplicate-free clone of the array.
- * 
- * @function Array.prototype.unique
- * @returns {Array} An array of unique items.
- * @example
- * [1, 2, 3, 2, 1].unique();  // returns [1, 2, 3]
- */
-ArrayPrototype.unique = function() {
-	for (var uniqueClone = [], i = 0; i < this.length; i++) {
-		if (!uniqueClone.contains(this[i])) {
-			uniqueClone.push(this[i]);
-		}
-	}
-	return uniqueClone;
-};
-
-/**
- * Returns a copy of the current array without any elements from the input parameters.
- * 
- * @function Array.prototype.without
- * @param {...*} items - One or more items to leave out of the returned array.
- * @returns {Array}
- * @example
- * [1, 2, 3, 4, 5, 6].without(3, 4, 6); // returns [1, 2, 5]
- */
-ArrayPrototype.without = function() {
-	var array = [],
-		i = 0,
-		j;
-	skip:
-	for (; i < this.length; i++) {
-		for (j = 0; j < arguments.length; j++) {
-			if (this[i] === arguments[j]) {
-				continue skip;
+defineProperties(ArrayPrototype, {
+	/**
+	 * Removes all "empty" items (as defined by {@linkcode Firebolt.isEmpty}) from the array.
+	 * 
+	 * @function Array.prototype.clean
+	 * @param {Boolean} [allowEmptyStrings=false] - Set this to `true` to keep zero-length strings in the array.
+	 * @returns {Array} A reference to the array.
+	 * @see Firebolt#isEmpty
+	 */
+	clean: {
+		value: function(allowEmptyStrings) {
+			for (var i = 0; i < this.length; i++) {
+				while (i < this.length && Firebolt.isEmpty(this[i], allowEmptyStrings)) {
+					this.splice(i, 1);
+				}
 			}
+			return this;
 		}
-		array.push(this[i]);
+	},
+
+	/**
+	 * Removes all elements from the array.
+	 * 
+	 * @function Array.prototype.clear
+	 */
+	clear: {
+		value: function() {
+			this.length = 0;
+		}
+	},
+
+	/**
+	 * Returns a duplicate of the array, leaving the original array intact.
+	 * 
+	 * @function Array.prototype.clone
+	 * @returns {Array} A copy of the array.
+	 */
+	clone: {
+		value: function() {
+			for (var len = this.length, arr = new Array(len),
+					 i = 0; i < len; i++) {
+				arr[i] = this[i];
+			}
+			return arr;
+		}
+	},
+
+	/**
+	 * Determines if the input item is in the array.
+	 * 
+	 * @function Array.prototype.contains
+	 * @returns {Boolean} `true` if the item is in the array; else `false`.
+	 */
+	contains: {
+		value: function(e) {
+			return this.indexOf(e) != -1;
+		}
+	},
+
+	/**
+	 * Determines if the arrays are equal by doing a shallow comparison of their elements using strict equality.<br />
+	 * NOTE: The order of elements in the arrays DOES matter. The elements must be found in the same order for the arrays to be considered equal.
+	 * 
+	 * @function Array.prototype.equals
+	 * @param {Array|Enumerable} array - Array or other enumerable object that has a `length` property.
+	 * @returns {Boolean} `true` if the arrays are equal; else `false`.
+	 */
+	equals: {
+		value: function(array) {
+			if (this === array) { //Easy check
+				return true;
+			}
+			if (this.length != array.length) {
+				return false;
+			}
+			for (var i = 0; i < array.length; i++) {
+				if (this[i] !== array[i]) {
+					return false;
+				}
+			}
+			return true;
+		}
+	},
+
+	/**
+	 * Returns an array containing every item that is in both this array and the input array.
+	 * 
+	 * @function Array.prototype.intersect
+	 * @param {Array|Enumerable} array - Array or other enumerable object that has a `length` property.
+	 * @returns {Array} An array that is the intersection of this array and the input array.
+	 * @example
+	 * [1, 2, 3].intersect([2, 3, 4]);  // returns [2, 3]
+	 */
+	intersect: {
+		value: function(array) {
+			for (var intersection = [], i = 0; i < array.length; i++) {
+				if (this.contains(array[i]) && !intersection.contains(array[i])) {
+					intersection.push(array[i]);
+				}
+			}
+			return intersection;
+		}
+	},
+
+	/**
+	 * Returns the last item of the array.
+	 * 
+	 * @function Array.prototype.last
+	 * @returns {*} The last item in the array, or undefined if the array is empty.
+	 */
+	last: {
+		value: function() {
+			return this[this.length - 1];
+		}
+	},
+
+	/**
+	 * Removes all occurrences of the passed in items from the array if they exist in the array.
+	 * 
+	 * @function Array.prototype.remove
+	 * @param {...*} items - Items to remove from the array.
+	 * @returns {Array} A reference to the array (so it's chainable).
+	 */
+	remove: {
+		value: function() {
+			for (var i = 0, rindex; i < arguments.length; i++) {
+				while ((rindex = this.indexOf(arguments[i])) >= 0) {
+					this.splice(rindex, 1);
+				}
+			}
+			return this;
+		}
+	},
+
+	/**
+	 * Returns an array containing every item that is only in one of this array or the input array.
+	 * 
+	 * @function Array.prototype.union
+	 * @param {Array|Enumerable} array - Array or other enumerable object that has a `length` property.
+	 * @returns {Array} An array that is the union of this array and the input array.
+	 * @example
+	 * [1, 2, 3].union([2, 3, 4]);  // returns [1, 2, 3, 4]
+	 */
+	union: {
+		value: function(array) {
+			for (var union = this.unique(), i = 0; i < array.length; i++) {
+				if (!union.contains(array[i])) {
+					union.push(array[i]);
+				}
+			}
+			return union;
+		}
+	},
+
+	/**
+	 * Returns a duplicate-free clone of the array.
+	 * 
+	 * @function Array.prototype.unique
+	 * @returns {Array} An array of unique items.
+	 * @example
+	 * [1, 2, 3, 2, 1].unique();  // returns [1, 2, 3]
+	 */
+	unique: {
+		value: function() {
+			for (var uniqueClone = [], i = 0; i < this.length; i++) {
+				if (!uniqueClone.contains(this[i])) {
+					uniqueClone.push(this[i]);
+				}
+			}
+			return uniqueClone;
+		}
+	},
+
+	/**
+	 * Returns a copy of the current array without any elements from the input parameters.
+	 * 
+	 * @function Array.prototype.without
+	 * @param {...*} items - One or more items to leave out of the returned array.
+	 * @returns {Array}
+	 * @example
+	 * [1, 2, 3, 4, 5, 6].without(3, 4, 6); // returns [1, 2, 5]
+	 */
+	without: {
+		value: function() {
+			var array = [],
+				i = 0,
+				j;
+			skip:
+				for (; i < this.length; i++) {
+					for (j = 0; j < arguments.length; j++) {
+						if (this[i] === arguments[j]) {
+							continue skip;
+						}
+					}
+					array.push(this[i]);
+				}
+			return array;
+		}
 	}
-	return array;
-};
+});
 
 // #endregion Array
 
