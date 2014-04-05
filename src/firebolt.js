@@ -65,6 +65,47 @@ window.$doc = document;
 window.$wnd = window;
 
 /**
+ * PHP-style associative array (Object) of URL parameters.
+ * 
+ * @global
+ * @constant
+ * @name $_GET
+ * @type {Object.<String, String>}
+ * @see http://www.php.net/manual/en/reserved.variables.get.php
+ */
+function processQueryString(e, href) {
+	var get = {},
+		queryString = href ? href.match(/\?[^#]*/)[0] || '' : location.search,
+		params = queryString.slice(1).split('&'),
+		i = 0;
+	for (; i < params.length; i++) {
+		var keyval = params[i].split('=');
+		if (keyval[0] != '') {
+			get[decodeURIComponent(keyval[0])] = decodeURIComponent(keyval[1] || '');
+		}
+	}
+	window.$_GET = Object.freeze(get);
+}
+processQueryString();
+/*
+ * Define an onpushstate event to update window.$_GET when the URL changes.
+ * @see http://stackoverflow.com/questions/4570093/how-to-get-notified-about-changes-of-the-history-via-history-pushstate
+ */
+(function(history) {
+	var pushState = history.pushState;
+	history.pushState = function(state) {
+		if (typeof history.onpushstate == "function") {
+			history.onpushstate({ state: state });
+		}
+		processQueryString(0, arguments[2]);
+		return pushState.apply(history, arguments);
+	}
+})(window.history);
+/* Also update for window.onpopstate */
+window.addEventListener('popstate', processQueryString);
+
+
+/**
  * Returns the first element within the document that matches the specified CSS selector.<br />
  * Alias of `document.querySelector()`.
  * 
