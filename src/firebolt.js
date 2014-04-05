@@ -769,16 +769,42 @@ Firebolt.delay = function(callback, ms) {
  * <li>`null`</li>
  * <li>`undefined`</li>
  * <li>a zero-length array</li>
- * <li>an empty string (unless the `allowEmptyString` parameter is set to `true`)</li>
+ * <li>an empty object (as defined by {@linkcode Firebolt.isEmptyObject})</li>
+ * <li>an empty string (unless the `allowEmptyString` parameter is set to a truthy value)</li>
  * </ul>
  * 
  * @param {*} value - The value to be tested.
- * @param {Boolean} [allowEmptyString=false] - Set this to true to deem zero-length strings as not empty.
+ * @param {Boolean} [allowEmptyString=false] - Set this to true to regard zero-length strings as not empty.
  * @returns {Boolean}
  * @memberOf Firebolt
  */
 Firebolt.isEmpty = function(value, allowEmptyString) {
-	return value == null || value instanceof Array && value.length == 0 || typeof value == 'string' && !allowEmptyString && !value;
+	return value == null || Firebolt.isString(value) && !allowEmptyString && !value || Firebolt.isEmptyObject(value);
+};
+
+/**
+ * Determines if an object is empty (contains no enumerable properties).
+ * 
+ * @param {*} object - The object to be tested.
+ * @returns {Boolean}
+ * @memberOf Firebolt
+ */
+Firebolt.isEmptyObject = function(object) {
+	for (var item in object) {
+		return false;
+	}
+	return true;
+};
+
+/**
+ * Determines if the passed in object is a string.
+ * 
+ * @param {*} object - The object to be tested.
+ * @returns {Boolean}
+ * @memberOf Firebolt
+ */
+Firebolt.isString = function(object) {
+	return typeof object == 'string' || object instanceof String;
 };
 
 /**
