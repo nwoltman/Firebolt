@@ -795,10 +795,10 @@ function Firebolt(str) {
 		return document.getElementById(str.slice(1));
 	}
 	if (rgxTag.test(str)) {
-		return new document.getElementsByTagName(str);
+		return document.getElementsByTagName(str);
 	}
 	if (isHtml(str)) {
-		return FireBolt.create('div').html(str).childNodes;
+		return Firebolt.create('div').html(str).childNodes;
 	}
 	//else
 	return document.querySelectorAll(str);
