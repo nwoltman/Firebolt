@@ -23,7 +23,8 @@ var prototype = 'prototype',
 	NodeListIdentifier = '_fbnlid_',
 
 	/* Pre-built RegExps */
-	rgxHtml = /^[^[]*?</,
+	rgxClassOrId = /^.[\w-_]+$/,
+	rgxTag = /^[A-Za-z]+$/,
 	rgxNonWhitespace = /\S+/g,
 	rgxWhitespace = /\s+/;
 
@@ -734,10 +735,53 @@ ElementPrototype.toggleClass = function(className) {
  * @namespace Firebolt
  */
 
+/*
+ * Specifically for the Firebolt selector.
+ * Determines if the input is actually an HTML string instead of a CSS selector.
+ * 
+ * Rationale:
+ * 
+ * The string can only be considered HTML if it contains the tag open character: '<'.
+ * Normally, this character should never appear in a CSS selector, however it is possible
+ * for an element to have an attribute with a value that contains the '<' character.
+ * Here's an example:
+ * 
+ * <div data-notcool="<tag>"></div>
+ * 
+ * Hence, this element should be able to be selected with the following CSS selector:
+ * 
+ * [data-notcool="<tag>"]
+ * 
+ * So for the string to truly be HTML, not only must it contain the '<' character, but
+ * the first instance of that character must also be found in the string before any
+ * instance of the '[' character.
+ * 
+ * The reason the '[' character is not searched for if the index of the '<' character is
+ * less that 4 is because the smallest possible CSS selector that contains '<' is this:
+ * 
+ * [d="<"]
+ * 
+ * This also means that if '<' is found in the string, we only need to start searching for
+ * a '[' beginning at the index 4 less than the index the fist '<' was found at. 
+ * 
+ * @param {String} str
+ * @returns 1 if the string is deemed to be an HTML string; else 0.
+ */
+function isHtml(str) {
+	var idxTag = str.indexOf('<');
+	if (idxTag >= 0 && (idxTag < 4 || str.lastIndexOf('[', idxTag - 4) == -1)) {
+		return 1;
+	}
+	return 0;
+}
+
 /**
  * Returns a list of the elements either found in the DOM that match the passed in CSS selector or created by passing an HTML string.<br />
  * When passed a CSS selector string, acts as an alias of `document.querySelectorAll()`.<br />
- * Also represents the Firebolt namespace object and can be referenced by the synonyms FB and $ (on pages without jQuery).
+ * Also represents the Firebolt namespace object and can be referenced by the synonyms FB and $ (on pages without jQuery).<br />
+ * <br />
+ * NOTE: When a selector is passed into this function that is of the form "#elid" (for selecting a single element by its id),
+ * only a single element is returned instead of a NodeList (or `null` if there are no elements with the id). 
  * 
  * @function
  * @param {String} str - A CSS selector string or an HTML string.
@@ -750,8 +794,17 @@ ElementPrototype.toggleClass = function(className) {
  * $.create('div')         // Calls Firebolt's `create()` method to create a new div element 
  */
 function Firebolt(str) {
-	if (rgxHtml.test(str)) {
-		return Firebolt.create('div').html(str).childNodes;
+	if (str[0] == '.' && rgxClassOrId.test(str)) {
+		return document.getElementsByClassName(str.slice(1));
+	}
+	if (str[0] == '#' && rgxClassOrId.test(str)) {
+		return document.getElementById(str.slice(1));
+	}
+	if (rgxTag.test(str)) {
+		return new document.getElementsByTagName(str);
+	}
+	if (isHtml(str)) {
+		return FireBolt.create('div').html(str).childNodes;
 	}
 	//else
 	return document.querySelectorAll(str);
