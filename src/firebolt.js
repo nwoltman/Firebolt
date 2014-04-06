@@ -31,22 +31,11 @@ var prototype = 'prototype',
 
 //#region =========================== Globals ================================
 
-/**
- * Firebolt namespace reference object.
- * 
- * @global
- * @constant
- * @see Firebolt.Firebolt
+/*
+ * Firebolt namespace reference objects.
  */
 window.FB = window.Firebolt = Firebolt;
-if (!window.jQuery) {
-	/**
-	 * Firebolt namespace reference object if jQuery is not also loaded onto the page.
-	 * 
-	 * @global
-	 * @constant
-	 * @see Firebolt.Firebolt
-	 */
+if (!window.$) {
 	window.$ = Firebolt;
 }
 
@@ -55,6 +44,7 @@ if (!window.jQuery) {
  * 
  * @global
  * @constant
+ * @see Document
  * @example window.document === $doc  // true
  */
 window.$doc = document;
@@ -64,6 +54,7 @@ window.$doc = document;
  * 
  * @global
  * @constant
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/Window
  * @example window === $wnd  // true
  */
 window.$wnd = window;
@@ -176,7 +167,8 @@ window.$tag = function(tagName) {
 
 /**
  * The JavaScript Array object.
- * @namespace Array
+ * @class Array
+ * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array
  */
 
 defineProperties(ArrayPrototype, {
@@ -388,6 +380,7 @@ defineProperties(ArrayPrototype, {
 /**
  * The HTML DOM Document interface.
  * @namespace Document
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/document
  */
 
 /**
@@ -413,7 +406,8 @@ document.ready = function(callback) {
 
 /**
  * The HTML DOM Element interface.
- * @namespace Element
+ * @class Element
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/element
  */
 
 /**
@@ -915,7 +909,8 @@ Firebolt.toDeadNodeList = function(elements) {
 
 /**
  * The JavaScript Function interface.
- * @namespace Function
+ * @class Function
+ * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function
  */
 
 /**
@@ -942,7 +937,8 @@ Function[prototype].delay = function(ms) {
 
 /**
  * The HTML DOM HTMLElement interface.
- * @namespace HTMLElement
+ * @class HTMLElement
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
  */
 
 /**
@@ -1094,7 +1090,8 @@ HTMLElementPrototype.show = function(style) {
 
 /**
  * The HTML DOM Node interface.
- * @namespace Node
+ * @class Node
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/Node
  */
 
 /**
@@ -1184,7 +1181,8 @@ NodePrototype.text = function(text) {
  * It should be noted that elements in a NodeList are always unique in the order they are found in the document.
  * Furthermore, NodeLists cannot have their elements removed or have elements added them. To do these types of
  * things, you must first convert the NodeList to an Array (see {@linkcode NodeList#toArray|NodeList.toArray()});
- * @namespace NodeList
+ * @class NodeList
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/NodeList
  */
 
 /* Give NodeLists the same prototype functions as Arrays */
@@ -1570,8 +1568,9 @@ NodeListPrototype.toggleClass = callOnEachElement('toggleClass');
 /**
  * The DOM HTMLCollection interface.<br />
  * Has all the same functions as {@link NodeList}.
- * @namespace HTMLCollection
+ * @class HTMLCollection
  * @see NodeList
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/HTMLCollection
  */
 
 /* Give HTMLCollections the same prototype functions as NodeLists (if they don't already have them) */
@@ -1588,7 +1587,8 @@ Object.getOwnPropertyNames(NodeListPrototype).forEach(function(methodName) {
 
 /**
  * The JavaScript Number object.
- * @namespace Number
+ * @class Number
+ * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number
  */
 
 /**
@@ -1620,7 +1620,8 @@ Number[prototype].toPaddedString = function(length, radix) {
 
 /**
  * The JavaScript String object.
- * @namespace String
+ * @class String
+ * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String
  */
 
 if (!StringPrototype.contains) {
