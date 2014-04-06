@@ -26,7 +26,7 @@ var prototype = 'prototype',
 	rgxClassOrId = /^.[\w-_]+$/,
 	rgxTag = /^[A-Za-z]+$/,
 	rgxNonWhitespace = /\S+/g,
-	rgxWhitespace = /\s+/;
+	rgxSpaceChars = /[ \n\r\t\f]+/; //From W3C http://www.w3.org/TR/html5/single-page.html#space-character
 
 
 //#region =========================== Globals ================================
@@ -652,7 +652,7 @@ ElementPrototype.removeAttr = function(attribute) {
 ElementPrototype.removeClass = function(className) {
 	if (_isChrome || _isOldIE) {
 		var changed = false,
-			classes = this.className.split(rgxWhitespace),
+			classes = this.className.split(rgxSpaceChars),
 			newClassName = '',
 			i = 0;
 		for (; i < classes.length; i++) {
@@ -697,7 +697,7 @@ ElementPrototype.removeProp = function(property) {
 ElementPrototype.toggleClass = function(className) {
 	if (this.className) {
 		if (this.hasClass(className)) {
-			var classes = this.className.split(rgxWhitespace),
+			var classes = this.className.split(rgxSpaceChars),
 				newClassName = '',
 				i = 0;
 			for (; i < classes.length; i++) {
