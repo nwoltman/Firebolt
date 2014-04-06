@@ -798,7 +798,7 @@ Firebolt.delay = function(callback, ms) {
  * <li>`undefined`</li>
  * <li>a zero-length array</li>
  * <li>an empty object (as defined by {@linkcode Firebolt.isEmptyObject})</li>
- * <li>an empty string (unless the `allowEmptyString` parameter is set to a truthy value)</li>
+ * <li>a zero-length string (unless the `allowEmptyString` parameter is set to a truthy value)</li>
  * </ul>
  * 
  * @param {*} value - The value to be tested.
@@ -807,13 +807,13 @@ Firebolt.delay = function(callback, ms) {
  * @memberOf Firebolt
  */
 Firebolt.isEmpty = function(value, allowEmptyString) {
-	return value == null || Firebolt.isString(value) && !allowEmptyString && !value || Firebolt.isEmptyObject(value);
+	return value == null || typeof value == 'string' && !allowEmptyString && !value || typeof value == 'object' && Firebolt.isEmptyObject(value);
 };
 
 /**
  * Determines if an object is empty (contains no enumerable properties).
  * 
- * @param {*} object - The object to be tested.
+ * @param {Object} object - The object to be tested.
  * @returns {Boolean}
  * @memberOf Firebolt
  */
@@ -822,17 +822,6 @@ Firebolt.isEmptyObject = function(object) {
 		return false;
 	}
 	return true;
-};
-
-/**
- * Determines if the passed in object is a string.
- * 
- * @param {*} object - The object to be tested.
- * @returns {Boolean}
- * @memberOf Firebolt
- */
-Firebolt.isString = function(object) {
-	return typeof object == 'string' || object instanceof String;
 };
 
 /**
@@ -1594,9 +1583,11 @@ if (!StringPrototype.contains) {
 	 * alert( str.contains(" is ") );    // true
 	 * alert( str.contains("summer") );  // false
 	 */
-	StringPrototype.contains = function(searchString, position) {
-		return this.indexOf(searchString, position) >= 0;
-	};
+	defineProperty(StringPrototype, 'contains', {
+		value: function(searchString, position) {
+			return this.indexOf(searchString, position) >= 0;
+		}
+	});
 }
 
 if (!StringPrototype.endsWith) {
@@ -1611,9 +1602,11 @@ if (!StringPrototype.endsWith) {
 	 * alert( str.endsWith("Gamling?") );  // true
 	 * alert( str.endsWith("am I") );      // false
 	 */
-	StringPrototype.endsWith = function(searchString) {
-		return this.indexOf(searchString, this.length - searchString.length) >= 0;
-	};
+	defineProperty(StringPrototype, 'endsWith', {
+		value: function(searchString) {
+			return this.indexOf(searchString, this.length - searchString.length) >= 0;
+		}
+	});
 }
 
 if (!StringPrototype.repeat) {
@@ -1629,14 +1622,16 @@ if (!StringPrototype.repeat) {
 	 * "abc".repeat(2)  // "abcabc"
 	 * "0".repeat(5)    // "00000" 
 	 */
-	StringPrototype.repeat = function(count) {
-		var str = this,
-			i = 1;
-		for (; i < count; i++) {
-			str += this;
+	defineProperty(StringPrototype, 'repeat', {
+		value: function(count) {
+			var str = this,
+				i = 1;
+			for (; i < count; i++) {
+				str += this;
+			}
+			return str;
 		}
-		return str;
-	};
+	});
 }
 
 if (!StringPrototype.startsWith) {
@@ -1651,9 +1646,11 @@ if (!StringPrototype.startsWith) {
 	 * alert( str.endsWith("Who") );   // true
 	 * alert( str.endsWith("am I") );  // false
 	 */
-	StringPrototype.startsWith = function(searchString) {
-		return this.lastIndexOf(searchString, 0) == 0;
-	};
+	defineProperty(StringPrototype, 'startsWith', {
+		value: function(searchString) {
+			return this.lastIndexOf(searchString, 0) == 0;
+		}
+	});
 }
 
 /**
@@ -1665,9 +1662,11 @@ if (!StringPrototype.startsWith) {
  * var str = "The boy who lived.";
  * str.tokenize();  // returns ["The", "boy", "who", "lived."]
  */
-StringPrototype.tokenize = function() {
-	return this.match(rgxNonWhitespace) || [];
-};
+defineProperty(StringPrototype, 'tokenize', {
+	value: function() {
+		return this.match(rgxNonWhitespace) || [];
+	}
+});
 
 //#endregion String
 
