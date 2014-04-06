@@ -839,6 +839,28 @@ Firebolt.delay = function(callback, ms) {
 };
 
 /**
+ * HTML decodes the passed in string and returns the result.
+ * 
+ * @param {String} string - An HTML string to be decoded.
+ * @returns {String}
+ * @memberOf Firebolt
+ */
+Firebolt.HTMLDecode = function(str) {
+	return $('<div/>').html(str).text();
+}
+
+/**
+ * HTML encodes the passed in string and returns the result.
+ * 
+ * @param {String} string - A string to be encoded.
+ * @returns {String}
+ * @memberOf Firebolt
+ */
+Firebolt.HTMLEncode = function(str) {
+	return $('<div/>').text(str).html();
+}
+
+/**
  * Determines if the passed in value is considered empty. The value is considered empty if it is one of the following:
  * <ul>
  * <li>`null`</li>
