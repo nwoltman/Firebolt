@@ -784,9 +784,9 @@ function isHtml(str) {
 /**
  * Returns a list of the elements either found in the DOM that match the passed in CSS selector or created by passing an HTML string.<br />
  * When passed a CSS selector string, acts as an alias of `document.querySelectorAll()`.<br />
- * Also represents the Firebolt namespace object and can be referenced by the synonyms FB and $ (on pages without jQuery).<br />
+ * Also represents the Firebolt namespace object and can be referenced by the synonyms `FB` and `$` (on pages where `$` has not already been defined).<br />
  * <br />
- * NOTE: When a selector is passed into this function that is of the form "#elid" (for selecting a single element by its id),
+ * NOTE: When a selector is passed into this function that is of the form `"#elid"` (for selecting a single element by its id),
  * only a single element is returned instead of a NodeList (or `null` if there are no elements with the id). 
  * 
  * @function
@@ -858,7 +858,7 @@ Firebolt.delay = function(callback, ms) {
  * @memberOf Firebolt
  */
 Firebolt.HTMLDecode = function(str) {
-	return $('<div/>').html(str).text();
+	return Firebolt.create('div').html(str).text();
 }
 
 /**
@@ -869,7 +869,7 @@ Firebolt.HTMLDecode = function(str) {
  * @memberOf Firebolt
  */
 Firebolt.HTMLEncode = function(str) {
-	return $('<div/>').text(str).html();
+	return Firebolt.create('div').text(str).html();
 }
 
 /**
@@ -1309,7 +1309,7 @@ function getFirstSetEachElement(funcName, numArgs) {
  */
 NodeListPrototype.add = function(e) {
 	if (typeofString(e)) {
-		e = $(e);
+		e = Firebolt(e);
 	}
 	else if (!e.length) {
 		e = [e];
