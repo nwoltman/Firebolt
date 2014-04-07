@@ -990,7 +990,7 @@ Function[prototype].delay = function(ms) {
  * @param {Object.<String, String|Number>} properties - An object of CSS property-values.
  */
 /**
- * Explicitly sets the element's CSS style, removing or replacing any current inline style properties.
+ * Explicitly sets the element's inline CSS style, removing or replacing any current inline style properties.
  * 
  * @function HTMLElement.prototype.css
  * @param {String} cssText - A CSS style string.
@@ -1369,7 +1369,7 @@ NodeListPrototype.click = callOnEachElement('click');
  * @param {Object.<String, String|Number>} properties - An object of CSS property-values.
  */
 /**
- * Explicitly sets each elements' CSS style, removing or replacing any current inline style properties.
+ * Explicitly sets each elements' inline CSS style, removing or replacing any current inline style properties.
  * 
  * @function NodeList.prototype.css
  * @param {String} cssText - A CSS style string.
