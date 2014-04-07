@@ -6,6 +6,8 @@
 
 (function(window, document) {
 
+//#region =========================== Private ================================
+
 /*
  * Local variables that are compressed when this file is minified.
  */
@@ -27,6 +29,16 @@ var prototype = 'prototype',
 	rgxTag = /^[A-Za-z]+$/,
 	rgxNonWhitespace = /\S+/g,
 	rgxSpaceChars = /[ \n\r\t\f]+/; //From W3C http://www.w3.org/TR/html5/single-page.html#space-character
+
+function typeofString(value) {
+	return typeof value == 'string';
+}
+
+function typeofUndefined(value) {
+	return typeof value == 'undefined';
+}
+
+//#endregion Private
 
 
 //#region =========================== Globals ================================
@@ -226,7 +238,7 @@ defineProperties(ArrayPrototype, {
 	 */
 	contains: {
 		value: function(e) {
-			return this.indexOf(e) != -1;
+			return this.indexOf(e) !== -1;
 		}
 	},
 
@@ -243,7 +255,7 @@ defineProperties(ArrayPrototype, {
 			if (this === array) { //Easy check
 				return true;
 			}
-			if (this.length != array.length) {
+			if (this.length !== array.length) {
 				return false;
 			}
 			for (var i = 0; i < array.length; i++) {
@@ -279,7 +291,7 @@ defineProperties(ArrayPrototype, {
 	 * Returns the last item of the array.
 	 * 
 	 * @function Array.prototype.last
-	 * @returns {*} The last item in the array, or undefined if the array is empty.
+	 * @returns {*} The last item in the array, or `undefined` if the array is empty.
 	 */
 	last: {
 		value: function() {
@@ -499,8 +511,8 @@ ElementPrototype.addClass = function(className) {
  * @param {Object.<String, String>} attributes - The name of the attribute who's value should be set or an object of attribute-value pairs to set.
  */
 ElementPrototype.attr = function(attr, value) {
-	if (typeof value == 'undefined') {
-		if (typeof attr == 'string') {
+	if (typeofUndefined(value)) {
+		if (typeofString(attr)) {
 			return this.getAttribute(attr);
 		}
 		for (var attribute in attr) {
@@ -564,7 +576,7 @@ ElementPrototype.hasClass = function(className) {
  * @param {String} innerHTML - A string of HTML to set as the content of the element.
  */
 ElementPrototype.html = function(innerHTML) {
-	if (typeof innerHTML == 'undefined') {
+	if (typeofUndefined(innerHTML)) {
 		return this.innerHTML; //Get
 	}
 	this.innerHTML = innerHTML; //Set
@@ -616,8 +628,8 @@ ElementPrototype.prepend = function() {
  * @param {Object.<String, *>} properties - An object of property-value pairs to set.
  */
 ElementPrototype.prop = function(prop, value) {
-	if (typeof value == 'undefined') {
-		if (typeof prop == 'string') {
+	if (typeofUndefined(value)) {
+		if (typeofString(prop)) {
 			return this[prop]; //Get
 		}
 		for (var property in prop) {
@@ -763,7 +775,7 @@ ElementPrototype.toggleClass = function(className) {
  */
 function isHtml(str) {
 	var idxTag = str.indexOf('<');
-	if (idxTag >= 0 && (idxTag < 4 || str.lastIndexOf('[', idxTag - 4) == -1)) {
+	if (idxTag >= 0 && (idxTag < 4 || str.lastIndexOf('[', idxTag - 4) === -1)) {
 		return 1;
 	}
 	return 0;
@@ -788,10 +800,10 @@ function isHtml(str) {
  * $.create('div')         // Calls Firebolt's `create()` method to create a new div element 
  */
 function Firebolt(str) {
-	if (str[0] == '.' && rgxClassOrId.test(str)) {
+	if (str[0] === '.' && rgxClassOrId.test(str)) {
 		return document.getElementsByClassName(str.slice(1));
 	}
-	if (str[0] == '#' && rgxClassOrId.test(str)) {
+	if (str[0] === '#' && rgxClassOrId.test(str)) {
 		return document.getElementById(str.slice(1));
 	}
 	if (rgxTag.test(str)) {
@@ -876,7 +888,7 @@ Firebolt.HTMLEncode = function(str) {
  * @memberOf Firebolt
  */
 Firebolt.isEmpty = function(value, allowEmptyString) {
-	return value == null || typeof value == 'string' && !allowEmptyString && !value || typeof value == 'object' && Firebolt.isEmptyObject(value);
+	return value == null || typeofString(value) && !allowEmptyString && !value || typeof value == 'object' && Firebolt.isEmptyObject(value);
 };
 
 /**
@@ -996,8 +1008,8 @@ Function[prototype].delay = function(ms) {
  * @param {String} cssText - A CSS style string.
  */
 HTMLElementPrototype.css = function(prop, value) {
-	if (typeof prop == 'string') {
-		if (typeof value == 'undefined') {
+	if (typeofString(prop)) {
+		if (typeofUndefined(value)) {
 			if (!/:/.test(prop)) {
 				//Get the specified property
 				return getComputedStyle(this)[prop];
@@ -1092,7 +1104,7 @@ HTMLElementPrototype.show = function(style) {
 				style = 'inline';
 		}
 	}
-	if (typeof style !== 'string') {
+	if (!typeofString(style)) {
 		//Create a temporary element of the same type as this element to figure out what the default display value should be
 		var temp = Firebolt.create(this.tagName, {
 			style: 'width:0;height:0;border:0;margin:0;padding:0'
@@ -1184,7 +1196,7 @@ NodePrototype.remove = function() {
  * @param {String|*} text - The text or content that will be converted to a string to be set as the node's text content.
  */
 NodePrototype.text = function(text) {
-	if (typeof text == 'undefined') {
+	if (typeofUndefined(text)) {
 		return this.textContent;
 	}
 	//else
@@ -1247,7 +1259,7 @@ Object.getOwnPropertyNames(ArrayPrototype).forEach(function(methodName) {
 function callOnEachElement(funcName) {
 	return function() {
 		for (var i = 0, len = this.length; i < len; i++) {
-			if (this[i].nodeType == 1) this[i][funcName].apply(this[i], arguments);
+			if (this[i].nodeType === 1) this[i][funcName].apply(this[i], arguments);
 		}
 		return this;
 	};
@@ -1272,7 +1284,7 @@ function getFirstSetEachElement(funcName, numArgs) {
 			i = 0;
 		if (arguments.length < numArgs && typeof arguments[0] != 'object') {
 			for (; i < len; i++) {
-				if (items[i].nodeType == 1) {
+				if (items[i].nodeType === 1) {
 					return items[i][funcName](arguments[0]); //Allowed to assume at most one argument needed
 				}
 			}
@@ -1280,7 +1292,7 @@ function getFirstSetEachElement(funcName, numArgs) {
 		}
 		//else
 		for (; i < len; i++) {
-			if (items[i].nodeType == 1) {
+			if (items[i].nodeType === 1) {
 				items[i][funcName].apply(items[i], arguments);
 			}
 		}
@@ -1296,7 +1308,7 @@ function getFirstSetEachElement(funcName, numArgs) {
  * @returns {NodeList} The result of adding the new item(s) to the current list.
  */
 NodeListPrototype.add = function(e) {
-	if (typeof e == 'string') {
+	if (typeofString(e)) {
 		e = $(e);
 	}
 	else if (!e.length) {
@@ -1393,9 +1405,9 @@ NodeListPrototype.empty = callOnEachElement('empty');
 NodeListPrototype.filter = function(selector) {
 	var filtration = [],
 		i = 0;
-	if (typeof selector == 'string') {
+	if (typeofString(selector)) {
 		for (; i < this.length; i++) {
-			if (this[i].nodeType == 1 && this[i].matches(selector)) {
+			if (this[i].nodeType === 1 && this[i].matches(selector)) {
 				filtration.push(this[i]);
 			}
 		}
@@ -1475,7 +1487,7 @@ NodeListPrototype.prop = getFirstSetEachElement('prop', 2);
 NodeListPrototype.remove = function() {
 	var origLen = this.length,
 		i = 1;
-	if (origLen == 0) return;
+	if (origLen === 0) return;
 	this[0].remove();
 	if (this.length == origLen) { //Non-live
 		for (; i < origLen; i++) {
@@ -1550,7 +1562,7 @@ NodeListPrototype.show = callOnEachElement('show');
  */
 NodeListPrototype.text = function(text) {
 	var i = 0;
-	if (typeof text == 'undefined') {
+	if (typeofUndefined(text)) {
 		for (text = ''; i < this.length; i++) {
 			text += this[i].textContent;
 		}
@@ -1724,7 +1736,7 @@ if (!StringPrototype.startsWith) {
 	 */
 	defineProperty(StringPrototype, 'startsWith', {
 		value: function(searchString) {
-			return this.lastIndexOf(searchString, 0) == 0;
+			return this.lastIndexOf(searchString, 0) === 0;
 		}
 	});
 }
