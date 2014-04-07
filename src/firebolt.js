@@ -54,7 +54,7 @@ window.$doc = document;
  * 
  * @global
  * @constant
- * @see https://developer.mozilla.org/en-US/docs/Web/API/Window
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Window|Window - Web API Interfaces | MDN}
  * @example window === $wnd  // true
  */
 window.$wnd = window;
@@ -66,7 +66,7 @@ window.$wnd = window;
  * @constant
  * @name $_GET
  * @type {Object.<String, String>}
- * @see http://www.php.net/manual/en/reserved.variables.get.php
+ * @see {@link http://www.php.net/manual/en/reserved.variables.get.php|PHP: $_GET - Manual}
  */
 function processQueryString(e, href) {
 	var get = {},
@@ -168,7 +168,7 @@ window.$tag = function(tagName) {
 /**
  * The JavaScript Array object.
  * @class Array
- * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array|Array - JavaScript | MDN}
  */
 
 defineProperties(ArrayPrototype, {
@@ -178,7 +178,7 @@ defineProperties(ArrayPrototype, {
 	 * @function Array.prototype.clean
 	 * @param {Boolean} [allowEmptyStrings=false] - Set this to `true` to keep zero-length strings in the array.
 	 * @returns {Array} A reference to the array.
-	 * @see Firebolt#isEmpty
+	 * @see Firebolt.isEmpty
 	 */
 	clean: {
 		value: function(allowEmptyStrings) {
@@ -380,7 +380,7 @@ defineProperties(ArrayPrototype, {
 /**
  * The HTML DOM Document interface.
  * @namespace Document
- * @see https://developer.mozilla.org/en-US/docs/Web/API/document
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/document|Document - Web API Interfaces | MDN}
  */
 
 /**
@@ -407,7 +407,7 @@ document.ready = function(callback) {
 /**
  * The HTML DOM Element interface.
  * @class Element
- * @see https://developer.mozilla.org/en-US/docs/Web/API/element
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/element|Element - Web API Interfaces | MDN}
  */
 
 /**
@@ -932,7 +932,7 @@ Firebolt.toDeadNodeList = function(elements) {
 /**
  * The JavaScript Function interface.
  * @class Function
- * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function|Function - JavaScript | MDN}
  */
 
 /**
@@ -960,7 +960,7 @@ Function[prototype].delay = function(ms) {
 /**
  * The HTML DOM HTMLElement interface.
  * @class HTMLElement
- * @see https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement|HTMLElement - Web API Interfaces | MDN}
  */
 
 /**
@@ -970,7 +970,7 @@ Function[prototype].delay = function(ms) {
  * @returns {Object.<String, String>} The element's computed style object.
  */
 /**
- * Gets the value of element's specified style property.
+ * Gets the value of the element's specified style property.
  * 
  * @function HTMLElement.prototype.css
  * @param {String} propertyName - The name of the style property who's value you want to retrieve.
@@ -993,7 +993,7 @@ Function[prototype].delay = function(ms) {
  * Explicitly sets the element's CSS style, removing or replacing any current inline style properties.
  * 
  * @function HTMLElement.prototype.css
- * @param {String} CSS - A CSS style string.
+ * @param {String} cssText - A CSS style string.
  */
 HTMLElementPrototype.css = function(prop, value) {
 	if (typeof prop == 'string') {
@@ -1049,7 +1049,7 @@ HTMLElementPrototype.hide = function() {
  * 
  * // JavaScript
  * var offset = $id('a').offset();
- * alert( offset.top + ', ' + offset.left );  //  10, 20
+ * alert( offset.top + ', ' + offset.left );  // "10, 20"
  */
 HTMLElementPrototype.offset = function() {
 	var el = this,
@@ -1113,7 +1113,7 @@ HTMLElementPrototype.show = function(style) {
 /**
  * The HTML DOM Node interface.
  * @class Node
- * @see https://developer.mozilla.org/en-US/docs/Web/API/Node
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Node|Node - Web API Interfaces | MDN}
  */
 
 /**
@@ -1204,7 +1204,7 @@ NodePrototype.text = function(text) {
  * Furthermore, NodeLists cannot have their elements removed or have elements added them. To do these types of
  * things, you must first convert the NodeList to an Array (see {@linkcode NodeList#toArray|NodeList.toArray()});
  * @class NodeList
- * @see https://developer.mozilla.org/en-US/docs/Web/API/NodeList
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/NodeList|NodeList - Web API Interfaces | MDN}
  */
 
 /* Give NodeLists the same prototype functions as Arrays */
@@ -1372,7 +1372,7 @@ NodeListPrototype.click = callOnEachElement('click');
  * Explicitly sets each elements' CSS style, removing or replacing any current inline style properties.
  * 
  * @function NodeList.prototype.css
- * @param {String} CSS - A CSS style string.
+ * @param {String} cssText - A CSS style string.
  */
 NodeListPrototype.css = getFirstSetEachElement('css', 2);
 
@@ -1592,7 +1592,7 @@ NodeListPrototype.toggleClass = callOnEachElement('toggleClass');
  * Has all the same functions as {@link NodeList}.
  * @class HTMLCollection
  * @see NodeList
- * @see https://developer.mozilla.org/en-US/docs/Web/API/HTMLCollection
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/HTMLCollection|HTMLCollection - Web API Interfaces | MDN}
  */
 
 /* Give HTMLCollections the same prototype functions as NodeLists (if they don't already have them) */
@@ -1610,7 +1610,7 @@ Object.getOwnPropertyNames(NodeListPrototype).forEach(function(methodName) {
 /**
  * The JavaScript Number object.
  * @class Number
- * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number|Number - JavaScript | MDN}
  */
 
 /**
@@ -1643,7 +1643,7 @@ Number[prototype].toPaddedString = function(length, radix) {
 /**
  * The JavaScript String object.
  * @class String
- * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String|String - JavaScript | MDN}
  */
 
 if (!StringPrototype.contains) {
