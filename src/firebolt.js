@@ -113,14 +113,29 @@ window.addEventListener('popstate', processQueryString);
 
 
 /**
- * Returns the first element within the document that matches the specified CSS selector.<br />
- * Alias of `document.querySelector()`.
+ * Returns the first element within the document that matches the specified CSS selector.
+ * If no element matches the selector, `null` or `undefined` may be returned.<br />
+ * Alias of `document.querySelector()`, but with optimizations if a single class name, id, or tag name is input as the selector.
  * 
  * @global
  * @param {String} selector
  * @returns {?Element}
  */
 window.$1 = function(selector) {
+	if (selector[0] === '.') { //Check for a single class name
+		if (rgxClassOrId.test(selector)) {
+			return document.getElementsByClassName(selector.slice(1))[0];
+		}
+	}
+	else if (selector[0] === '#') { //Check for a single id
+		if (rgxClassOrId.test(selector)) {
+			return document.getElementById(selector.slice(1));
+		}
+	}
+	else if (rgxTag.test(selector)) { //Check for a single tag name
+		return document.getElementsByTagName(selector)[0];
+	}
+	//else
 	return document.querySelector(selector);
 }
 
@@ -800,16 +815,20 @@ function isHtml(str) {
  * $.create('div')         // Calls Firebolt's `create()` method to create a new div element 
  */
 function Firebolt(str) {
-	if (str[0] === '.' && rgxClassOrId.test(str)) {
-		return document.getElementsByClassName(str.slice(1));
+	if (str[0] === '.') { //Check for a single class name
+		if (rgxClassOrId.test(str)) {
+			return document.getElementsByClassName(str.slice(1));
+		}
 	}
-	if (str[0] === '#' && rgxClassOrId.test(str)) {
-		return document.getElementById(str.slice(1));
+	else if (str[0] === '#') { //Check for a single id
+		if (rgxClassOrId.test(str)) {
+			return document.getElementById(str.slice(1));
+		}
 	}
-	if (rgxTag.test(str)) {
+	else if (rgxTag.test(str)) { //Check for a single tag name
 		return document.getElementsByTagName(str);
 	}
-	if (isHtml(str)) {
+	else if (isHtml(str)) { //Check if the string is an HTML string
 		return Firebolt.create('div').html(str).childNodes;
 	}
 	//else
