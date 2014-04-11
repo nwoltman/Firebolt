@@ -744,9 +744,6 @@ HTMLElementPrototype.addClass = function(className) {
 	if (!this.className) {
 		this.className = className;
 	}
-	else if (!_isOldIE) {
-		this.classList.add(className);
-	}
 	else if (!this.hasClass(className)) {
 		this.className += ' ' + className;
 	}
@@ -883,8 +880,7 @@ HTMLElementPrototype.empty = function() {
  * @returns {Boolean} `true` if the class name is in the element's class list; else `false`.
  */
 HTMLElementPrototype.hasClass = function(className) {
-	if (!_isOldIE) return this.classList.contains(className);
-	return new RegExp('(?:\\s|^)' + className + '(?:\\s|$)').test(this.className);
+	return this.classList.contains(className);
 };
 
 /**
@@ -1018,27 +1014,22 @@ HTMLElementPrototype.removeAttr = function(attribute) {
  * @param {String} className - The class to be removed from the element.
  */
 HTMLElementPrototype.removeClass = function(className) {
-	if (_isChrome || _isOldIE) {
-		var changed = false,
-			classes = this.className.split(rgxSpaceChars),
-			newClassName = '',
-			i = 0;
-		for (; i < classes.length; i++) {
-			if (!classes[i]) continue;
-			if (classes[i] != className) {
-				if (newClassName) newClassName += ' ';
-				newClassName += classes[i];
-			}
-			else {
-				changed = true;
-			}
+	var changed = false,
+		classes = this.className.split(rgxSpaceChars),
+		newClassName = '',
+		i = 0;
+	for (; i < classes.length; i++) {
+		if (!classes[i]) continue;
+		if (classes[i] != className) {
+			if (newClassName) newClassName += ' ';
+			newClassName += classes[i];
 		}
-		if (changed) {
-			this.className = newClassName;
+		else {
+			changed = true;
 		}
 	}
-	else {
-		this.classList.remove(className);
+	if (changed) {
+		this.className = newClassName;
 	}
 
 	return this;
@@ -1771,10 +1762,16 @@ defineProperty(StringPrototype, 'tokenize', {
 
 
 /*
- * Private, constant variables for improving function performance and compatibility with IE 9
+ * Private, constant to check if the current browser is IE 9 or below
  */
-var _isChrome = !!window.chrome && !(window.opera || navigator.userAgent.indexOf(' OPR/') >= 0),
-	_isOldIE = Firebolt.create('div').html('<!--[if lte IE9]><i></i><![endif]-->').$tag('i').length > 0;
+var isOldIE = Firebolt.create('div').html('<!--[if IE]><i></i><![endif]-->').$tag('i').length > 0;
+
+if (isOldIE) {
+	/* Make the hasClass() function compatible with IE9 */
+	HTMLElementPrototype.hasClass = function(className) {
+		return new RegExp('(?:^|\\s)' + className + '(?:\\s|$)').test(this.className);
+	};
+}
 
 })(window, document);
 
