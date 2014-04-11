@@ -606,7 +606,7 @@ ElementPrototype.html = function(innerHTML) {
  * @param {String} selector - A CSS selector string.
  * @returns {Boolean} `true` if the element matches the selector; else `false`.
  */
-ElementPrototype.matches = ElementPrototype.matches || ElementPrototype.webkitMatchesSelector || ElementPrototype.mozMatchesSelector || ElementPrototype.msMatchesSelector;
+ElementPrototype.matches = ElementPrototype.matches || ElementPrototype.webkitMatchesSelector || ElementPrototype.mozMatchesSelector || ElementPrototype.msMatchesSelector || ElementPrototype.oMatchesSelector;
 
 /**
  * Gets or set the element's inner HTML.
