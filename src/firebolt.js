@@ -209,8 +209,8 @@ defineProperties(ArrayPrototype, {
 	 */
 	clean: {
 		value: function(allowEmptyStrings) {
-			for (var i = 0; i < this.length; i++) {
-				while (i < this.length && Firebolt.isEmpty(this[i], allowEmptyStrings)) {
+			for (var len = this.length, i = 0; i < len; i++) {
+				while (i < len && Firebolt.isEmpty(this[i], allowEmptyStrings)) {
 					this.splice(i, 1);
 				}
 			}
@@ -1552,27 +1552,28 @@ NodeListPrototype.removeProp = callOnEachElement('removeProp');
 NodeListPrototype.show = callOnEachElement('show');
 
 /**
- * Gets the text content of the first node in the list.
+ * Gets the combined text contents of each node in the list.
  * 
  * @function NodeList.prototype.text
  * @returns {String} The node's text content.
  */
 /**
- * Sets text content of each node in the list.
+ * Sets the text content of each node in the list.
  * 
  * @function NodeList.prototype.text
  * @param {String|*} text - The text or content that will be converted to a string to be set as each nodes' text content.
  */
 NodeListPrototype.text = function(text) {
-	var i = 0;
-	if (typeofUndefined(text)) {
-		for (text = ''; i < this.length; i++) {
+	var len = this.length,
+		i = 0;
+	if (typeofUndefined(text)) { //Get
+		for (text = ''; i < len; i++) {
 			text += this[i].textContent;
 		}
 		return text;
 	}
-	//else
-	for (; i < this.length; i++) {
+	//Set
+	for (; i < len; i++) {
 		this[i].textContent = text;
 	}
 
