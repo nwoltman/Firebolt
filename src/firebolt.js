@@ -585,10 +585,10 @@ ElementPrototype.hasClass = function(className) {
  * @returns {String} The element's inner HTML.
  */
 /**
- * Set the element's inner HTML.
+ * Sets the element's inner HTML.
  * 
  * @function Element.prototype.html
- * @param {String} innerHTML - A string of HTML to set as the content of the element.
+ * @param {String} innerHTML - An HTML string.
  */
 ElementPrototype.html = function(innerHTML) {
 	if (typeofUndefined(innerHTML)) {
@@ -805,7 +805,7 @@ function isHtml(str) {
  * only a single element is returned instead of a NodeList (or `null` if there are no elements with the id). 
  * 
  * @function
- * @param {String} str - A CSS selector string or an HTML string.
+ * @param {String} string - A CSS selector string or an HTML string.
  * @returns {NodeList} A non-live list of selected elements or newly created elements.
  * @memberOf Firebolt
  * @example
@@ -870,24 +870,24 @@ Firebolt.delay = function(callback, ms) {
 };
 
 /**
- * HTML decodes the passed in string and returns the result.
+ * HTML-decodes the passed in string and returns the result.
  * 
- * @param {String} string - An HTML string to be decoded.
- * @returns {String}
+ * @param {String} string - The string to decode.
+ * @returns {String} The HTML-decoded text.
  * @memberOf Firebolt
  */
-Firebolt.HTMLDecode = function(str) {
+Firebolt.htmlDecode = function(str) {
 	return Firebolt.create('div').html(str).text();
 }
 
 /**
- * HTML encodes the passed in string and returns the result.
+ * HTML-encodes the passed in string and returns the result.
  * 
- * @param {String} string - A string to be encoded.
- * @returns {String}
+ * @param {String} string - The string to encode.
+ * @returns {String} The HTML-encoded text.
  * @memberOf Firebolt
  */
-Firebolt.HTMLEncode = function(str) {
+Firebolt.htmlEncode = function(str) {
 	return Firebolt.create('div').text(str).html();
 }
 
@@ -1458,10 +1458,10 @@ NodeListPrototype.hide = callOnEachElement('hide');
  * @returns {String} The element's inner HTML.
  */
 /**
- * Set the element's inner HTML.
+ * Sets the inner HTML of each element in the list.
  * 
- * @function Element.prototype.html
- * @param {String} innerHTML - A string of HTML to set as the content of the element.
+ * @function NodeList.prototype.html
+ * @param {String} innerHTML - An HTML string.
  */
 NodeListPrototype.html = getFirstSetEachElement('html', 1);
 
