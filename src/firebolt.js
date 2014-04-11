@@ -478,120 +478,6 @@ ElementPrototype.$class = ElementPrototype.getElementsByClassName;
 ElementPrototype.$tag = ElementPrototype.getElementsByTagName;
 
 /**
- * Adds the specified class to the element if the element doesn't already have it.
- * 
- * @function Element.prototype.addClass
- * @param {String} className - The class to be added to the element.
- */
-ElementPrototype.addClass = function(className) {
-	if (!this.className) {
-		this.className = className;
-	}
-	else if (!_isOldIE) {
-		this.classList.add(className);
-	}
-	else if (!this.hasClass(className)) {
-		this.className += ' ' + className;
-	}
-
-	return this;
-};
-
-/**
- * Gets the value of the element's specified attribute.
- * 
- * @function Element.prototype.attr
- * @param {String|Object} attribute - The name of the attribute who's value you want to get.
- * @returns {String} The value of the attribute being retrieved.
- */
-/**
- * Sets the element's specified attribute.
- * 
- * @function Element.prototype.attr
- * @param {String} attribute - The name of the attribute who's value should be set.
- * @param {String} value - The value to set the specified attribute to.
- */
-/**
- * Sets the specified attributes of the element.
- * 
- * @function Element.prototype.attr
- * @param {Object.<String, String>} attributes - The name of the attribute who's value should be set or an object of attribute-value pairs to set.
- */
-ElementPrototype.attr = function(attr, value) {
-	if (typeofUndefined(value)) {
-		if (typeofString(attr)) {
-			return this.getAttribute(attr);
-		}
-		for (var attribute in attr) {
-			this.setAttribute(attribute, attr[attribute]);
-		}
-	}
-	else {
-		this.setAttribute(attr, value);
-	}
-
-	return this;
-};
-
-/**
- * Removes all of the element's child nodes.
- * 
- * @function Element.prototype.empty
- * @chainable
- * @example
- * // HTML (before)
- * <div id="mydiv">
- *     <span>Inside Span</span>
- *     Some Text
- * </div>
- *
- * // JavaScript
- * $id('mydiv').empty
- *
- * // HTML (after)
- * <div id="mydiv"></div>
- */
-ElementPrototype.empty = function() {
-	while (this.childNodes.length) {
-		this.removeChild(this.childNodes[0]);
-	}
-	return this;
-};
-
-/**
- * Determines if the element's class list has the specified class name.
- * 
- * @function Element.prototype.hasClass
- * @param {String} className - A string containing a single class name.
- * @returns {Boolean} `true` if the class name is in the element's class list; else `false`.
- */
-ElementPrototype.hasClass = function(className) {
-	if (!_isOldIE) return this.classList.contains(className);
-	return new RegExp('(?:\\s|^)' + className + '(?:\\s|$)').test(this.className);
-};
-
-/**
- * Gets the element's inner HTML.
- * 
- * @function Element.prototype.html
- * @returns {String} The element's inner HTML.
- */
-/**
- * Sets the element's inner HTML.
- * 
- * @function Element.prototype.html
- * @param {String} innerHTML - An HTML string.
- */
-ElementPrototype.html = function(innerHTML) {
-	if (typeofUndefined(innerHTML)) {
-		return this.innerHTML; //Get
-	}
-	this.innerHTML = innerHTML; //Set
-
-	return this;
-};
-
-/**
  * Determines if the element matches the specified CSS selector.
  * 
  * @function Element.prototype.matches
@@ -600,145 +486,7 @@ ElementPrototype.html = function(innerHTML) {
  */
 ElementPrototype.matches = ElementPrototype.matches || ElementPrototype.webkitMatchesSelector || ElementPrototype.mozMatchesSelector || ElementPrototype.msMatchesSelector || ElementPrototype.oMatchesSelector;
 
-/**
- * Gets or set the element's inner HTML.
- * 
- * @function Element.prototype.prepend
- * @param {...(String|Node|Array.<Node>)} content - One or more DOM elements, arrays of elements, or HTML strings to insert at the beginning of this element.
- */
-ElementPrototype.prepend = function() {
-	for (var items = arguments, i = 0; i < items.length; i++) {
-		
-	}
-
-	return this;
-};
-
-/**
- * Gets the value of the element's specified property.
- * 
- * @function Element.prototype.prop
- * @param {String} property - The name of the property who's value you want to get.
- * @returns {?} The value of the property being retrieved.
- */
-/**
- * Sets the specified property of the element.
- * 
- * @function Element.prototype.prop
- * @param {String} property - The name of the property to be set.
- * @param {*} value - The value to set the property to.
- */
-/**
- * Sets the specified properties of the element.
- * 
- * @function Element.prototype.prop
- * @param {Object.<String, *>} properties - An object of property-value pairs to set.
- */
-ElementPrototype.prop = function(prop, value) {
-	if (typeofUndefined(value)) {
-		if (typeofString(prop)) {
-			return this[prop]; //Get
-		}
-		for (var property in prop) {
-			this[property] = prop[property]; //Set multiple
-		}
-	}
-	else {
-		this[prop] = value; //Set single
-	}
-
-	return this;
-};
-
-/**
- * Removes the specified attribute from the element.
- * 
- * @function Element.prototype.removeAttr
- * @param {String} attribute - The name of the attribute to remove.
- */
-ElementPrototype.removeAttr = function(attribute) {
-	this.removeAttribute(attribute);
-
-	return this;
-};
-
-/**
- * Removes the input class from the element if the element currently has it.
- * 
- * @function Element.prototype.removeClass
- * @param {String} className - The class to be removed from the element.
- */
-ElementPrototype.removeClass = function(className) {
-	if (_isChrome || _isOldIE) {
-		var changed = false,
-			classes = this.className.split(rgxSpaceChars),
-			newClassName = '',
-			i = 0;
-		for (; i < classes.length; i++) {
-			if (!classes[i]) continue;
-			if (classes[i] != className) {
-				if (newClassName) newClassName += ' ';
-				newClassName += classes[i];
-			}
-			else {
-				changed = true;
-			}
-		}
-		if (changed) {
-			this.className = newClassName;
-		}
-	}
-	else {
-		this.classList.remove(className);
-	}
-
-	return this;
-};
-
-/**
- * Removes the specified property from the element.
- * 
- * @function Element.prototype.removeProp
- * @param {String} property - The name of the property to remove.
- */
-ElementPrototype.removeProp = function(property) {
-	this[property] = null;
-
-	return this;
-};
-
-/**
- * Toggles the specified class for the element.
- * 
- * @function Element.prototype.toggleClass
- * @param {String} className - The class to be toggled.
- */
-ElementPrototype.toggleClass = function(className) {
-	if (this.className) {
-		if (this.hasClass(className)) {
-			var classes = this.className.split(rgxSpaceChars),
-				newClassName = '',
-				i = 0;
-			for (; i < classes.length; i++) {
-				if (classes[i] && classes[i] != className) {
-					if (newClassName) newClassName += ' ';
-					newClassName += classes[i];
-				}
-			}
-			this.className = newClassName;
-		}
-		else {
-			this.className += ' ' + className;
-		}
-	}
-	else {
-		this.className = className;
-	}
-
-	return this;
-};
-
-// #endregion Element
+//#endregion Element
 
 
 //#region =========================== Firebolt ===============================
@@ -987,6 +735,62 @@ Function[prototype].delay = function(ms) {
  */
 
 /**
+ * Adds the specified class to the element if the element doesn't already have it.
+ * 
+ * @function HTMLElement.prototype.addClass
+ * @param {String} className - The class to be added to the element.
+ */
+HTMLElementPrototype.addClass = function(className) {
+	if (!this.className) {
+		this.className = className;
+	}
+	else if (!_isOldIE) {
+		this.classList.add(className);
+	}
+	else if (!this.hasClass(className)) {
+		this.className += ' ' + className;
+	}
+
+	return this;
+};
+
+/**
+ * Gets the value of the element's specified attribute.
+ * 
+ * @function HTMLElement.prototype.attr
+ * @param {String|Object} attribute - The name of the attribute who's value you want to get.
+ * @returns {String} The value of the attribute being retrieved.
+ */
+/**
+ * Sets the element's specified attribute.
+ * 
+ * @function HTMLElement.prototype.attr
+ * @param {String} attribute - The name of the attribute who's value should be set.
+ * @param {String} value - The value to set the specified attribute to.
+ */
+/**
+ * Sets the specified attributes of the element.
+ * 
+ * @function HTMLElement.prototype.attr
+ * @param {Object.<String, String>} attributes - The name of the attribute who's value should be set or an object of attribute-value pairs to set.
+ */
+HTMLElementPrototype.attr = function(attr, value) {
+	if (typeofUndefined(value)) {
+		if (typeofString(attr)) {
+			return this.getAttribute(attr); //Get
+		}
+		for (var attribute in attr) {
+			this.setAttribute(attribute, attr[attribute]); //Set multiple
+		}
+	}
+	else {
+		this.setAttribute(attr, value); //Set single
+	}
+
+	return this;
+};
+
+/**
  * Gets the element's computed style object.
  * 
  * @function HTMLElement.prototype.css
@@ -1047,6 +851,43 @@ HTMLElementPrototype.css = function(prop, value) {
 };
 
 /**
+ * Removes all of the element's child nodes.
+ * 
+ * @function HTMLElement.prototype.empty
+ * @chainable
+ * @example
+ * // HTML (before)
+ * <div id="mydiv">
+ *     <span>Inside Span</span>
+ *     Some Text
+ * </div>
+ *
+ * // JavaScript
+ * $id('mydiv').empty
+ *
+ * // HTML (after)
+ * <div id="mydiv"></div>
+ */
+HTMLElementPrototype.empty = function() {
+	while (this.childNodes.length) {
+		this.removeChild(this.childNodes[0]);
+	}
+	return this;
+};
+
+/**
+ * Determines if the element's class list has the specified class name.
+ * 
+ * @function HTMLElement.prototype.hasClass
+ * @param {String} className - A string containing a single class name.
+ * @returns {Boolean} `true` if the class name is in the element's class list; else `false`.
+ */
+HTMLElementPrototype.hasClass = function(className) {
+	if (!_isOldIE) return this.classList.contains(className);
+	return new RegExp('(?:\\s|^)' + className + '(?:\\s|$)').test(this.className);
+};
+
+/**
  * Hides the element by setting its display style to 'none'.
  * 
  * @function HTMLElement.prototype.hide
@@ -1055,6 +896,27 @@ HTMLElementPrototype.hide = function() {
 	//if (getComputedStyle(this).display !== "none") {
 		this.style.display = 'none';
 	//}
+
+	return this;
+};
+
+/**
+ * Gets the element's inner HTML.
+ * 
+ * @function HTMLElement.prototype.html
+ * @returns {String} The element's inner HTML.
+ */
+/**
+ * Sets the element's inner HTML.
+ * 
+ * @function HTMLElement.prototype.html
+ * @param {String} innerHTML - An HTML string.
+ */
+HTMLElementPrototype.html = function(innerHTML) {
+	if (typeofUndefined(innerHTML)) {
+		return this.innerHTML; //Get
+	}
+	this.innerHTML = innerHTML; //Set
 
 	return this;
 };
@@ -1085,6 +947,113 @@ HTMLElementPrototype.offset = function() {
 		offset.left += el.offsetLeft + el.clientLeft;
 	} while (el = el.offsetParent)
 	return offset;
+};
+
+/**
+ * Prepends content to the inside of the element.
+ * 
+ * @function HTMLElement.prototype.prepend
+ * @param {...(String|Node|Array.<Node>)} content - One or more DOM elements, arrays of elements, or HTML strings to insert at the beginning of this element.
+ */
+HTMLElementPrototype.prepend = function() {
+	for (var items = arguments, i = 0; i < items.length; i++) {
+
+	}
+
+	return this;
+};
+
+/**
+ * Gets the value of the element's specified property.
+ * 
+ * @function HTMLElement.prototype.prop
+ * @param {String} property - The name of the property who's value you want to get.
+ * @returns {?} The value of the property being retrieved.
+ */
+/**
+ * Sets the specified property of the element.
+ * 
+ * @function HTMLElement.prototype.prop
+ * @param {String} property - The name of the property to be set.
+ * @param {*} value - The value to set the property to.
+ */
+/**
+ * Sets the specified properties of the element.
+ * 
+ * @function HTMLElement.prototype.prop
+ * @param {Object.<String, *>} properties - An object of property-value pairs to set.
+ */
+HTMLElementPrototype.prop = function(prop, value) {
+	if (typeofUndefined(value)) {
+		if (typeofString(prop)) {
+			return this[prop]; //Get
+		}
+		for (var property in prop) {
+			this[property] = prop[property]; //Set multiple
+		}
+	}
+	else {
+		this[prop] = value; //Set single
+	}
+
+	return this;
+};
+
+/**
+ * Removes the specified attribute from the element.
+ * 
+ * @function HTMLElement.prototype.removeAttr
+ * @param {String} attribute - The name of the attribute to remove.
+ */
+HTMLElementPrototype.removeAttr = function(attribute) {
+	this.removeAttribute(attribute);
+
+	return this;
+};
+
+/**
+ * Removes the input class from the element if the element currently has it.
+ * 
+ * @function HTMLElement.prototype.removeClass
+ * @param {String} className - The class to be removed from the element.
+ */
+HTMLElementPrototype.removeClass = function(className) {
+	if (_isChrome || _isOldIE) {
+		var changed = false,
+			classes = this.className.split(rgxSpaceChars),
+			newClassName = '',
+			i = 0;
+		for (; i < classes.length; i++) {
+			if (!classes[i]) continue;
+			if (classes[i] != className) {
+				if (newClassName) newClassName += ' ';
+				newClassName += classes[i];
+			}
+			else {
+				changed = true;
+			}
+		}
+		if (changed) {
+			this.className = newClassName;
+		}
+	}
+	else {
+		this.classList.remove(className);
+	}
+
+	return this;
+};
+
+/**
+ * Removes the specified property from the element.
+ * 
+ * @function HTMLElement.prototype.removeProp
+ * @param {String} propertyName - The name of the property to remove.
+ */
+HTMLElementPrototype.removeProp = function(propertyName) {
+	this[propertyName] = null;
+
+	return this;
 };
 
 /**
@@ -1128,7 +1097,38 @@ HTMLElementPrototype.show = function(style) {
 	return this;
 };
 
-// #endregion HTMLElement
+/**
+ * Toggles the specified class for the element.
+ * 
+ * @function HTMLElement.prototype.toggleClass
+ * @param {String} className - The class to be toggled.
+ */
+HTMLElementPrototype.toggleClass = function(className) {
+	if (this.className) {
+		if (this.hasClass(className)) {
+			var classes = this.className.split(rgxSpaceChars),
+				newClassName = '',
+				i = 0;
+			for (; i < classes.length; i++) {
+				if (classes[i] && classes[i] != className) {
+					if (newClassName) newClassName += ' ';
+					newClassName += classes[i];
+				}
+			}
+			this.className = newClassName;
+		}
+		else {
+			this.className += ' ' + className;
+		}
+	}
+	else {
+		this.className = className;
+	}
+
+	return this;
+};
+
+//#endregion HTMLElement
 
 
 //#region ============================= Node =================================
