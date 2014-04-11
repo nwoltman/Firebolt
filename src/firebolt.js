@@ -187,7 +187,7 @@ window.$tag = function(tagName) {
 	return document.getElementsByTagName(tagName);
 }
 
-//#endregion Global Selectors
+//#endregion Globals
 
 
 //#region ============================ Array =================================
@@ -237,11 +237,12 @@ defineProperties(ArrayPrototype, {
 	 */
 	clone: {
 		value: function() {
-			for (var len = this.length, arr = new Array(len),
-					 i = 0; i < len; i++) {
-				arr[i] = this[i];
+			for (var len = this.length, clone = new Array(len),
+				 i = 0; i < len; i++)
+			{
+				clone[i] = this[i];
 			}
-			return arr;
+			return clone;
 		}
 	},
 
@@ -323,7 +324,7 @@ defineProperties(ArrayPrototype, {
 	 */
 	remove: {
 		value: function() {
-			for (var i = 0, rindex; i < arguments.length; i++) {
+			for (var rindex, i = 0; i < arguments.length; i++) {
 				while ((rindex = this.indexOf(arguments[i])) >= 0) {
 					this.splice(rindex, 1);
 				}
@@ -333,7 +334,7 @@ defineProperties(ArrayPrototype, {
 	},
 
 	/**
-	 * Returns an array containing every item that is only in one of this array or the input array.
+	 * Returns an array containing every distinct item that is in either this array or the input array.
 	 * 
 	 * @function Array.prototype.union
 	 * @param {Array|Enumerable} array - Array or other enumerable object that has a `length` property.
@@ -378,7 +379,7 @@ defineProperties(ArrayPrototype, {
 	 * @param {...*} items - One or more items to leave out of the returned array.
 	 * @returns {Array}
 	 * @example
-	 * [1, 2, 3, 4, 5, 6].without(3, 4, 6); // returns [1, 2, 5]
+	 * [1, 2, 3, 4, 5, 6].without(3, 4, 6);  // returns [1, 2, 5]
 	 */
 	without: {
 		value: function() {
@@ -399,7 +400,7 @@ defineProperties(ArrayPrototype, {
 	}
 });
 
-// #endregion Array
+//#endregion Array
 
 
 //#region =========================== Document ===============================
@@ -426,7 +427,7 @@ document.ready = function(callback) {
 	}
 };
 
-// #endregion Document
+//#endregion Document
 
 
 //#region =========================== Element ================================
@@ -723,7 +724,7 @@ Function[prototype].delay = function(ms) {
 	};
 };
 
-// #endregion Function
+//#endregion Function
 
 
 //#region ========================== HTMLElement =============================
@@ -1207,7 +1208,7 @@ NodePrototype.text = function(text) {
 	return this;
 };
 
-// #endregion Node
+//#endregion Node
 
 
 //#region =========================== NodeList ===============================
@@ -1596,7 +1597,7 @@ NodeListPrototype.toArray = function() {
  */
 NodeListPrototype.toggleClass = callOnEachElement('toggleClass');
 
-// #endregion NodeList
+//#endregion NodeList
 
 
 //#region ========================= HTMLCollection ===========================
