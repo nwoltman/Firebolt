@@ -445,9 +445,7 @@ document.ready = function(callback) {
  * @param {String} selector
  * @returns {NodeList} A list of selected elements.
  */
-ElementPrototype.$ = function(selector) {
-	return this.querySelectorAll(selector);
-};
+ElementPrototype.$ = ElementPrototype.querySelectorAll;
 
 /**
  * Returns the first element within the element that matches the specified CSS selector.<br />
@@ -457,9 +455,7 @@ ElementPrototype.$ = function(selector) {
  * @param {String} selector
  * @returns {?Element}
  */
-ElementPrototype.$1 = function(selector) {
-	return this.querySelector(selector);
-};
+ElementPrototype.$1 = ElementPrototype.querySelector;
 
 /**
  * Returns a list of the elements within the element with the specified class name.<br />
@@ -469,9 +465,7 @@ ElementPrototype.$1 = function(selector) {
  * @param {String} className
  * @returns {HTMLCollection|NodeList} A collection of elements with the specified class name.
  */
-ElementPrototype.$class = function(className) {
-	return this.getElementsByClassName(className);
-};
+ElementPrototype.$class = ElementPrototype.getElementsByClassName;
 
 /**
  * Returns a list of the elements within the element with the specified tag name.<br />
@@ -481,9 +475,7 @@ ElementPrototype.$class = function(className) {
  * @param {String} tagName
  * @returns {HTMLCollection|NodeList} A collection of elements with the specified tag name.
  */
-ElementPrototype.$tag = function(tagName) {
-	return this.getElementsByTagName(tagName);
-};
+ElementPrototype.$tag = ElementPrototype.getElementsByTagName;
 
 /**
  * Adds the specified class to the element if the element doesn't already have it.
