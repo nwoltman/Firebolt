@@ -327,6 +327,9 @@ defineProperties(ArrayPrototype, {
 			for (var rindex, i = 0; i < arguments.length; i++) {
 				while ((rindex = this.indexOf(arguments[i])) >= 0) {
 					this.splice(rindex, 1);
+					if (!this.length) {
+						return this; //Exit early since there is nothing left to remove
+					}
 				}
 			}
 			return this;
