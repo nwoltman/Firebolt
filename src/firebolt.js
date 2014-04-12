@@ -870,6 +870,7 @@ HTMLElementPrototype.empty = function() {
 	while (this.childNodes.length) {
 		this.removeChild(this.childNodes[0]);
 	}
+
 	return this;
 };
 
@@ -1043,15 +1044,15 @@ HTMLElementPrototype.removeClass = function(className) {
  * @param {String} propertyName - The name of the property to remove.
  */
 HTMLElementPrototype.removeProp = function(propertyName) {
-	this[propertyName] = null;
+	delete this[propertyName];
 
 	return this;
 };
 
 /**
  * Shows an element by giving it a certain display style. If no parameter is passed in,
- * Firebolt determines the element's default display style and sets it to that (NOTE:
- * the element's default display style may be 'none' and hence the element would not be shown).
+ * Firebolt determines the element's default display style and sets it to that. <br />
+ * NOTE: The element's default display style may be 'none', in which case the element would not be shown).
  * 
  * @function HTMLElement.prototype.show
  * @param {Number|String} [style] - The style of display the element should be shown with. Possibilities are:
@@ -1183,7 +1184,7 @@ NodePrototype.insertAfter = function(node) {
  * @function Node.prototype.remove
  */
 NodePrototype.remove = function() {
-	this.parentNode.removeChild(this);
+	return this.parentNode.removeChild(this);
 };
 
 /**
@@ -1224,7 +1225,7 @@ NodePrototype.text = function(text) {
 
 /* Give NodeLists the same prototype functions as Arrays */
 Object.getOwnPropertyNames(ArrayPrototype).forEach(function(methodName) {
-	if (!NodeListPrototype[methodName]) {
+	if (methodName != 'length' && !NodeListPrototype[methodName]) {
 		switch (methodName) {
 			case 'contains':
 			case 'equals':
