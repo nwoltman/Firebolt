@@ -1034,27 +1034,33 @@ HTMLElementPrototype.removeAttr = function(attribute) {
 };
 
 /**
- * Removes the input class from the element if the element currently has it.
+ * @summary Removes the specified class(es) from the element.
+ * 
+ * @description
+ * <h5>Note:</h5> Unlike jQuery, the format of the space-separated classes required by Firebolt is strict. Each class must
+ * be separated by only a single space character and there cannot be whitespace at the beginning or end of the string.
+ * ```JavaScript
+ * element.addClass('one  two').removeClass('three ');  // Bad syntax
+ * element.addClass('one two').removeClass('three');    // Correct syntax
  * 
  * @function HTMLElement.prototype.removeClass
- * @param {String} className - The class to be removed from the element.
+ * @param {String} className - One or more space-separated classes to be removed from the element's class attribute.
+ * @returns this, chainable
  */
-HTMLElementPrototype.removeClass = function(className) {
-	var changed = false,
-		classes = this.className.split(rgxSpaceChars),
+HTMLElementPrototype.removeClass = function(value) {
+	var remClasses = value.split(' '),
+		curClasses = this.className.split(rgxSpaceChars),
 		newClassName = '',
 		i = 0;
-	for (; i < classes.length; i++) {
-		if (!classes[i]) continue;
-		if (classes[i] != className) {
+	for (; i < curClasses.length; i++) {
+		if (curClasses[i] && !remClasses.contains(curClasses[i])) {
 			if (newClassName) newClassName += ' ';
-			newClassName += classes[i];
-		}
-		else {
-			changed = true;
+			newClassName += curClasses[i];
 		}
 	}
-	if (changed) {
+
+	//Only assign if the new class name is different (shorter) to avoid unnecessary rendering
+	if (newClassName.length < this.className.length) {
 		this.className = newClassName;
 	}
 
