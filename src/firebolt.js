@@ -739,17 +739,38 @@ Function[prototype].delay = function(ms) {
  */
 
 /**
- * Adds the specified class to the element if the element doesn't already have it.
+ * @summary Adds the specified class(es) to the element.
+ * 
+ * @description
+ * <h5>Note:</h5> Unlike jQuery, the format of the space-separated classes required by Firebolt is strict. Each class must
+ * be separated by only a single space character and there cannot be whitespace at the beginning or end of the string.
+ * ```JavaScript
+ * element.addClass('one  two').removeClass('three ');  // Bad syntax
+ * element.addClass('one two').removeClass('three');    // Correct syntax
+ * ```
  * 
  * @function HTMLElement.prototype.addClass
- * @param {String} className - The class to be added to the element.
+ * @param {String} className - One or more space-separated classes to be added to the element's class attribute.
+ * @returns this, chainable
  */
-HTMLElementPrototype.addClass = function(className) {
+HTMLElementPrototype.addClass = function(value) {
 	if (!this.className) {
-		this.className = className;
+		//There currently is no class name so the passed in value can easily be set as the class name
+		this.className = value;
 	}
-	else if (!this.hasClass(className)) {
-		this.className += ' ' + className;
+	else {
+		for (var newClasses = value.split(' '), newClassName = this.className,
+			 i = 0; i < newClasses.length; i++)
+		{
+			if (!this.hasClass(newClasses[i])) {
+				newClassName += ' ' + newClasses[i];
+			}
+		}
+
+		//Only assign if the new class name is different (longer) to avoid unnecessary rendering
+		if (newClassName.length > this.className.length) {
+			this.className = newClassName;
+		}
 	}
 
 	return this;
