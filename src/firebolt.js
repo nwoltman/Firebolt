@@ -1034,7 +1034,7 @@ HTMLElementPrototype.removeAttr = function(attribute) {
 };
 
 /**
- * @summary Removes the specified class(es) from the element.
+ * @summary Removes the specified class(es) or all classes from the element.
  * 
  * @description
  * <h5>Note:</h5> Unlike jQuery, the format of the space-separated classes required by Firebolt is strict. Each class must
@@ -1042,28 +1042,33 @@ HTMLElementPrototype.removeAttr = function(attribute) {
  * ```JavaScript
  * element.addClass('one  two').removeClass('three ');  // Bad syntax
  * element.addClass('one two').removeClass('three');    // Correct syntax
+ * ```
  * 
  * @function HTMLElement.prototype.removeClass
- * @param {String} className - One or more space-separated classes to be removed from the element's class attribute.
+ * @param {String} [className] - One or more space-separated classes to be removed from the element's class attribute.
  * @returns this, chainable
  */
 HTMLElementPrototype.removeClass = function(value) {
-	var remClasses = value.split(' '),
-		curClasses = this.className.split(rgxSpaceChars),
-		newClassName = '',
-		i = 0;
-	for (; i < curClasses.length; i++) {
-		if (curClasses[i] && !remClasses.contains(curClasses[i])) {
-			if (newClassName) newClassName += ' ';
-			newClassName += curClasses[i];
+	if (value == null) {
+		this.className = ''; //Remove all classes
+	}
+	else {
+		var remClasses = value.split(' '),
+			curClasses = this.className.split(rgxSpaceChars),
+			newClassName = '',
+			i = 0;
+		for (; i < curClasses.length; i++) {
+			if (curClasses[i] && !remClasses.contains(curClasses[i])) {
+				if (newClassName) newClassName += ' ';
+				newClassName += curClasses[i];
+			}
+		}
+		//Only assign if the new class name is different (shorter) to avoid unnecessary rendering
+		if (newClassName.length < this.className.length) {
+			this.className = newClassName;
 		}
 	}
-
-	//Only assign if the new class name is different (shorter) to avoid unnecessary rendering
-	if (newClassName.length < this.className.length) {
-		this.className = newClassName;
-	}
-
+	
 	return this;
 };
 
