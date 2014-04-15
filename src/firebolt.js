@@ -1053,20 +1053,8 @@ HTMLElementPrototype.removeClass = function(value) {
 		this.className = ''; //Remove all classes
 	}
 	else {
-		var remClasses = value.split(' '),
-			curClasses = this.className.split(rgxSpaceChars),
-			newClassName = '',
-			i = 0;
-		for (; i < curClasses.length; i++) {
-			if (curClasses[i] && !remClasses.contains(curClasses[i])) {
-				if (newClassName) newClassName += ' ';
-				newClassName += curClasses[i];
-			}
-		}
-		//Only assign if the new class name is different (shorter) to avoid unnecessary rendering
-		if (newClassName.length < this.className.length) {
-			this.className = newClassName;
-		}
+		var classList = this.classList;
+		classList.remove.apply(classList, value.split(' '));
 	}
 	
 	return this;
@@ -1799,10 +1787,15 @@ defineProperty(StringPrototype, 'tokenize', {
 //#endregion String
 
 
-/*
- * Private, constant to check if the current browser is IE 9 or below
- */
-var isOldIE = Firebolt.create('div').html('<!--[if IE]><i></i><![endif]-->').$tag('i').length > 0;
+//#region ============ Browser Compatibility and Speed Boosters ==============
+
+var isOldIE = Firebolt.create('div').html('<!--[if IE]><i></i><![endif]-->').$tag('i').length > 0,
+	isChrome = !!window.chrome && !window.opera,
+	noMultiParamClassListFuncs = (function() {
+		var elem = Firebolt.create('div');
+		elem.classList.add('one', 'two');
+		return elem.className.length !== 7;
+	})();
 
 if (isOldIE) {
 	/* Make the hasClass() function compatible with IE9 */
@@ -1810,6 +1803,35 @@ if (isOldIE) {
 		return new RegExp('(?:^|\\s)' + className + '(?:\\s|$)').test(this.className);
 	};
 }
+
+/* Browser (definitely IE) compatibility and Chrome speed boost for removeClass() */
+if (isChrome || noMultiParamClassListFuncs) {
+	HTMLElementPrototype.removeClass = function(value) {
+		if (value == null) {
+			this.className = ''; //Remove all classes
+		}
+		else {
+			var remClasses = value.split(' '),
+				curClasses = this.className.split(rgxSpaceChars),
+				newClassName = '',
+				i = 0;
+			for (; i < curClasses.length; i++) {
+				if (curClasses[i] && !remClasses.contains(curClasses[i])) {
+					if (newClassName) newClassName += ' ';
+					newClassName += curClasses[i];
+				}
+			}
+			//Only assign if the new class name is different (shorter) to avoid unnecessary rendering
+			if (newClassName.length < this.className.length) {
+				this.className = newClassName;
+			}
+		}
+
+		return this;
+	};
+}
+
+//#endregion Browser Compatibility and Speed Boosters
 
 })(window, document);
 
