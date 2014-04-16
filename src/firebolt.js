@@ -34,8 +34,8 @@ function typeofString(value) {
 	return typeof value == 'string';
 }
 
-function typeofUndefined(value) {
-	return typeof value == 'undefined';
+function isUndefined(value) {
+	return value === undefined;
 }
 
 //#endregion Private
@@ -797,7 +797,7 @@ HTMLElementPrototype.addClass = function(value) {
  * @param {Object.<String, String>} attributes - The name of the attribute who's value should be set or an object of attribute-value pairs to set.
  */
 HTMLElementPrototype.attr = function(attr, value) {
-	if (typeofUndefined(value)) {
+	if (isUndefined(value)) {
 		if (typeofString(attr)) {
 			return this.getAttribute(attr); //Get
 		}
@@ -846,7 +846,7 @@ HTMLElementPrototype.attr = function(attr, value) {
  */
 HTMLElementPrototype.css = function(prop, value) {
 	if (typeofString(prop)) {
-		if (typeofUndefined(value)) {
+		if (isUndefined(value)) {
 			if (!/:/.test(prop)) {
 				//Get the specified property
 				return getComputedStyle(this)[prop];
@@ -935,7 +935,7 @@ HTMLElementPrototype.hide = function() {
  * @param {String} innerHTML - An HTML string.
  */
 HTMLElementPrototype.html = function(innerHTML) {
-	if (typeofUndefined(innerHTML)) {
+	if (isUndefined(innerHTML)) {
 		return this.innerHTML; //Get
 	}
 	this.innerHTML = innerHTML; //Set
@@ -1006,7 +1006,7 @@ HTMLElementPrototype.prepend = function() {
  * @param {Object.<String, *>} properties - An object of property-value pairs to set.
  */
 HTMLElementPrototype.prop = function(prop, value) {
-	if (typeofUndefined(value)) {
+	if (isUndefined(value)) {
 		if (typeofString(prop)) {
 			return this[prop]; //Get
 		}
@@ -1049,7 +1049,7 @@ HTMLElementPrototype.removeAttr = function(attribute) {
  * @returns this, chainable
  */
 HTMLElementPrototype.removeClass = function(value) {
-	if (value == null) {
+	if (isUndefined(value)) {
 		this.className = ''; //Remove all classes
 	}
 	else {
@@ -1223,7 +1223,7 @@ NodePrototype.remove = function() {
  * @param {String|*} text - The text or content that will be converted to a string to be set as the node's text content.
  */
 NodePrototype.text = function(text) {
-	if (typeofUndefined(text)) {
+	if (isUndefined(text)) {
 		return this.textContent;
 	}
 	//else
@@ -1590,7 +1590,7 @@ NodeListPrototype.show = callOnEachElement('show');
 NodeListPrototype.text = function(text) {
 	var len = this.length,
 		i = 0;
-	if (typeofUndefined(text)) { //Get
+	if (isUndefined(text)) { //Get
 		for (text = ''; i < len; i++) {
 			text += this[i].textContent;
 		}
@@ -1807,7 +1807,7 @@ if (isOldIE) {
 /* Browser (definitely IE) compatibility and Chrome speed boost for removeClass() */
 if (isChrome || noMultiParamClassListFuncs) {
 	HTMLElementPrototype.removeClass = function(value) {
-		if (value == null) {
+		if (isUndefined(value)) {
 			this.className = ''; //Remove all classes
 		}
 		else {
