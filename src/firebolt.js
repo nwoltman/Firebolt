@@ -1,7 +1,9 @@
-﻿/*
+﻿/**
  * Firebolt current core file.
+ * @version 0.2.5
  * @author Nathan Woltman
- * @copyright 2014 Nathan Woltman, MIT https://github.com/FireboltJS/Firebolt/blob/master/LICENSE.txt
+ * @copyright 2014 Nathan Woltman
+ * @license MIT https://github.com/FireboltJS/Firebolt/blob/master/LICENSE.txt
  */
 
 (function(window, document) {
