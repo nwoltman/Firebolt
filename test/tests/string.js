@@ -47,3 +47,15 @@ test("String.prototype.repeat", function() {
 		ok(true);
 	}
 });
+
+test("String.prototype.startsWith", function() {
+	var str = "Who am I, Gamling?";
+
+	//True
+	ok(str.startsWith("Who"));		// 1
+	ok(str.startsWith("am I", 4));	// 2
+
+	//False
+	ok(!str.startsWith("Who are"));	// 3
+	ok(!str.startsWith("am I"));	// 4
+});

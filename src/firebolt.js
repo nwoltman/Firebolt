@@ -1763,15 +1763,18 @@ if (!StringPrototype.startsWith) {
 	 *
 	 * @function String.prototype.startsWith
 	 * @param {String} searchString - The characters to be searched for at the start of this string.
+	 * @param {Number} [position=0] - The position in this string at which to begin searching for `searchString`.
 	 * @returns {Boolean} `true` if this string starts with the search string; else `false`.
 	 * @example
 	 * var str = "Who am I, Gamling?";
-	 * alert( str.endsWith("Who") );   // true
-	 * alert( str.endsWith("am I") );  // false
+	 * alert( str.endsWith("Who") );      // true
+	 * alert( str.endsWith("am I") );     // false
+	 * alert( str.endsWith("am I", 4) );  // true
 	 */
 	defineProperty(StringPrototype, 'startsWith', {
-		value: function(searchString) {
-			return this.lastIndexOf(searchString, 0) === 0;
+		value: function(searchString, position) {
+			position = position || 0;
+			return this.lastIndexOf(searchString, position) === position;
 		}
 	});
 }
