@@ -1692,7 +1692,7 @@ if (!StringPrototype.contains) {
 	 *
 	 * @function String.prototype.contains
 	 * @param {String} searchString - The string to be searched for.
-	 * @param {Number} [position=0] - The position in this string at which to begin the search; defaults to 0.
+	 * @param {Number} [position=0] - The position in this string at which to begin the search.
 	 * @returns {Boolean} `true` if this string contains the search string; else `false`.
 	 * @example
 	 * var str = "Winter is coming.";
@@ -1712,15 +1712,18 @@ if (!StringPrototype.endsWith) {
 	 *
 	 * @function String.prototype.endsWith
 	 * @param {String} searchString - The characters to be searched for at the end of this string.
-	 * @returns {Boolean} `true` if this string ends with the search string; else `false`.
+	 * @param {Number} [position=this.length] - Search within this string as if this string were only this long; clamped within the range established by this string's length.
+	 * @returns {Boolean} `true` if this string ends with `searchString`; else `false`.
 	 * @example
 	 * var str = "Who am I, Gamling?";
 	 * alert( str.endsWith("Gamling?") );  // true
 	 * alert( str.endsWith("am I") );      // false
+	 * alert( str.endsWith("am I", 8) );   // true
 	 */
 	defineProperty(StringPrototype, 'endsWith', {
-		value: function(searchString) {
-			return this.indexOf(searchString, this.length - searchString.length) >= 0;
+		value: function(searchString, position) {
+			position = (position && position < this.length ? position : this.length) - searchString.length;
+			return this.indexOf(searchString, position) === position;
 		}
 	});
 }
