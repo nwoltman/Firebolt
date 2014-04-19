@@ -1733,19 +1733,23 @@ if (!StringPrototype.repeat) {
 	 * Copies the current string a given number of times and returns the new string.
 	 *
 	 * @function String.prototype.repeat
-	 * @param {Number} count - An integer between 0 and +∞ : [ 0, +∞).
+	 * @param {Number} count - An integer between 0 and +∞ : [0, +∞).
 	 * @returns {String}
+	 * @throws {RangeError} The repeat count must be positive and less than infinity.
 	 * @example
-	 * "abc".repeat(0)  // ""
-	 * "abc".repeat(1)  // "abc"
-	 * "abc".repeat(2)  // "abcabc"
-	 * "0".repeat(5)    // "00000" 
+	 * "abc".repeat(0)   // ""
+	 * "abc".repeat(1)   // "abc"
+	 * "abc".repeat(2)   // "abcabc"
+	 * "abc".repeat(3.5) // "abcabcabc" (count will be converted to integer)
+	 * "0".repeat(5)     // "00000"
 	 */
 	defineProperty(StringPrototype, 'repeat', {
 		value: function(count) {
-			var str = this,
-				i = 1;
-			for (; i < count; i++) {
+			count = parseInt(count || 0);
+			if (isNaN(count) || count < 0) {
+				throw new RangeError('The repeat count must be positive and less than infinity.');
+			}
+			for (var str = '', i = 0; i < count; i++) {
 				str += this;
 			}
 			return str;
