@@ -425,9 +425,9 @@ defineProperties(ArrayPrototype, {
  */
 document.ready = function(callback) {
 	if (document.readyState == 'loading') {
-		document.addEventListener("DOMContentLoaded", callback);
+		document.addEventListener('DOMContentLoaded', callback);
 	}
-	else {
+	else if (callback) {
 		callback();
 	}
 };
