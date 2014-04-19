@@ -254,7 +254,7 @@ defineProperties(ArrayPrototype, {
 	 */
 	contains: {
 		value: function(e) {
-			return this.indexOf(e) !== -1;
+			return this.indexOf(e) >= 0;
 		}
 	},
 
@@ -534,7 +534,7 @@ ElementPrototype.matches = ElementPrototype.matches || ElementPrototype.webkitMa
  */
 function isHtml(str) {
 	var idxTag = str.indexOf('<');
-	if (idxTag >= 0 && (idxTag < 4 || str.lastIndexOf('[', idxTag - 4) === -1)) {
+	if (idxTag >= 0 && (idxTag < 4 || str.lastIndexOf('[', idxTag - 4) < 0)) {
 		return 1;
 	}
 	return 0;
