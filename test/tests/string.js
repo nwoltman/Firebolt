@@ -1,4 +1,14 @@
-﻿test("String.prototype.endsWith", function() {
+﻿/**
+ * Unit tests for String.prototype
+ */
+
+// References for Resharper
+/// <reference path="../qunit/qunit.js"/>
+/// <reference path="../../src/firebolt.js"/>
+
+module("String.prototype");
+
+test("endsWith", function() {
 	var str = "Who am I, Gamling?";
 
 	//True
@@ -17,7 +27,7 @@
 	equal(str.endsWith("a", 4), false);			// 11
 });
 
-test("String.prototype.repeat", function() {
+test("repeat", function() {
 	expect(7);
 
 	var str = "abc";
@@ -48,7 +58,7 @@ test("String.prototype.repeat", function() {
 	}
 });
 
-test("String.prototype.startsWith", function() {
+test("startsWith", function() {
 	var str = "Who am I, Gamling?";
 
 	//True
