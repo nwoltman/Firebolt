@@ -26,6 +26,7 @@ test("endsWith", function() {
 	equal(str.endsWith("a", 6), false);			// 10
 	equal(str.endsWith("a", 4), false);			// 11
 	equal(str.endsWith(str + "a"), false);		// 12
+	equal(str.endsWith("?", 0), false);			// 13
 });
 
 test("repeat", function() {
