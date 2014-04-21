@@ -1725,7 +1725,7 @@ if (!StringPrototype.endsWith) {
 	defineProperty(StringPrototype, 'endsWith', {
 		value: function(searchString, position) {
 			position = (position && position < this.length ? position : this.length) - searchString.length;
-			return this.indexOf(searchString, position) === position;
+			return position >= 0 && this.indexOf(searchString, position) === position;
 		}
 	});
 }

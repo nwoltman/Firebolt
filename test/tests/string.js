@@ -25,6 +25,7 @@ test("endsWith", function() {
 	equal(str.endsWith("am I", 7), false);		// 9
 	equal(str.endsWith("a", 6), false);			// 10
 	equal(str.endsWith("a", 4), false);			// 11
+	equal(str.endsWith(str + "a"), false);		// 12
 });
 
 test("repeat", function() {
