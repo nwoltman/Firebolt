@@ -1116,31 +1116,46 @@ HTMLElementPrototype.show = function(style) {
 };
 
 /**
- * Toggles the specified class for the element.
+ * @summary Add or remove one or more classes from the element depending on the class's presence (or lack thereof).
+ * 
+ * @description
+ * <h5>Note:</h5> Unlike jQuery, the format of the space-separated classes required by Firebolt is strict. Each class must
+ * be separated by only a single space character and there cannot be whitespace at the beginning or end of the string.
+ * ```JavaScript
+ * element.toggleClass('one  two ');  // Bad syntax
+ * element.toggleClass('one two');    // Correct syntax
+ * ```
  * 
  * @function HTMLElement.prototype.toggleClass
- * @param {String} className - The class to be toggled.
+ * @param {String} className - One or more space-separated classes to be toggled.
  */
-HTMLElementPrototype.toggleClass = function(className) {
+HTMLElementPrototype.toggleClass = function(value) {
 	if (this.className) {
-		if (this.hasClass(className)) {
-			var classes = this.className.split(rgxSpaceChars),
-				newClassName = '',
-				i = 0;
-			for (; i < classes.length; i++) {
-				if (classes[i] && classes[i] != className) {
-					if (newClassName) newClassName += ' ';
-					newClassName += classes[i];
+		var togClasses = value.split(' '),
+			curClasses = this.className.split(rgxSpaceChars),
+			newClassName = '',
+			i = 0;
+
+		//Remove existing classes from the array and rebuild the class string without those classes
+		for (; i < curClasses.length; i++) {
+			if (curClasses[i]) {
+				var len = togClasses.length;
+				if (togClasses.remove(curClasses[i]).length === len) {
+					newClassName += (newClassName ? ' ' : '') + curClasses[i];
 				}
 			}
-			this.className = newClassName;
 		}
-		else {
-			this.className += ' ' + className;
+
+		//If there are still classes in the array, they are to be added to the class name
+		if (togClasses.length) {
+			newClassName += (newClassName ? ' ' : '') + togClasses.join(' ');
 		}
+
+		//Simply set the new class name
+		this.className = newClassName;
 	}
 	else {
-		this.className = className;
+		this.className = value;
 	}
 
 	return this;
