@@ -756,11 +756,7 @@ Function[prototype].delay = function(ms) {
  * @returns this, chainable
  */
 HTMLElementPrototype.addClass = function(value) {
-	if (!this.className) {
-		//There currently is no class name so the passed in value can easily be set as the class name
-		this.className = value;
-	}
-	else {
+	if (this.className) {
 		for (var newClasses = value.split(' '), newClassName = this.className,
 			 i = 0; i < newClasses.length; i++)
 		{
@@ -773,6 +769,10 @@ HTMLElementPrototype.addClass = function(value) {
 		if (newClassName.length > this.className.length) {
 			this.className = newClassName;
 		}
+	}
+	else {
+		//There currently is no class name so the passed in value can easily be set as the class name
+		this.className = value;
 	}
 
 	return this;
@@ -1844,8 +1844,7 @@ if (isChrome || noMultiParamClassListFuncs) {
 				i = 0;
 			for (; i < curClasses.length; i++) {
 				if (curClasses[i] && !remClasses.contains(curClasses[i])) {
-					if (newClassName) newClassName += ' ';
-					newClassName += curClasses[i];
+					newClassName += (newClassName ? ' ' : '') + curClasses[i];
 				}
 			}
 			//Only assign if the new class name is different (shorter) to avoid unnecessary rendering
