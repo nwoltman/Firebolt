@@ -7,6 +7,7 @@
  */
 
 (function(window, document) {
+	'use strict';
 
 //#region =========================== Private ================================
 
