@@ -8,7 +8,7 @@ you know how to use Firebolt (with a few minor exceptions).
 
 ## WARNING
 
-This project is still in the early stages of development. The API could change at any time and code is assumed to be broken.
+This project is still in the early stages of development. The API could change at any time and code is unstable.
 
 
 ## Browser Support
