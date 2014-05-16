@@ -240,9 +240,10 @@ defineProperties(ArrayPrototype, {
 	 */
 	clone: {
 		value: function() {
-			for (var len = this.length, clone = new Array(len),
-				 i = 0; i < len; i++)
-			{
+			var len = this.length,
+				clone = new Array(len),
+				i = 0;
+			for (; i < len; i++) {
 				clone[i] = this[i];
 			}
 			return clone;
@@ -297,7 +298,9 @@ defineProperties(ArrayPrototype, {
 	 */
 	intersect: {
 		value: function(array) {
-			for (var intersection = [], i = 0; i < array.length; i++) {
+			var intersection = [],
+				i = 0;
+			for (; i < array.length; i++) {
 				if (this.contains(array[i]) && !intersection.contains(array[i])) {
 					intersection.push(array[i]);
 				}
@@ -350,7 +353,9 @@ defineProperties(ArrayPrototype, {
 	 */
 	union: {
 		value: function(array) {
-			for (var union = this.unique(), i = 0; i < array.length; i++) {
+			var union = this.unique(),
+				i = 0;
+			for (; i < array.length; i++) {
 				if (!union.contains(array[i])) {
 					union.push(array[i]);
 				}
@@ -369,7 +374,9 @@ defineProperties(ArrayPrototype, {
 	 */
 	unique: {
 		value: function() {
-			for (var uniqueClone = [], i = 0; i < this.length; i++) {
+			var uniqueClone = [],
+				i = 0;
+			for (; i < this.length; i++) {
 				if (!uniqueClone.contains(this[i])) {
 					uniqueClone.push(this[i]);
 				}
@@ -758,9 +765,10 @@ Function[prototype].delay = function(ms) {
  */
 HTMLElementPrototype.addClass = function(value) {
 	if (this.className) {
-		for (var newClasses = value.split(' '), newClassName = this.className,
-			 i = 0; i < newClasses.length; i++)
-		{
+		var newClasses = value.split(' '),
+			newClassName = this.className,
+			i = 0;
+		for (; i < newClasses.length; i++) {
 			if (!this.hasClass(newClasses[i])) {
 				newClassName += ' ' + newClasses[i];
 			}
