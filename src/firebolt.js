@@ -100,6 +100,16 @@ function getFirstSetEachElement(funcName, numArgs) {
 /*
  * Firebolt namespace reference objects.
  */
+/**
+ * Alias for {@linkcode Firebolt}.
+ * @global
+ * @name FB
+ */
+/**
+ * Alias for {@linkcode Firebolt} (on pages where `$` has not already been defined).
+ * @global
+ * @name $
+ */
 window.FB = window.Firebolt = Firebolt;
 if (!window.$) {
 	window.$ = Firebolt;
@@ -528,7 +538,8 @@ ElementPrototype.matches = ElementPrototype.matches || ElementPrototype.webkitMa
 //#region =========================== Firebolt ===============================
 
 /**
- * The Firebolt namespace.
+ * The Firebolt namespace object and selector function.
+ * Can be referenced by the synonyms `FB` and `$` (on pages where `$` has not already been defined).
  * @namespace Firebolt
  */
 
@@ -573,10 +584,9 @@ function isHtml(str) {
 }
 
 /**
- * Returns a list of the elements either found in the DOM that match the passed in CSS selector or created by passing an HTML string.<br />
- * When passed a CSS selector string, acts as an alias of `document.querySelectorAll()`.<br />
- * Also represents the Firebolt namespace object and can be referenced by the synonyms `FB` and `$` (on pages where `$` has not already been defined).<br />
- * <br />
+ * Returns a list of the elements either found in the DOM that match the passed in CSS selector or created by passing an HTML string.  
+ * When passed a CSS selector string, acts as an alias of `document.querySelectorAll()`.  
+ * 
  * NOTE: When a selector is passed into this function that is of the form `"#elid"` (for selecting a single element by its id),
  * only a single element is returned instead of a NodeList (or `null` if there are no elements with the id). 
  * 
