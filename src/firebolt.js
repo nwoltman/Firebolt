@@ -1692,20 +1692,6 @@ NodeListPrototype.removeAttr = callOnEachElement('removeAttr');
 /**
  * Removes the input class name from all elements in the list.
  * 
- * <h5><strong>Warning:</strong></h5>
- * 
- * Due to the fact that NodeLists returned by the {@linkcode $class|$class()} function
- * are live, the following code will produce undesirable behaviour:
- * 
- * <pre class="prettyprint">$class('someClass').removeClass('someClass');</pre>
- * 
- * To avoid problems caused by this, use a non-live NodeList such as in the following alternative methods:
- * 
- * <pre class="prettyprint">
- * $('.someClass').removeClass('someClass');
- * $class('someClass').kill().removeClass('someClass');
- * </pre>
- * 
  * @function NodeList.prototype.removeClass
  * @param {String} className - The class to be removed from each element in the collection.
  */
