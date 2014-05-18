@@ -219,8 +219,8 @@ window.$TAG = function(tagName) {
 //#region ============================ Array =================================
 
 /**
- * The JavaScript Array object.
  * @class Array
+ * @classdesc The JavaScript Array object.
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array|Array - JavaScript | MDN}
  */
 
@@ -478,8 +478,8 @@ document.ready = function(callback) {
 //#region =========================== Element ================================
 
 /**
- * The HTML DOM Element interface.
  * @class Element
+ * @classdesc The HTML DOM Element interface.
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/element|Element - Web API Interfaces | MDN}
  */
 
@@ -584,6 +584,7 @@ function isHtml(str) {
 }
 
 /**
+ * The global Firebolt function. Can be referenced by the synonyms `FB` and `$` (on pages where `$` has not already been defined).  
  * Returns a list of the elements either found in the DOM that match the passed in CSS selector or created by passing an HTML string.  
  * When passed a CSS selector string, acts as an alias of `document.querySelectorAll()`.
  * 
@@ -720,10 +721,9 @@ Firebolt.isTouchDevice = function() {
 };
 
 /**
- * Same as {@link Document.ready|document.ready()}
+ * Same as {@linkcode Document.ready|document.ready()}.
  * 
  * @function
- * @see Document.ready
  * @memberOf Firebolt
  */
 Firebolt.ready = document.ready;
@@ -762,8 +762,11 @@ Function[prototype].delay = function(ms) {
 //#region ========================== HTMLElement =============================
 
 /**
- * The HTML DOM HTMLElement interface.
  * @class HTMLElement
+ * @classdesc
+ * The HTML DOM HTMLElement interface.  
+ * It should be noted that all functions that do not have a specified return value, return the calling object,
+ * allowing for function chaining.
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement|HTMLElement - Web API Interfaces | MDN}
  */
 
@@ -780,7 +783,6 @@ Function[prototype].delay = function(ms) {
  * 
  * @function HTMLElement.prototype.addClass
  * @param {String} className - One or more space-separated classes to be added to the element's class attribute.
- * @returns this, chainable
  */
 HTMLElementPrototype.addClass = function(value) {
 	if (this.className) {
@@ -1075,7 +1077,6 @@ HTMLElementPrototype.removeAttr = function(attribute) {
  * 
  * @function HTMLElement.prototype.removeClass
  * @param {String} [className] - One or more space-separated classes to be removed from the element's class attribute.
- * @returns this, chainable
  */
 HTMLElementPrototype.removeClass = function(value) {
 	if (isUndefined(value)) {
@@ -1193,8 +1194,11 @@ HTMLElementPrototype.toggleClass = function(value) {
 //#region ============================= Node =================================
 
 /**
- * The HTML DOM Node interface.
  * @class Node
+ * @classdesc
+ * The HTML DOM Node interface.  
+ * It should be noted that all functions that do not have a specified return value, return the calling object,
+ * allowing for function chaining.
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Node|Node - Web API Interfaces | MDN}
  */
 
@@ -1292,6 +1296,9 @@ NodePrototype.text = function(text) {
  * A mutable collection of DOM nodes. It subclasses the native {@link Array} class (but take note that the
  * {@linkcode NodeCollection#remove|remove} and {@linkcode NodeCollection#filter|filter} functions have been overridden),
  * and has all of the main DOM-manipulating functions.
+ * 
+ * It should be noted that all functions that do not have a specified return value, return the calling object,
+ * allowing for function chaining.
  */
 /*
  * @private
@@ -1769,9 +1776,10 @@ NodeListPrototype.unique = NodeCollectionPrototype.clone;
 //#region ========================= HTMLCollection ===========================
 
 /**
- * The DOM HTMLCollection interface.<br />
- * Has all the same functions as {@link NodeList}.
  * @class HTMLCollection
+ * @classdesc
+ * The DOM HTMLCollection interface.  
+ * Has all the same functions as {@link NodeList} (plus one other native function).
  * @see NodeList
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/HTMLCollection|HTMLCollection - Web API Interfaces | MDN}
  */
@@ -1789,8 +1797,8 @@ Object.getOwnPropertyNames(NodeListPrototype).forEach(function(methodName) {
 //#region ============================ Number ================================
 
 /**
- * The JavaScript Number object.
  * @class Number
+ * @classdesc The JavaScript Number object.
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number|Number - JavaScript | MDN}
  */
 
@@ -1822,8 +1830,8 @@ Number[prototype].toPaddedString = function(length, radix) {
 //#region ============================ String ================================
 
 /**
- * The JavaScript String object.
  * @class String
+ * @classdesc The JavaScript String object.
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String|String - JavaScript | MDN}
  */
 
