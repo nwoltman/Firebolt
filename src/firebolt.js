@@ -1344,11 +1344,11 @@ NodeCollectionPrototype.__C__ = NodeCollection;
 /**
  * Adds the element, list of elements, or queried elements to a copy of the existing list and returns the result.
  * 
- * @function NodeList.prototype.add
+ * @function NodeCollection.prototype.add
  * @param {Element|NodeList|HTMLCollection|String} e
- * @returns {NodeList} The result of adding the new item(s) to the current list.
+ * @returns {NodeCollection} The result of adding the new item(s) to the current list.
  */
-NodeListPrototype.add = function(e) {
+NodeCollectionPrototype.add = function(e) {
 	if (typeofString(e)) {
 		e = Firebolt(e);
 	}
@@ -1361,39 +1361,39 @@ NodeListPrototype.add = function(e) {
 /**
  * Adds the input class name to all elements in the collection.
  * 
- * @function NodeList.prototype.addClass
+ * @function NodeCollection.prototype.addClass
  * @param {String} className - The class to be added to each element in the collection.
  */
-NodeListPrototype.addClass = callOnEachElement('addClass');
+NodeCollectionPrototype.addClass = callOnEachElement('addClass');
 
 /**
  * Gets the value of the specified attribute of the first element in the list.
  * 
- * @function NodeList.prototype.attr
+ * @function NodeCollection.prototype.attr
  * @param {String} attribute - The name of the attribute who's value you want to get.
  * @returns {String} The value of the attribute being retrieved.
  */
 /**
  * Sets the specified attribute for each element in the list.
  * 
- * @function NodeList.prototype.attr
+ * @function NodeCollection.prototype.attr
  * @param {String} attribute - The name of the attribute who's value should be set.
  * @param {String} value - The value to set the specified attribute to.
  */
 /**
  * Sets attributes for each element in the list.
  * 
- * @function NodeList.prototype.attr
+ * @function NodeCollection.prototype.attr
  * @param {Object.<String, String>} attributes - The name of the attribute who's value should be set or an object of attribute-value pairs to set.
  */
-NodeListPrototype.attr = getFirstSetEachElement('attr', 2);
+NodeCollectionPrototype.attr = getFirstSetEachElement('attr', 2);
 
 /**
  * Clicks each element in the list.
  * 
- * @function NodeList.prototype.click
+ * @function NodeCollection.prototype.click
  */
-NodeListPrototype.click = callOnEachElement('click');
+NodeCollectionPrototype.click = callOnEachElement('click');
 
 /**
  * Returns a duplicate of the collection, leaving the original intact.
@@ -1432,43 +1432,43 @@ NodeCollectionPrototype.concat = function() {
 /**
  * Gets the computed style object of the first element in the list.
  * 
- * @function NodeList.prototype.css
+ * @function NodeCollection.prototype.css
  * @returns {Object.<String, String>} The element's computed style object.
  */
 /**
  * Gets the value of the specified style property of the first element in the list.
  * 
- * @function NodeList.prototype.css
+ * @function NodeCollection.prototype.css
  * @param {String} propertyName - The name of the style property who's value you want to retrieve.
  * @returns {String} The value of the specifed style property.
  */
 /**
  * Sets the specified style property for each element in the list.
  * 
- * @function NodeList.prototype.css
+ * @function NodeCollection.prototype.css
  * @param {String} propertyName - The name of the style property to set.
  * @param {String|Number} value - A value to set for the specified property.
  */
 /**
  * Sets CSS style properties for each element in the list.
  * 
- * @function NodeList.prototype.css
+ * @function NodeCollection.prototype.css
  * @param {Object.<String, String|Number>} properties - An object of CSS property-values.
  */
 /**
  * Explicitly sets each elements' inline CSS style, removing or replacing any current inline style properties.
  * 
- * @function NodeList.prototype.css
+ * @function NodeCollection.prototype.css
  * @param {String} cssText - A CSS style string.
  */
-NodeListPrototype.css = getFirstSetEachElement('css', 2);
+NodeCollectionPrototype.css = getFirstSetEachElement('css', 2);
 
 /**
  * Removes all child nodes from each element in the list.
  * 
- * @function NodeList.prototype.empty
+ * @function NodeCollection.prototype.empty
  */
-NodeListPrototype.empty = callOnEachElement('empty');
+NodeCollectionPrototype.empty = callOnEachElement('empty');
 
 /**
  * Creates a new NodeCollection containing only the elements that match the provided selector.
@@ -1511,24 +1511,24 @@ NodeCollectionPrototype.filter = function(selector) {
 /**
  * Hides each element in the collection.
  * 
- * @function NodeList.prototype.hide
+ * @function NodeCollection.prototype.hide
  * @see HTMLElement#hide
  */
-NodeListPrototype.hide = callOnEachElement('hide');
+NodeCollectionPrototype.hide = callOnEachElement('hide');
 
 /**
  * Gets the inner HTML of the first element in the list.
  * 
- * @function NodeList.prototype.html
+ * @function NodeCollection.prototype.html
  * @returns {String} The element's inner HTML.
  */
 /**
  * Sets the inner HTML of each element in the list.
  * 
- * @function NodeList.prototype.html
+ * @function NodeCollection.prototype.html
  * @param {String} innerHTML - An HTML string.
  */
-NodeListPrototype.html = getFirstSetEachElement('html', 1);
+NodeCollectionPrototype.html = getFirstSetEachElement('html', 1);
 
 /*
  * See Array.prototype.map - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
@@ -1540,24 +1540,24 @@ NodeCollectionPrototype.map = function(callback, thisArg) {
 /**
  * Gets the value of the specified property of the first element in the list.
  * 
- * @function NodeList.prototype.prop
+ * @function NodeCollection.prototype.prop
  * @param {String} property - The name of the property who's value you want to get.
  * @returns {?} The value of the property being retrieved.
  */
 /**
  * Sets the specified property for each element in the list.
  * 
- * @function NodeList.prototype.prop
+ * @function NodeCollection.prototype.prop
  * @param {String} property - The name of the property to be set.
  * @param {*} value - The value to set the property to.
  */
 /**
  * Sets the specified properties of each element in the list.
  * 
- * @function NodeList.prototype.prop
+ * @function NodeCollection.prototype.prop
  * @param {Object.<String, *>} properties - An object of property-value pairs to set.
  */
-NodeListPrototype.prop = getFirstSetEachElement('prop', 2);
+NodeCollectionPrototype.prop = getFirstSetEachElement('prop', 2);
 
 /**
  * Removes nodes in the collection from the DOM tree.
@@ -1578,35 +1578,35 @@ NodeCollectionPrototype.remove = function(selector) {
 /**
  * Removes the specified attribute from each element in the list.
  * 
- * @function NodeList.prototype.removeAttr
+ * @function NodeCollection.prototype.removeAttr
  * @param {String} attribute - The name of the attribute to be removed.
  */
-NodeListPrototype.removeAttr = callOnEachElement('removeAttr');
+NodeCollectionPrototype.removeAttr = callOnEachElement('removeAttr');
 
 /**
  * Removes the input class name from all elements in the list.
  * 
- * @function NodeList.prototype.removeClass
+ * @function NodeCollection.prototype.removeClass
  * @param {String} className - The class to be removed from each element in the collection.
  */
-NodeListPrototype.removeClass = callOnEachElement('removeClass');
+NodeCollectionPrototype.removeClass = callOnEachElement('removeClass');
 
 /**
  * Removes the specified property from each element in the list.
  * 
- * @function NodeList.prototype.removeProp
+ * @function NodeCollection.prototype.removeProp
  * @param {String} property - The name of the property to remove.
  */
-NodeListPrototype.removeProp = callOnEachElement('removeProp');
+NodeCollectionPrototype.removeProp = callOnEachElement('removeProp');
 
 /**
  * Shows each element in the set. For specifics, see {@link HTMLElement#show}.
  * 
- * @function NodeList.prototype.show
+ * @function NodeCollection.prototype.show
  * @param {Number|String} [style] - The style of display the element should be shown with.
  * @see HTMLElement.show
  */
-NodeListPrototype.show = callOnEachElement('show');
+NodeCollectionPrototype.show = callOnEachElement('show');
 
 /*
  * See Array.prototype.slice
@@ -1618,16 +1618,16 @@ NodeCollectionPrototype.slice = function(start, end) {
 /**
  * Gets the combined text contents of each node in the list.
  * 
- * @function NodeList.prototype.text
+ * @function NodeCollection.prototype.text
  * @returns {String} The node's text content.
  */
 /**
  * Sets the text content of each node in the list.
  * 
- * @function NodeList.prototype.text
+ * @function NodeCollection.prototype.text
  * @param {String|*} text - The text or content that will be converted to a string to be set as each nodes' text content.
  */
-NodeListPrototype.text = function(text) {
+NodeCollectionPrototype.text = function(text) {
 	var len = this.length,
 		i = 0;
 	if (isUndefined(text)) { //Get
@@ -1647,10 +1647,10 @@ NodeListPrototype.text = function(text) {
 /**
  * Toggles the input class name for all elements in the list.
  * 
- * @function NodeList.prototype.toggleClass
+ * @function NodeCollection.prototype.toggleClass
  * @param {String} className - The class to be toggled for each element in the collection.
  */
-NodeListPrototype.toggleClass = callOnEachElement('toggleClass');
+NodeCollectionPrototype.toggleClass = callOnEachElement('toggleClass');
 
 //#endregion NodeCollection
 
