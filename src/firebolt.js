@@ -1112,8 +1112,7 @@ HTMLElementPrototype.removeClass = function(value) {
 		this.className = ''; //Remove all classes
 	}
 	else {
-		var classList = this.classList;
-		classList.remove.apply(classList, value.split(' '));
+		this.classList.remove.apply(this.classList, value.split(' '));
 	}
 	
 	return this;
