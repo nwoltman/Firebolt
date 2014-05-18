@@ -106,26 +106,6 @@ if (!window.$) {
 }
 
 /**
- * The HTML document. Alias of `window.document`.
- * 
- * @global
- * @constant
- * @see Document
- * @example window.document === $doc  // true
- */
-window.$doc = document;
-
-/**
- * The JavaScript Window object. Alias of `window`.
- * 
- * @global
- * @constant
- * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Window|Window - Web API Interfaces | MDN}
- * @example window === $wnd  // true
- */
-window.$wnd = window;
-
-/**
  * PHP-style associative array (Object) of URL parameters.
  * 
  * @global
