@@ -1258,19 +1258,21 @@ NodePrototype.remove = function() {
  * 
  * @function Node.prototype.text
  * @returns {String} The node's text content.
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.textContent|Node.textContent - Web API Interfaces | MDN}
  */
 /**
  * Sets this node's text content (specifically uses the native JavaScript property `Node.textContent`).
  * 
  * @function Node.prototype.text
  * @param {String|*} text - The text or content that will be converted to a string to be set as the node's text content.
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.textContent|Node.textContent - Web API Interfaces | MDN}
  */
 NodePrototype.text = function(text) {
 	if (isUndefined(text)) {
-		return this.textContent;
+		return this.textContent; //Get
 	}
-	//else
-	this.textContent = text;
+
+	this.textContent = text; //Set
 
 	return this;
 };
@@ -1625,7 +1627,8 @@ NodeCollectionPrototype.slice = function(start, end) {
 NodeCollectionPrototype.text = function(text) {
 	var len = this.length,
 		i = 0;
-	if (isUndefined(text)) { //Get
+	//Get
+	if (isUndefined(text)) {
 		for (text = ''; i < len; i++) {
 			text += this[i].textContent;
 		}
