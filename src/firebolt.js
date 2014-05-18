@@ -1378,7 +1378,7 @@ NodeCollectionPrototype.add = function(input) {
 	if (input.nodeType) {
 		return this.concat(this.contains(input) ? 0 : input); //(this.concat(0) effectively clones the collection)
 	}
-	return this.union(typeofString(input) && Firebolt(input) || input);
+	return this.union(typeofString(input) ? Firebolt(input) : input);
 };
 
 /**
