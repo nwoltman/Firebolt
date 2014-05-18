@@ -150,7 +150,7 @@ window.$wnd = window;
 
 /**
  * Returns the first element within the document that matches the specified CSS selector.
- * If no element matches the selector, `null` or `undefined` may be returned.<br />
+ * If no element matches the selector, `null` or `undefined` may be returned.  
  * Alias of `document.querySelector()`, but with optimizations if a single class name, id, or tag name is input as the selector.
  * 
  * @global
@@ -176,50 +176,50 @@ window.$1 = function(selector) {
 }
 
 /**
- * Returns a list of the elements within the document with the specified class name.<br />
+ * Returns a list of the elements within the document with the specified class name.  
  * Alias of `document.getElementsByClassName()`.
  * 
  * @global
  * @param {String} className
  * @returns {HTMLCollection|NodeList} A list of elements with the specified class name.
  */
-window.$class = function(className) {
+window.$CLS = function(className) {
 	return document.getElementsByClassName(className);
 }
 
 /**
- * Returns the first element within the document with the specified id.<br />
+ * Returns the first element within the document with the specified id.  
  * Alias of `document.getElementById()`.
  * 
  * @global
  * @param {String} id
- * @returns {Element} The element with the specified id.
+ * @returns {?Element} The element with the specified id.
  */
-window.$id = function(id) {
+window.$ID = function(id) {
 	return document.getElementById(id);
 }
 
 /**
- * Returns a list of the elements within the document with the specified name attribute.<br />
+ * Returns a list of the elements within the document with the specified name attribute.  
  * Alias of `document.getElementsByName()`.
  * 
  * @global
  * @param {String} name
  * @returns {HTMLCollection|NodeList} A collection of elements with the specified name attribute.
  */
-window.$name = function(name) {
+window.$NAME = function(name) {
 	return document.getElementsByName(name);
 }
 
 /**
- * Returns a list of the elements within the document with the specified tag name.<br />
+ * Returns a list of the elements within the document with the specified tag name.  
  * Alias of `document.getElementsByTagName()`.
  * 
  * @global
  * @param {String} tagName
  * @returns {HTMLCollection|NodeList} A collection of elements with the specified tag name.
  */
-window.$tag = function(tagName) {
+window.$TAG = function(tagName) {
 	return document.getElementsByTagName(tagName);
 }
 
@@ -494,7 +494,7 @@ document.ready = function(callback) {
  */
 
 /**
- * Returns a list of the elements within the element that match the specifed CSS selector.<br />
+ * Returns a list of the elements within the element that match the specifed CSS selector.  
  * Alias of `Element.querySelectorAll()`.
  * 
  * @function Element.prototype.$
@@ -504,7 +504,7 @@ document.ready = function(callback) {
 ElementPrototype.$ = ElementPrototype.querySelectorAll;
 
 /**
- * Returns the first element within the element that matches the specified CSS selector.<br />
+ * Returns the first element within the element that matches the specified CSS selector.  
  * Alias of `Element.querySelector()`.
  * 
  * @function Element.prototype.$1
@@ -514,24 +514,24 @@ ElementPrototype.$ = ElementPrototype.querySelectorAll;
 ElementPrototype.$1 = ElementPrototype.querySelector;
 
 /**
- * Returns a list of the elements within the element with the specified class name.<br />
+ * Returns a list of the elements within the element with the specified class name.  
  * Alias of `Element.getElementsByClassName()`.
  * 
- * @function Element.prototype.$class
+ * @function Element.prototype.$CLS
  * @param {String} className
  * @returns {HTMLCollection|NodeList} A collection of elements with the specified class name.
  */
-ElementPrototype.$class = ElementPrototype.getElementsByClassName;
+ElementPrototype.$CLS = ElementPrototype.getElementsByClassName;
 
 /**
- * Returns a list of the elements within the element with the specified tag name.<br />
+ * Returns a list of the elements within the element with the specified tag name.  
  * Alias of `Element.getElementsByTagName()`.
  * 
- * @function Element.prototype.$tag
+ * @function Element.prototype.$TAG
  * @param {String} tagName
  * @returns {HTMLCollection|NodeList} A collection of elements with the specified tag name.
  */
-ElementPrototype.$tag = ElementPrototype.getElementsByTagName;
+ElementPrototype.$TAG = ElementPrototype.getElementsByTagName;
 
 /**
  * Determines if the element matches the specified CSS selector.
@@ -917,7 +917,6 @@ HTMLElementPrototype.css = function(prop, value) {
  * Removes all of the element's child nodes.
  * 
  * @function HTMLElement.prototype.empty
- * @chainable
  * @example
  * // HTML (before)
  * <div id="mydiv">
@@ -926,7 +925,7 @@ HTMLElementPrototype.css = function(prop, value) {
  * </div>
  *
  * // JavaScript
- * $id('mydiv').empty
+ * $ID('mydiv').empty();
  *
  * // HTML (after)
  * <div id="mydiv"></div>
@@ -996,7 +995,7 @@ HTMLElementPrototype.html = function(innerHTML) {
  * </body>
  * 
  * // JavaScript
- * var offset = $id('a').offset();
+ * var offset = $ID('a').offset();
  * alert( offset.top + ', ' + offset.left );  // "10, 20"
  */
 HTMLElementPrototype.offset = function() {
@@ -1693,7 +1692,7 @@ NodeCollectionPrototype.toggleClass = callOnEachElement('toggleClass');
  * This is because the functions my alter live NodeLists, as seen in this example:
  * 
  * ```JavaScript
- * var $blueThings = $class('blue');
+ * var $blueThings = $CLS('blue');
  * $blueThings.length = 10;  // for example
  * $blueThings.removeClass('blue'); // returns $blueThings as a NodeCollection
  * $blueThings.length === 0; // true - since now there are no elements with the 'blue' class
@@ -1948,7 +1947,7 @@ defineProperty(StringPrototype, 'tokenize', {
 
 //#region ============ Browser Compatibility and Speed Boosters ==============
 
-var isOldIE = Firebolt.create('div').html('<!--[if IE]><i></i><![endif]-->').$tag('i').length > 0,
+var isOldIE = Firebolt.create('div').html('<!--[if IE]><i></i><![endif]-->').$TAG('i').length > 0,
 	isChrome = !!window.chrome && !window.opera,
 	noMultiParamClassListFuncs = (function() {
 		var elem = Firebolt.create('div');
@@ -2006,7 +2005,7 @@ if (isChrome || noMultiParamClassListFuncs) {
  * var seconds = 0,
  *     counter = new Timer(function() {
  *         seconds++;
- *         $id('display').text(seconds);
+ *         $ID('display').text(seconds);
  *     }, 1000).start();
  */
 function Timer(callback, interval, onstart, onstop) {
