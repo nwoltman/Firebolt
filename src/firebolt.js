@@ -1414,15 +1414,17 @@ NodeCollectionPrototype.clone = function() {
  */
 NodeCollectionPrototype.concat = function() {
 	var collection = new NodeCollection(this),
-		i = 0;
+		i = 0,
+		arg;
 	for (; i < arguments.length; i++) {
-		var arg = arguments[i];
-		if (arg.nodeType) { //Node
-			collection.push(arg);
-		}
-		else { //NodeCollection|NodeList|HTMLCollection
-			for (var j = 0; j < arg.length; j++) {
-				collection.push(arg[j]);
+		if (arg = arguments[i]) {
+			if (arg.nodeType) { //Node
+				collection.push(arg);
+			}
+			else { //NodeCollection|NodeList|HTMLCollection
+				for (var j = 0; j < arg.length; j++) {
+					collection.push(arg[j]);
+				}
 			}
 		}
 	}
