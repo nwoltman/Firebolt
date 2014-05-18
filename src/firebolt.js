@@ -1342,20 +1342,44 @@ var NodeCollectionPrototype = NodeCollection[prototype] = new Array;
 NodeCollectionPrototype.__C__ = NodeCollection;
 
 /**
- * Adds the element, list of elements, or queried elements to a copy of the existing list and returns the result.
+ * Adds the queried elements to a copy of the existing collection (if they are not already in the collection)
+ * and returns the result.
  * 
  * @function NodeCollection.prototype.add
- * @param {Element|NodeList|HTMLCollection|String} e
- * @returns {NodeCollection} The result of adding the new item(s) to the current list.
+ * @param {String} selector - A CSS selector to use to find elements to add to the collection.
+ * @returns {NodeCollection} The result of unioning the queried elements with the current collection.
  */
-NodeCollectionPrototype.add = function(e) {
-	if (typeofString(e)) {
-		e = Firebolt(e);
+/**
+ * Adds the newly created elements to a copy of the existing collection and returns the result.
+ * 
+ * @function NodeCollection.prototype.add
+ * @param {String} html - An HTML fragment to add to the collection.
+ * @returns {NodeCollection} The result adding the elements created with the HTML to current collection.
+ */
+/**
+ * Adds the element to a copy of the existing collection (if it is not already in the collection)
+ * and returns the result.  
+ * If you're sure the element is not already in the collection, using {@linkcode NodeCollection#concat|concat}
+ * would be more efficient.
+ * 
+ * @function NodeCollection.prototype.add
+ * @param {Element|Node} element - A DOM Element or Node.
+ * @returns {NodeCollection} The result of adding the element to the current collection.
+ */
+/**
+ * Returns the union of the current collection and the input one.  
+ * If you're sure that none of the elements in the passed in collection are in the current collection,
+ * using {@linkcode NodeCollection#concat|concat} would be more efficient.
+ * 
+ * @function NodeCollection.prototype.add
+ * @param {NodeCollection|NodeList|HTMLCollection|Node[]} elements
+ * @returns {NodeCollection} The result of adding the input elements to the current collection.
+ */
+NodeCollectionPrototype.add = function(input) {
+	if (input.nodeType) {
+		return this.concat(this.contains(input) ? 0 : input); //(this.concat(0) effectively clones the collection)
 	}
-	else if (!e.length) {
-		e = [e];
-	}
-	return this.concat(e);
+	return this.union(typeofString(input) && Firebolt(input) || input);
 };
 
 /**
@@ -1700,7 +1724,9 @@ NodeCollectionPrototype.toggleClass = callOnEachElement('toggleClass');
  * Finally, since it is not possible to manually create a new NodeList in JavaScript (there are tricks but
  * they are slow and not worth it), the following functions return a NodeCollection instead of a NodeList:
  * 
+ * + add
  * + clone
+ * + concat
  * + filter
  * + intersect
  * + map
