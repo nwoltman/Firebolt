@@ -585,15 +585,12 @@ function isHtml(str) {
 
 /**
  * Returns a list of the elements either found in the DOM that match the passed in CSS selector or created by passing an HTML string.  
- * When passed a CSS selector string, acts as an alias of `document.querySelectorAll()`.  
+ * When passed a CSS selector string, acts as an alias of `document.querySelectorAll()`.
  * 
- * NOTE: When a selector is passed into this function that is of the form `"#elid"` (for selecting a single element by its id),
- * only a single element is returned instead of a NodeList (or `null` if there are no elements with the id). 
- * 
- * @function
+ * @function Firebolt.Firebolt
  * @param {String} string - A CSS selector string or an HTML string.
- * @returns {NodeList} A non-live list of selected elements or newly created elements.
- * @memberOf Firebolt
+ * @returns {NodeList} A list of selected elements or newly created elements.
+ * 
  * @example
  * $('button.btn-success') // Returns all button elements with the class "btn-success"
  * $('str <p>content</p>') // Creates a set of nodes and returns it as a NodeList (in this case ["str ", <p>content</p>])
@@ -608,16 +605,18 @@ function Firebolt(str) {
 	}
 	else if (str[0] === '#') { //Check for a single id
 		if (rgxClassOrId.test(str)) {
-			return document.getElementById(str.slice(1));
+			//Use concat so an empty NodeCollection is returned if the element is not found
+			return new NodeCollection().concat( document.getElementById(str.slice(1)) );
 		}
 	}
 	else if (rgxTag.test(str)) { //Check for a single tag name
 		return document.getElementsByTagName(str);
 	}
-	else if (isHtml(str)) { //Check if the string is an HTML string
+
+	if (isHtml(str)) { //Check if the string is an HTML string
 		return Firebolt.create('div').html(str).childNodes;
 	}
-	//else
+
 	return document.querySelectorAll(str);
 }
 
