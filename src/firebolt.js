@@ -134,37 +134,19 @@ window.$wnd = window;
  * @type {Object.<String, String>}
  * @see {@link http://www.php.net/manual/en/reserved.variables.get.php|PHP: $_GET - Manual}
  */
-function processQueryString(e, href) {
-	var get = {},
-		queryString = href ? href.match(/\?[^#]*/)[0] || '' : location.search,
-		params = queryString.slice(1).split('&'),
-		i = 0;
+(function () {
+	window.$_GET = {};
+	var decode = decodeURIComponent,
+		params = location.search.slice(1).split('&'),
+		i = 0,
+		key_val;
 	for (; i < params.length; i++) {
-		var keyval = params[i].split('=');
-		if (keyval[0] != '') {
-			get[decodeURIComponent(keyval[0])] = decodeURIComponent(keyval[1] || '');
+		key_val = params[i].split('=');
+		if (key_val[0]) {
+			$_GET[decode(key_val[0])] = decode(key_val[1] || '');
 		}
 	}
-	window.$_GET = Object.freeze(get);
-}
-processQueryString();
-/*
- * Define an onpushstate event to update window.$_GET when the URL changes.
- * @see http://stackoverflow.com/questions/4570093/how-to-get-notified-about-changes-of-the-history-via-history-pushstate
- */
-(function(history) {
-	var pushState = history.pushState;
-	history.pushState = function(state) {
-		if (typeof history.onpushstate == "function") {
-			history.onpushstate({ state: state });
-		}
-		processQueryString(0, arguments[2]);
-		return pushState.apply(history, arguments);
-	}
-})(window.history);
-/* Also update for window.onpopstate */
-window.addEventListener('popstate', processQueryString);
-
+})();
 
 /**
  * Returns the first element within the document that matches the specified CSS selector.
