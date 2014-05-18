@@ -1248,9 +1248,10 @@ NodePrototype.insertAfter = function(node) {
  * Removes this node from the DOM.
  * 
  * @function Node.prototype.remove
+ * @returns void (undefined)
  */
 NodePrototype.remove = function() {
-	return this.parentNode.removeChild(this);
+	this.parentNode.removeChild(this);
 };
 
 /**
