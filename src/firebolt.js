@@ -40,6 +40,58 @@ function isUndefined(value) {
 	return value === undefined;
 }
 
+/** 
+ * Calls the function with the passed in name on each element in an enumerable.
+ * 
+ * @private
+ * @param {String} funcName - The name of a function.
+ * @returns {Array|NodeList|HTMLCollection} A reference to the enumerable
+ * @this An enumerable such as an Array, NodeList, or HTMLCollection.
+ */
+function callOnEachElement(funcName) {
+	return function() {
+		for (var i = 0, len = this.length; i < len; i++) {
+			if (this[i].nodeType === 1) this[i][funcName].apply(this[i], arguments);
+		}
+		return this;
+	};
+}
+
+/** 
+ * Returns a function that calls the function with the passed in name on each element in an enumerable
+ * unless the number of arguments passed to the function is less than the specified number or the first
+ * argument passed in is an object, in which case the result of calling the function of the first element
+ * is returned.
+ * 
+ * @private
+ * @param {String} funcName - The name of a function.
+ * @param {Number} numArgs - The number of arguments that will be given to the function for setting. Anything less is for getting.
+ * @returns {Array|NodeList|HTMLCollection} A reference to the enumerable.
+ * @this An enumerable such as an Array, NodeList, or HTMLCollection.
+ */
+function getFirstSetEachElement(funcName, numArgs) {
+	return function() {
+		var items = this,
+			len = items.length,
+			i = 0;
+		if (arguments.length < numArgs && typeof arguments[0] != 'object') {
+			for (; i < len; i++) {
+				if (items[i].nodeType === 1) {
+					return items[i][funcName](arguments[0]); //Allowed to assume at most one argument needed
+				}
+			}
+			return null;
+		}
+		//else
+		for (; i < len; i++) {
+			if (items[i].nodeType === 1) {
+				items[i][funcName].apply(items[i], arguments);
+			}
+		}
+		return items;
+	};
+}
+
 //#endregion Private
 
 
@@ -1290,6 +1342,60 @@ var NodeCollectionPrototype = NodeCollection[prototype] = new Array;
 NodeCollectionPrototype.__C__ = NodeCollection;
 
 /**
+ * Adds the element, list of elements, or queried elements to a copy of the existing list and returns the result.
+ * 
+ * @function NodeList.prototype.add
+ * @param {Element|NodeList|HTMLCollection|String} e
+ * @returns {NodeList} The result of adding the new item(s) to the current list.
+ */
+NodeListPrototype.add = function(e) {
+	if (typeofString(e)) {
+		e = Firebolt(e);
+	}
+	else if (!e.length) {
+		e = [e];
+	}
+	return this.concat(e);
+};
+
+/**
+ * Adds the input class name to all elements in the collection.
+ * 
+ * @function NodeList.prototype.addClass
+ * @param {String} className - The class to be added to each element in the collection.
+ */
+NodeListPrototype.addClass = callOnEachElement('addClass');
+
+/**
+ * Gets the value of the specified attribute of the first element in the list.
+ * 
+ * @function NodeList.prototype.attr
+ * @param {String} attribute - The name of the attribute who's value you want to get.
+ * @returns {String} The value of the attribute being retrieved.
+ */
+/**
+ * Sets the specified attribute for each element in the list.
+ * 
+ * @function NodeList.prototype.attr
+ * @param {String} attribute - The name of the attribute who's value should be set.
+ * @param {String} value - The value to set the specified attribute to.
+ */
+/**
+ * Sets attributes for each element in the list.
+ * 
+ * @function NodeList.prototype.attr
+ * @param {Object.<String, String>} attributes - The name of the attribute who's value should be set or an object of attribute-value pairs to set.
+ */
+NodeListPrototype.attr = getFirstSetEachElement('attr', 2);
+
+/**
+ * Clicks each element in the list.
+ * 
+ * @function NodeList.prototype.click
+ */
+NodeListPrototype.click = callOnEachElement('click');
+
+/**
  * Returns a duplicate of the collection, leaving the original intact.
  * 
  * @function NodeCollection.prototype.clone
@@ -1322,6 +1428,47 @@ NodeCollectionPrototype.concat = function() {
 	}
 	return collection;
 }
+
+/**
+ * Gets the computed style object of the first element in the list.
+ * 
+ * @function NodeList.prototype.css
+ * @returns {Object.<String, String>} The element's computed style object.
+ */
+/**
+ * Gets the value of the specified style property of the first element in the list.
+ * 
+ * @function NodeList.prototype.css
+ * @param {String} propertyName - The name of the style property who's value you want to retrieve.
+ * @returns {String} The value of the specifed style property.
+ */
+/**
+ * Sets the specified style property for each element in the list.
+ * 
+ * @function NodeList.prototype.css
+ * @param {String} propertyName - The name of the style property to set.
+ * @param {String|Number} value - A value to set for the specified property.
+ */
+/**
+ * Sets CSS style properties for each element in the list.
+ * 
+ * @function NodeList.prototype.css
+ * @param {Object.<String, String|Number>} properties - An object of CSS property-values.
+ */
+/**
+ * Explicitly sets each elements' inline CSS style, removing or replacing any current inline style properties.
+ * 
+ * @function NodeList.prototype.css
+ * @param {String} cssText - A CSS style string.
+ */
+NodeListPrototype.css = getFirstSetEachElement('css', 2);
+
+/**
+ * Removes all child nodes from each element in the list.
+ * 
+ * @function NodeList.prototype.empty
+ */
+NodeListPrototype.empty = callOnEachElement('empty');
 
 /**
  * Creates a new NodeCollection containing only the elements that match the provided selector.
@@ -1361,12 +1508,56 @@ NodeCollectionPrototype.filter = function(selector) {
 	return filtration;
 };
 
+/**
+ * Hides each element in the collection.
+ * 
+ * @function NodeList.prototype.hide
+ * @see HTMLElement#hide
+ */
+NodeListPrototype.hide = callOnEachElement('hide');
+
+/**
+ * Gets the inner HTML of the first element in the list.
+ * 
+ * @function NodeList.prototype.html
+ * @returns {String} The element's inner HTML.
+ */
+/**
+ * Sets the inner HTML of each element in the list.
+ * 
+ * @function NodeList.prototype.html
+ * @param {String} innerHTML - An HTML string.
+ */
+NodeListPrototype.html = getFirstSetEachElement('html', 1);
+
 /*
  * See Array.prototype.map - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
  */
 NodeCollectionPrototype.map = function(callback, thisArg) {
 	return new NodeCollection(ArrayPrototype.map.call(this, callback, thisArg));
 }
+
+/**
+ * Gets the value of the specified property of the first element in the list.
+ * 
+ * @function NodeList.prototype.prop
+ * @param {String} property - The name of the property who's value you want to get.
+ * @returns {?} The value of the property being retrieved.
+ */
+/**
+ * Sets the specified property for each element in the list.
+ * 
+ * @function NodeList.prototype.prop
+ * @param {String} property - The name of the property to be set.
+ * @param {*} value - The value to set the property to.
+ */
+/**
+ * Sets the specified properties of each element in the list.
+ * 
+ * @function NodeList.prototype.prop
+ * @param {Object.<String, *>} properties - An object of property-value pairs to set.
+ */
+NodeListPrototype.prop = getFirstSetEachElement('prop', 2);
 
 /**
  * Removes nodes in the collection from the DOM tree.
@@ -1384,12 +1575,82 @@ NodeCollectionPrototype.remove = function(selector) {
 	return this;
 };
 
+/**
+ * Removes the specified attribute from each element in the list.
+ * 
+ * @function NodeList.prototype.removeAttr
+ * @param {String} attribute - The name of the attribute to be removed.
+ */
+NodeListPrototype.removeAttr = callOnEachElement('removeAttr');
+
+/**
+ * Removes the input class name from all elements in the list.
+ * 
+ * @function NodeList.prototype.removeClass
+ * @param {String} className - The class to be removed from each element in the collection.
+ */
+NodeListPrototype.removeClass = callOnEachElement('removeClass');
+
+/**
+ * Removes the specified property from each element in the list.
+ * 
+ * @function NodeList.prototype.removeProp
+ * @param {String} property - The name of the property to remove.
+ */
+NodeListPrototype.removeProp = callOnEachElement('removeProp');
+
+/**
+ * Shows each element in the set. For specifics, see {@link HTMLElement#show}.
+ * 
+ * @function NodeList.prototype.show
+ * @param {Number|String} [style] - The style of display the element should be shown with.
+ * @see HTMLElement.show
+ */
+NodeListPrototype.show = callOnEachElement('show');
+
 /*
  * See Array.prototype.slice
  */
 NodeCollectionPrototype.slice = function(start, end) {
 	return new NodeCollection(ArrayPrototype.slice.call(this, start, end));
 }
+
+/**
+ * Gets the combined text contents of each node in the list.
+ * 
+ * @function NodeList.prototype.text
+ * @returns {String} The node's text content.
+ */
+/**
+ * Sets the text content of each node in the list.
+ * 
+ * @function NodeList.prototype.text
+ * @param {String|*} text - The text or content that will be converted to a string to be set as each nodes' text content.
+ */
+NodeListPrototype.text = function(text) {
+	var len = this.length,
+		i = 0;
+	if (isUndefined(text)) { //Get
+		for (text = ''; i < len; i++) {
+			text += this[i].textContent;
+		}
+		return text;
+	}
+	//Set
+	for (; i < len; i++) {
+		this[i].textContent = text;
+	}
+
+	return this;
+};
+
+/**
+ * Toggles the input class name for all elements in the list.
+ * 
+ * @function NodeList.prototype.toggleClass
+ * @param {String} className - The class to be toggled for each element in the collection.
+ */
+NodeListPrototype.toggleClass = callOnEachElement('toggleClass');
 
 //#endregion NodeCollection
 
@@ -1489,267 +1750,6 @@ getOwnPropertyNames(NodeCollectionPrototype).union(getOwnPropertyNames(ArrayProt
 
 //Delete the temporary arrays
 delete Firebolt.A; delete Firebolt.B;
-
-/** 
- * Calls the function with the passed in name on each element in an enumerable.
- * 
- * @private
- * @param {String} funcName - The name of a function.
- * @returns {Array|NodeList|HTMLCollection} A reference to the enumerable
- * @this An enumerable such as an Array, NodeList, or HTMLCollection.
- */
-function callOnEachElement(funcName) {
-	return function() {
-		for (var i = 0, len = this.length; i < len; i++) {
-			if (this[i].nodeType === 1) this[i][funcName].apply(this[i], arguments);
-		}
-		return this;
-	};
-}
-
-/** 
- * Returns a function that calls the function with the passed in name on each element in an enumerable
- * unless the number of arguments passed to the function is less than the specified number or the first
- * argument passed in is an object, in which case the result of calling the function of the first element
- * is returned.
- * 
- * @private
- * @param {String} funcName - The name of a function.
- * @param {Number} numArgs - The number of arguments that will be given to the function for setting. Anything less is for getting.
- * @returns {Array|NodeList|HTMLCollection} A reference to the enumerable.
- * @this An enumerable such as an Array, NodeList, or HTMLCollection.
- */
-function getFirstSetEachElement(funcName, numArgs) {
-	return function() {
-		var items = this,
-			len = items.length,
-			i = 0;
-		if (arguments.length < numArgs && typeof arguments[0] != 'object') {
-			for (; i < len; i++) {
-				if (items[i].nodeType === 1) {
-					return items[i][funcName](arguments[0]); //Allowed to assume at most one argument needed
-				}
-			}
-			return null;
-		}
-		//else
-		for (; i < len; i++) {
-			if (items[i].nodeType === 1) {
-				items[i][funcName].apply(items[i], arguments);
-			}
-		}
-		return items;
-	};
-}
-
-/**
- * Adds the element, list of elements, or queried elements to a copy of the existing list and returns the result.
- * 
- * @function NodeList.prototype.add
- * @param {Element|NodeList|HTMLCollection|String} e
- * @returns {NodeList} The result of adding the new item(s) to the current list.
- */
-NodeListPrototype.add = function(e) {
-	if (typeofString(e)) {
-		e = Firebolt(e);
-	}
-	else if (!e.length) {
-		e = [e];
-	}
-	return this.concat(e);
-};
-
-/**
- * Adds the input class name to all elements in the collection.
- * 
- * @function NodeList.prototype.addClass
- * @param {String} className - The class to be added to each element in the collection.
- */
-NodeListPrototype.addClass = callOnEachElement('addClass');
-
-/**
- * Gets the value of the specified attribute of the first element in the list.
- * 
- * @function NodeList.prototype.attr
- * @param {String} attribute - The name of the attribute who's value you want to get.
- * @returns {String} The value of the attribute being retrieved.
- */
-/**
- * Sets the specified attribute for each element in the list.
- * 
- * @function NodeList.prototype.attr
- * @param {String} attribute - The name of the attribute who's value should be set.
- * @param {String} value - The value to set the specified attribute to.
- */
-/**
- * Sets attributes for each element in the list.
- * 
- * @function NodeList.prototype.attr
- * @param {Object.<String, String>} attributes - The name of the attribute who's value should be set or an object of attribute-value pairs to set.
- */
-NodeListPrototype.attr = getFirstSetEachElement('attr', 2);
-
-/**
- * Clicks each element in the list.
- * 
- * @function NodeList.prototype.click
- */
-NodeListPrototype.click = callOnEachElement('click');
-
-/**
- * Gets the computed style object of the first element in the list.
- * 
- * @function NodeList.prototype.css
- * @returns {Object.<String, String>} The element's computed style object.
- */
-/**
- * Gets the value of the specified style property of the first element in the list.
- * 
- * @function NodeList.prototype.css
- * @param {String} propertyName - The name of the style property who's value you want to retrieve.
- * @returns {String} The value of the specifed style property.
- */
-/**
- * Sets the specified style property for each element in the list.
- * 
- * @function NodeList.prototype.css
- * @param {String} propertyName - The name of the style property to set.
- * @param {String|Number} value - A value to set for the specified property.
- */
-/**
- * Sets CSS style properties for each element in the list.
- * 
- * @function NodeList.prototype.css
- * @param {Object.<String, String|Number>} properties - An object of CSS property-values.
- */
-/**
- * Explicitly sets each elements' inline CSS style, removing or replacing any current inline style properties.
- * 
- * @function NodeList.prototype.css
- * @param {String} cssText - A CSS style string.
- */
-NodeListPrototype.css = getFirstSetEachElement('css', 2);
-
-/**
- * Removes all child nodes from each element in the list.
- * 
- * @function NodeList.prototype.empty
- */
-NodeListPrototype.empty = callOnEachElement('empty');
-
-/**
- * Hides each element in the collection.
- * 
- * @function NodeList.prototype.hide
- * @see HTMLElement#hide
- */
-NodeListPrototype.hide = callOnEachElement('hide');
-
-/**
- * Gets the inner HTML of the first element in the list.
- * 
- * @function NodeList.prototype.html
- * @returns {String} The element's inner HTML.
- */
-/**
- * Sets the inner HTML of each element in the list.
- * 
- * @function NodeList.prototype.html
- * @param {String} innerHTML - An HTML string.
- */
-NodeListPrototype.html = getFirstSetEachElement('html', 1);
-
-/**
- * Gets the value of the specified property of the first element in the list.
- * 
- * @function NodeList.prototype.prop
- * @param {String} property - The name of the property who's value you want to get.
- * @returns {?} The value of the property being retrieved.
- */
-/**
- * Sets the specified property for each element in the list.
- * 
- * @function NodeList.prototype.prop
- * @param {String} property - The name of the property to be set.
- * @param {*} value - The value to set the property to.
- */
-/**
- * Sets the specified properties of each element in the list.
- * 
- * @function NodeList.prototype.prop
- * @param {Object.<String, *>} properties - An object of property-value pairs to set.
- */
-NodeListPrototype.prop = getFirstSetEachElement('prop', 2);
-
-/**
- * Removes the specified attribute from each element in the list.
- * 
- * @function NodeList.prototype.removeAttr
- * @param {String} attribute - The name of the attribute to be removed.
- */
-NodeListPrototype.removeAttr = callOnEachElement('removeAttr');
-
-/**
- * Removes the input class name from all elements in the list.
- * 
- * @function NodeList.prototype.removeClass
- * @param {String} className - The class to be removed from each element in the collection.
- */
-NodeListPrototype.removeClass = callOnEachElement('removeClass');
-
-/**
- * Removes the specified property from each element in the list.
- * 
- * @function NodeList.prototype.removeProp
- * @param {String} property - The name of the property to remove.
- */
-NodeListPrototype.removeProp = callOnEachElement('removeProp');
-
-/**
- * Shows each element in the set. For specifics, see {@link HTMLElement#show}.
- * 
- * @function NodeList.prototype.show
- * @param {Number|String} [style] - The style of display the element should be shown with.
- * @see HTMLElement.show
- */
-NodeListPrototype.show = callOnEachElement('show');
-
-/**
- * Gets the combined text contents of each node in the list.
- * 
- * @function NodeList.prototype.text
- * @returns {String} The node's text content.
- */
-/**
- * Sets the text content of each node in the list.
- * 
- * @function NodeList.prototype.text
- * @param {String|*} text - The text or content that will be converted to a string to be set as each nodes' text content.
- */
-NodeListPrototype.text = function(text) {
-	var len = this.length,
-		i = 0;
-	if (isUndefined(text)) { //Get
-		for (text = ''; i < len; i++) {
-			text += this[i].textContent;
-		}
-		return text;
-	}
-	//Set
-	for (; i < len; i++) {
-		this[i].textContent = text;
-	}
-
-	return this;
-};
-
-/**
- * Toggles the input class name for all elements in the list.
- * 
- * @function NodeList.prototype.toggleClass
- * @param {String} className - The class to be toggled for each element in the collection.
- */
-NodeListPrototype.toggleClass = callOnEachElement('toggleClass');
 
 /**
  * Returns the NodeCollection equivalent of the NodeList.
