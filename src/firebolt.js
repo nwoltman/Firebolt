@@ -1,6 +1,6 @@
 ﻿/**
  * Firebolt current core file.
- * @version 0.2.5
+ * @version 0.3.0
  * @author Nathan Woltman
  * @copyright 2014 Nathan Woltman
  * @license MIT https://github.com/FireboltJS/Firebolt/blob/master/LICENSE.txt
@@ -24,8 +24,7 @@ var prototype = 'prototype',
 	Object = window.Object,
 	defineProperty = Object.defineProperty,
 	defineProperties = Object.defineProperties,
-
-	NodeListIdentifier = '_fbnlid_',
+	getOwnPropertyNames = Object.getOwnPropertyNames,
 
 	/* Pre-built RegExps */
 	rgxClassOrId = /^.[\w-_]+$/,
@@ -202,6 +201,12 @@ window.$tag = function(tagName) {
  */
 
 defineProperties(ArrayPrototype, {
+	/* Private reference to the constructor */
+	__C__: {
+		writable: true,
+		value: Array
+	},
+
 	/**
 	 * Removes all "empty" items (as defined by {@linkcode Firebolt.isEmpty}) from the array.
 	 * 
@@ -239,6 +244,7 @@ defineProperties(ArrayPrototype, {
 	 * @returns {Array} A copy of the array.
 	 */
 	clone: {
+		writable: true,
 		value: function() {
 			var len = this.length,
 				clone = new Array(len),
@@ -298,7 +304,7 @@ defineProperties(ArrayPrototype, {
 	 */
 	intersect: {
 		value: function(array) {
-			var intersection = [],
+			var intersection = new this.__C__(),
 				i = 0;
 			for (; i < array.length; i++) {
 				if (this.contains(array[i]) && !intersection.contains(array[i])) {
@@ -329,6 +335,7 @@ defineProperties(ArrayPrototype, {
 	 * @returns {Array} A reference to the array (so it's chainable).
 	 */
 	remove: {
+		writable: true,
 		value: function() {
 			for (var rindex, i = 0; i < arguments.length; i++) {
 				while ((rindex = this.indexOf(arguments[i])) >= 0) {
@@ -338,6 +345,7 @@ defineProperties(ArrayPrototype, {
 					}
 				}
 			}
+
 			return this;
 		}
 	},
@@ -374,7 +382,7 @@ defineProperties(ArrayPrototype, {
 	 */
 	unique: {
 		value: function() {
-			var uniqueClone = [],
+			var uniqueClone = new this.__C__(),
 				i = 0;
 			for (; i < this.length; i++) {
 				if (!uniqueClone.contains(this[i])) {
@@ -396,18 +404,18 @@ defineProperties(ArrayPrototype, {
 	 */
 	without: {
 		value: function() {
-			var array = [],
+			var array = new this.__C__(),
 				i = 0,
 				j;
 			skip:
-				for (; i < this.length; i++) {
-					for (j = 0; j < arguments.length; j++) {
-						if (this[i] === arguments[j]) {
-							continue skip;
-						}
+			for (; i < this.length; i++) {
+				for (j = 0; j < arguments.length; j++) {
+					if (this[i] === arguments[j]) {
+						continue skip;
 					}
-					array.push(this[i]);
 				}
+				array.push(this[i]);
+			}
 			return array;
 		}
 	}
@@ -696,18 +704,6 @@ Firebolt.isTouchDevice = function() {
  * @memberOf Firebolt
  */
 Firebolt.ready = document.ready;
-
-/**
- * Converts an array of nodes to a non-live NodeList containing only DOM Elements.
- * 
- * @param {Array.<Node>|NodeList} elements - An array containing nodes that are in the current documentElement (this will not work if the nodes are not in the current documentElement).
- * @returns {NodeList} The original array of elements converted to a NodeList containing only nodes of the original list that are of node type 1 (Element).
- * @memberOf Firebolt
- */
-Firebolt.toDeadNodeList = function(elements) {
-	NodeListPrototype.attr.call(elements, NodeListIdentifier, '');
-	return this('[' + NodeListIdentifier + ']').removeAttr(NodeListIdentifier);
-};
 
 //#endregion Firebolt
 
@@ -1261,45 +1257,238 @@ NodePrototype.text = function(text) {
 //#endregion Node
 
 
+//#region ======================== NodeCollection ============================
+
+/**
+ * This constructor is not globally visible and should not be called by user code.
+ * 
+ * @class NodeCollection
+ * @mixes Array
+ * @classdesc
+ * A mutable collection of DOM nodes. It subclasses the native {@link Array} class (but take note that the
+ * {@linkcode NodeCollection#remove|remove} and {@linkcode NodeCollection#filter|filter} functions have been overridden),
+ * and has all of the main DOM-manipulating functions.
+ */
+/*
+ * @private
+ * @constructs NodeCollection
+ * @param {NodeList|HTMLCollection|Node[]} [nodes] - The collection of nodes the NodeCollection will be comprised of.
+ */
+function NodeCollection(nodes) {
+	if (nodes) {
+		this.length = nodes.length;
+		for (var i = 0; i < this.length; i++) {
+			this[i] = nodes[i];
+		}
+	}
+}
+
+/* Subclass Array (not perfectly, but pretty close) */
+var NodeCollectionPrototype = NodeCollection[prototype] = new Array;
+
+/* Set the private constructor (will be inherited by NodeList and HTMLCollection */
+NodeCollectionPrototype.__C__ = NodeCollection;
+
+/**
+ * Returns a duplicate of the collection, leaving the original intact.
+ * 
+ * @function NodeCollection.prototype.clone
+ * @returns {NodeCollection} A copy of the collection.
+ */
+NodeCollectionPrototype.clone = function() {
+	return new NodeCollection(this);
+}
+
+/**
+ * Returns a new NodeCollection comprised of this collection joined with other NodeCollection(s) and/or value(s).
+ * 
+ * @function NodeCollection.prototype.concat
+ * @param {...(Node|NodeCollection|NodeList|HTMLCollection|Node[])} nodes - One or more Nodes or NodeCollections to add to the collection.
+ * @returns {NodeCollection} A copy of the collection with the added nodes.
+ */
+NodeCollectionPrototype.concat = function() {
+	var collection = new NodeCollection(this),
+		i = 0;
+	for (; i < arguments.length; i++) {
+		var arg = arguments[i];
+		if (arg.nodeType) { //Node
+			collection.push(arg);
+		}
+		else { //NodeCollection|NodeList|HTMLCollection
+			for (var j = 0; j < arg.length; j++) {
+				collection.push(arg[j]);
+			}
+		}
+	}
+	return collection;
+}
+
+/**
+ * Creates a new NodeCollection containing only the elements that match the provided selector.
+ * (If you want to filter against another set of elements, use the {@linkcode Array#intersect|intersect} function.)
+ * 
+ * @function NodeCollection.prototype.filter
+ * @param {String} selector - CSS selector string to match the current collection of elements against.
+ * @returns {NodeCollection} 
+ */
+/**
+ * Creates a new NodeCollection with all nodes that pass the test implemented by the provided function.
+ * (If you want to filter against another set of elements, use the {@linkcode Array#intersect|intersect} function.)
+ * 
+ * @function NodeCollection.prototype.filter
+ * @param {Function} function(index) - A function used as a test for each element in the collection. `this` is the current DOM element.
+ * @returns {NodeCollection} 
+ */
+NodeCollectionPrototype.filter = function(selector) {
+	var filtration = new NodeCollection(),
+		i = 0;
+
+	if (typeofString(selector)) {
+		for (; i < this.length; i++) {
+			if (this[i].nodeType === 1 && this[i].matches(selector)) {
+				filtration.push(this[i]);
+			}
+		}
+	}
+	else {
+		for (; i < this.length; i++) {
+			if (selector.call(this[i], i)) {
+				filtration.push(this[i]);
+			}
+		}
+	}
+
+	return filtration;
+};
+
+/*
+ * See Array.prototype.map - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
+ */
+NodeCollectionPrototype.map = function(callback, thisArg) {
+	return new NodeCollection(ArrayPrototype.map.call(this, callback, thisArg));
+}
+
+/**
+ * Removes nodes in the collection from the DOM tree.
+ * 
+ * @function NodeCollection.prototype.remove
+ * @param {String} [selector] - A selector that filters the set of elements to be removed.
+ */
+NodeCollectionPrototype.remove = function(selector) {
+	var nodes = selector ? this.filter(selector) : this,
+		i = 0;
+	for (; i < nodes.length; i++) {
+		nodes[i].remove();
+	}
+
+	return this;
+};
+
+/*
+ * See Array.prototype.slice
+ */
+NodeCollectionPrototype.slice = function(start, end) {
+	return new NodeCollection(ArrayPrototype.slice.call(this, start, end));
+}
+
+//#endregion NodeCollection
+
+
 //#region =========================== NodeList ===============================
 
 /**
- * The HTML DOM NodeList interface.<br />
- * It should be noted that elements in a NodeList are always unique in the order they are found in the document.
- * Furthermore, NodeLists cannot have their elements removed or have elements added them. To do these types of
- * things, you must first convert the NodeList to an Array (see {@linkcode NodeList#toArray|NodeList.toArray()});
+ * @classdesc
+ * The HTML DOM NodeList interface. This is the main object returned by {@link Firebolt#Firebolt|Firebolt}.  
+ *   
+ * Represents a collection of DOM Nodes. NodeLists have almost the exact same API as {@link NodeCollection}.  
+ * However, unlike NodeCollections, NodeLists are immutable and therefore do not have any of the following functions:
+ * 
+ * + clean
+ * + clear
+ * + pop
+ * + push
+ * + reverse
+ * + shift
+ * + splice
+ * + unshift
+ * 
+ * If you want to manipulate a NodeList using these functions, you must retrieve it as a NodeCollection by
+ * calling {@linkcode NodeList#toNC|toNC} on the NodeList.  
+ *   
+ * Also note that the following functions return the NodeCollection equivalent of the NodeList instead of
+ * the NodeList itself:
+ * 
+ * + remove
+ * + removeClass
+ * + toggleClass
+ * 
+ * This is because the functions my alter live NodeLists, as seen in this example:
+ * 
+ * ```JavaScript
+ * var $blueThings = $class('blue');
+ * $blueThings.length = 10;  // for example
+ * $blueThings.removeClass('blue'); // returns $blueThings as a NodeCollection
+ * $blueThings.length === 0; // true - since now there are no elements with the 'blue' class
+ * ```
+ * 
+ * This behaviour allows for correct functionality when chaining calls, but be aware that the NodeList may
+ * be altered if it is live and you are saving it as a variable.  
+ * 
+ * Finally, since it is not possible to manually create a new NodeList in JavaScript (there are tricks but
+ * they are slow and not worth it), the following functions return a NodeCollection instead of a NodeList:
+ * 
+ * + clone
+ * + filter
+ * + intersect
+ * + map
+ * + slice
+ * + union
+ * + unique
+ * + without
+ * 
+ * This, however, should not be worrisome since NodeCollections have all of the same functions as NodeLists
+ * with the added benefits of being mutable and static (not live).  
+ * <br />
+ * 
  * @class NodeList
+ * @see NodeCollection
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/NodeList|NodeList - Web API Interfaces | MDN}
  */
 
-/* Give NodeLists the same prototype functions as Arrays */
-Object.getOwnPropertyNames(ArrayPrototype).forEach(function(methodName) {
-	if (methodName != 'length' && !NodeListPrototype[methodName]) {
-		switch (methodName) {
-			case 'contains':
-			case 'equals':
-			case 'forEach':
-			case 'indexOf':
-			case 'lastIndexOf':
-			case 'last':
-			case 'reduce':
-			case 'reduceRight':
-			case 'some':
-				NodeListPrototype[methodName] = ArrayPrototype[methodName];
-				break;
-			//For these methods, the result must be converted back to a NodeList
-			case 'clone':
-			case 'concat':
-			case 'intersect':
-			case 'slice':
-			case 'union':
-			case 'without':
-				NodeListPrototype[methodName] = function() {
-					return Firebolt.toDeadNodeList(ArrayPrototype[methodName].apply(this, arguments));
-				}	
+//Convert these to a NodeCollection first
+Firebolt.A = [
+	'remove',
+	'removeClass',
+	'toggleClass'
+];
+
+//Do not add to the NodeList prototype
+Firebolt.B = [
+	'clean',
+	'clear',
+	'length',
+	'pop',
+	'push',
+	'reverse',
+	'shift',
+	'splice',
+	'unshift'
+];
+
+/* Give NodeLists the same prototype functions as NodeCollections (unless it's in list B or NodeList already has the function) */
+getOwnPropertyNames(NodeCollectionPrototype).union(getOwnPropertyNames(ArrayPrototype)).forEach(function(methodName) {
+	if (Firebolt.A.contains(methodName)) {
+		NodeListPrototype[methodName] = function() {
+			return NodeCollectionPrototype[methodName].apply(new NodeCollection(this), arguments);
 		}
 	}
+	else if (!Firebolt.B.contains(methodName) && !NodeListPrototype[methodName]) {
+		NodeListPrototype[methodName] = NodeCollectionPrototype[methodName];
+	}
 });
+
+//Delete the temporary arrays
+delete Firebolt.A; delete Firebolt.B;
 
 /** 
  * Calls the function with the passed in name on each element in an enumerable.
@@ -1449,35 +1638,6 @@ NodeListPrototype.css = getFirstSetEachElement('css', 2);
 NodeListPrototype.empty = callOnEachElement('empty');
 
 /**
- * Reduce the set of matched elements to those that match the selector or pass the function's test.
- * 
- * @function NodeList.prototype.filter
- * @param {String|Function} selector - CSS selector string or function that returns a truthy value if the element should not be filtered out.
- * @returns {NodeList} 
- */
-NodeListPrototype.filter = function(selector) {
-	var filtration = [],
-		i = 0;
-	if (typeofString(selector)) {
-		for (; i < this.length; i++) {
-			if (this[i].nodeType === 1 && this[i].matches(selector)) {
-				filtration.push(this[i]);
-			}
-		}
-	}
-	else {
-		var nodes = Firebolt.toDeadNodeList(this);
-		for (; i < nodes.length; i++) {
-			if (selector(i)) {
-				filtration.push(nodes[i]);
-			}
-		}
-	}
-
-	return Firebolt.toDeadNodeList(filtration);
-};
-
-/**
  * Hides each element in the collection.
  * 
  * @function NodeList.prototype.hide
@@ -1500,17 +1660,6 @@ NodeListPrototype.hide = callOnEachElement('hide');
 NodeListPrototype.html = getFirstSetEachElement('html', 1);
 
 /**
- * Converts a NodeList to a non-live NodeList.
- * 
- * @function NodeList.prototype.kill
- * @returns {NodeList} A non-live NodeList containing only nodes of the original list that are of node type 1 ({@linkcode http://dom.spec.whatwg.org/#node|ELEMENT_NODE}).
- */
-NodeListPrototype.kill = function() {
-	this.attr(NodeListIdentifier, '');
-	return Firebolt('[' + NodeListIdentifier + ']').removeAttr(NodeListIdentifier);
-};
-
-/**
  * Gets the value of the specified property of the first element in the list.
  * 
  * @function NodeList.prototype.prop
@@ -1531,28 +1680,6 @@ NodeListPrototype.kill = function() {
  * @param {Object.<String, *>} properties - An object of property-value pairs to set.
  */
 NodeListPrototype.prop = getFirstSetEachElement('prop', 2);
-
-/**
- * Removes all nodes in the collection from the DOM tree.
- * 
- * @function NodeList.prototype.remove
- */
-NodeListPrototype.remove = function() {
-	var origLen = this.length,
-		i = 1;
-	if (origLen === 0) return;
-	this[0].remove();
-	if (this.length == origLen) { //Non-live
-		for (; i < origLen; i++) {
-			this[i].remove();
-		}
-	}
-	else { //Live
-		for (; i < origLen; i++) {
-			this[0].remove();
-		}
-	}
-};
 
 /**
  * Removes the specified attribute from each element in the list.
@@ -1631,22 +1758,23 @@ NodeListPrototype.text = function(text) {
 };
 
 /**
- * Converts the current NodeList to an Array.
- * 
- * @function NodeList.prototype.toArray
- * @returns {Array.<Node>} An Array containing the same elements as the NodeList;
- */
-NodeListPrototype.toArray = function() {
-	return ArrayPrototype.clone.call(this);
-};
-
-/**
  * Toggles the input class name for all elements in the list.
  * 
  * @function NodeList.prototype.toggleClass
  * @param {String} className - The class to be toggled for each element in the collection.
  */
 NodeListPrototype.toggleClass = callOnEachElement('toggleClass');
+
+/**
+ * Returns the NodeCollection equivalent of the NodeList.
+ * 
+ * @function NodeList.prototype.toNC
+ * @returns {NodeCollection}
+ */
+NodeListPrototype.toNC =
+
+/* NodeLists always contain unique elements */
+NodeListPrototype.unique = NodeCollectionPrototype.clone;
 
 //#endregion NodeList
 
