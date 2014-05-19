@@ -63,7 +63,7 @@ function callOnEachElement(funcName) {
  * 
  * @private
  * @param {String} funcName - The name of a function.
- * @param {Function} callback(argsLen, firstArg) - Function to determine if the value of the first element should be returned.
+ * @param {Function} callback(numArgs, firstArg) - Function to determine if the value of the first element should be returned.
  * @this An enumerable such as a NodeCollection.
  */
 function getFirstSetEachElement(funcName, callback) {
@@ -71,22 +71,23 @@ function getFirstSetEachElement(funcName, callback) {
 		var items = this,
 			len = items.length,
 			i = 0;
-		if (callback(arguments.length, firstArg)) {
-			//Get first
+
+		if (!callback(arguments.length, firstArg)) {
+			//Set each
 			for (; i < len; i++) {
 				if (items[i].nodeType === 1) {
-					return items[i][funcName](firstArg); //Only need first arg for getting
+					items[i][funcName].apply(items[i], arguments);
 				}
 			}
-			return; //If there were no elements, return nothing
+			return items;
 		}
-		//Set each
+
+		//Get first
 		for (; i < len; i++) {
 			if (items[i].nodeType === 1) {
-				items[i][funcName].apply(items[i], arguments);
+				return items[i][funcName](firstArg); //Only need first arg for getting
 			}
 		}
-		return items;
 	};
 }
 
@@ -1422,8 +1423,8 @@ NodeCollectionPrototype.addClass = callOnEachElement('addClass');
  * @function NodeCollection.prototype.attr
  * @param {Object.<String, String>} attributes - The name of the attribute who's value should be set or an object of attribute-value pairs to set.
  */
-NodeCollectionPrototype.attr = getFirstSetEachElement('attr', function(argsLen) {
-	return argsLen < 2;
+NodeCollectionPrototype.attr = getFirstSetEachElement('attr', function(numArgs) {
+	return numArgs < 2;
 });
 
 /**
@@ -1501,8 +1502,8 @@ NodeCollectionPrototype.concat = function() {
  * @function NodeCollection.prototype.css
  * @param {String} cssText - A CSS style string. To clear the style, pass in an empty string.
  */
-NodeCollectionPrototype.css = getFirstSetEachElement('css', function(argsLen, firstArg) {
-	return !argsLen || argsLen < 2 && firstArg && typeofString(firstArg) && !firstArg.contains(':');
+NodeCollectionPrototype.css = getFirstSetEachElement('css', function(numArgs, firstArg) {
+	return !numArgs || numArgs < 2 && firstArg && typeofString(firstArg) && !firstArg.contains(':');
 });
 
 /**
@@ -1570,8 +1571,8 @@ NodeCollectionPrototype.hide = callOnEachElement('hide');
  * @function NodeCollection.prototype.html
  * @param {String} innerHTML - An HTML string.
  */
-NodeCollectionPrototype.html = getFirstSetEachElement('html', function(argsLen) {
-	return !argsLen;
+NodeCollectionPrototype.html = getFirstSetEachElement('html', function(numArgs) {
+	return !numArgs;
 });
 
 /*
@@ -1601,8 +1602,8 @@ NodeCollectionPrototype.map = function(callback, thisArg) {
  * @function NodeCollection.prototype.prop
  * @param {Object.<String, *>} properties - An object of property-value pairs to set.
  */
-NodeCollectionPrototype.prop = getFirstSetEachElement('prop', function(argsLen, firstArg) {
-	return argsLen < 2 && typeofString(firstArg);
+NodeCollectionPrototype.prop = getFirstSetEachElement('prop', function(numArgs, firstArg) {
+	return numArgs < 2 && typeofString(firstArg);
 });
 
 /**
