@@ -7,8 +7,7 @@ Firebolt is a fast and lightweight JavaScript library for modern browsers. Its c
 
 ---
 
-### WARNING:
-This project is still in the early stages of development. The API could change at any time and code is unstable.
+**WARNING:** This project is still in the early stages of development. The API could change at any time and code is unstable.
 
 ---
 
