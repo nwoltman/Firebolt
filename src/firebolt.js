@@ -58,31 +58,29 @@ function callOnEachElement(funcName) {
 }
 
 /** 
- * Returns a function that calls the function with the passed in name on each element in an enumerable
- * unless the number of arguments passed to the function is less than the specified number or the first
- * argument passed in is an object, in which case the result of calling the function of the first element
- * is returned.
+ * Returns a function that calls the function with the passed in name on each element in an enumerable unless
+ * the callback returns true, in which case the result of calling the function on the first element is returned.
  * 
  * @private
  * @param {String} funcName - The name of a function.
- * @param {Number} numArgs - The number of arguments that will be given to the function for setting. Anything less is for getting.
- * @returns {Array|NodeList|HTMLCollection} A reference to the enumerable.
- * @this An enumerable such as an Array, NodeList, or HTMLCollection.
+ * @param {Function} callback(argsLen, firstArg) - Function to determine if the value of the first element should be returned.
+ * @this An enumerable such as a NodeCollection.
  */
-function getFirstSetEachElement(funcName, numArgs) {
-	return function() {
+function getFirstSetEachElement(funcName, callback) {
+	return function(firstArg) {
 		var items = this,
 			len = items.length,
 			i = 0;
-		if (arguments.length < numArgs && typeof arguments[0] != 'object') {
+		if (callback(arguments.length, firstArg)) {
+			//Get first
 			for (; i < len; i++) {
 				if (items[i].nodeType === 1) {
-					return items[i][funcName](arguments[0]); //Allowed to assume at most one argument needed
+					return items[i][funcName](firstArg); //Only need first arg for getting
 				}
 			}
-			return null;
+			return; //If there were no elements, return nothing
 		}
-		//else
+		//Set each
 		for (; i < len; i++) {
 			if (items[i].nodeType === 1) {
 				items[i][funcName].apply(items[i], arguments);
@@ -874,12 +872,16 @@ HTMLElementPrototype.attr = function(attr, value) {
  * Explicitly sets the element's inline CSS style, removing or replacing any current inline style properties.
  * 
  * @function HTMLElement.prototype.css
- * @param {String} cssText - A CSS style string.
+ * @param {String} cssText - A CSS style string. To clear the style, pass in an empty string.
  */
 HTMLElementPrototype.css = function(prop, value) {
+	if (isUndefined(prop)) {
+		return getComputedStyle(this);
+	}
+
 	if (typeofString(prop)) {
 		if (isUndefined(value)) {
-			if (!/:/.test(prop)) {
+			if (prop && !prop.contains(':')) {
 				//Get the specified property
 				return getComputedStyle(this)[prop];
 			}
@@ -891,14 +893,11 @@ HTMLElementPrototype.css = function(prop, value) {
 			this.style[prop] = value;
 		}
 	}
-	else if (typeof prop == 'object') {
+	else {
 		//Set all specifed properties
 		for (var propName in prop) {
 			this.style[propName] = prop[propName];
 		}
-	}
-	else {
-		return getComputedStyle(this);
 	}
 
 	return this;
@@ -1389,7 +1388,9 @@ NodeCollectionPrototype.addClass = callOnEachElement('addClass');
  * @function NodeCollection.prototype.attr
  * @param {Object.<String, String>} attributes - The name of the attribute who's value should be set or an object of attribute-value pairs to set.
  */
-NodeCollectionPrototype.attr = getFirstSetEachElement('attr', 2);
+NodeCollectionPrototype.attr = getFirstSetEachElement('attr', function(argsLen) {
+	return argsLen < 2;
+});
 
 /**
  * Clicks each element in the list.
@@ -1464,9 +1465,11 @@ NodeCollectionPrototype.concat = function() {
  * Explicitly sets each elements' inline CSS style, removing or replacing any current inline style properties.
  * 
  * @function NodeCollection.prototype.css
- * @param {String} cssText - A CSS style string.
+ * @param {String} cssText - A CSS style string. To clear the style, pass in an empty string.
  */
-NodeCollectionPrototype.css = getFirstSetEachElement('css', 2);
+NodeCollectionPrototype.css = getFirstSetEachElement('css', function(argsLen, firstArg) {
+	return !argsLen || argsLen < 2 && firstArg && typeofString(firstArg) && !firstArg.contains(':');
+});
 
 /**
  * Removes all child nodes from each element in the list.
@@ -1533,7 +1536,9 @@ NodeCollectionPrototype.hide = callOnEachElement('hide');
  * @function NodeCollection.prototype.html
  * @param {String} innerHTML - An HTML string.
  */
-NodeCollectionPrototype.html = getFirstSetEachElement('html', 1);
+NodeCollectionPrototype.html = getFirstSetEachElement('html', function(argsLen) {
+	return !argsLen;
+});
 
 /*
  * See Array.prototype.map - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
@@ -1562,7 +1567,9 @@ NodeCollectionPrototype.map = function(callback, thisArg) {
  * @function NodeCollection.prototype.prop
  * @param {Object.<String, *>} properties - An object of property-value pairs to set.
  */
-NodeCollectionPrototype.prop = getFirstSetEachElement('prop', 2);
+NodeCollectionPrototype.prop = getFirstSetEachElement('prop', function(argsLen, firstArg) {
+	return argsLen < 2 && typeofString(firstArg);
+});
 
 /**
  * Removes nodes in the collection from the DOM tree.
