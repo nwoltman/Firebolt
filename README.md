@@ -13,7 +13,7 @@ Firebolt is a fast and lightweight JavaScript library for modern browsers. Its c
 
 Similar to <a href="http://zeptojs.com" target="_blank">Zepto.js</a>, Firebolt does not aim for 100% jQuery coverage. It stays lean by only targeting only modern browsers and specifically leaves out jQuery functions that were made obsolete by ES5 (i.e `jQuery.trim()`).
 
-In addition to being very small, Firebolt also aims to be blazing fast. Many functions are heavily perfomance tested using <a href="http://jsperf.com" target="_blank">jsPerf</a> to obtain the highest possible performance average across all modern browsers.
+In addition to being very small, Firebolt also aims to be blazing fast. Many functions are heavily perfomance tested using <a href="http://jsperf.com" target="_blank">jsPerf</a> to obtain the highest possible performance average across today's most commonly used browsers.
 
 ### The Secret Sauce
 
