@@ -654,6 +654,40 @@ Firebolt.delay = function(callback, ms) {
 };
 
 /**
+ * Extend the "Firebolt object" (a.k.a. NodeCollection, NodeList, and HTMLCollection).
+ * 
+ * @param {Object} object - An object with properties to add to the prototype of the collections returned by Firebolt.
+ * @memberOf Firebolt
+ */
+/**
+ * Merge the contents of one or more objects into the first object.
+ * 
+ * @param {Object} target - The object that will receive the new properties.
+ * @param {...Object} object - One or more objects whose properties will be added to the target object.
+ * @returns {Object} The target object.
+ * @memberOf Firebolt
+ */
+Firebolt.extend = function(target) {
+	var numArgs = arguments.length,
+		i = 1;
+
+	if (numArgs > 1) {
+		//Extend the target object
+		for (; i < numArgs; i++) {
+			for (var key in arguments[i]) {
+				target[key] = arguments[i][key];
+			}
+		}
+		return target;
+	}
+
+	//Extend the Firebolt objects
+	Firebolt.extend(NodeCollectionPrototype, target);
+	Firebolt.extend(NodeListPrototype, target);
+	Firebolt.extend(HTMLCollection[prototype], target);
+};
+
+/**
  * HTML-decodes the passed in string and returns the result.
  * 
  * @param {String} string - The string to decode.
