@@ -744,12 +744,13 @@ Firebolt.delay = function(callback, ms) {
  */
 Firebolt.extend = function(target) {
 	var numArgs = arguments.length,
-		i = 1;
+		i = 1,
+		key;
 
 	if (numArgs > 1) {
 		//Extend the target object
 		for (; i < numArgs; i++) {
-			for (var key in arguments[i]) {
+			for (key in arguments[i]) {
 				target[key] = arguments[i][key];
 			}
 		}
@@ -1004,9 +1005,7 @@ HTMLElementPrototype.css = function(prop, value) {
 	}
 	else {
 		//Set all specifed properties
-		for (var propName in prop) {
-			this.style[propName] = prop[propName];
-		}
+		Firebolt.extend(this.style, prop);
 	}
 
 	return this;
@@ -1182,16 +1181,14 @@ HTMLElementPrototype.prepend = function() {
  * Sets the specified properties of the element.
  * 
  * @function HTMLElement.prototype.prop
- * @param {Object.<String, *>} properties - An object of property-value pairs to set.
+ * @param {Object} properties - An object of property-value pairs to set.
  */
 HTMLElementPrototype.prop = function(prop, value) {
 	if (isUndefined(value)) {
 		if (typeofString(prop)) {
 			return this[prop]; //Get
 		}
-		for (var property in prop) {
-			this[property] = prop[property]; //Set multiple
-		}
+		Firebolt.extend(this, prop); //Set multiple
 	}
 	else {
 		this[prop] = value; //Set single
@@ -1775,7 +1772,7 @@ NodeCollectionPrototype.map = function(callback, thisArg) {
  * Sets the specified properties of each element in the list.
  * 
  * @function NodeCollection.prototype.prop
- * @param {Object.<String, *>} properties - An object of property-value pairs to set.
+ * @param {Object} properties - An object of property-value pairs to set.
  */
 NodeCollectionPrototype.prop = getFirstSetEachElement('prop', function(numArgs, firstArg) {
 	return numArgs < 2 && typeofString(firstArg);
