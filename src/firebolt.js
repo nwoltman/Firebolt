@@ -1957,40 +1957,35 @@ NodeCollectionPrototype.toggleClass = callOnEachElement('toggleClass');
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/NodeList|NodeList - Web API Interfaces | MDN}
  */
 
-//Convert these to a NodeCollection first
-Firebolt.A = [
-	'remove',
-	'removeClass',
-	'toggleClass'
-];
-
-//Do not add to the NodeList prototype
-Firebolt.B = [
-	'clean',
-	'clear',
-	'length',
-	'pop',
-	'push',
-	'reverse',
-	'shift',
-	'splice',
-	'unshift'
-];
-
 /* Give NodeLists the same prototype functions as NodeCollections (unless it's in list B or NodeList already has the function) */
-getOwnPropertyNames(NodeCollectionPrototype).union(getOwnPropertyNames(ArrayPrototype)).forEach(function(methodName) {
-	if (Firebolt.A.contains(methodName)) {
-		NodeListPrototype[methodName] = function() {
-			return NodeCollectionPrototype[methodName].apply(new NodeCollection(this), arguments);
+getOwnPropertyNames(NodeCollectionPrototype)
+	.union(getOwnPropertyNames(ArrayPrototype))
+	.remove( //These methods should not be added to the NodeList prototype
+		'clean',
+		'clear',
+		'length',
+		'pop',
+		'push',
+		'reverse',
+		'shift',
+		'splice',
+		'unshift'
+	).forEach(function(methodName) {
+		switch (methodName) {
+			//Convert these to a NodeCollection first
+			case 'remove':
+			case 'removeClass':
+			case 'toggleClass':
+				NodeListPrototype[methodName] = function() {
+					return NodeCollectionPrototype[methodName].apply(new NodeCollection(this), arguments);
+				}
+				break;
+			default:
+				if (!NodeListPrototype[methodName]) {
+					NodeListPrototype[methodName] = NodeCollectionPrototype[methodName];
+				}
 		}
-	}
-	else if (!Firebolt.B.contains(methodName) && !NodeListPrototype[methodName]) {
-		NodeListPrototype[methodName] = NodeCollectionPrototype[methodName];
-	}
-});
-
-//Delete the temporary arrays
-delete Firebolt.A; delete Firebolt.B;
+	});
 
 /**
  * Returns the NodeCollection equivalent of the NodeList.
