@@ -25,6 +25,8 @@ var prototype = 'prototype',
 	defineProperty = Object.defineProperty,
 	defineProperties = Object.defineProperties,
 	getOwnPropertyNames = Object.getOwnPropertyNames,
+	dataKeyPublic = '__FBDATA__',
+	dataKeyPrivate = '__FBPRIV__',
 
 	/* Pre-built RegExps */
 	rgxClassOrId = /^.[\w-_]+$/,
@@ -38,6 +40,78 @@ function typeofString(value) {
 
 function isUndefined(value) {
 	return value === undefined;
+}
+
+/**
+ * Having this function allows for code reuse when storing private vs. user-accessible data.
+ * @private
+ * @param {String} dataStore - The key to the stored data object.
+ * @param {Object} obj - The object to store arbitrary data on.
+ * @see HTMLElement#data
+ */
+function data(dataStore, obj, key, value) {
+	var dataObject = obj[dataStore],
+		dataAttributes,
+		attributes,
+		i;
+
+	if (!dataObject) {
+		//Define a non-enumerable object
+		defineProperty(obj, dataStore, {
+			writable: true, //So that the data can easily be cleared by .removeData()
+			value: dataObject = {}
+		});
+
+		//Try loading element's "data-*" attributes
+		if (dataStore != dataKeyPrivate) { //Prevent recursive loop
+			var attrib, val;
+			dataAttributes = {};
+			attributes = obj.attributes;
+
+			for (i = 0; i < attributes.length; i++) {
+				attrib = attributes[i];
+				if (attrib.name.startsWith('data-')) {
+					try { //Try to parse the value
+						val = JSON.parse(val = attrib.value);
+					}
+					catch (e) { }
+
+					//Set the value in the data object (remembering to remove the "data-" part from the name)
+					dataAttributes[attrib.name.slice(5)] = val;
+				}
+			}
+
+			//Save the data privately
+			dataPrivate(obj, 'data-attrs', dataAttributes);
+		}
+	}
+
+	if (dataStore != dataKeyPrivate && !Firebolt.isEmptyObject(dataAttributes = dataAttributes || dataPrivate(obj, 'data-attrs'))) {
+		//Find the attributes the data object does not already have from the data attributes and add them to the data object
+		attributes = ArrayPrototype.remove.apply(Object.keys(dataAttributes), Object.keys(dataObject));
+		for (i = 0; i < attributes.length; i++) {
+			dataObject[attributes[i]] = dataAttributes[attributes[i]];
+		}
+	}
+
+	if (isUndefined(value)) {
+		if (typeof key == 'object') {
+			Firebolt.extend(dataObject, key); //Set multiple
+		}
+		else {
+			return isUndefined(key) ? dataObject : dataObject[key]; //Get data object or value
+		}
+	}
+	else {
+		dataObject[key] = value; //Set value
+	}
+	
+	return obj;
+}
+
+/* For saving data for internal use */
+function dataPrivate(obj, key, value) {
+	return data(dataKeyPrivate, obj, key, value);
 }
 
 /** 
@@ -939,6 +1013,36 @@ HTMLElementPrototype.css = function(prop, value) {
 };
 
 /**
+ * Gets the element's stored data object.
+ * 
+ * @function HTMLElement.prototype.data
+ * @returns {Object} The element's stored data object.
+ */
+/**
+ * Get the value at the named data store for the element as set by .data(name, value) or by an HTML5 data-* attribute.
+ * 
+ * @function HTMLElement.prototype.data
+ * @param {String} key - The name of the stored data.
+ * @returns {String} The value of the stored data.
+ */
+/**
+ * Stores arbitrary data associated with the element.
+ * 
+ * @function HTMLElement.prototype.data
+ * @param {String} key - A string naming the data to set.
+ * @param {*} value - Any arbitrary data to store.
+ */
+/**
+ * Stores arbitrary data associated with the element.
+ * 
+ * @function HTMLElement.prototype.data
+ * @param {Object} obj - An object of key-value pairs to add to the element's stored data.
+ */
+HTMLElementPrototype.data = function(key, value) {
+	return data(dataKeyPublic, this, key, value);
+};
+
+/**
  * Removes all of the element's child nodes.
  * 
  * @function HTMLElement.prototype.empty
@@ -972,6 +1076,16 @@ HTMLElementPrototype.empty = function() {
  */
 HTMLElementPrototype.hasClass = function(className) {
 	return this.classList.contains(className);
+};
+
+/**
+ * Determines if the element has any Firebolt data associated with it.
+ * 
+ * @function HTMLElement.prototype.hasData
+ * @returns {Boolean} `true` if the element has stored Firebolt data; else `false`.
+ */
+HTMLElementPrototype.hasData = function() {
+	return Firebolt.isEmptyObject(this[dataKeyPublic]);
 };
 
 /**
@@ -1120,6 +1234,37 @@ HTMLElementPrototype.removeClass = function(value) {
 		this.classList.remove.apply(this.classList, value.split(' '));
 	}
 	
+	return this;
+};
+
+/**
+ * Removes a previously stored piece of Firebolt data.  
+ * When called without any arguments, all data is removed.
+ * 
+ * @function HTMLElement.prototype.removeData
+ * @param {String} [name] - The name of the data to remove.
+ */
+/**
+ * Removes previously stored Firebolt data.  
+ * When called without any arguments, all data is removed.
+ * 
+ * @function HTMLElement.prototype.removeData
+ * @param {Array|String} [list] - An array or space-separated string naming the pieces of data to remove.
+ */
+HTMLElementPrototype.removeData = function(input) {
+	if (isUndefined(input)) {
+		this[dataKeyPublic] = {};
+		this[dataKeyPrivate]['data-attrs'] = {}; //Must also remove saved attribute data
+	}
+	else {
+		if (typeofString(input)) {
+			input = input.split(' ');
+		}
+		for (var i = 0; i < input.length; i++) {
+			delete this[dataKeyPublic][input[i]];
+		}
+	}
+
 	return this;
 };
 
@@ -1507,6 +1652,36 @@ NodeCollectionPrototype.css = getFirstSetEachElement('css', function(numArgs, fi
 });
 
 /**
+ * Gets the first element's stored data object.
+ * 
+ * @function NodeCollection.prototype.data
+ * @returns {Object} The element's stored data object.
+ */
+/**
+ * Get the value at the named data store for the first element as set by .data(name, value) or by an HTML5 data-* attribute.
+ * 
+ * @function NodeCollection.prototype.data
+ * @param {String} key - The name of the stored data.
+ * @returns {String} The value of the stored data.
+ */
+/**
+ * Stores arbitrary data associated with each element in the collection.
+ * 
+ * @function NodeCollection.prototype.data
+ * @param {String} key - A string naming the data to set.
+ * @param {*} value - Any arbitrary data to store.
+ */
+/**
+ * Stores arbitrary data associated with each element in the collection
+ * 
+ * @function NodeCollection.prototype.data
+ * @param {Object} obj - An object of key-value pairs to add to each elements stored data.
+ */
+NodeCollectionPrototype.data = getFirstSetEachElement('data', function(numArgs, firstArg) {
+	return !numArgs || numArgs < 2 && typeofString(firstArg);
+});
+
+/**
  * Removes all child nodes from each element in the list.
  * 
  * @function NodeCollection.prototype.empty
@@ -1637,6 +1812,22 @@ NodeCollectionPrototype.removeAttr = callOnEachElement('removeAttr');
  * @param {String} className - The class to be removed from each element in the collection.
  */
 NodeCollectionPrototype.removeClass = callOnEachElement('removeClass');
+
+/**
+ * Removes a previously stored piece of Firebolt data from each element.  
+ * When called without any arguments, all data is removed.
+ * 
+ * @function NodeCollection.prototype.removeData
+ * @param {String} [name] - The name of the data to remove.
+ */
+/**
+ * Removes previously stored Firebolt data from each element.  
+ * When called without any arguments, all data is removed.
+ * 
+ * @function NodeCollection.prototype.removeData
+ * @param {Array|String} [list] - An array or space-separated string naming the pieces of data to remove.
+ */
+NodeCollectionPrototype.removeData = callOnEachElement('removeData');
 
 /**
  * Removes the specified property from each element in the list.
