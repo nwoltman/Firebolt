@@ -20,6 +20,7 @@ var prototype = 'prototype',
 	HTMLElementPrototype = HTMLElement[prototype],
 	NodePrototype = Node[prototype],
 	NodeListPrototype = NodeList[prototype],
+	HTMLCollectionPrototype = HTMLCollection[prototype],
 	StringPrototype = String[prototype],
 	Object = window.Object,
 	defineProperty = Object.defineProperty,
@@ -760,7 +761,7 @@ Firebolt.extend = function(target) {
 	//Extend the Firebolt objects
 	Firebolt.extend(NodeCollectionPrototype, target);
 	Firebolt.extend(NodeListPrototype, target);
-	Firebolt.extend(HTMLCollection[prototype], target);
+	Firebolt.extend(HTMLCollectionPrototype, target);
 };
 
 /**
@@ -865,6 +866,22 @@ Function[prototype].delay = function(ms) {
 };
 
 //#endregion Function
+
+
+//#region ========================= HTMLCollection ===========================
+
+/**
+ * @class HTMLCollection
+ * @classdesc
+ * The DOM HTMLCollection interface.  
+ * Has all the same functions as {@link NodeList} (plus one other native function).
+ * @see NodeList
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/HTMLCollection|HTMLCollection - Web API Interfaces | MDN}
+ */
+
+/* Nothing to do. HTMLCollection gets its functions defined in the NodeList section. */
+
+//#endregion HTMLCollection
 
 
 //#region ========================== HTMLElement =============================
@@ -1954,7 +1971,7 @@ NodeCollectionPrototype.toggleClass = callOnEachElement('toggleClass');
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/NodeList|NodeList - Web API Interfaces | MDN}
  */
 
-/* Give NodeLists the same prototype functions as NodeCollections (unless it's in list B or NodeList already has the function) */
+/* Give NodeLists and HTMLCollections many of the same prototype functions as NodeCollections */
 getOwnPropertyNames(NodeCollectionPrototype)
 	.union(getOwnPropertyNames(ArrayPrototype))
 	.remove( //These methods should not be added to the NodeList prototype
@@ -1973,13 +1990,13 @@ getOwnPropertyNames(NodeCollectionPrototype)
 			case 'remove':
 			case 'removeClass':
 			case 'toggleClass':
-				NodeListPrototype[methodName] = function() {
+				HTMLCollectionPrototype[methodName] = NodeListPrototype[methodName] = function() {
 					return NodeCollectionPrototype[methodName].apply(new NodeCollection(this), arguments);
 				}
 				break;
 			default:
 				if (!NodeListPrototype[methodName]) {
-					NodeListPrototype[methodName] = NodeCollectionPrototype[methodName];
+					HTMLCollectionPrototype[methodName] = NodeListPrototype[methodName] = NodeCollectionPrototype[methodName];
 				}
 		}
 	});
@@ -1990,33 +2007,12 @@ getOwnPropertyNames(NodeCollectionPrototype)
  * @function NodeList.prototype.toNC
  * @returns {NodeCollection}
  */
-NodeListPrototype.toNC =
+NodeListPrototype.toNC = HTMLCollectionPrototype.toNC =
 
 /* NodeLists always contain unique elements */
 NodeListPrototype.unique = NodeCollectionPrototype.clone;
 
 //#endregion NodeList
-
-
-//#region ========================= HTMLCollection ===========================
-
-/**
- * @class HTMLCollection
- * @classdesc
- * The DOM HTMLCollection interface.  
- * Has all the same functions as {@link NodeList} (plus one other native function).
- * @see NodeList
- * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/HTMLCollection|HTMLCollection - Web API Interfaces | MDN}
- */
-
-/* Give HTMLCollections the same prototype functions as NodeLists (if they don't already have them) */
-Object.getOwnPropertyNames(NodeListPrototype).forEach(function(methodName) {
-	if (methodName != 'length' && !HTMLCollection[prototype][methodName]) {
-		HTMLCollection[prototype][methodName] = NodeListPrototype[methodName];
-	}
-});
-
-//#endregion HTMLCollection
 
 
 //#region ============================ Number ================================
