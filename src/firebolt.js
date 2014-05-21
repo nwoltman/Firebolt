@@ -123,7 +123,7 @@ function data(dataStore, obj, key, value) {
 /* For saving data for internal use */
 function dataPrivate(obj, key, value) {
 	//The interval data is actually saved to the public data object
-	return data(dataKeyPrivate, obj[dataKeyPublic], key, value);
+	return data(dataKeyPrivate, obj[dataKeyPublic] || data(dataKeyPublic, obj), key, value);
 }
 
 /** 
