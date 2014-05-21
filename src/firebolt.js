@@ -1877,8 +1877,8 @@ NodeCollectionPrototype.toggleClass = callOnEachElement('toggleClass');
  * + unshift
  * 
  * If you want to manipulate a NodeList using these functions, you must retrieve it as a NodeCollection by
- * calling {@linkcode NodeList#toNC|toNC} on the NodeList.  
- *   
+ * calling {@linkcode NodeList#toNC|toNC()} on the NodeList.
+ * 
  * Also note that the following functions return the NodeCollection equivalent of the NodeList instead of
  * the NodeList itself:
  * 
@@ -1895,8 +1895,8 @@ NodeCollectionPrototype.toggleClass = callOnEachElement('toggleClass');
  * $blueThings.length === 0; // true - since now there are no elements with the 'blue' class
  * ```
  * 
- * This behaviour allows for correct functionality when chaining calls, but be aware that the NodeList may
- * be altered if it is live and you are saving it as a variable.  
+ * Returning a NodeCollection allows for correct functionality when chaining calls originally made on a NodeList,
+ * but be aware that a live NodeList saved as a variable may be altered by these functions.
  * 
  * Finally, since it is not possible to manually create a new NodeList in JavaScript (there are tricks but
  * they are slow and not worth it), the following functions return a NodeCollection instead of a NodeList:
