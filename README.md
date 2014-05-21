@@ -19,7 +19,7 @@ In addition to being very small, Firebolt also aims to be blazing fast. Many fun
 
 Firebolt extends the prototype of native objects. Now you may be thinking, "But I've always heard that modifying prototypes is a bad thing." A few years ago this may have been true, but nowadays JavaScript has been implemented quite consistently among modern broswers, so there is less to worry about. Firebolt also keeps a very close eye on future ECMAScript versions (such as the up-and-coming ES6) as well as the <a href="http://dom.spec.whatwg.org" target="_blank">DOM Living Standard</a> to make sure nothing will break when broswers start implementing these standards.
 
-With the old worries about prototype modification abated, we can focus on the benefits. The first benefit is that coding with Firebolt feels more natural because you can call functions directly on the objects themselves. Second, Firebolt allows you to write code in ways that provide better perfomance, and more clearly indicate what the code is doing. Here's an example of a button that, when clicked, toggles a <a href="http://getbootstrap.com" target="_blank">Bootstrap</a> class:
+With the worries about prototype modification abated, we can focus on the benefits. The first benefit is that coding with Firebolt feels more natural because you can call functions directly on the objects themselves. Second, Firebolt allows you to write code in ways that provide better perfomance, and more clearly indicate what the code is doing. Here's an example of a button that, when clicked, toggles a <a href="http://getbootstrap.com" target="_blank">Bootstrap</a> class:
 
 ```html
 <!-- jQuery -->
