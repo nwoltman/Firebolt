@@ -32,6 +32,10 @@ var prototype = 'prototype',
 	dataKeyPrivate = 'FB' + Math.random(),
 	rgxNoParse = /^\d+\D/, //Don't try to parse strings that look like numbers but have non-digit characters
 
+	//Need this (unfortunately) to choose how to define the Firebolt function
+	isIE = /*@cc_on!@*/false || !!document.documentMode,
+	Firebolt,
+
 	/* Pre-built RegExps */
 	rgxClassOrId = /^.[\w_-]+$/,
 	rgxTag = /^[A-Za-z]+$/,
@@ -178,127 +182,6 @@ function getFirstSetEachElement(funcName, callback) {
 }
 
 //#endregion Private
-
-
-//#region =========================== Globals ================================
-
-/*
- * Firebolt namespace reference objects.
- */
-/**
- * Alias for {@linkcode Firebolt}.
- * @global
- * @name FB
- */
-/**
- * Alias for {@linkcode Firebolt} (on pages where `$` has not already been defined).
- * @global
- * @name $
- */
-window.FB = window.Firebolt = Firebolt;
-if (!window.$) {
-	window.$ = Firebolt;
-}
-
-/**
- * PHP-style associative array (Object) of URL parameters.
- * 
- * @global
- * @constant
- * @name $_GET
- * @type {Object.<String, String>}
- * @see {@link http://www.php.net/manual/en/reserved.variables.get.php|PHP: $_GET - Manual}
- */
-(function () {
-	window.$_GET = {};
-	var decode = decodeURIComponent,
-		params = location.search.slice(1).split('&'),
-		i = 0,
-		key_val;
-	for (; i < params.length; i++) {
-		key_val = params[i].split('=');
-		if (key_val[0]) {
-			$_GET[decode(key_val[0])] = decode(key_val[1] || '');
-		}
-	}
-})();
-
-/**
- * Returns the first element within the document that matches the specified CSS selector.
- * If no element matches the selector, `null` or `undefined` may be returned.  
- * Alias of `document.querySelector()`, but with optimizations if a single class name, id, or tag name is input as the selector.
- * 
- * @global
- * @param {String} selector
- * @returns {?Element}
- */
-window.$1 = function(selector) {
-	if (selector[0] === '.') { //Check for a single class name
-		if (rgxClassOrId.test(selector)) {
-			return document.getElementsByClassName(selector.slice(1))[0];
-		}
-	}
-	else if (selector[0] === '#') { //Check for a single id
-		if (rgxClassOrId.test(selector)) {
-			return document.getElementById(selector.slice(1));
-		}
-	}
-	else if (rgxTag.test(selector)) { //Check for a single tag name
-		return document.getElementsByTagName(selector)[0];
-	}
-	//else
-	return document.querySelector(selector);
-}
-
-/**
- * Returns a list of the elements within the document with the specified class name.  
- * Alias of `document.getElementsByClassName()`.
- * 
- * @global
- * @param {String} className
- * @returns {HTMLCollection|NodeList} A list of elements with the specified class name.
- */
-window.$CLS = function(className) {
-	return document.getElementsByClassName(className);
-}
-
-/**
- * Returns the first element within the document with the specified id.  
- * Alias of `document.getElementById()`.
- * 
- * @global
- * @param {String} id
- * @returns {?Element} The element with the specified id.
- */
-window.$ID = function(id) {
-	return document.getElementById(id);
-}
-
-/**
- * Returns a list of the elements within the document with the specified name attribute.  
- * Alias of `document.getElementsByName()`.
- * 
- * @global
- * @param {String} name
- * @returns {HTMLCollection|NodeList} A collection of elements with the specified name attribute.
- */
-window.$NAME = function(name) {
-	return document.getElementsByName(name);
-}
-
-/**
- * Returns a list of the elements within the document with the specified tag name.  
- * Alias of `document.getElementsByTagName()`.
- * 
- * @global
- * @param {String} tagName
- * @returns {HTMLCollection|NodeList} A collection of elements with the specified tag name.
- */
-window.$TAG = function(tagName) {
-	return document.getElementsByTagName(tagName);
-}
-
-//#endregion Globals
 
 
 //#region ============================ Array =================================
@@ -670,12 +553,11 @@ function isHtml(str) {
 
 /**
  * The global Firebolt function. Can be referenced by the synonyms `FB` and `$` (on pages where `$` has not already been defined).  
- * Returns a list of the elements either found in the DOM that match the passed in CSS selector or created by passing an HTML string.  
- * When passed a CSS selector string, acts as an alias of `document.querySelectorAll()`.
+ * Returns a list of the elements either found in the DOM that match the passed in CSS selector or created by passing an HTML string.
  * 
  * @function Firebolt.Firebolt
  * @param {String} string - A CSS selector string or an HTML string.
- * @returns {NodeList} A list of selected elements or newly created elements.
+ * @returns {NodeList|HTMLCollection} A list of selected elements or newly created elements.
  * 
  * @example
  * $('button.btn-success') // Returns all button elements with the class "btn-success"
@@ -683,27 +565,44 @@ function isHtml(str) {
  * $('1<br>2<br>3 >');     // Returns ["1", <br>​, "2", <br>​, "3 >"]
  * $.create('div')         // Calls Firebolt's `create()` method to create a new div element 
  */
-function Firebolt(str) {
-	if (str[0] === '.') { //Check for a single class name
-		if (rgxClassOrId.test(str)) {
-			return document.getElementsByClassName(str.slice(1));
+	
+Firebolt =
+	isIE //Define the Firebolt selector specifically for IE (because IE is awful with querySelectorAll for IDs)
+	? function(str) {
+		if (str[0] === '#') { //Check for a single ID
+			if (rgxClassOrId.test(str)) {
+				return new NodeCollection(document.getElementById(str.slice(1)), 1);
+			}
 		}
-	}
-	else if (str[0] === '#') { //Check for a single id
-		if (rgxClassOrId.test(str)) {
-			return new NodeCollection(document.getElementById(str.slice(1)), 1);
+		else if (str[0] === '.') { //Check for a single class name
+			if (rgxClassOrId.test(str)) {
+				return document.getElementsByClassName(str.slice(1));
+			}
 		}
+		else if (rgxTag.test(str)) { //Check for a single tag name
+			return document.getElementsByTagName(str);
+		}
+		else if (isHtml(str)) { //Check if the string is an HTML string
+			return Firebolt.create('div').html(str).childNodes;
+		}
+		return document.querySelectorAll(str);
 	}
-	else if (rgxTag.test(str)) { //Check for a single tag name
-		return document.getElementsByTagName(str);
-	}
-
-	if (isHtml(str)) { //Check if the string is an HTML string
-		return Firebolt.create('div').html(str).childNodes;
-	}
-
-	return document.querySelectorAll(str);
-}
+	: function(str) {
+		if (str[0] !== '#') { //Filter out selection by ID
+			if (str[0] === '.') { //Check for a single class name
+				if (rgxClassOrId.test(str)) {
+					return document.getElementsByClassName(str.slice(1));
+				}
+			}
+			else if (rgxTag.test(str)) { //Check for a single tag name
+				return document.getElementsByTagName(str);
+			}
+			else if (isHtml(str)) { //Check if the string is an HTML string
+				return Firebolt.create('div').html(str).childNodes;
+			}
+		}
+		return document.querySelectorAll(str);
+	};
 
 /**
  * Creates a new element with the specified tag name and attributes (optional).<br />
@@ -876,6 +775,127 @@ Function[prototype].delay = function(ms) {
 };
 
 //#endregion Function
+
+
+//#region =========================== Globals ================================
+
+/*
+ * Firebolt namespace reference objects.
+ */
+/**
+ * Alias for {@linkcode Firebolt}.
+ * @global
+ * @name FB
+ */
+/**
+ * Alias for {@linkcode Firebolt} (on pages where `$` has not already been defined).
+ * @global
+ * @name $
+ */
+window.FB = window.Firebolt = Firebolt;
+if (!window.$) {
+	window.$ = Firebolt;
+}
+
+/**
+ * PHP-style associative array (Object) of URL parameters.
+ * 
+ * @global
+ * @constant
+ * @name $_GET
+ * @type {Object.<String, String>}
+ * @see {@link http://www.php.net/manual/en/reserved.variables.get.php|PHP: $_GET - Manual}
+ */
+(function () {
+	window.$_GET = {};
+	var decode = decodeURIComponent,
+		params = location.search.slice(1).split('&'),
+		i = 0,
+		key_val;
+	for (; i < params.length; i++) {
+		key_val = params[i].split('=');
+		if (key_val[0]) {
+			$_GET[decode(key_val[0])] = decode(key_val[1] || '');
+		}
+	}
+})();
+
+/**
+ * Returns the first element within the document that matches the specified CSS selector.
+ * If no element matches the selector, `null` or `undefined` may be returned.  
+ * Alias of `document.querySelector()`, but with optimizations if a single class name, id, or tag name is input as the selector.
+ * 
+ * @global
+ * @param {String} selector
+ * @returns {?Element}
+ */
+window.$1 = function(selector) {
+	if (selector[0] === '.') { //Check for a single class name
+		if (rgxClassOrId.test(selector)) {
+			return document.getElementsByClassName(selector.slice(1))[0];
+		}
+	}
+	else if (selector[0] === '#') { //Check for a single id
+		if (rgxClassOrId.test(selector)) {
+			return document.getElementById(selector.slice(1));
+		}
+	}
+	else if (rgxTag.test(selector)) { //Check for a single tag name
+		return document.getElementsByTagName(selector)[0];
+	}
+	//else
+	return document.querySelector(selector);
+}
+
+/**
+ * Returns a list of the elements within the document with the specified class name.  
+ * Alias of `document.getElementsByClassName()`.
+ * 
+ * @global
+ * @param {String} className
+ * @returns {HTMLCollection|NodeList} A list of elements with the specified class name.
+ */
+window.$CLS = function(className) {
+	return document.getElementsByClassName(className);
+}
+
+/**
+ * Returns the first element within the document with the specified id.  
+ * Alias of `document.getElementById()`.
+ * 
+ * @global
+ * @param {String} id
+ * @returns {?Element} The element with the specified id.
+ */
+window.$ID = function(id) {
+	return document.getElementById(id);
+}
+
+/**
+ * Returns a list of the elements within the document with the specified name attribute.  
+ * Alias of `document.getElementsByName()`.
+ * 
+ * @global
+ * @param {String} name
+ * @returns {HTMLCollection|NodeList} A collection of elements with the specified name attribute.
+ */
+window.$NAME = function(name) {
+	return document.getElementsByName(name);
+}
+
+/**
+ * Returns a list of the elements within the document with the specified tag name.  
+ * Alias of `document.getElementsByTagName()`.
+ * 
+ * @global
+ * @param {String} tagName
+ * @returns {HTMLCollection|NodeList} A collection of elements with the specified tag name.
+ */
+window.$TAG = function(tagName) {
+	return document.getElementsByTagName(tagName);
+}
+
+//#endregion Globals
 
 
 //#region ========================= HTMLCollection ===========================
