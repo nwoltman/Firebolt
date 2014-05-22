@@ -33,7 +33,7 @@ var prototype = 'prototype',
 	rgxNoParse = /^\d+\D/, //Don't try to parse strings that look like numbers but have non-digit characters
 
 	/* Pre-built RegExps */
-	rgxClassOrId = /^.[\w-_]+$/,
+	rgxClassOrId = /^.[\w_-]+$/,
 	rgxTag = /^[A-Za-z]+$/,
 	rgxNonWhitespace = /\S+/g,
 	rgxSpaceChars = /[ \n\r\t\f]+/; //From W3C http://www.w3.org/TR/html5/single-page.html#space-character
@@ -691,8 +691,7 @@ function Firebolt(str) {
 	}
 	else if (str[0] === '#') { //Check for a single id
 		if (rgxClassOrId.test(str)) {
-			//Use concat so an empty NodeCollection is returned if the element is not found
-			return new NodeCollection().concat( document.getElementById(str.slice(1)) );
+			return new NodeCollection(document.getElementById(str.slice(1)), 1);
 		}
 	}
 	else if (rgxTag.test(str)) { //Check for a single tag name
@@ -1447,12 +1446,19 @@ NodePrototype.text = function(text) {
  * @private
  * @constructs NodeCollection
  * @param {NodeList|HTMLCollection|Node[]} [nodes] - The collection of nodes the NodeCollection will be comprised of.
+ * @param {truthy} single - If this is a truthy value, then `nodes` is a single element and not an enumerable.
  */
-function NodeCollection(nodes) {
+function NodeCollection(nodes, single) {
 	if (nodes) {
-		this.length = nodes.length;
-		for (var i = 0; i < this.length; i++) {
-			this[i] = nodes[i];
+		if (single) {
+			this.length = 1;
+			this[0] = nodes;
+		}
+		else {
+			this.length = nodes.length;
+			for (var i = 0; i < this.length; i++) {
+				this[i] = nodes[i];
+			}
 		}
 	}
 }
