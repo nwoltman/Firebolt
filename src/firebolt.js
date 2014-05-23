@@ -2225,6 +2225,7 @@ defineProperty(StringPrototype, 'tokenize', {
 
 var isOldIE = Firebolt.create('div').html('<!--[if IE]><i></i><![endif]-->').$TAG('i').length > 0,
 	isChrome = !!window.chrome && !window.opera,
+	isIOS = navigator.platform.startsWith('iP'), // iPhone, iPad, iPod
 	noMultiParamClassListFuncs = (function() {
 		var elem = Firebolt.create('div');
 		elem.classList.add('one', 'two');
@@ -2261,6 +2262,22 @@ if (isChrome || noMultiParamClassListFuncs) {
 		}
 
 		return this;
+	};
+}
+
+if (isChrome || isIOS) {
+	window.$1 = function(selector) {
+		if (selector[0] !== '#') { //Filter out selection by ID
+			if (selector[0] === '.') { //Check for a single class name
+				if (rgxClassOrId.test(selector)) {
+					return document.getElementsByClassName(selector.slice(1))[0];
+				}
+			}
+			else if (rgxTag.test(selector)) { //Check for a single tag name
+				return document.getElementsByTagName(selector)[0];
+			}
+		}
+		return document.querySelector(selector);
 	};
 }
 
