@@ -571,7 +571,13 @@ Firebolt =
 	? function(str) {
 		if (str[0] === '#') { //Check for a single ID
 			if (rgxClassOrId.test(str)) {
-				return new NodeCollection(document.getElementById(str.slice(1)), 1);
+				var collection = new NodeCollection(),
+					element = document.getElementById(str.slice(1));
+				if (element) {
+					collection.length = 1;
+					collection[0] = element;
+				}
+				return collection;
 			}
 		}
 		else if (str[0] === '.') { //Check for a single class name
@@ -1466,19 +1472,13 @@ NodePrototype.text = function(text) {
  * @private
  * @constructs NodeCollection
  * @param {NodeList|HTMLCollection|Node[]} [nodes] - The collection of nodes the NodeCollection will be comprised of.
- * @param {truthy} single - If this is a truthy value, then `nodes` is a single element and not an enumerable.
  */
-function NodeCollection(nodes, single) {
+function NodeCollection(nodes) {
 	if (nodes) {
-		if (single) {
-			this.length = 1;
-			this[0] = nodes;
-		}
-		else {
-			this.length = nodes.length;
-			for (var i = 0; i < this.length; i++) {
-				this[i] = nodes[i];
-			}
+		var len = this.length = nodes.length,
+			i = 0;
+		for (; i < len; i++) {
+			this[i] = nodes[i];
 		}
 	}
 }
@@ -1486,8 +1486,8 @@ function NodeCollection(nodes, single) {
 /* Subclass Array (not perfectly, but pretty close) */
 var NodeCollectionPrototype = NodeCollection[prototype] = new Array;
 
-/* Set the private constructor (will be inherited by NodeList and HTMLCollection */
-NodeCollectionPrototype.__C__ = NodeCollection;
+/* Reset the constructor and set the private constructor (which will be inherited by NodeList and HTMLCollection) */
+NodeCollectionPrototype.constructor = NodeCollectionPrototype.__C__ = NodeCollection;
 
 /**
  * Adds the queried elements to a copy of the existing collection (if they are not already in the collection)
