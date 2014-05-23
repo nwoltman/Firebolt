@@ -208,6 +208,7 @@ defineProperties(ArrayPrototype, {
 	 * @see Firebolt.isEmpty
 	 */
 	clean: {
+		writable: true,
 		value: function(allowEmptyStrings) {
 			for (var len = this.length, i = 0; i < len; i++) {
 				while (i < len && Firebolt.isEmpty(this[i], allowEmptyStrings)) {
@@ -1462,8 +1463,8 @@ NodePrototype.text = function(text) {
  * @mixes Array
  * @classdesc
  * A mutable collection of DOM nodes. It subclasses the native {@link Array} class (but take note that the
- * {@linkcode NodeCollection#remove|remove} and {@linkcode NodeCollection#filter|filter} functions have been overridden),
- * and has all of the main DOM-manipulating functions.
+ * {@linkcode NodeCollection#clean|clean}, {@linkcode NodeCollection#remove|remove}, and {@linkcode NodeCollection#filter|filter}
+ * functions have been overridden), and has all of the main DOM-manipulating functions.
  * 
  * It should be noted that all functions that do not have a specified return value, return the calling object,
  * allowing for function chaining.
@@ -1561,6 +1562,17 @@ NodeCollectionPrototype.addClass = callOnEachElement('addClass');
 NodeCollectionPrototype.attr = getFirstSetEachElement('attr', function(numArgs) {
 	return numArgs < 2;
 });
+
+/**
+ * Removes all non-element nodes from a clone of the collection.
+ * 
+ * @returns {NodeCollection} A reference to the new collection.
+ */
+NodeCollectionPrototype.clean = function() {
+	return new NodeCollection(ArrayPrototype.filter.call(this, function(node) {
+		return node.nodeType === 1;
+	}));
+}
 
 /**
  * Clicks each element in the list.
@@ -1893,7 +1905,6 @@ NodeCollectionPrototype.toggleClass = callOnEachElement('toggleClass');
  * Represents a collection of DOM Nodes. NodeLists have almost the exact same API as {@link NodeCollection}.  
  * However, unlike NodeCollections, NodeLists are immutable and therefore do not have any of the following functions:
  * 
- * + clean
  * + clear
  * + pop
  * + push
@@ -1951,7 +1962,6 @@ NodeCollectionPrototype.toggleClass = callOnEachElement('toggleClass');
 getOwnPropertyNames(NodeCollectionPrototype)
 	.union(getOwnPropertyNames(ArrayPrototype))
 	.remove( //These methods should not be added to the NodeList prototype
-		'clean',
 		'clear',
 		'length',
 		'pop',
