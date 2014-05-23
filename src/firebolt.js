@@ -26,6 +26,7 @@ var prototype = 'prototype',
 	defineProperty = Object.defineProperty,
 	defineProperties = Object.defineProperties,
 	getOwnPropertyNames = Object.getOwnPropertyNames,
+	arrayFilter = ArrayPrototype.filter,
 
 	//Data variables
 	dataKeyPublic = 'FB' + Math.random(),
@@ -1564,14 +1565,14 @@ NodeCollectionPrototype.attr = getFirstSetEachElement('attr', function(numArgs) 
 });
 
 /**
- * Removes all non-element nodes from a clone of the collection.
+ * Returns a clone of the collection with all non-elements removed.
  * 
  * @returns {NodeCollection} A reference to the new collection.
  */
 NodeCollectionPrototype.clean = function() {
-	return new NodeCollection(ArrayPrototype.filter.call(this, function(node) {
+	return this.filter(function(node) {
 		return node.nodeType === 1;
-	}));
+	});
 }
 
 /**
@@ -1696,36 +1697,23 @@ NodeCollectionPrototype.empty = callOnEachElement('empty');
  * 
  * @function NodeCollection.prototype.filter
  * @param {String} selector - CSS selector string to match the current collection of elements against.
- * @returns {NodeCollection} 
+ * @returns {NodeCollection}
  */
 /**
  * Creates a new NodeCollection with all nodes that pass the test implemented by the provided function.
  * (If you want to filter against another set of elements, use the {@linkcode Array#intersect|intersect} function.)
  * 
  * @function NodeCollection.prototype.filter
- * @param {Function} function(index) - A function used as a test for each element in the collection. `this` is the current DOM element.
- * @returns {NodeCollection} 
+ * @param {Function} function(value, index, collection) - A function used as a test for each element in the collection.
+ * @returns {NodeCollection}
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter|Array.prototype.filter() - JavaScript | MDN}
  */
 NodeCollectionPrototype.filter = function(selector) {
-	var filtration = new NodeCollection(),
-		i = 0;
-
-	if (typeofString(selector)) {
-		for (; i < this.length; i++) {
-			if (this[i].nodeType === 1 && this[i].matches(selector)) {
-				filtration.push(this[i]);
-			}
-		}
-	}
-	else {
-		for (; i < this.length; i++) {
-			if (selector.call(this[i], i)) {
-				filtration.push(this[i]);
-			}
-		}
-	}
-
-	return filtration;
+	return new NodeCollection(arrayFilter.call(this, 
+		typeofString(selector)
+			? function(node) { return node.nodeType === 1 && node.matches(selector); } //Use CSS string filter
+			: selector //Use given filter function
+	));
 };
 
 /**
