@@ -353,20 +353,25 @@ defineProperties(ArrayPrototype, {
 	 * Returns an array containing every distinct item that is in either this array or the input array.
 	 * 
 	 * @function Array.prototype.union
-	 * @param {Array|Enumerable} array - Array or other enumerable object that has a `length` property.
+	 * @param {...Array} array - One or more arrays or array-like objects.
 	 * @returns {Array} An array that is the union of this array and the input array.
 	 * @example
-	 * [1, 2, 3].union([2, 3, 4]);  // returns [1, 2, 3, 4]
+	 * [1, 2, 3].union([2, 3, 4, 5]);  // returns [1, 2, 3, 4, 5]
 	 */
 	union: {
-		value: function(array) {
+		value: function() {
 			var union = this.unique(),
-				i = 0;
-			for (; i < array.length; i++) {
-				if (union.indexOf(array[i]) < 0) {
-					union.push(array[i]);
+				i = 0,
+				array,
+				j;
+			for (; i < arguments.length; i++) {
+				array = arguments[i];
+				for (j = 0; j < array.length; j++) {
+					if (union.indexOf(array[j]) < 0) {
+						union.push(array[j]);
+					}
 				}
-			}
+			};
 			return union;
 		}
 	},
