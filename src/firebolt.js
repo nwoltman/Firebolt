@@ -1985,8 +1985,14 @@ getOwnPropertyNames(NodeCollectionPrototype)
  */
 NodeListPrototype.toNC = HTMLCollectionPrototype.toNC =
 
+/* HTMLCollections are always clean (since they can only contain HTMLElements) */
+HTMLCollectionPrototype.clean =
+
 /* NodeLists always contain unique elements */
-NodeListPrototype.unique = NodeCollectionPrototype.clone;
+NodeListPrototype.unique =
+
+/* All of the above functions are equivalent to calling NodeCollection#clone() on the NodeList/HTMLCollection */
+NodeCollectionPrototype.clone;
 
 //#endregion NodeList
 
