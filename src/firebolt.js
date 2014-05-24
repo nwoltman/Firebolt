@@ -1608,13 +1608,11 @@ NodeCollectionPrototype.concat = function() {
 		arg;
 	for (; i < arguments.length; i++) {
 		if (arg = arguments[i]) {
-			if (arg.nodeType) { //Node
+			if (arg instanceof Node) { //Node
 				collection.push(arg);
 			}
-			else { //NodeCollection|NodeList|HTMLCollection
-				for (var j = 0; j < arg.length; j++) {
-					collection.push(arg[j]);
-				}
+			else { //NodeCollection|NodeList|HTMLCollection|Node[]
+				collection.push.apply(collection, arg);
 			}
 		}
 	}
