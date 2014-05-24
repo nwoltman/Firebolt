@@ -1930,6 +1930,7 @@ NodeCollectionPrototype.toggleClass = callOnEachElement('toggleClass');
  * they are slow and not worth it), the following functions return a NodeCollection instead of a NodeList:
  * 
  * + add
+ * + clean
  * + clone
  * + concat
  * + filter
@@ -1989,8 +1990,8 @@ NodeListPrototype.toNC = HTMLCollectionPrototype.toNC =
 /* HTMLCollections are always clean (since they can only contain HTMLElements) */
 HTMLCollectionPrototype.clean =
 
-/* NodeLists always contain unique elements */
-NodeListPrototype.unique =
+/* NodeLists/HTMLCollections always contain unique elements */
+NodeListPrototype.unique = HTMLCollectionPrototype.unique =
 
 /* All of the above functions are equivalent to calling NodeCollection#clone() on the NodeList/HTMLCollection */
 NodeCollectionPrototype.clone;
