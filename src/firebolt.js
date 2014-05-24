@@ -1113,9 +1113,7 @@ HTMLElementPrototype.hasClass = function(className) {
  * @function HTMLElement.prototype.hide
  */
 HTMLElementPrototype.hide = function() {
-	//if (getComputedStyle(this).display !== "none") {
-		this.style.display = 'none';
-	//}
+	this.style.display = 'none';
 
 	return this;
 };
