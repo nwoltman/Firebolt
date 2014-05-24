@@ -1319,36 +1319,46 @@ HTMLElementPrototype.show = function(style) {
  * ```
  * 
  * @function HTMLElement.prototype.toggleClass
- * @param {String} className - One or more space-separated classes to be toggled.
+ * @param {String} [className] - One or more space-separated classes to be toggled. If left empty, the element's current class is toggled.
  */
 HTMLElementPrototype.toggleClass = function(value) {
 	if (this.className) {
+		if (value) {
 			var togClasses = value.split(' '),
 			curClasses = this.className.split(rgxSpaceChars),
-			newClassName = '',
 			i = 0;
+
+			//`value` will now be the new class name value
+			value = '';
 
 			//Remove existing classes from the array and rebuild the class string without those classes
 			for (; i < curClasses.length; i++) {
 				if (curClasses[i]) {
 					var len = togClasses.length;
 					if (togClasses.remove(curClasses[i]).length === len) {
-					newClassName += (newClassName ? ' ' : '') + curClasses[i];
+						value += (value ? ' ' : '') + curClasses[i];
 					}
 				}
 			}
 
 			//If there are still classes in the array, they are to be added to the class name
 			if (togClasses.length) {
-			newClassName += (newClassName ? ' ' : '') + togClasses.join(' ');
+				value += (value ? ' ' : '') + togClasses.join(' ');
 			}
-
-		//Simply set the new class name
-		this.className = newClassName;
 		}
 		else {
-		this.className = value;
+			//Save the element's current class name
+			dataPrivate(this, 'togcls', this.className);
+			value = ''; //Set to an empty string so the class name will be cleared
 		}
+	}
+	else if (!value) {
+		//Retrieve the saved class name
+		value = dataPrivate(this, 'togcls') || '';
+	}
+
+	//Set the new value
+	this.className = value;
 
 	return this;
 };
