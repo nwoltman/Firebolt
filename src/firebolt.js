@@ -980,8 +980,8 @@ HTMLElementPrototype.addClass = function(value) {
  * Gets the value of the element's specified attribute.
  * 
  * @function HTMLElement.prototype.attr
- * @param {String|Object} attribute - The name of the attribute who's value you want to get.
- * @returns {String} The value of the attribute being retrieved.
+ * @param {String} attribute - The name of the attribute who's value you want to get.
+ * @returns {String} The value of the attribute.
  */
 /**
  * Sets the element's specified attribute.
@@ -994,19 +994,19 @@ HTMLElementPrototype.addClass = function(value) {
  * Sets the specified attributes of the element.
  * 
  * @function HTMLElement.prototype.attr
- * @param {Object.<String, String>} attributes - The name of the attribute who's value should be set or an object of attribute-value pairs to set.
+ * @param {Object} attributes - An object of attribute-value pairs to set.
  */
-HTMLElementPrototype.attr = function(attr, value) {
+HTMLElementPrototype.attr = function(attrib, value) {
 	if (isUndefined(value)) {
-		if (typeofString(attr)) {
-			return this.getAttribute(attr); //Get
+		if (typeofString(attrib)) {
+			return this.getAttribute(attrib); //Get
 		}
-		for (var attribute in attr) {
-			this.setAttribute(attribute, attr[attribute]); //Set multiple
+		for (var attribute in attrib) {
+			this.setAttribute(attribute, attrib[attribute]); //Set multiple
 		}
 	}
 	else {
-		this.setAttribute(attr, value); //Set single
+		this.setAttribute(attrib, value); //Set single
 	}
 
 	return this;
@@ -1546,24 +1546,24 @@ NodeCollectionPrototype.add = function(input) {
 NodeCollectionPrototype.addClass = callOnEachElement('addClass');
 
 /**
- * Gets the value of the specified attribute of the first element in the list.
+ * Gets the value of the specified attribute of the first element in the collection.
  * 
  * @function NodeCollection.prototype.attr
  * @param {String} attribute - The name of the attribute who's value you want to get.
- * @returns {String} The value of the attribute being retrieved.
+ * @returns {String} The value of the attribute.
  */
 /**
- * Sets the specified attribute for each element in the list.
+ * Sets the specified attribute for each element in the collection.
  * 
  * @function NodeCollection.prototype.attr
  * @param {String} attribute - The name of the attribute who's value should be set.
  * @param {String} value - The value to set the specified attribute to.
  */
 /**
- * Sets attributes for each element in the list.
+ * Sets attributes for each element in the collection.
  * 
  * @function NodeCollection.prototype.attr
- * @param {Object.<String, String>} attributes - The name of the attribute who's value should be set or an object of attribute-value pairs to set.
+ * @param {Object} attributes - An object of attribute-value pairs to set.
  */
 NodeCollectionPrototype.attr = getFirstSetEachElement('attr', function(numArgs) {
 	return numArgs < 2;
