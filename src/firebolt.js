@@ -381,14 +381,14 @@ defineProperties(ArrayPrototype, {
 	 */
 	unique: {
 		value: function() {
-			var uniqueClone = new this.__C__(),
+			var uniq = new this.__C__(),
 				i = 0;
 			for (; i < this.length; i++) {
-				if (!uniqueClone.contains(this[i])) {
-					uniqueClone.push(this[i]);
+				if (uniq.indexOf(this[i]) < 0) {
+					uniq.push(this[i]);
 				}
 			}
-			return uniqueClone;
+			return uniq;
 		}
 	},
 
