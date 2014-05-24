@@ -72,9 +72,10 @@ function data(dataStore, obj, key, value) {
 			value: dataObject = {}
 		});
 
-		//Try loading element's "data-*" attributes
+		//If this is an Element, try loading "data-*" attributes
 		if (isElement) {
 			var attrib, val;
+
 			dataAttributes = {};
 			attributes = obj.attributes;
 
@@ -93,8 +94,10 @@ function data(dataStore, obj, key, value) {
 				}
 			}
 
-			//Save the data privately
-			dataPrivate(obj, 'data-attrs', dataAttributes);
+			//Save the data privately if there is any
+			if (!Firebolt.isEmptyObject(dataAttributes)) {
+				dataPrivate(obj, 'data-attrs', dataAttributes);
+			}
 		}
 	}
 
@@ -127,7 +130,7 @@ function data(dataStore, obj, key, value) {
 
 /* For saving data for internal use */
 function dataPrivate(obj, key, value) {
-	//The interval data is actually saved to the public data object
+	//The internal data is actually saved to the public data object
 	return data(dataKeyPrivate, obj[dataKeyPublic] || data(dataKeyPublic, obj), key, value);
 }
 
@@ -1105,16 +1108,6 @@ HTMLElementPrototype.hasClass = function(className) {
 };
 
 /**
- * Determines if the element has any Firebolt data associated with it.
- * 
- * @function HTMLElement.prototype.hasData
- * @returns {Boolean} `true` if the element has stored Firebolt data; else `false`.
- */
-HTMLElementPrototype.hasData = function() {
-	return Firebolt.isEmptyObject(this[dataKeyPublic]);
-};
-
-/**
  * Hides the element by setting its display style to 'none'.
  * 
  * @function HTMLElement.prototype.hide
@@ -1330,32 +1323,32 @@ HTMLElementPrototype.show = function(style) {
  */
 HTMLElementPrototype.toggleClass = function(value) {
 	if (this.className) {
-		var togClasses = value.split(' '),
+			var togClasses = value.split(' '),
 			curClasses = this.className.split(rgxSpaceChars),
 			newClassName = '',
 			i = 0;
 
-		//Remove existing classes from the array and rebuild the class string without those classes
-		for (; i < curClasses.length; i++) {
-			if (curClasses[i]) {
-				var len = togClasses.length;
-				if (togClasses.remove(curClasses[i]).length === len) {
+			//Remove existing classes from the array and rebuild the class string without those classes
+			for (; i < curClasses.length; i++) {
+				if (curClasses[i]) {
+					var len = togClasses.length;
+					if (togClasses.remove(curClasses[i]).length === len) {
 					newClassName += (newClassName ? ' ' : '') + curClasses[i];
+					}
 				}
 			}
-		}
 
-		//If there are still classes in the array, they are to be added to the class name
-		if (togClasses.length) {
+			//If there are still classes in the array, they are to be added to the class name
+			if (togClasses.length) {
 			newClassName += (newClassName ? ' ' : '') + togClasses.join(' ');
-		}
+			}
 
 		//Simply set the new class name
 		this.className = newClassName;
-	}
-	else {
+		}
+		else {
 		this.className = value;
-	}
+		}
 
 	return this;
 };
@@ -2069,6 +2062,18 @@ defineProperties(Object[prototype], {
 	data: {
 		value: function(key, value) {
 			return data(dataKeyPublic, this, key, value);
+		}
+	},
+
+	/**
+	 * Determines if the object has any Firebolt data associated with it.
+	 * 
+	 * @function Object.prototype.hasData
+	 * @returns {Boolean} `true` if the object has stored Firebolt data; else `false`.
+	 */
+	hasData: {
+		value: function() {
+			return !Firebolt.isEmptyObject(this[dataKeyPublic]);
 		}
 	},
 
