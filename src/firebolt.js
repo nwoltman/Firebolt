@@ -306,7 +306,7 @@ defineProperties(ArrayPrototype, {
 			var intersection = new this.__C__(),
 				i = 0;
 			for (; i < array.length; i++) {
-				if (this.contains(array[i]) && !intersection.contains(array[i])) {
+				if (this.contains(array[i]) && intersection.indexOf(array[i]) < 0) {
 					intersection.push(array[i]);
 				}
 			}
@@ -363,7 +363,7 @@ defineProperties(ArrayPrototype, {
 			var union = this.unique(),
 				i = 0;
 			for (; i < array.length; i++) {
-				if (!union.contains(array[i])) {
+				if (union.indexOf(array[i]) < 0) {
 					union.push(array[i]);
 				}
 			}
@@ -2269,7 +2269,7 @@ if (isChrome || noMultiParamClassListFuncs) {
 				newClassName = '',
 				i = 0;
 			for (; i < curClasses.length; i++) {
-				if (curClasses[i] && !remClasses.contains(curClasses[i])) {
+				if (curClasses[i] && remClasses.indexOf(curClasses[i]) < 0) {
 					newClassName += (newClassName ? ' ' : '') + curClasses[i];
 				}
 			}
