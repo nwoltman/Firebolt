@@ -201,22 +201,24 @@ defineProperties(ArrayPrototype, {
 	},
 
 	/**
-	 * Removes all "empty" items (as defined by {@linkcode Firebolt.isEmpty}) from the array.
+	 * Returns a copy of the array with all "empty" items (as defined by {@linkcode Firebolt.isEmpty}) removed.
 	 * 
 	 * @function Array.prototype.clean
 	 * @param {Boolean} [allowEmptyStrings=false] - Set this to `true` to keep zero-length strings in the array.
-	 * @returns {Array} A reference to the array.
+	 * @returns {Array} A clean copy of the array.
 	 * @see Firebolt.isEmpty
 	 */
 	clean: {
 		writable: true,
 		value: function(allowEmptyStrings) {
-			for (var len = this.length, i = 0; i < len; i++) {
-				while (i < len && Firebolt.isEmpty(this[i], allowEmptyStrings)) {
-					this.splice(i, 1);
+			var cleaned = [],
+				i = 0;
+			for (; i < this.length; i++) {
+				if (!Firebolt.isEmpty(this[i], allowEmptyStrings)) {
+					cleaned.push(this[i]);
 				}
 			}
-			return this;
+			return cleaned;
 		}
 	},
 
