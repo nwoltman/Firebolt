@@ -1420,14 +1420,28 @@ HTMLElementPrototype.toggleClass = function(value) {
  */
 
 /**
- * Inserts this node directly after the specified node.
+ * Inserts this node directly after the specified target(s).
  * 
  * @function Node.prototype.insertAfter
- * @param {Node} node - The node after which this node should be inserted.
+ * @param {String|Node|Node[]} target - A specific node, collection of nodes, or a selector to find a set of nodes after which this node will be inserted.
  * @returns {Node} This node.
  */
-NodePrototype.insertAfter = function(node) {
-	node.parentNode.insertBefore(this, node.nextSibling);
+NodePrototype.insertAfter = function(target) {
+	if (typeofString(target)) {
+		target = Firebolt(target);
+	}
+	else if (target instanceof Node) {
+		return target.parentNode.insertBefore(this, target.nextSibling);
+	}
+
+	var len = target.length,
+		i = 1;
+	if (len) {
+		target[0].parentNode.insertBefore(this, target[0].nextSibling);
+		for (; i < len; i++) {
+			target[i].parentNode.insertBefore(this.cloneNode(true), target[i].nextSibling);
+		}
+	}
 
 	return this;
 };
