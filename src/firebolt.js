@@ -1420,39 +1420,6 @@ HTMLElementPrototype.toggleClass = function(value) {
  */
 
 /**
- * Inserts the specified node directly after this node.
- * 
- * @function Node.prototype.after
- * @param {Node|String|?} node - The node to insert. If the input parameter is not a Node, it is converted to a TextNode before being inserted.
- * @returns {Node} The node being inserted.
- */
-NodePrototype.after = function(node) {
-	if (!node.nodeType) {
-		node = document.createTextNode(node);
-	}
-	this.parentNode.insertBefore(node, this.nextSibling);
-
-	return node;
-};
-
-/**
- * Inserts the specified node directly before this node.
- * 
- * @function Node.prototype.before
- * @param {Node|String|?} node - The node to insert. If the input parameter is not a Node, it is converted to a TextNode before being inserted.
- * @returns {Node} The inserted node.
- */
-NodePrototype.before = function(node) {
-	if (!node.nodeType) {
-		node = document.createTextNode(node);
-	}
-	this.parentNode.insertBefore(node, this);
-
-	return node;
-};
-
-
-/**
  * Inserts this node directly after the specified node.
  * 
  * @function Node.prototype.insertAfter
