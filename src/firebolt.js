@@ -52,6 +52,35 @@ function isUndefined(value) {
 }
 
 /**
+ * Creates a new DocumentFragment and (optionally) appends the passed in content to it.
+ * 
+ * @param {ArgumentsList} [content] - List of content to append to the new DocumentFragment.
+ * @returns {DocumentFragment} The new fragment.
+ */
+function createFragment(content) {
+	var fragment = document.createDocumentFragment(),
+		i = 0,
+		item,
+		j;
+
+	for (; i < content.length; i++) {
+		if (typeofString(item = content[i])) {
+			fragment.appendChild(document.createTextNode(item));
+		}
+		else if (item instanceof Node) {
+			fragment.appendChild(item);
+		}
+		else {
+			for (j = 0; j < item.length; j++) {
+				fragment.appendChild(item[i]);
+			}
+		}
+	}
+
+	return fragment;
+}
+
+/**
  * Having this function allows for code reuse when storing private vs. user-accessible data.
  * @private
  * @param {String} dataStore - The key to the stored data object.
@@ -690,6 +719,16 @@ Firebolt.extend = function(target) {
 	Firebolt.extend(NodeListPrototype, target);
 	Firebolt.extend(HTMLCollectionPrototype, target);
 };
+
+/**
+ * Creates a new DocumentFragment and (optionally) appends the passed in content to it.
+ * 
+ * @param {...(String|Node|Node[])} [content] - One or more HTML strings, nodes, or collections of nodes to append to the fragment.
+ * @returns {DocumentFragment} The newly created document fragment.
+ */
+Firebolt.frag = function() {
+	return createFragment(arguments);
+}
 
 /**
  * HTML-decodes the passed in string and returns the result.
