@@ -51,6 +51,14 @@ function isUndefined(value) {
 	return value === undefined;
 }
 
+/*
+ * @see Firebolt.create
+ */
+function createElement(tagName, attributes) {
+	var el = document.createElement(tagName);
+	return attributes ? el.attr(attributes) : el;
+}
+
 /**
  * Creates a new DocumentFragment and (optionally) appends the passed in content to it.
  * 
@@ -163,6 +171,9 @@ function dataPrivate(obj, key, value) {
 	return data(dataKeyPrivate, obj[dataKeyPublic] || data(dataKeyPublic, obj), key, value);
 }
 
+/*
+ * @see Firebolt.extend
+ */
 function extend(target) {
 	var numArgs = arguments.length,
 		i = 1,
@@ -651,7 +662,7 @@ Firebolt =
 			return document.getElementsByTagName(str);
 		}
 		else if (isHtml(str)) { //Check if the string is an HTML string
-			return Firebolt.create('div').html(str).childNodes;
+			return createElement('div').html(str).childNodes;
 		}
 		return document.querySelectorAll(str);
 	}
@@ -666,7 +677,7 @@ Firebolt =
 				return document.getElementsByTagName(str);
 			}
 			else if (isHtml(str)) { //Check if the string is an HTML string
-				return Firebolt.create('div').html(str).childNodes;
+				return createElement('div').html(str).childNodes;
 			}
 		}
 		return document.querySelectorAll(str);
@@ -681,13 +692,7 @@ Firebolt =
  * @returns {Element}
  * @memberOf Firebolt
  */
-Firebolt.create = function(tagName, attributes) {
-	var el = document.createElement(tagName);
-	if (attributes) {
-		el.attr(attributes);
-	}
-	return el;
-};
+Firebolt.create = createElement;
 
 /**
  * Calls the passed in function after the specified amount of time in milliseconds.
@@ -740,7 +745,7 @@ Firebolt.frag = function() {
  * @memberOf Firebolt
  */
 Firebolt.htmlDecode = function(str) {
-	return Firebolt.create('div').html(str).text();
+	return createElement('div').html(str).text();
 }
 
 /**
@@ -751,7 +756,7 @@ Firebolt.htmlDecode = function(str) {
  * @memberOf Firebolt
  */
 Firebolt.htmlEncode = function(str) {
-	return Firebolt.create('div').text(str).html();
+	return createElement('div').text(str).html();
 }
 
 /**
@@ -1366,7 +1371,7 @@ HTMLElementPrototype.show = function(style) {
 	}
 	if (!typeofString(style)) {
 		//Create a temporary element of the same type as this element to figure out what the default display value should be
-		var temp = Firebolt.create(this.tagName, {
+		var temp = createElement(this.tagName, {
 			style: 'width:0;height:0;border:0;margin:0;padding:0'
 		}).insertAfter(document.body.lastChild);
 		style = temp.css('display');
@@ -2267,11 +2272,11 @@ defineProperty(StringPrototype, 'tokenize', {
 
 //#region ============ Browser Compatibility and Speed Boosters ==============
 
-var isOldIE = Firebolt.create('div').html('<!--[if IE]><i></i><![endif]-->').$TAG('i').length > 0,
+var isOldIE = createElement('div').html('<!--[if IE]><i></i><![endif]-->').$TAG('i').length > 0,
 	isChrome = !!window.chrome && !window.opera,
 	isIOS = navigator.platform.startsWith('iP'), // iPhone, iPad, iPod
 	noMultiParamClassListFuncs = (function() {
-		var elem = Firebolt.create('div');
+		var elem = createElement('div');
 		elem.classList.add('one', 'two');
 		return elem.className.length !== 7;
 	})();
