@@ -247,6 +247,13 @@ function getFirstSetEachElement(funcName, callback) {
 }
 
 /*
+ * Takes an HTML string and returns a NodeList created by the HTML.
+ */
+function htmlToNodes(html) {
+	return createElement('div').html(html).childNodes;
+}
+
+/*
  * @see Firebolt.isEmptyObject
  */
 function isEmptyObject(object) {
@@ -672,7 +679,7 @@ Firebolt =
 			return document.getElementsByTagName(str);
 		}
 		else if (isHtml(str)) { //Check if the string is an HTML string
-			return createElement('div').html(str).childNodes;
+			return htmlToNodes(str);
 		}
 		return document.querySelectorAll(str);
 	}
@@ -687,7 +694,7 @@ Firebolt =
 				return document.getElementsByTagName(str);
 			}
 			else if (isHtml(str)) { //Check if the string is an HTML string
-				return createElement('div').html(str).childNodes;
+				return htmlToNodes(str);
 			}
 		}
 		return document.querySelectorAll(str);
