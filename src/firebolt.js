@@ -132,7 +132,7 @@ function data(dataStore, obj, key, value) {
 			}
 
 			//Save the data privately if there is any
-			if (!Firebolt.isEmptyObject(dataAttributes)) {
+			if (!isEmptyObject(dataAttributes)) {
 				dataPrivate(obj, 'data-attrs', dataAttributes);
 			}
 		}
@@ -141,7 +141,7 @@ function data(dataStore, obj, key, value) {
 	/* This may look confusing but it's really saving space (as in the amount of code in the file).
 	 * What's happening is that `dataAttributes` is getting set to itself (if it was created above)
 	 * or it is set to the private data and is then checked to see if it is an empty object. */
-	if (isElement && !Firebolt.isEmptyObject(dataAttributes = dataAttributes || dataPrivate(obj, 'data-attrs'))) {
+	if (isElement && !isEmptyObject(dataAttributes = dataAttributes || dataPrivate(obj, 'data-attrs'))) {
 		//Find the attributes the data object does not already have from the data attributes
 		//and add them to the data object
 		attributes = ArrayPrototype.remove.apply(Object.keys(dataAttributes), Object.keys(dataObject));
@@ -244,6 +244,16 @@ function getFirstSetEachElement(funcName, callback) {
 			}
 		}
 	};
+}
+
+/*
+ * @see Firebolt.isEmptyObject
+ */
+function isEmptyObject(object) {
+	for (var item in object) {
+		return false;
+	}
+	return true;
 }
 
 //#endregion Private
@@ -775,7 +785,7 @@ Firebolt.htmlEncode = function(str) {
  * @memberOf Firebolt
  */
 Firebolt.isEmpty = function(value, allowEmptyString) {
-	return value == null || typeofString(value) && !allowEmptyString && !value || typeof value == 'object' && Firebolt.isEmptyObject(value);
+	return value == null || typeofString(value) && !allowEmptyString && !value || typeof value == 'object' && isEmptyObject(value);
 };
 
 /**
@@ -785,12 +795,7 @@ Firebolt.isEmpty = function(value, allowEmptyString) {
  * @returns {Boolean}
  * @memberOf Firebolt
  */
-Firebolt.isEmptyObject = function(object) {
-	for (var item in object) {
-		return false;
-	}
-	return true;
-};
+Firebolt.isEmptyObject = isEmptyObject;
 
 /**
  * Determines if the user is on a touchscreen device.
@@ -2111,7 +2116,7 @@ defineProperties(Object[prototype], {
 	 */
 	hasData: {
 		value: function() {
-			return !Firebolt.isEmptyObject(this[dataKeyPublic]);
+			return !isEmptyObject(this[dataKeyPublic]);
 		}
 	},
 
