@@ -144,7 +144,7 @@ function data(dataStore, obj, key, value) {
 
 	if (isUndefined(value)) {
 		if (typeof key == 'object') {
-			Firebolt.extend(dataObject, key); //Set multiple
+			extend(dataObject, key); //Set multiple
 		}
 		else {
 			return isUndefined(key) ? dataObject : dataObject[key]; //Get data object or value
@@ -161,6 +161,27 @@ function data(dataStore, obj, key, value) {
 function dataPrivate(obj, key, value) {
 	//The internal data is actually saved to the public data object
 	return data(dataKeyPrivate, obj[dataKeyPublic] || data(dataKeyPublic, obj), key, value);
+}
+
+function extend(target) {
+	var numArgs = arguments.length,
+		i = 1,
+		key;
+
+	if (numArgs > 1) {
+		//Extend the target object
+		for (; i < numArgs; i++) {
+			for (key in arguments[i]) {
+				target[key] = arguments[i][key];
+			}
+		}
+		return target;
+	}
+
+	//Extend the Firebolt objects
+	extend(NodeCollectionPrototype, target);
+	extend(NodeListPrototype, target);
+	extend(HTMLCollectionPrototype, target);
 }
 
 /** 
@@ -699,26 +720,7 @@ Firebolt.delay = function(callback, ms) {
  * @returns {Object} The target object.
  * @memberOf Firebolt
  */
-Firebolt.extend = function(target) {
-	var numArgs = arguments.length,
-		i = 1,
-		key;
-
-	if (numArgs > 1) {
-		//Extend the target object
-		for (; i < numArgs; i++) {
-			for (key in arguments[i]) {
-				target[key] = arguments[i][key];
-			}
-		}
-		return target;
-	}
-
-	//Extend the Firebolt objects
-	Firebolt.extend(NodeCollectionPrototype, target);
-	Firebolt.extend(NodeListPrototype, target);
-	Firebolt.extend(HTMLCollectionPrototype, target);
-};
+Firebolt.extend = extend;
 
 /**
  * Creates a new DocumentFragment and (optionally) appends the passed in content to it.
@@ -1109,7 +1111,7 @@ HTMLElementPrototype.css = function(prop, value) {
 	}
 	else {
 		//Set all specifed properties
-		Firebolt.extend(this.style, prop);
+		extend(this.style, prop);
 	}
 
 	return this;
@@ -1276,7 +1278,7 @@ HTMLElementPrototype.prop = function(prop, value) {
 		if (typeofString(prop)) {
 			return this[prop]; //Get
 		}
-		Firebolt.extend(this, prop); //Set multiple
+		extend(this, prop); //Set multiple
 	}
 	else {
 		this[prop] = value; //Set single
