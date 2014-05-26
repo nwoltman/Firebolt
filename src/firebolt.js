@@ -72,13 +72,14 @@ function createFragment(content) {
 		j;
 
 	for (; i < content.length; i++) {
-		if (typeofString(item = content[i])) {
-			fragment.appendChild(document.createTextNode(item));
-		}
-		else if (item instanceof Node) {
+		item = content[i];
+		if (item instanceof Node) {
 			fragment.appendChild(item);
 		}
 		else {
+			if (typeofString(item)) {
+				item = htmlToNodes(item);
+			}
 			for (j = 0; j < item.length; j++) {
 				fragment.appendChild(item[i]);
 			}
