@@ -1060,20 +1060,17 @@ HTMLElementPrototype.addClass = function(value) {
  * @see Node#afterPut
  */
 HTMLElementPrototype.afterPut = function() {
-	var parent = this.parentNode,
-		i = arguments.length - 1,
+	var i = arguments.length - 1,
 		arg;
 
-	if (parent) {
-		for (; i >= 0; i--) {
-			if (typeofString(arg = arguments[i])) {
-				this.insertAdjacentHTML('afterend', arg);
-			}
-			else {
-				//When arg is a collection of nodes, create a fragment by passing the collection in an array
-				//(that is the form of input createFragment expects since it normally takes a function's arg list)
-				parent.insertBefore(arg instanceof Node ? arg : createFragment([arg]), this.nextSibling);
-			}
+	for (; i >= 0; i--) {
+		if (typeofString(arg = arguments[i])) {
+			this.insertAdjacentHTML('afterend', arg);
+		}
+		else {
+			//When arg is a collection of nodes, create a fragment by passing the collection in an array
+			//(that is the form of input createFragment expects since it normally takes a function's arg list)
+			this.parentNode.insertBefore(arg instanceof Node ? arg : createFragment([arg]), this.nextSibling);
 		}
 	}
 
@@ -1484,11 +1481,10 @@ HTMLElementPrototype.toggleClass = function(value) {
  * 
  * @function Node.prototype.afterPut
  * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
+ * @throws {TypeError|NoModificationAllowedError} The subject node must be a ChildNode.
  */
 NodePrototype.afterPut = function() {
-	if (this.parentNode) {
-		this.parentNode.insertBefore(createFragment(arguments), this.nextSibling);
-	}
+	this.parentNode.insertBefore(createFragment(arguments), this.nextSibling);
 
 	return this;
 }
@@ -1498,6 +1494,7 @@ NodePrototype.afterPut = function() {
  * 
  * @function Node.prototype.insertAfter
  * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes after which this node will be inserted.
+ * @throws {TypeError} The target node(s) must be ChildNodes.
  */
 NodePrototype.insertAfter = function(target) {
 	if (typeofString(target)) {
@@ -1654,6 +1651,7 @@ NodeCollectionPrototype.addClass = callOnEachElement('addClass');
  * 
  * @function NodeCollection.prototype.afterPut
  * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
+ * @throws {TypeError|NoModificationAllowedError} The subject collection of nodes must contain only ChildNodes.
  */
 NodeCollectionPrototype.afterPut = NodeCollectionPrototype.after = function() {
 	var len = this.length,
@@ -1875,6 +1873,7 @@ NodeCollectionPrototype.html = getFirstSetEachElement('html', function(numArgs) 
  * 
  * @function NodeCollection.prototype.insertAfter
  * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes after which each node will be inserted.
+ * @throws {TypeError} The target node(s) must be ChildNodes.
  */
 NodeCollectionPrototype.insertAfter = function(target) {
 	(typeofString(target) ? Firebolt(target) : target).afterPut(this);
