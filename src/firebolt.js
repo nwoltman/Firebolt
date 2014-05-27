@@ -1870,6 +1870,18 @@ NodeCollectionPrototype.html = getFirstSetEachElement('html', function(numArgs) 
 	return !numArgs;
 });
 
+/**
+ * Inserts each node in this collection directly after the specified target(s).
+ * 
+ * @function NodeCollection.prototype.insertAfter
+ * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes after which each node will be inserted.
+ */
+NodeCollectionPrototype.insertAfter = function(target) {
+	(typeofString(target) ? Firebolt(target) : target).afterPut(this);
+
+	return this;
+};
+
 /*
  * See Array.prototype.map - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
  */
@@ -2038,6 +2050,7 @@ NodeCollectionPrototype.toggleClass = callOnEachElement('toggleClass');
  * the NodeList itself:
  * 
  * + afterPut/after
+ * + insertAfter
  * + remove
  * + removeClass
  * + toggleClass
@@ -2095,6 +2108,7 @@ getOwnPropertyNames(NodeCollectionPrototype)
 			//Convert these to a NodeCollection first
 			case 'after':
 			case 'afterPut':
+			case 'insertAfter':
 			case 'remove':
 			case 'removeClass':
 			case 'toggleClass':
