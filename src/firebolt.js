@@ -62,14 +62,14 @@ function createElement(tagName, attributes) {
 /**
  * Creates a new DocumentFragment and (optionally) appends the passed in content to it.
  * 
+ * @private
  * @param {ArgumentsList} [content] - List of content to append to the new DocumentFragment.
  * @returns {DocumentFragment} The new fragment.
  */
 function createFragment(content) {
 	var fragment = document.createDocumentFragment(),
 		i = 0,
-		item,
-		j;
+		item;
 
 	for (; i < content.length; i++) {
 		item = content[i];
@@ -80,8 +80,20 @@ function createFragment(content) {
 			if (typeofString(item)) {
 				item = htmlToNodes(item);
 			}
-			for (j = 0; j < item.length; j++) {
-				fragment.appendChild(item[i]);
+			var origLen = item.length,
+				j = 1;
+			if (origLen) {
+				fragment.appendChild(item[0]);
+				if (item.length < origLen) { //item is a live NodeList/HTMLCollection
+					for (; j < origLen; j++) {
+						fragment.appendChild(item[0]);
+					}
+				}
+				else { //item is a static collection of nodes
+					for (; j < origLen; j++) {
+						fragment.appendChild(item[j]);
+					}
+				}
 			}
 		}
 	}
