@@ -28,6 +28,11 @@ var prototype = 'prototype',
 	getOwnPropertyNames = Object.getOwnPropertyNames,
 	arrayFilter = ArrayPrototype.filter,
 
+	//Property strings
+	parentNode = 'parentNode',
+	insertBefore = 'insertBefore',
+	nextSibling = 'nextSibling',
+
 	//Data variables
 	dataKeyPublic = 'FB' + Math.random(),
 	dataKeyPrivate = 'FB' + Math.random(),
@@ -1070,7 +1075,7 @@ HTMLElementPrototype.afterPut = function() {
 		else {
 			//When arg is a collection of nodes, create a fragment by passing the collection in an array
 			//(that is the form of input createFragment expects since it normally takes a function's arg list)
-			this.parentNode.insertBefore(arg instanceof Node ? arg : createFragment([arg]), this.nextSibling);
+			this[parentNode][insertBefore](arg instanceof Node ? arg : createFragment([arg]), this[nextSibling]);
 		}
 	}
 
@@ -1484,7 +1489,7 @@ HTMLElementPrototype.toggleClass = function(value) {
  * @throws {TypeError|NoModificationAllowedError} The subject node must be a ChildNode.
  */
 NodePrototype.afterPut = function() {
-	this.parentNode.insertBefore(createFragment(arguments), this.nextSibling);
+	this[parentNode][insertBefore](createFragment(arguments), this[nextSibling]);
 
 	return this;
 }
@@ -1501,15 +1506,15 @@ NodePrototype.insertAfter = function(target) {
 		target = Firebolt(target);
 	}
 	else if (target instanceof Node) {
-		return target.parentNode.insertBefore(this, target.nextSibling);
+		return target[parentNode][insertBefore](this, target[nextSibling]);
 	}
 
 	var i = target.length - 1;
 	if (i) {
 		for (; i > 0; i--) {
-			target[i].parentNode.insertBefore(this.cloneNode(true), target[i].nextSibling);
+			target[i][parentNode][insertBefore](this.cloneNode(true), target[i][nextSibling]);
 		}
-		target[0].parentNode.insertBefore(this, target[0].nextSibling);
+		target[0][parentNode][insertBefore](this, target[0][nextSibling]);
 	}
 
 	return this;
@@ -1522,7 +1527,7 @@ NodePrototype.insertAfter = function(target) {
  * @returns void (undefined)
  */
 NodePrototype.remove = function() {
-	this.parentNode.removeChild(this);
+	this[parentNode].removeChild(this);
 };
 
 /**
