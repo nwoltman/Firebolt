@@ -1040,6 +1040,30 @@ HTMLElementPrototype.addClass = function(value) {
 	return this;
 };
 
+/*
+ * More performant version of Node#afterPut for HTMLElements.
+ * @see Node#afterPut
+ */
+HTMLElementPrototype.afterPut = function() {
+	var parent = this.parentNode,
+		i = arguments.length - 1,
+		arg;
+
+	if (parent) {
+		for (; i >= 0; i--) {
+			if (typeofString(arg = arguments[i])) {
+				this.insertAdjacentHTML('afterend', arg);
+			}
+			else {
+				//When arg is a collection of nodes, create a fragment by passing the collection in an array
+				//(that is the form of input createFragment expects since it normally takes a function's arg list)
+				parent.insertBefore(arg instanceof Node ? arg : createFragment([arg]), this.nextSibling);
+			}
+		}
+	}
+
+	return this;
+}
 /**
  * Gets the value of the element's specified attribute.
  * 
@@ -1466,6 +1490,20 @@ HTMLElementPrototype.toggleClass = function(value) {
  */
 
 /**
+ * Inserts content after the node.
+ * 
+ * @function Node.prototype.afterPut
+ * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
+ */
+NodePrototype.afterPut = function() {
+	if (this.parentNode) {
+		this.parentNode.insertBefore(createFragment(arguments), this.nextSibling);
+	}
+
+	return this;
+}
+
+/**
  * Removes this node from the DOM.
  * 
  * @function Node.prototype.remove
@@ -1587,6 +1625,38 @@ NodeCollectionPrototype.add = function(input) {
  */
 NodeCollectionPrototype.addClass = callOnEachElement('addClass');
 
+/**
+ * Alias of {@link NodeCollection#afterPut} provided for similarity with jQuery.  
+ * Note that Firebolt does not define a method called "after" for Nodes. This is because the DOM Living Standard has defined
+ * a native function called `after` for the {@link http://dom.spec.whatwg.org/#interface-childnode|ChildNode Interface} that
+ * does not function in the same way as `afterPut`.
+ * 
+ * @function NodeCollection.prototype.after
+ * @see NodeCollection#afterPut
+ */
+/**
+ * Inserts content after each node in the collection.
+ * 
+ * @function NodeCollection.prototype.afterPut
+ * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
+ */
+NodeCollectionPrototype.afterPut = NodeCollectionPrototype.after = function() {
+	var len = this.length,
+		firstNode = this[0];
+	if (len > 1) {
+		var fragment = createFragment(arguments),
+			i = 1;
+		for (; i < len; i++) {
+			this[i].afterPut(fragment.cloneNode(true));
+		}
+		firstNode.afterPut(fragment);
+	}
+	else if (len) { //This collection only has one node
+		firstNode.afterPut.apply(firstNode, arguments);
+	}
+
+	return this;
+}
 /**
  * Gets the value of the specified attribute of the first element in the collection.
  * 
@@ -1952,6 +2022,7 @@ NodeCollectionPrototype.toggleClass = callOnEachElement('toggleClass');
  * Also note that the following functions return the NodeCollection equivalent of the NodeList instead of
  * the NodeList itself:
  * 
+ * + afterPut/after
  * + remove
  * + removeClass
  * + toggleClass
@@ -2007,6 +2078,8 @@ getOwnPropertyNames(NodeCollectionPrototype)
 	).forEach(function(methodName) {
 		switch (methodName) {
 			//Convert these to a NodeCollection first
+			case 'after':
+			case 'afterPut':
 			case 'remove':
 			case 'removeClass':
 			case 'toggleClass':
