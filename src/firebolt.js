@@ -48,12 +48,21 @@ var prototype = 'prototype',
 	rgxNonWhitespace = /\S+/g,
 	rgxSpaceChars = /[ \n\r\t\f]+/; //From W3C http://www.w3.org/TR/html5/single-page.html#space-character
 
-function typeofString(value) {
-	return typeof value == 'string';
-}
-
-function isUndefined(value) {
-	return value === undefined;
+/** 
+ * Calls the function with the passed in name on each element in an enumerable.
+ * 
+ * @private
+ * @param {String} funcName - The name of a function.
+ * @returns {Array|NodeList|HTMLCollection} A reference to the enumerable
+ * @this An enumerable such as an Array, NodeList, or HTMLCollection.
+ */
+function callOnEachElement(funcName) {
+	return function() {
+		for (var i = 0, len = this.length; i < len; i++) {
+			if (this[i].nodeType === 1) this[i][funcName].apply(this[i], arguments);
+		}
+		return this;
+	};
 }
 
 /*
@@ -214,23 +223,6 @@ function extend(target) {
 }
 
 /** 
- * Calls the function with the passed in name on each element in an enumerable.
- * 
- * @private
- * @param {String} funcName - The name of a function.
- * @returns {Array|NodeList|HTMLCollection} A reference to the enumerable
- * @this An enumerable such as an Array, NodeList, or HTMLCollection.
- */
-function callOnEachElement(funcName) {
-	return function() {
-		for (var i = 0, len = this.length; i < len; i++) {
-			if (this[i].nodeType === 1) this[i][funcName].apply(this[i], arguments);
-		}
-		return this;
-	};
-}
-
-/** 
  * Returns a function that calls the function with the passed in name on each element in an enumerable unless
  * the callback returns true, in which case the result of calling the function on the first element is returned.
  * 
@@ -279,6 +271,14 @@ function isEmptyObject(object) {
 		return false;
 	}
 	return true;
+}
+
+function isUndefined(value) {
+	return value === undefined;
+}
+
+function typeofString(value) {
+	return typeof value == 'string';
 }
 
 //#endregion Private
