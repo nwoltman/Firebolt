@@ -272,6 +272,7 @@ function isEmptyObject(object) {
 /**
  * @class Array
  * @classdesc The JavaScript Array object.
+ * @mixes Object
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array|Array - JavaScript | MDN}
  */
 
@@ -539,6 +540,7 @@ document.ready = function(callback) {
 /**
  * @class Element
  * @classdesc The HTML DOM Element interface.
+ * @mixes Node
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/element|Element - Web API Interfaces | MDN}
  */
 
@@ -999,6 +1001,7 @@ window.$TAG = function(tagName) {
  * The HTML DOM HTMLElement interface.  
  * It should be noted that all functions that do not have a specified return value, return the calling object,
  * allowing for function chaining.
+ * @mixes Element
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement|HTMLElement - Web API Interfaces | MDN}
  */
 
@@ -1486,6 +1489,7 @@ HTMLElementPrototype.toggleClass = function(value) {
  * The HTML DOM Node interface.  
  * It should be noted that all functions that do not have a specified return value, return the calling object,
  * allowing for function chaining.
+ * @mixes Object
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Node|Node - Web API Interfaces | MDN}
  */
 
