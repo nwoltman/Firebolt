@@ -1231,32 +1231,6 @@ HTMLElementPrototype.html = function(innerHTML) {
 };
 
 /**
- * Inserts this element directly after the specified target(s).
- * 
- * @function HTMLElement.prototype.insertAfter
- * @param {String|Node|Node[]} target - A specific node, collection of nodes, or a selector to find a set of nodes after which this element will be inserted.
- */
-HTMLElementPrototype.insertAfter = function(target) {
-	if (typeofString(target)) {
-		target = Firebolt(target);
-	}
-	else if (target instanceof Node) {
-		return target.parentNode.insertBefore(this, target.nextSibling);
-	}
-
-	var len = target.length,
-		i = 1;
-	if (len) {
-		target[0].parentNode.insertBefore(this, target[0].nextSibling);
-		for (; i < len; i++) {
-			target[i].parentNode.insertBefore(this.cloneNode(true), target[i].nextSibling);
-		}
-	}
-
-	return this;
-};
-
-/**
  * Gets the element's current coordinates relative to the document.
  * 
  * @function HTMLElement.prototype.offset
@@ -1506,6 +1480,31 @@ NodePrototype.afterPut = function() {
 
 	return this;
 }
+
+/**
+ * Inserts this node directly after the specified target(s).
+ * 
+ * @function Node.prototype.insertAfter
+ * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes after which this node will be inserted.
+ */
+NodePrototype.insertAfter = function(target) {
+	if (typeofString(target)) {
+		target = Firebolt(target);
+	}
+	else if (target instanceof Node) {
+		return target.parentNode.insertBefore(this, target.nextSibling);
+	}
+
+	var i = target.length - 1;
+	if (i) {
+		for (; i > 0; i--) {
+			target[i].parentNode.insertBefore(this.cloneNode(true), target[i].nextSibling);
+		}
+		target[0].parentNode.insertBefore(this, target[0].nextSibling);
+	}
+
+	return this;
+};
 
 /**
  * Removes this node from the DOM.
