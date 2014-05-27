@@ -525,33 +525,6 @@ defineProperties(ArrayPrototype, {
 //#endregion Array
 
 
-//#region =========================== Document ===============================
-
-/**
- * The HTML DOM Document interface.
- * @namespace Document
- * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/document|Document - Web API Interfaces | MDN}
- */
-
-/**
- * Specify a function to execute when the DOM is fully loaded.<br />
- * Executes the function immediately if the DOM has already finished loading.
- * 
- * @function Document.ready
- * @param {Function} callback - A function to execute once the DOM has been loaded.
- */
-document.ready = function(callback) {
-	if (document.readyState == 'loading') {
-		document.addEventListener('DOMContentLoaded', callback);
-	}
-	else if (callback) {
-		callback();
-	}
-};
-
-//#endregion Document
-
-
 //#region =========================== Element ================================
 
 /**
@@ -835,12 +808,20 @@ Firebolt.isTouchDevice = function() {
 };
 
 /**
- * Same as {@linkcode Document.ready|document.ready()}.
+ * Specify a function to execute when the DOM is fully loaded.  
+ * Executes the function immediately if the DOM has already finished loading.
  * 
- * @function
  * @memberOf Firebolt
+ * @param {Function} callback - A function to execute once the DOM has been loaded.
  */
-Firebolt.ready = document.ready;
+Firebolt.ready = function(callback) {
+	if (document.readyState == 'loading') {
+		document.addEventListener('DOMContentLoaded', callback);
+	}
+	else {
+		callback();
+	}
+};
 
 //#endregion Firebolt
 
