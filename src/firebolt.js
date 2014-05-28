@@ -1098,6 +1098,28 @@ HTMLElementPrototype.attr = function(attrib, value) {
 	return this;
 };
 
+/*
+ * More performant version of Node#beforePut for HTMLElements.
+ * @see Node#beforePut
+ */
+HTMLElementPrototype.beforePut = function() {
+	var i = 0,
+		arg;
+
+	for (; i < arguments.length; i++) {
+		if (typeofString(arg = arguments[i])) {
+			this.insertAdjacentHTML('beforebegin', arg);
+		}
+		else {
+			//When arg is a collection of nodes, create a fragment by passing the collection in an array
+			//(that is the form of input createFragment expects since it normally takes a function's arg list)
+			this[parentNode][insertBefore](arg instanceof Node ? arg : createFragment([arg]), this);
+		}
+	}
+
+	return this;
+}
+
 /**
  * Gets the element's computed style object.
  * 
@@ -1476,6 +1498,19 @@ NodePrototype.afterPut = function() {
 }
 
 /**
+ * Inserts content before the node.
+ * 
+ * @function Node.prototype.beforePut
+ * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
+ * @throws {TypeError|NoModificationAllowedError} The subject node must be a ChildNode.
+ */
+NodePrototype.beforePut = function() {
+	this[parentNode][insertBefore](createFragment(arguments), this);
+
+	return this;
+}
+
+/**
  * Inserts this node directly after the specified target(s).
  * 
  * @function Node.prototype.insertAfter
@@ -1656,6 +1691,7 @@ NodeCollectionPrototype.afterPut = NodeCollectionPrototype.after = function() {
 
 	return this;
 }
+
 /**
  * Gets the value of the specified attribute of the first element in the collection.
  * 
@@ -1679,6 +1715,40 @@ NodeCollectionPrototype.afterPut = NodeCollectionPrototype.after = function() {
 NodeCollectionPrototype.attr = getFirstSetEachElement('attr', function(numArgs) {
 	return numArgs < 2;
 });
+
+/**
+ * Alias of {@link NodeCollection#beforePut} provided for similarity with jQuery.  
+ * Note that Firebolt does not define a method called "before" for Nodes. This is because the DOM Living Standard has defined
+ * a native function called `before` for the {@link http://dom.spec.whatwg.org/#interface-childnode|ChildNode Interface} that
+ * does not function in the same way as `beforePut`.
+ * 
+ * @function NodeCollection.prototype.before
+ * @see NodeCollection#beforePut
+ */
+/**
+ * Inserts content after each node in the collection.
+ * 
+ * @function NodeCollection.prototype.beforePut
+ * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
+ * @throws {TypeError|NoModificationAllowedError} The subject collection of nodes must contain only ChildNodes.
+ */
+NodeCollectionPrototype.beforePut = NodeCollectionPrototype.before = function() {
+	var len = this.length,
+		firstNode = this[0];
+	if (len > 1) {
+		var fragment = createFragment(arguments),
+			i = 1;
+		for (; i < len; i++) {
+			this[i].beforePut(fragment.cloneNode(true));
+		}
+		firstNode.beforePut(fragment);
+	}
+	else if (len) { //This collection only has one node
+		firstNode.beforePut.apply(firstNode, arguments);
+	}
+
+	return this;
+}
 
 /**
  * Returns a clone of the collection with all non-elements removed.
