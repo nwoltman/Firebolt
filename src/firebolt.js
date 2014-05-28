@@ -1537,6 +1537,16 @@ NodePrototype.insertAfter = function(target) {
 };
 
 /**
+ * **ATTENTION:** Firebolt does not define this function. It is defined natively and does not behave like {@linkcode NodeCollection#insertBefore}.
+ * Please read {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.insertBefore|the online documentation}.
+ * 
+ * @function Node.prototype.insertBefore
+ * @param {Node} newElement
+ * @param {Node} referenceElement
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.insertBefore|Node.insertBefore - Web API Interfaces | MDN}
+ */
+
+/**
  * Removes this node from the DOM.
  * 
  * @function Node.prototype.remove
@@ -1933,6 +1943,19 @@ NodeCollectionPrototype.html = getFirstSetEachElement('html', function(numArgs) 
  */
 NodeCollectionPrototype.insertAfter = function(target) {
 	(typeofString(target) ? Firebolt(target) : target).afterPut(this);
+
+	return this;
+};
+
+/**
+ * Inserts each node in this collection directly before the specified target(s).
+ * 
+ * @function NodeCollection.prototype.insertBefore
+ * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes before which each node will be inserted.
+ * @throws {TypeError} The target node(s) must be ChildNodes.
+ */
+NodeCollectionPrototype.insertBefore = function(target) {
+	(typeofString(target) ? Firebolt(target) : target).beforePut(this);
 
 	return this;
 };
