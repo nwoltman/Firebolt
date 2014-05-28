@@ -1063,6 +1063,30 @@ HTMLElementPrototype.afterPut = function() {
 }
 
 /**
+ * Appends content to the end of the element.
+ * 
+ * @function HTMLElement.prototype.appendWith
+ * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
+ */
+HTMLElementPrototype.appendWith = function() {
+	var i = 0,
+		arg;
+
+	for (; i < arguments.length; i++) {
+		if (typeofString(arg = arguments[i])) {
+			this.insertAdjacentHTML('beforeend', arg);
+		}
+		else {
+			//When arg is a collection of nodes, create a fragment by passing the collection in an array
+			//(that is the form of input createFragment expects since it normally takes a function's arg list)
+			this.appendChild(arg instanceof Node ? arg : createFragment([arg]));
+		}
+	}
+
+	return this;
+}
+
+/**
  * Gets the value of the element's specified attribute.
  * 
  * @function HTMLElement.prototype.attr
@@ -1703,6 +1727,42 @@ NodeCollectionPrototype.afterPut = NodeCollectionPrototype.after = function() {
 }
 
 /**
+ * Alias of {@link NodeCollection#appendWith} provided for similarity with jQuery.  
+ * Note that Firebolt does not define a method called "append" for Nodes. This is because the DOM Living Standard has defined
+ * a native function called `append` for the {@link http://dom.spec.whatwg.org/#interface-parentnode|ParentNode Interface} that
+ * does not function in the same way as `appendWith`.
+ * 
+ * @function NodeCollection.prototype.append
+ * @see NodeCollection#appendWith
+ */
+/**
+ * Appends content to the end of each element in the collection.
+ * 
+ * @function NodeCollection.prototype.appendWith
+ * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
+ */
+NodeCollectionPrototype.appendWith = NodeCollectionPrototype.append = function() {
+	var parentNodes = arrayFilter.call(this, function(node) {
+			return node.nodeType === 1 || node.nodeType === 11 || node.nodeType === 9;
+		}),
+		len = parentNodes.length,
+		firstNode = parentNodes[0];
+	if (len > 1) {
+		var fragment = createFragment(arguments),
+			i = 1;
+		for (; i < len; i++) {
+			parentNodes[i].appendChild(fragment.cloneNode(true));
+		}
+		firstNode.appendChild(fragment);
+	}
+	else if (len) { //Only one element to append to
+		firstNode.appendWith.apply(firstNode, arguments);
+	}
+
+	return this;
+}
+
+/**
  * Gets the value of the specified attribute of the first element in the collection.
  * 
  * @function NodeCollection.prototype.attr
@@ -2128,6 +2188,7 @@ NodeCollectionPrototype.toggleClass = callOnEachElement('toggleClass');
  * the NodeList itself:
  * 
  * + afterPut/after
+ * + appendWith/append
  * + beforePut/before
  * + insertAfter
  * + insertBefore
@@ -2173,10 +2234,9 @@ NodeCollectionPrototype.toggleClass = callOnEachElement('toggleClass');
 
 //Convert these to a NodeCollection first
 Firebolt._ = [
-	'after',
-	'afterPut',
-	'before',
-	'beforePut',
+	'after', 'afterPut',
+	'append', 'appendWith',
+	'before', 'beforePut',
 	'insertAfter',
 	'insertBefore',
 	'remove',
