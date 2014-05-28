@@ -1061,6 +1061,7 @@ HTMLElementPrototype.afterPut = function() {
 
 	return this;
 }
+
 /**
  * Gets the value of the element's specified attribute.
  * 
@@ -2034,7 +2035,9 @@ NodeCollectionPrototype.toggleClass = callOnEachElement('toggleClass');
  * the NodeList itself:
  * 
  * + afterPut/after
+ * + beforePut/before
  * + insertAfter
+ * + insertBefore
  * + remove
  * + removeClass
  * + toggleClass
@@ -2075,6 +2078,19 @@ NodeCollectionPrototype.toggleClass = callOnEachElement('toggleClass');
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/NodeList|NodeList - Web API Interfaces | MDN}
  */
 
+//Convert these to a NodeCollection first
+Firebolt._ = [
+	'after',
+	'afterPut',
+	'before',
+	'beforePut',
+	'insertAfter',
+	'insertBefore',
+	'remove',
+	'removeClass',
+	'toggleClass'
+];
+
 /* Give NodeLists and HTMLCollections many of the same prototype functions as NodeCollections */
 getOwnPropertyNames(NodeCollectionPrototype)
 	.union(getOwnPropertyNames(ArrayPrototype))
@@ -2088,24 +2104,17 @@ getOwnPropertyNames(NodeCollectionPrototype)
 		'splice',
 		'unshift'
 	).forEach(function(methodName) {
-		switch (methodName) {
-			//Convert these to a NodeCollection first
-			case 'after':
-			case 'afterPut':
-			case 'insertAfter':
-			case 'remove':
-			case 'removeClass':
-			case 'toggleClass':
-				HTMLCollectionPrototype[methodName] = NodeListPrototype[methodName] = function() {
-					return NodeCollectionPrototype[methodName].apply(new NodeCollection(this), arguments);
-				}
-				break;
-			default:
-				if (!NodeListPrototype[methodName]) {
-					HTMLCollectionPrototype[methodName] = NodeListPrototype[methodName] = NodeCollectionPrototype[methodName];
-				}
+		if (Firebolt._.contains(methodName)) {
+			HTMLCollectionPrototype[methodName] = NodeListPrototype[methodName] = function() {
+				return NodeCollectionPrototype[methodName].apply(new NodeCollection(this), arguments);
+			}
+		}
+		else if (!NodeListPrototype[methodName]) {
+			HTMLCollectionPrototype[methodName] = NodeListPrototype[methodName] = NodeCollectionPrototype[methodName];
 		}
 	});
+
+delete Firebolt._;
 
 /**
  * Returns the NodeCollection equivalent of the NodeList.
