@@ -1522,6 +1522,33 @@ NodePrototype.afterPut = function() {
 }
 
 /**
+ * Appends this node to the end of the target element(s).
+ * 
+ * @function Node.prototype.appendTo
+ * @param {String|ParentNode|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes to which this node will be appended.
+ * @throws {HierarchyRequestError} The target(s) must implement the {@link ParentNode|ParentNode interface}.
+ */
+NodePrototype.appendTo = function(target) {
+	if (typeofString(target)) {
+		target = Firebolt(target);
+	}
+	else if (target instanceof Node) {
+		return target.appendChild(this);
+	}
+
+	var i = 1,
+		len = target.length;
+	if (len) {
+		target[0].appendChild(this);
+		for (; i < len; i++) {
+			target[0].appendChild(this.cloneNode(true));
+		}
+	}
+
+	return this;
+}
+
+/**
  * Inserts content before the node.
  * 
  * @function Node.prototype.beforePut
@@ -1603,6 +1630,14 @@ NodePrototype.text = function(text) {
 
 	return this;
 };
+
+/**
+ * @class ParentNode
+ * @classdesc Interface implemented by {@link https://developer.mozilla.org/en-US/docs/Web/API/Element|Element},
+ * {@link https://developer.mozilla.org/en-US/docs/Web/API/Document|Document}, and
+ * {@link https://developer.mozilla.org/en-US/docs/Web/API/DocumentFragment|DocumentFragment} objects.
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/ParentNode|ParentNode - Web API Interfaces | MDN}
+ */
 
 //#endregion Node
 
@@ -1725,6 +1760,19 @@ NodeCollectionPrototype.afterPut = NodeCollectionPrototype.after = function() {
 
 	return this;
 }
+
+/**
+ * Appends each node in this collection to the end of the specified target(s).
+ * 
+ * @function NodeCollection.prototype.appendTo
+ * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes to which each node will be appended.
+ * @throws {HierarchyRequestError} The target(s) must implement the {@link ParentNode|ParentNode interface}.
+ */
+NodeCollectionPrototype.appendTo = function(target) {
+	(typeofString(target) ? Firebolt(target) : target).appendWith(this);
+
+	return this;
+};
 
 /**
  * Alias of {@link NodeCollection#appendWith} provided for similarity with jQuery.  
