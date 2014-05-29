@@ -1526,7 +1526,7 @@ NodePrototype.afterPut = function() {
  * 
  * @function Node.prototype.appendTo
  * @param {String|ParentNode|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes to which this node will be appended.
- * @throws {HierarchyRequestError} The target(s) must implement the {@link ParentNode|ParentNode interface}.
+ * @throws {HierarchyRequestError} The target(s) must implement the {@link ParentNode} interface.
  */
 NodePrototype.appendTo = function(target) {
 	if (typeofString(target)) {
@@ -1638,6 +1638,18 @@ NodePrototype.text = function(text) {
  * {@link https://developer.mozilla.org/en-US/docs/Web/API/DocumentFragment|DocumentFragment} objects.
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/ParentNode|ParentNode - Web API Interfaces | MDN}
  */
+
+/**
+ * Appends content to the end of the node.
+ * 
+ * @function ParentNode.prototype.appendWith
+ * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
+ */
+NodePrototype.appendWith = function() {
+	this.appendChild(createFragment(arguments));
+
+	return this;
+}
 
 //#endregion Node
 
@@ -1765,8 +1777,8 @@ NodeCollectionPrototype.afterPut = NodeCollectionPrototype.after = function() {
  * Appends each node in this collection to the end of the specified target(s).
  * 
  * @function NodeCollection.prototype.appendTo
- * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes to which each node will be appended.
- * @throws {HierarchyRequestError} The target(s) must implement the {@link ParentNode|ParentNode interface}.
+ * @param {String|ParentNode|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes to which each node will be appended.
+ * @throws {HierarchyRequestError} The target(s) must implement the {@link ParentNode} interface.
  */
 NodeCollectionPrototype.appendTo = function(target) {
 	(typeofString(target) ? Firebolt(target) : target).appendWith(this);
@@ -1788,18 +1800,16 @@ NodeCollectionPrototype.appendTo = function(target) {
  * 
  * @function NodeCollection.prototype.appendWith
  * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
+ * @throws {HierarchyRequestError} The nodes in the collection must implement the {@link ParentNoded} interface.
  */
 NodeCollectionPrototype.appendWith = NodeCollectionPrototype.append = function() {
-	var parentNodes = arrayFilter.call(this, function(node) {
-			return node.nodeType === 1 || node.nodeType === 11 || node.nodeType === 9;
-		}),
-		len = parentNodes.length,
-		firstNode = parentNodes[0];
+	var len = this.length,
+		firstNode = this[0];
 	if (len > 1) {
 		var fragment = createFragment(arguments),
 			i = 1;
 		for (; i < len; i++) {
-			parentNodes[i].appendChild(fragment.cloneNode(true));
+			this[i].appendChild(fragment.cloneNode(true));
 		}
 		firstNode.appendChild(fragment);
 	}
