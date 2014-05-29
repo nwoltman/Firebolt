@@ -1597,8 +1597,8 @@ NodePrototype.insertAfter = function(target) {
 		return target[parentNode][insertBefore](this, target[nextSibling]);
 	}
 
-	var i = target.length - 1;
-	if (i) {
+	var i = target.length;
+	if (i--) {
 		for (; i > 0; i--) {
 			target[i][parentNode][insertBefore](this.cloneNode(true), target[i][nextSibling]);
 		}
