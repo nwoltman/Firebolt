@@ -1622,6 +1622,32 @@ NodePrototype.prependWith = function() {
 }
 
 /**
+ * Prepends this node to the beginning of the target element(s).
+ * 
+ * @function Node.prototype.prependTo
+ * @param {String|ParentNode|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes to which this node will be prepended.
+ * @throws {HierarchyRequestError} The target(s) must implement the {@link ParentNode} interface.
+ */
+NodePrototype.prependTo = function(target) {
+	if (typeofString(target)) {
+		target = Firebolt(target);
+	}
+	else if (target instanceof Node) {
+		return target[insertBefore](this, target.firstChild);
+	}
+
+	var i = target.length;
+	if (i--) {
+		for (; i > 0; i--) {
+			target[i][insertBefore](this.cloneNode(true), target[i].firstChild);
+		}
+		target[0][insertBefore](this, target[0].firstChild);
+	}
+
+	return this;
+}
+
+/**
  * **ATTENTION:** Firebolt does not define this function. It is defined natively and does not behave like {@linkcode NodeCollection#insertBefore}.
  * Please read {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.insertBefore|the online documentation}.
  * 
@@ -2144,6 +2170,19 @@ NodeCollectionPrototype.prependWith = NodeCollectionPrototype.prepend = function
 }
 
 /**
+ * Prepends each node in this collection to the beginning of the specified target(s).
+ * 
+ * @function NodeCollection.prototype.prependTo
+ * @param {String|ParentNode|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes to which each node will be prepended.
+ * @throws {HierarchyRequestError} The target(s) must implement the {@link ParentNode} interface.
+ */
+NodeCollectionPrototype.prependTo = function(target) {
+	(typeofString(target) ? Firebolt(target) : target).prependWith(this);
+
+	return this;
+};
+
+/**
  * Gets the value of the specified property of the first element in the list.
  * 
  * @function NodeCollection.prototype.prop
@@ -2305,9 +2344,12 @@ NodeCollectionPrototype.toggleClass = callOnEachElement('toggleClass');
  * 
  * + afterPut/after
  * + appendWith/append
+ * + appendTo
  * + beforePut/before
  * + insertAfter
  * + insertBefore
+ * + prependWith/prepend
+ * + prependTo
  * + remove
  * + removeClass
  * + toggleClass
@@ -2352,9 +2394,12 @@ NodeCollectionPrototype.toggleClass = callOnEachElement('toggleClass');
 Firebolt._ = [
 	'after', 'afterPut',
 	'append', 'appendWith',
+	'appendTo',
 	'before', 'beforePut',
 	'insertAfter',
 	'insertBefore',
+	'prependWith', 'prepend',
+	'prependTo',
 	'remove',
 	'removeClass',
 	'toggleClass'
