@@ -32,6 +32,7 @@ var prototype = 'prototype',
 	parentNode = 'parentNode',
 	insertBefore = 'insertBefore',
 	nextSibling = 'nextSibling',
+	insertAdjacentHTML = 'insertAdjacentHTML',
 
 	//Data variables
 	dataKeyPublic = 'FB' + Math.random(),
@@ -254,6 +255,15 @@ function getFirstSetEachElement(funcName, callback) {
 			}
 		}
 	};
+}
+
+/* Returns the function body for insertAfter, insertBefore, appendTo, or prependTo */
+function getPutOrToFunction(funcName) {
+	return function(target) {
+		(typeofString(target) ? Firebolt(target) : target)[funcName](this);
+
+		return this;
+	}
 }
 
 /*
@@ -1050,7 +1060,7 @@ HTMLElementPrototype.afterPut = function() {
 
 	for (; i >= 0; i--) {
 		if (typeofString(arg = arguments[i])) {
-			this.insertAdjacentHTML('afterend', arg);
+			this[insertAdjacentHTML]('afterend', arg);
 		}
 		else {
 			//When arg is a collection of nodes, create a fragment by passing the collection in an array
@@ -1072,7 +1082,7 @@ HTMLElementPrototype.appendWith = function() {
 
 	for (; i < arguments.length; i++) {
 		if (typeofString(arg = arguments[i])) {
-			this.insertAdjacentHTML('beforeend', arg);
+			this[insertAdjacentHTML]('beforeend', arg);
 		}
 		else {
 			//When arg is a collection of nodes, create a fragment by passing the collection in an array
@@ -1130,7 +1140,7 @@ HTMLElementPrototype.beforePut = function() {
 
 	for (; i < arguments.length; i++) {
 		if (typeofString(arg = arguments[i])) {
-			this.insertAdjacentHTML('beforebegin', arg);
+			this[insertAdjacentHTML]('beforebegin', arg);
 		}
 		else {
 			//When arg is a collection of nodes, create a fragment by passing the collection in an array
@@ -1307,7 +1317,7 @@ HTMLElementPrototype.prependWith = function() {
 
 	for (; i >= 0; i--) {
 		if (typeofString(arg = arguments[i])) {
-			this.insertAdjacentHTML('afterbegin', arg);
+			this[insertAdjacentHTML]('afterbegin', arg);
 		}
 		else {
 			//When arg is a collection of nodes, create a fragment by passing the collection in an array
@@ -1829,11 +1839,7 @@ NodeCollectionPrototype.afterPut = NodeCollectionPrototype.after = function() {
  * @param {String|ParentNode|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes to which each node will be appended.
  * @throws {HierarchyRequestError} The target(s) must implement the {@link ParentNode} interface.
  */
-NodeCollectionPrototype.appendTo = function(target) {
-	(typeofString(target) ? Firebolt(target) : target).appendWith(this);
-
-	return this;
-};
+NodeCollectionPrototype.appendTo = getPutOrToFunction('appendWith');
 
 /**
  * Alias of {@link NodeCollection#appendWith} provided for similarity with jQuery.  
@@ -2109,11 +2115,7 @@ NodeCollectionPrototype.html = getFirstSetEachElement('html', function(numArgs) 
  * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes after which each node will be inserted.
  * @throws {TypeError} The target node(s) must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
  */
-NodeCollectionPrototype.insertAfter = function(target) {
-	(typeofString(target) ? Firebolt(target) : target).afterPut(this);
-
-	return this;
-};
+NodeCollectionPrototype.insertAfter = getPutOrToFunction('afterPut');
 
 /**
  * Inserts each node in this collection directly before the specified target(s).
@@ -2122,11 +2124,7 @@ NodeCollectionPrototype.insertAfter = function(target) {
  * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes before which each node will be inserted.
  * @throws {TypeError} The target node(s) must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
  */
-NodeCollectionPrototype.insertBefore = function(target) {
-	(typeofString(target) ? Firebolt(target) : target).beforePut(this);
-
-	return this;
-};
+NodeCollectionPrototype.insertBefore = getPutOrToFunction('beforePut');
 
 /*
  * See Array.prototype.map - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
@@ -2176,11 +2174,7 @@ NodeCollectionPrototype.prependWith = NodeCollectionPrototype.prepend = function
  * @param {String|ParentNode|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes to which each node will be prepended.
  * @throws {HierarchyRequestError} The target(s) must implement the {@link ParentNode} interface.
  */
-NodeCollectionPrototype.prependTo = function(target) {
-	(typeofString(target) ? Firebolt(target) : target).prependWith(this);
-
-	return this;
-};
+NodeCollectionPrototype.prependTo = getPutOrToFunction('prependWith');
 
 /**
  * Gets the value of the specified property of the first element in the list.
