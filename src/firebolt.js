@@ -1300,18 +1300,28 @@ HTMLElementPrototype.offset = function() {
 };
 
 /**
- * Prepends content to the inside of the element.
+ * Prepends content to the beginning of the element.
  * 
- * @function HTMLElement.prototype.prepend
- * @param {...(String|Node|Array.<Node>)} content - One or more DOM elements, arrays of elements, or HTML strings to insert at the beginning of this element.
+ * @function HTMLElement.prototype.prependWith
+ * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
  */
-HTMLElementPrototype.prepend = function() {
-	for (var items = arguments, i = 0; i < items.length; i++) {
+HTMLElementPrototype.prependWith = function() {
+	var i = arguments.length - 1,
+		arg;
 
+	for (; i >= 0; i--) {
+		if (typeofString(arg = arguments[i])) {
+			this.insertAdjacentHTML('afterbegin', arg);
+		}
+		else {
+			//When arg is a collection of nodes, create a fragment by passing the collection in an array
+			//(that is the form of input createFragment expects since it normally takes a function's arg list)
+			this[insertBefore](arg instanceof Node ? arg : createFragment([arg]), this.firstChild);
+		}
 	}
 
 	return this;
-};
+}
 
 /**
  * Gets the value of the element's specified property.
@@ -1647,6 +1657,18 @@ NodePrototype.text = function(text) {
  */
 NodePrototype.appendWith = function() {
 	this.appendChild(createFragment(arguments));
+
+	return this;
+}
+
+/**
+ * Prepends content to the beginning of the node.
+ * 
+ * @function ParentNode.prototype.prependWith
+ * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
+ */
+NodePrototype.prependWith = function() {
+	this[insertBefore](createFragment(arguments), this.firstChild);
 
 	return this;
 }
@@ -2083,6 +2105,40 @@ NodeCollectionPrototype.insertBefore = function(target) {
  */
 NodeCollectionPrototype.map = function(callback, thisArg) {
 	return new NodeCollection(ArrayPrototype.map.call(this, callback, thisArg));
+}
+
+/**
+ * Alias of {@link NodeCollection#prependWith} provided for similarity with jQuery.  
+ * Note that Firebolt does not define a method called "prepend" for Nodes. This is because the DOM Living Standard has defined
+ * a native function called `prepend` for the {@link http://dom.spec.whatwg.org/#interface-parentnode|ParentNode Interface} that
+ * does not function in the same way as `prependWith`.
+ * 
+ * @function NodeCollection.prototype.prepend
+ * @see NodeCollection#prependWith
+ */
+/**
+ * Prepends content to the beginning of each element in the collection.
+ * 
+ * @function NodeCollection.prototype.prependWith
+ * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
+ * @throws {HierarchyRequestError} The nodes in the collection must implement the {@link ParentNoded} interface.
+ */
+NodeCollectionPrototype.prependWith = NodeCollectionPrototype.prepend = function() {
+	var len = this.length,
+		firstNode = this[0];
+	if (len > 1) {
+		var fragment = createFragment(arguments),
+			i = 1;
+		for (; i < len; i++) {
+			this[i][insertBefore](fragment.cloneNode(true), this[i].firstChild);
+		}
+		firstNode[insertBefore](fragment, firstNode.firstChild);
+	}
+	else if (len) { //Only one element to append to
+		firstNode.prependWith.apply(firstNode, arguments);
+	}
+
+	return this;
 }
 
 /**
