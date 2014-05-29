@@ -1062,11 +1062,9 @@ HTMLElementPrototype.afterPut = function() {
 	return this;
 }
 
-/**
- * Appends content to the end of the element.
- * 
- * @function HTMLElement.prototype.appendWith
- * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
+/*
+ * More performant version of Node#appendWith for HTMLElements.
+ * @see Node#appendWith
  */
 HTMLElementPrototype.appendWith = function() {
 	var i = 0,
@@ -1299,11 +1297,9 @@ HTMLElementPrototype.offset = function() {
 	return offset;
 };
 
-/**
- * Prepends content to the beginning of the element.
- * 
- * @function HTMLElement.prototype.prependWith
- * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
+/*
+ * More performant version of Node#prependWith for HTMLElements.
+ * @see Node#prependWith
  */
 HTMLElementPrototype.prependWith = function() {
 	var i = arguments.length - 1,
@@ -1511,7 +1507,7 @@ HTMLElementPrototype.toggleClass = function(value) {
 /**
  * @class Node
  * @classdesc
- * The HTML DOM Node interface.  
+ * The {@link https://developer.mozilla.org/en-US/docs/Web/API/Node|DOM Node interface}.  
  * It should be noted that all functions that do not have a specified return value, return the calling object,
  * allowing for function chaining.
  * @mixes Object
@@ -1523,7 +1519,8 @@ HTMLElementPrototype.toggleClass = function(value) {
  * 
  * @function Node.prototype.afterPut
  * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
- * @throws {TypeError|NoModificationAllowedError} The subject node must be a ChildNode.
+ * @throws {TypeError|NoModificationAllowedError} The subject node must have a
+ * {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
  */
 NodePrototype.afterPut = function() {
 	this[parentNode][insertBefore](createFragment(arguments), this[nextSibling]);
@@ -1559,11 +1556,25 @@ NodePrototype.appendTo = function(target) {
 }
 
 /**
+ * Appends content to the end of the node.
+ * 
+ * @function Node.prototype.appendWith
+ * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
+ * @throws {HierarchyRequestError} This node must implement the {@link ParentNode} interface.
+ */
+NodePrototype.appendWith = function() {
+	this.appendChild(createFragment(arguments));
+
+	return this;
+}
+
+/**
  * Inserts content before the node.
  * 
  * @function Node.prototype.beforePut
  * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
- * @throws {TypeError|NoModificationAllowedError} The subject node must be a ChildNode.
+ * @throws {TypeError|NoModificationAllowedError} The subject node must have a
+ * {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
  */
 NodePrototype.beforePut = function() {
 	this[parentNode][insertBefore](createFragment(arguments), this);
@@ -1576,7 +1587,7 @@ NodePrototype.beforePut = function() {
  * 
  * @function Node.prototype.insertAfter
  * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes after which this node will be inserted.
- * @throws {TypeError} The target node(s) must be ChildNodes.
+ * @throws {TypeError} The target node(s) must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
  */
 NodePrototype.insertAfter = function(target) {
 	if (typeofString(target)) {
@@ -1596,6 +1607,19 @@ NodePrototype.insertAfter = function(target) {
 
 	return this;
 };
+
+/**
+ * Prepends content to the beginning of the node.
+ * 
+ * @function Node.prototype.prependWith
+ * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
+ * @throws {HierarchyRequestError} This node must implement the {@link ParentNode} interface.
+ */
+NodePrototype.prependWith = function() {
+	this[insertBefore](createFragment(arguments), this.firstChild);
+
+	return this;
+}
 
 /**
  * **ATTENTION:** Firebolt does not define this function. It is defined natively and does not behave like {@linkcode NodeCollection#insertBefore}.
@@ -1648,30 +1672,6 @@ NodePrototype.text = function(text) {
  * {@link https://developer.mozilla.org/en-US/docs/Web/API/DocumentFragment|DocumentFragment} objects.
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/ParentNode|ParentNode - Web API Interfaces | MDN}
  */
-
-/**
- * Appends content to the end of the node.
- * 
- * @function ParentNode.prototype.appendWith
- * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
- */
-NodePrototype.appendWith = function() {
-	this.appendChild(createFragment(arguments));
-
-	return this;
-}
-
-/**
- * Prepends content to the beginning of the node.
- * 
- * @function ParentNode.prototype.prependWith
- * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
- */
-NodePrototype.prependWith = function() {
-	this[insertBefore](createFragment(arguments), this.firstChild);
-
-	return this;
-}
 
 //#endregion Node
 
@@ -1775,7 +1775,8 @@ NodeCollectionPrototype.addClass = callOnEachElement('addClass');
  * 
  * @function NodeCollection.prototype.afterPut
  * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
- * @throws {TypeError|NoModificationAllowedError} The subject collection of nodes must contain only ChildNodes.
+ * @throws {TypeError|NoModificationAllowedError} The subject collection of nodes must only contain nodes that have a
+ * {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
  */
 NodeCollectionPrototype.afterPut = NodeCollectionPrototype.after = function() {
 	var len = this.length,
@@ -1880,7 +1881,8 @@ NodeCollectionPrototype.attr = getFirstSetEachElement('attr', function(numArgs) 
  * 
  * @function NodeCollection.prototype.beforePut
  * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
- * @throws {TypeError|NoModificationAllowedError} The subject collection of nodes must contain only ChildNodes.
+ * @throws {TypeError|NoModificationAllowedError} The subject collection of nodes must only contain nodes that have a
+ * {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
  */
 NodeCollectionPrototype.beforePut = NodeCollectionPrototype.before = function() {
 	var len = this.length,
@@ -2079,7 +2081,7 @@ NodeCollectionPrototype.html = getFirstSetEachElement('html', function(numArgs) 
  * 
  * @function NodeCollection.prototype.insertAfter
  * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes after which each node will be inserted.
- * @throws {TypeError} The target node(s) must be ChildNodes.
+ * @throws {TypeError} The target node(s) must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
  */
 NodeCollectionPrototype.insertAfter = function(target) {
 	(typeofString(target) ? Firebolt(target) : target).afterPut(this);
@@ -2092,7 +2094,7 @@ NodeCollectionPrototype.insertAfter = function(target) {
  * 
  * @function NodeCollection.prototype.insertBefore
  * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes before which each node will be inserted.
- * @throws {TypeError} The target node(s) must be ChildNodes.
+ * @throws {TypeError} The target node(s) must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
  */
 NodeCollectionPrototype.insertBefore = function(target) {
 	(typeofString(target) ? Firebolt(target) : target).beforePut(this);
