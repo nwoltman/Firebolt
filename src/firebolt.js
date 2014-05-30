@@ -44,6 +44,7 @@ var prototype = 'prototype',
 	Firebolt,
 
 	/* Pre-built RegExps */
+	rgxDifferentNL = /^(?:af|ap|be|ins|pre|pu|tog)|remove(?:Class)?$/, //Determines if the function is different for NodeLists
 	rgxClassOrId = /^.[\w_-]+$/,
 	rgxTag = /^[A-Za-z]+$/,
 	rgxNonWhitespace = /\S+/g,
@@ -2414,23 +2415,6 @@ NodeCollectionPrototype.toggleClass = callOnEachElement('toggleClass');
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/NodeList|NodeList - Web API Interfaces | MDN}
  */
 
-//Convert these to a NodeCollection first
-Firebolt._ = [
-	'after', 'afterPut',
-	'append', 'appendWith',
-	'appendTo',
-	'before', 'beforePut',
-	'insertAfter',
-	'insertBefore',
-	'prependWith', 'prepend',
-	'prependTo',
-	'putAfter',
-	'putBefore',
-	'remove',
-	'removeClass',
-	'toggleClass'
-];
-
 /* Give NodeLists and HTMLCollections many of the same prototype functions as NodeCollections */
 getOwnPropertyNames(NodeCollectionPrototype)
 	.union(getOwnPropertyNames(ArrayPrototype))
@@ -2444,7 +2428,7 @@ getOwnPropertyNames(NodeCollectionPrototype)
 		'splice',
 		'unshift'
 	).forEach(function(methodName) {
-		if (Firebolt._.contains(methodName)) {
+		if (rgxDifferentNL.test(methodName)) { //Convert to a NodeCollection first
 			HTMLCollectionPrototype[methodName] = NodeListPrototype[methodName] = function() {
 				return NodeCollectionPrototype[methodName].apply(new NodeCollection(this), arguments);
 			}
@@ -2453,8 +2437,6 @@ getOwnPropertyNames(NodeCollectionPrototype)
 			HTMLCollectionPrototype[methodName] = NodeListPrototype[methodName] = NodeCollectionPrototype[methodName];
 		}
 	});
-
-delete Firebolt._;
 
 /**
  * Returns the NodeCollection equivalent of the NodeList.
