@@ -29,9 +29,6 @@ var prototype = 'prototype',
 	arrayFilter = ArrayPrototype.filter,
 
 	//Property strings
-	parentNode = 'parentNode',
-	insertBefore = 'insertBefore',
-	nextSibling = 'nextSibling',
 	insertAdjacentHTML = 'insertAdjacentHTML',
 
 	//Data variables
@@ -258,7 +255,34 @@ function getFirstSetEachElement(funcName, callback) {
 	};
 }
 
-/* Returns the function body for insertAfter, insertBefore, appendTo, or prependTo */
+/* 
+ * Returns the function body for Node#[putAfter, putBefore, or prependTo]
+ * 
+ * @param {Function} insertingCallback(newNode, refNode) - The callback that performs the insertion.
+ */
+function getNodeInsertingFunction(insertingCallback) {
+	return function(target) {
+		if (typeofString(target)) {
+			target = Firebolt(target);
+		}
+		else if (target instanceof Node) {
+			insertingCallback(this, target);
+			return this;
+		}
+
+		var i = target.length;
+		if (i--) {
+			for (; i > 0; i--) {
+				insertingCallback(this.cloneNode(true), target[i]);
+			}
+			insertingCallback(this, target[0]);
+		}
+
+		return this;
+	}
+}
+
+/* Returns the function body for NodeCollection#[putAfter, putBefore, appendTo, or prependTo] */
 function getPutOrToFunction(funcName) {
 	return function(target) {
 		(typeofString(target) ? Firebolt(target) : target)[funcName](this);
@@ -272,6 +296,20 @@ function getPutOrToFunction(funcName) {
  */
 function htmlToNodes(html) {
 	return createElement('div').html(html).childNodes;
+}
+
+/*
+ * Function for inserting a node after a reference node.
+ */
+function insertAfter(newNode, refNode) {
+	refNode.parentNode.insertBefore(newNode, refNode.nextSibling);
+}
+
+/*
+ * Function for inserting a node before a reference node.
+ */
+function insertBefore(newNode, refNode) {
+	refNode.parentNode.insertBefore(newNode, refNode);
 }
 
 /*
@@ -326,6 +364,13 @@ function isHtml(str) {
 
 function isUndefined(value) {
 	return value === undefined;
+}
+
+/*
+ * Prepends a node to a reference node. 
+ */
+function prepend(newNode, refNode) {
+	refNode.insertBefore(newNode, refNode.firstChild);
 }
 
 function typeofString(value) {
@@ -1066,7 +1111,7 @@ HTMLElementPrototype.afterPut = function() {
 		else {
 			//When arg is a collection of nodes, create a fragment by passing the collection in an array
 			//(that is the form of input createFragment expects since it normally takes a function's arg list)
-			this[parentNode][insertBefore](arg instanceof Node ? arg : createFragment([arg]), this[nextSibling]);
+			insertAfter(arg instanceof Node ? arg : createFragment([arg]), this);
 		}
 	}
 
@@ -1146,7 +1191,7 @@ HTMLElementPrototype.beforePut = function() {
 		else {
 			//When arg is a collection of nodes, create a fragment by passing the collection in an array
 			//(that is the form of input createFragment expects since it normally takes a function's arg list)
-			this[parentNode][insertBefore](arg instanceof Node ? arg : createFragment([arg]), this);
+			insertBefore(arg instanceof Node ? arg : createFragment([arg]), this);
 		}
 	}
 
@@ -1323,7 +1368,7 @@ HTMLElementPrototype.prependWith = function() {
 		else {
 			//When arg is a collection of nodes, create a fragment by passing the collection in an array
 			//(that is the form of input createFragment expects since it normally takes a function's arg list)
-			this[insertBefore](arg instanceof Node ? arg : createFragment([arg]), this.firstChild);
+			prepend(arg instanceof Node ? arg : createFragment([arg]), this);
 		}
 	}
 
@@ -1445,7 +1490,7 @@ HTMLElementPrototype.show = function(style) {
 		//Create a temporary element of the same type as this element to figure out what the default display value should be
 		var temp = createElement(this.tagName, {
 			style: 'width:0;height:0;border:0;margin:0;padding:0'
-		}).insertAfter(document.body.lastChild);
+		}).putAfter(document.body.lastChild);
 		style = temp.css('display');
 		temp.remove();
 	}
@@ -1534,7 +1579,7 @@ HTMLElementPrototype.toggleClass = function(value) {
  * {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
  */
 NodePrototype.afterPut = function() {
-	this[parentNode][insertBefore](createFragment(arguments), this[nextSibling]);
+	insertAfter(createFragment(arguments), this);
 
 	return this;
 }
@@ -1588,7 +1633,7 @@ NodePrototype.appendWith = function() {
  * {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
  */
 NodePrototype.beforePut = function() {
-	this[parentNode][insertBefore](createFragment(arguments), this);
+	insertBefore(createFragment(arguments), this);
 
 	return this;
 }
@@ -1601,7 +1646,7 @@ NodePrototype.beforePut = function() {
  * @throws {HierarchyRequestError} This node must implement the {@link ParentNode} interface.
  */
 NodePrototype.prependWith = function() {
-	this[insertBefore](createFragment(arguments), this.firstChild);
+	prepend(createFragment(arguments), this);
 
 	return this;
 }
@@ -1613,24 +1658,7 @@ NodePrototype.prependWith = function() {
  * @param {String|ParentNode|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes to which this node will be prepended.
  * @throws {HierarchyRequestError} The target(s) must implement the {@link ParentNode} interface.
  */
-NodePrototype.prependTo = function(target) {
-	if (typeofString(target)) {
-		target = Firebolt(target);
-	}
-	else if (target instanceof Node) {
-		return target[insertBefore](this, target.firstChild);
-	}
-
-	var i = target.length;
-	if (i--) {
-		for (; i > 0; i--) {
-			target[i][insertBefore](this.cloneNode(true), target[i].firstChild);
-		}
-		target[0][insertBefore](this, target[0].firstChild);
-	}
-
-	return this;
-}
+NodePrototype.prependTo = getNodeInsertingFunction(prepend);
 
 /**
  * Inserts this node directly after the specified target(s).
@@ -1639,24 +1667,7 @@ NodePrototype.prependTo = function(target) {
  * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes after which this node will be inserted.
  * @throws {TypeError} The target node(s) must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
  */
-NodePrototype.putAfter = function(target) {
-	if (typeofString(target)) {
-		target = Firebolt(target);
-	}
-	else if (target instanceof Node) {
-		return target[parentNode][insertBefore](this, target[nextSibling]);
-	}
-
-	var i = target.length;
-	if (i--) {
-		for (; i > 0; i--) {
-			target[i][parentNode][insertBefore](this.cloneNode(true), target[i][nextSibling]);
-		}
-		target[0][parentNode][insertBefore](this, target[0][nextSibling]);
-	}
-
-	return this;
-};
+NodePrototype.putAfter = getNodeInsertingFunction(insertAfter);
 
 /**
  * Inserts this node directly before the specified target(s).
@@ -1665,24 +1676,7 @@ NodePrototype.putAfter = function(target) {
  * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes after which this node will be inserted.
  * @throws {TypeError} The target node(s) must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
  */
-NodePrototype.putBefore = function(target) {
-	if (typeofString(target)) {
-		target = Firebolt(target);
-	}
-	else if (target instanceof Node) {
-		return target[parentNode][insertBefore](this, target);
-	}
-
-	var i = target.length;
-	if (i--) {
-		for (; i > 0; i--) {
-			target[i][parentNode][insertBefore](this.cloneNode(true), target[i]);
-		}
-		target[0][parentNode][insertBefore](this, target[0]);
-	}
-
-	return this;
-};
+NodePrototype.putBefore = getNodeInsertingFunction(insertBefore);
 
 /**
  * Removes this node from the DOM.
@@ -1691,7 +1685,7 @@ NodePrototype.putBefore = function(target) {
  * @returns void (undefined)
  */
 NodePrototype.remove = function() {
-	this[parentNode].removeChild(this);
+	this.parentNode.removeChild(this);
 };
 
 /**
@@ -1838,9 +1832,9 @@ NodeCollectionPrototype.afterPut = NodeCollectionPrototype.after = function() {
 		var fragment = createFragment(arguments),
 			i = 1;
 		for (; i < len; i++) {
-			this[i].afterPut(fragment.cloneNode(true));
+			insertAfter(fragment.cloneNode(true), this[i]);
 		}
-		firstNode.afterPut(fragment);
+		insertAfter(fragment, firstNode);
 	}
 	else if (len) { //This collection only has one node
 		firstNode.afterPut.apply(firstNode, arguments);
@@ -1926,7 +1920,7 @@ NodeCollectionPrototype.attr = getFirstSetEachElement('attr', function(numArgs) 
  * @see NodeCollection#beforePut
  */
 /**
- * Inserts content after each node in the collection.
+ * Inserts content before each node in the collection.
  * 
  * @function NodeCollection.prototype.beforePut
  * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
@@ -1940,9 +1934,9 @@ NodeCollectionPrototype.beforePut = NodeCollectionPrototype.before = function() 
 		var fragment = createFragment(arguments),
 			i = 1;
 		for (; i < len; i++) {
-			this[i].beforePut(fragment.cloneNode(true));
+			insertBefore(fragment.cloneNode(true), this[i]);
 		}
-		firstNode.beforePut(fragment);
+		insertBefore(fragment, firstNode);
 	}
 	else if (len) { //This collection only has one node
 		firstNode.beforePut.apply(firstNode, arguments);
@@ -2169,9 +2163,9 @@ NodeCollectionPrototype.prependWith = NodeCollectionPrototype.prepend = function
 		var fragment = createFragment(arguments),
 			i = 1;
 		for (; i < len; i++) {
-			this[i][insertBefore](fragment.cloneNode(true), this[i].firstChild);
+			prepend(fragment.cloneNode(true), this[i]);
 		}
-		firstNode[insertBefore](fragment, firstNode.firstChild);
+		prepend(fragment, firstNode);
 	}
 	else if (len) { //Only one element to append to
 		firstNode.prependWith.apply(firstNode, arguments);
