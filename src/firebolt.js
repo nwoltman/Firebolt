@@ -2707,7 +2707,9 @@ var isOldIE = createElement('div').html('<!--[if IE]><i></i><![endif]-->').$TAG(
 	isIOS = navigator.platform.startsWith('iP'), // iPhone, iPad, iPod
 	noMultiParamClassListFuncs = (function() {
 		var elem = createElement('div');
-		elem.classList.add('one', 'two');
+		if (elem.classList) {
+			elem.classList.add('one', 'two');
+		}
 		return elem.className.length !== 7;
 	})();
 
