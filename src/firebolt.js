@@ -1593,32 +1593,6 @@ NodePrototype.beforePut = function() {
 }
 
 /**
- * Inserts this node directly after the specified target(s).
- * 
- * @function Node.prototype.insertAfter
- * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes after which this node will be inserted.
- * @throws {TypeError} The target node(s) must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
- */
-NodePrototype.insertAfter = function(target) {
-	if (typeofString(target)) {
-		target = Firebolt(target);
-	}
-	else if (target instanceof Node) {
-		return target[parentNode][insertBefore](this, target[nextSibling]);
-	}
-
-	var i = target.length;
-	if (i--) {
-		for (; i > 0; i--) {
-			target[i][parentNode][insertBefore](this.cloneNode(true), target[i][nextSibling]);
-		}
-		target[0][parentNode][insertBefore](this, target[0][nextSibling]);
-	}
-
-	return this;
-};
-
-/**
  * Prepends content to the beginning of the node.
  * 
  * @function Node.prototype.prependWith
@@ -1658,14 +1632,56 @@ NodePrototype.prependTo = function(target) {
 }
 
 /**
- * **ATTENTION:** Firebolt does not define this function. It is defined natively and does not behave like {@linkcode NodeCollection#insertBefore}.
- * Please read {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.insertBefore|the online documentation}.
+ * Inserts this node directly after the specified target(s).
  * 
- * @function Node.prototype.insertBefore
- * @param {Node} newElement
- * @param {Node} referenceElement
- * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.insertBefore|Node.insertBefore - Web API Interfaces | MDN}
+ * @function Node.prototype.putAfter
+ * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes after which this node will be inserted.
+ * @throws {TypeError} The target node(s) must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
  */
+NodePrototype.putAfter = function(target) {
+	if (typeofString(target)) {
+		target = Firebolt(target);
+	}
+	else if (target instanceof Node) {
+		return target[parentNode][insertBefore](this, target[nextSibling]);
+	}
+
+	var i = target.length;
+	if (i--) {
+		for (; i > 0; i--) {
+			target[i][parentNode][insertBefore](this.cloneNode(true), target[i][nextSibling]);
+		}
+		target[0][parentNode][insertBefore](this, target[0][nextSibling]);
+	}
+
+	return this;
+};
+
+/**
+ * Inserts this node directly before the specified target(s).
+ * 
+ * @function Node.prototype.putBefore
+ * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes after which this node will be inserted.
+ * @throws {TypeError} The target node(s) must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
+ */
+NodePrototype.putBefore = function(target) {
+	if (typeofString(target)) {
+		target = Firebolt(target);
+	}
+	else if (target instanceof Node) {
+		return target[parentNode][insertBefore](this, target);
+	}
+
+	var i = target.length;
+	if (i--) {
+		for (; i > 0; i--) {
+			target[i][parentNode][insertBefore](this.cloneNode(true), target[i]);
+		}
+		target[0][parentNode][insertBefore](this, target[0]);
+	}
+
+	return this;
+};
 
 /**
  * Removes this node from the DOM.
@@ -2109,22 +2125,18 @@ NodeCollectionPrototype.html = getFirstSetEachElement('html', function(numArgs) 
 });
 
 /**
- * Inserts each node in this collection directly after the specified target(s).
+ * Alias of {@link NodeCollection#putAfter} provided for similarity with jQuery.
  * 
  * @function NodeCollection.prototype.insertAfter
- * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes after which each node will be inserted.
- * @throws {TypeError} The target node(s) must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
+ * @see NodeCollection#putAfter
  */
-NodeCollectionPrototype.insertAfter = getPutOrToFunction('afterPut');
 
 /**
- * Inserts each node in this collection directly before the specified target(s).
+ * Alias of {@link NodeCollection#putBefore} provided for similarity with jQuery.
  * 
  * @function NodeCollection.prototype.insertBefore
- * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes before which each node will be inserted.
- * @throws {TypeError} The target node(s) must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
+ * @see NodeCollection#putBefore
  */
-NodeCollectionPrototype.insertBefore = getPutOrToFunction('beforePut');
 
 /*
  * See Array.prototype.map - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
@@ -2199,6 +2211,24 @@ NodeCollectionPrototype.prependTo = getPutOrToFunction('prependWith');
 NodeCollectionPrototype.prop = getFirstSetEachElement('prop', function(numArgs, firstArg) {
 	return numArgs < 2 && typeofString(firstArg);
 });
+
+/**
+ * Inserts each node in this collection directly after the specified target(s).
+ * 
+ * @function NodeCollection.prototype.putAfter
+ * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes after which each node will be inserted.
+ * @throws {TypeError} The target node(s) must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
+ */
+NodeCollectionPrototype.putAfter = NodeCollectionPrototype.insertAfter = getPutOrToFunction('afterPut');
+
+/**
+ * Inserts each node in this collection directly before the specified target(s).
+ * 
+ * @function NodeCollection.prototype.insertBefore
+ * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes before which each node will be inserted.
+ * @throws {TypeError} The target node(s) must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
+ */
+NodeCollectionPrototype.putBefore = NodeCollectionPrototype.insertBefore = getPutOrToFunction('beforePut');
 
 /**
  * Removes nodes in the collection from the DOM tree.
@@ -2340,8 +2370,8 @@ NodeCollectionPrototype.toggleClass = callOnEachElement('toggleClass');
  * + appendWith/append
  * + appendTo
  * + beforePut/before
- * + insertAfter
- * + insertBefore
+ * + putAfter/insertAfter
+ * + putBefore/insertBefore
  * + prependWith/prepend
  * + prependTo
  * + remove
@@ -2394,6 +2424,8 @@ Firebolt._ = [
 	'insertBefore',
 	'prependWith', 'prepend',
 	'prependTo',
+	'putAfter',
+	'putBefore',
 	'remove',
 	'removeClass',
 	'toggleClass'
