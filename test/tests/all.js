@@ -5,7 +5,8 @@
 (function() {
 	var tests =
 	[
-		'tests/string.js'
+		'tests/String.js',
+		'tests/NodeList.js'
 	];
 
 	tests.forEach(function(file) {
