@@ -737,7 +737,9 @@ ElementPrototype.matches = ElementPrototype.matches || ElementPrototype.webkitMa
  * The global Firebolt function. Can be referenced by the synonyms `FB` and `$` (on pages where `$` has not already been defined).  
  * Returns a list of the elements either found in the DOM that match the passed in CSS selector or created by passing an HTML string.
  * 
- * @function Firebolt.Firebolt
+ * @global
+ * @variation 2
+ * @function Firebolt
  * @param {String} string - A CSS selector string or an HTML string.
  * @returns {NodeList|HTMLCollection} A list of selected elements or newly created elements.
  * 
@@ -1464,16 +1466,7 @@ Function[prototype].delay = function(ms) {
 /*
  * Firebolt namespace reference objects.
  */
-/**
- * Alias for {@linkcode Firebolt}.
- * @global
- * @name FB
- */
-/**
- * Alias for {@linkcode Firebolt} (on pages where `$` has not already been defined).
- * @global
- * @name $
- */
+
 window.FB = window.Firebolt = Firebolt;
 if (!window.$) {
 	window.$ = Firebolt;
