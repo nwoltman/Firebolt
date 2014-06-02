@@ -1,6 +1,6 @@
 ﻿/**
  * Firebolt current core file.
- * @version 0.3.0
+ * @version 0.4.0
  * @author Nathan Woltman
  * @copyright 2014 Nathan Woltman
  * @license MIT https://github.com/FireboltJS/Firebolt/blob/master/LICENSE.txt
@@ -27,13 +27,14 @@ var prototype = 'prototype',
 	defineProperties = Object.defineProperties,
 	getOwnPropertyNames = Object.getOwnPropertyNames,
 	arrayFilter = ArrayPrototype.filter,
+	encodeURIComponent = window.encodeURIComponent,
 
 	//Property strings
 	insertAdjacentHTML = 'insertAdjacentHTML',
 
 	//Data variables
-	dataKeyPublic = 'FB' + Math.random(),
-	dataKeyPrivate = 'FB' + Math.random(),
+	dataKeyPublic = ('FB' + 1 / Math.random()).replace('.', ''),
+	dataKeyPrivate = ('FB' + 1 / Math.random()).replace('.', ''),
 	rgxNoParse = /^\d+\D/, //Don't try to parse strings that look like numbers but have non-digit characters
 
 	//Need this (unfortunately) to choose how to define the Firebolt function
@@ -41,11 +42,39 @@ var prototype = 'prototype',
 	Firebolt,
 
 	/* Pre-built RegExps */
+	rgxGetOrHead = /GET|HEAD/i, //Determines if a request is a GET or HEAD request
+	rgxDomain = /\/?\/\/(?:\w+\.)?(.*?)(?:\/|$)/,
 	rgxDifferentNL = /^(?:af|ap|be|ins|pre|pu|tog)|remove(?:Class)?$/, //Determines if the function is different for NodeLists
 	rgxClassOrId = /^.[\w_-]+$/,
 	rgxTag = /^[A-Za-z]+$/,
 	rgxNonWhitespace = /\S+/g,
-	rgxSpaceChars = /[ \n\r\t\f]+/; //From W3C http://www.w3.org/TR/html5/single-page.html#space-character
+	rgxSpaceChars = /[ \n\r\t\f]+/, //From W3C http://www.w3.org/TR/html5/single-page.html#space-character
+	
+	/* AJAX */
+	timestamp = Date.now(),
+	oldCallbacks = [],
+	ajaxSettings = {
+		accept: {
+			'*': '*/*',
+			html: 'text/html',
+			json: 'application/json, text/javascript',
+			script: 'text/javascript, application/javascript, application/ecmascript, application/x-ecmascript',
+			text: 'text/plain',
+			xml: 'application/xml, text/xml'
+		},
+		async: true,
+		contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+		isLocal: /^(?:file|.*-extension|widget):\/\//.test(location.href),
+		jsonp: 'callback',
+		jsonpCallback: function() {
+			var callback = oldCallbacks.pop() || dataKeyPublic + "_" + (timestamp++);
+			this[callback] = true;
+			return callback;
+		},
+		type: 'GET',
+		url: location.href,
+		xhr: XMLHttpRequest
+	};
 
 /** 
  * Calls the function with the passed in name on each element in an enumerable.
@@ -221,6 +250,13 @@ function extend(target) {
 	extend(HTMLCollectionPrototype, target);
 }
 
+/*
+ * Returns the status text string for AJAX requests.
+ */
+function getAjaxErrorStatus(xhr) {
+	return xhr.statusText.replace(xhr.status + ' ', '');
+}
+
 /** 
  * Returns a function that calls the function with the passed in name on each element in an enumerable unless
  * the callback returns true, in which case the result of calling the function on the first element is returned.
@@ -310,6 +346,13 @@ function insertAfter(newNode, refNode) {
  */
 function insertBefore(newNode, refNode) {
 	refNode.parentNode.insertBefore(newNode, refNode);
+}
+
+/*
+ * @see Firebolt.isPlainObject
+ */
+function isPlainObject(obj) {
+	return Object[prototype].toString.call(obj) == '[object Object]';
 }
 
 /*
@@ -749,6 +792,384 @@ Firebolt =
 	};
 
 /**
+ * Perform an asynchronous HTTP (Ajax) request.  
+ * See the next function description for more information.
+ * 
+ * @param {String} url - A string containing the URL to which the request will be sent.
+ * @param {Object} [settings] - A set of key/value pairs that configure the Ajax request. All settings are optional.
+ * @memberOf Firebolt
+ */
+/**
+ * Perform an asynchronous HTTP (Ajax) request.
+ * 
+ * For documentation, see {@link http://api.jquery.com/jQuery.ajax/|jQuery.ajax()}.  
+ * However, Firebolt AJAX requests differ from jQuery's in the following ways:
+ * 
+ * + Instead of passing a "jqXHR" to callbacks, the native XMLHttpRequest object is passed.
+ * + The `context` setting defaults to the XMLHttpRequest object instead of the settings object.
+ * + The `crossDomain` setting always defaults to `false`.
+ * + The `contents` and `converters` settings are not supported.
+ * + The `ifModifed` settings is currently not supported.
+ * + The `data` setting is appended to the URL as a string for GET and HEAD requests and may be a string or a plain object or array to serialize.
+ * + The `processData` setting has been left out because Firebolt will automatically process only plain objects and arrays
+ * (so you don't need to set it to `false` to send a DOMDocument or another type of data&emsp;such as a FormData object).
+ * + The `global` setting and the global AJAX functions defined by jQuery are not supported.
+ * 
+ * To get the full set of AJAX features that jQuery provides, use the Firebolt AJAX extension plugin (if there ever is one).
+ * 
+ * @param {Object} [settings] - A set of key/value pairs that configure the Ajax request. All settings are optional.
+ * @returns {XMLHttpRequest} The XMLHttpRequest object this request is using (only for requests where the dataType is not "script" or "jsonp".
+ * @memberOf Firebolt
+ */
+Firebolt.ajax = function(url, settings) {
+	//Parameter processing
+	if (typeofString(url)) {
+		settings = settings || {};
+		settings.url = url;
+	}
+	else {
+		settings = url;
+	}
+
+	//Merge the passed in settings object with the default values
+	settings = extend({}, ajaxSettings, settings);
+
+	url = settings.url;
+
+	//Create the XMLHttpRequest and give it settings
+	var xhr = extend(new settings.xhr(), settings.xhrFields),
+		async = settings.async,
+		beforeSend = settings.beforeSend,
+		complete = settings.complete || [],
+		completes = typeof complete == 'function' ? [complete] : complete,
+		context = settings.context || xhr,
+		dataType = settings.dataType,
+		dataTypeJSONP = dataType == 'jsonp',
+		error = settings.error,
+		errors = typeof error == 'function' ? [error] : error,
+		crossDomain = settings.crossDomain,
+		success = settings.success,
+		successes = typeof success == 'function' ? [success] : success,
+		timeout = settings.timeout,
+		type = settings.type,
+		isGetOrHead = rgxGetOrHead.test(type),
+		userData = settings.data,
+		textStatus,
+		i;
+
+	function callCompletes(errorThrown) {
+		//Execute the status code callback (if there is one that matches the status code)
+		if (settings.statusCode) {
+			var callback = settings.statusCode[xhr.status];
+			if (callback) {
+				if (textStatus == 'success') {
+					callback.call(context, userData, textStatus, xhr);
+				}
+				else {
+					callback.call(context, xhr, textStatus, errorThrown || getAjaxErrorStatus(xhr));
+				}
+			}
+		}
+		//Execute all the complete callbacks
+		for (i = 0; i < completes.length; i++) {
+			completes[i].call(context, xhr, textStatus, errorThrown || getAjaxErrorStatus(xhr));
+		}
+	}
+
+	function callErrors(errorThrown) {
+		if (error) {
+			//Execute all the error callbacks
+			for (i = 0; i < errors.length; i++) {
+				errors[i].call(context, xhr, textStatus, errorThrown || getAjaxErrorStatus(xhr));
+			}
+		}
+	}
+
+	function callSuccesses() {
+		//Handle last-minute JSONP
+		if (dataTypeJSONP) {
+			//Call errors and return if the JSONP function was not called
+			if (!responseContainer) {
+				textStatus = 'parsererror';
+				return callErrors(jsonpCallback + " was not called");
+			}
+
+			//Set the data to the first item in the response
+			userData = responseContainer[0];
+		}
+
+		textStatus = 'success';
+
+		if (success) {
+			//Call the user-supplied data filter function if there is one
+			if (settings.dataFilter) {
+				userData = settings.dataFilter(userData, dataType);
+			}
+			//Execute all the success callbacks
+			for (i = 0; i < successes.length; i++) {
+				successes[i].call(context, userData, textStatus, xhr);
+			}
+		}
+	}
+
+	//Cross domain checking
+	if (!crossDomain && url.contains('//')) {
+		var domainMatch = location.href.match(rgxDomain) || [];
+		crossDomain = url.indexOf(domainMatch[1]) < 0;
+	}
+
+	if (userData) {
+		//Process data if necessary
+		if (Array.isArray(userData) || isPlainObject(userData)) {
+			userData = Firebolt.param(userData, settings.traditional);
+		}
+
+		//If the request is a GET or HEAD, append the data string to the URL
+		if (isGetOrHead) {
+			url = url.URLAppend(userData);
+			userData = undefined; //Clear the data so it is not sent later on
+		}
+	}
+
+	if (dataTypeJSONP) {
+		var jsonpCallback = settings.jsonpCallback,
+			responseContainer,
+			overwritten;
+		if (!typeofString(jsonpCallback)) {
+			jsonpCallback = settings.jsonpCallback();
+		}
+
+		//Append the callback name to the URL
+		url = url.URLAppend(settings.jsonp + '=' + jsonpCallback);
+
+		// Install callback
+		overwritten = window[jsonpCallback];
+		window[jsonpCallback] = function() {
+			responseContainer = arguments;
+		};
+
+		//Push JSONP cleanup onto complete callback array
+		completes.push(function() {
+			// Restore preexisting value
+			window[jsonpCallback] = overwritten;
+
+			if (settings[jsonpCallback]) {
+				//Save the callback name for future use
+				oldCallbacks.push(jsonpCallback);
+			}
+
+			//Call if `overwritten` was a function and there was a response
+			if (responseContainer && typeof overwritten == 'function') {
+				overwritten(responseContainer[0]);
+			}
+
+			responseContainer = overwritten = undefined;
+		});
+	}
+
+	if (crossDomain && (dataType == 'script' || dataTypeJSONP)) {
+		//Prevent caching unless the user explicitly set cache to true
+		if (settings.cache !== true) {
+			url = url.URLAppend('_=' + (timestamp++));
+		}
+
+		var script = createElement('script').prop({
+			charset: settings.scriptCharset || '',
+			src: url,
+			onload: function() {
+				if (timeout) {
+					clearTimeout(timeout);
+				}
+				callSuccesses();
+				callCompletes();
+			},
+			onerror: function(ex) {
+				if (timeout) {
+					clearTimeout(timeout);
+				}
+				textStatus = 'error';
+				callErrors(ex.type);
+				callCompletes(ex.type);
+			}
+		}).prop(isOldIE ? 'defer' : 'async', async);
+
+		//Always remove the script after the request is done
+		completes.push(function() {
+			if (script.parentNode) { //Check for parent node before attempting to remove (may have been removed by timeout)
+				script.remove();
+			}
+		});
+
+		if (beforeSend && beforeSend.call(context, xhr, settings) === false) {
+			//If the beforeSend function returned false, do not send the request
+			return false;
+		}
+
+		//Add timeout
+		if (timeout) {
+			timeout = setTimeout(function() {
+				script.remove();
+				textStatus = 'timeout';
+				callErrors();
+				callCompletes(textStatus);
+			}, timeout);
+		}
+
+		//Append the script to the head of the document to load it
+		document.head.appendChild(script);
+	}
+	else {
+		//Data just for real XHRs
+		var headers = settings.headers,
+			lastState = 0,
+			statusCode;
+
+		if (settings.mimeType) {
+			xhr.overrideMimeType(settings.mimeType);
+		}
+
+		//Prevent caching if necessary
+		if (isGetOrHead && settings.cache === false) {
+			url = url.URLAppend('_=' + (timestamp++));
+		}
+
+		//The main XHR function for when the request has loaded (and track states in between for abort or timeout)
+		xhr.onreadystatechange = function() {
+			if (xhr.readyState !== 4) {
+				lastState = xhr.readyState;
+				return;
+			}
+
+			//For browsers that don't natively support XHR timeouts
+			if (timeout) {
+				clearTimeout(timeout);
+			}
+
+			statusCode = xhr.status;
+
+			if (statusCode >= 200 && statusCode < 300 || statusCode === 304 || settings.isLocal && xhr.responseText) { //Success
+				if (statusCode === 204 || type === 'HEAD') { //If no content
+					textStatus = 'nocontent';
+				}
+				else if (statusCode === 304) { //If not modified
+					textStatus = 'notmodified';
+				}
+				else {
+					textStatus = 'success';
+				}
+
+				try {
+					//Only need to process data of there is content
+					if (textStatus != 'nocontent') {
+						//If the data type has not been set, try to figure it out
+						if (!dataType) {
+							var contentType = xhr.getResponseHeader('Content-Type');
+							if (contentType) {
+								if (contentType.contains('/xml')) {
+									dataType = 'xml';
+								}
+								else if (contentType.contains('/json')) {
+									dataType = 'json';
+								}
+								else if (contentType.contains('script')) {
+									dataType = 'script';
+								}
+							}
+						}
+
+						//Set data based on the data type
+						if (dataType == 'xml') {
+							userData = xhr.responseXML;
+						}
+						else if (dataType == 'json') {
+							userData = JSON.parse(xhr.responseText);
+						}
+						else {
+							userData = xhr.responseText;
+
+							if (dataType == 'script' || dataTypeJSONP) {
+								Firebolt.globalEval(userData);
+							}
+						}
+					}
+					else {
+						userData = '';
+					}
+
+					//Invoke the success callbacks
+					callSuccesses();
+				}
+				catch (e) {
+					textStatus = 'parsererror';
+					callErrors();
+				}
+			}
+			else { //Error
+				if (textStatus != 'timeout') {
+					textStatus = lastState < 3 ? 'abort' : 'error';
+				}
+				callErrors();
+			}
+
+			//Invoke the complete callbacks
+			callCompletes();
+		};
+
+		//Open the request
+		xhr.open(type, url, async, settings.username, settings.password);
+
+		//Merge provided headers with defaults
+		headers = extend({ 'X-Requested-With': 'XMLHttpRequest' }, headers);
+
+		//Set the content type header if the user has changed it from the default or there is data to submit
+		if (settings.contentType != ajaxSettings.contentType || userData) {
+			headers['Content-Type'] = settings.contentType;
+		}
+
+		//If the data type has been set, set the accept header
+		if (settings.dataType) {
+			headers['Accept'] = settings.accept[settings.dataType] || settings.accept['*'];
+		}
+
+		//Set the request headers in the XHR
+		for (i in headers) {
+			xhr.setRequestHeader(i, headers[i]);
+		}
+
+		if (beforeSend && beforeSend.call(context, xhr, settings) === false) {
+			//If the beforeSend function returned false, do not send the request
+			return false;
+		}
+
+		//If a timeout still needs to be added, do that now
+		if (timeout) {
+			timeout = setTimeout(function() {
+				textStatus = 'timeout';
+				xhr.abort();
+			}, timeout);
+		}
+
+		//Send the XHR
+		xhr.send(userData);
+	}
+
+	return xhr;
+};
+
+/* Expose the AJAX settings (just because jQuery does this, even though it's not documented). */
+Firebolt.ajaxSettings = ajaxSettings;
+
+/**
+ * Sets default values for future Ajax requests. Use of this function is not recommended.
+ * 
+ * @param {Object} options - A set of key/value pairs that configure the default Ajax settings. All options are optional.
+ * @memberOf Firebolt
+ */
+Firebolt.ajaxSetup = function(options) {
+	return extend(ajaxSettings, options);
+}
+
+/**
  * Creates a new element with the specified tag name and attributes (optional).  
  * Partially an alias of `document.createElement()`.
  * 
@@ -797,10 +1218,75 @@ Firebolt.extend = extend;
  * 
  * @param {...(String|Node|Node[])} [content] - One or more HTML strings, nodes, or collections of nodes to append to the fragment.
  * @returns {DocumentFragment} The newly created document fragment.
+ * @memberOf Firebolt
  */
 Firebolt.frag = function() {
 	return createFragment(arguments);
-}
+};
+
+/**
+ * Load data from the server using a HTTP GET request.
+ * 
+ * @param {String} url - A string containing the URL to which the request will be sent.
+ * @param {String|Object} [data] - A string or object that is sent to the server with the request as a query string.
+ * @param {Function|Function[]} [success(data, textStatus, xhr)] - A callback function that is executed if the request succeeds.
+ * @param {String} [dataType] - The type of data expected from the server. Default: Intelligent Guess (xml, json, script, or html).
+ * @memberOf Firebolt
+ */
+Firebolt.get = function(url, userData, success, dataType) {
+	return Firebolt.ajax({
+		url: url,
+		data: userData,
+		success: success,
+		dataType: dataType
+	});
+};
+
+/**
+ * Load JSON-encoded data from the server using a GET HTTP request.
+ * 
+ * @param {String} url - A string containing the URL to which the request will be sent.
+ * @param {String|Object} [data] - A string or object that is sent to the server with the request as a query string.
+ * @param {Function|Function[]} [success(data, textStatus, xhr)] - A callback function that is executed if the request succeeds.
+ * @memberOf Firebolt
+ */
+Firebolt.getJSON = function(url, userData, success) {
+	return Firebolt.get(url, userData, success, 'json');
+};
+
+/**
+ * Load a JavaScript file from the server using a GET HTTP request, then execute it.
+ * 
+ * @param {String} url - A string containing the URL to which the request will be sent.
+ * @param {Function|Function[]} [success(data, textStatus, xhr)] - A callback function that is executed if the request succeeds.
+ * @memberOf Firebolt
+ */
+Firebolt.getScript = function(url, success) {
+	return Firebolt.get(url, '', success, 'script');
+};
+
+/**
+ * Executes some JavaScript code globally.
+ * 
+ * @param {String} code - The JavaScript code to execute.
+ * @memberOf Firebolt
+ */
+Firebolt.globalEval = function(code) {
+	var indirect = eval;
+
+	code = code.trim();
+
+	if (code) {
+		//If the code begins with a strict mode pragma, execute code by injecting a script tag into the document.
+		if (code.lastIndexOf('use strict', 1) === 1) {
+			createElement('script').prop('text', code).appendTo(document.head).remove();
+		}
+		else {
+			//Otherwise, avoid the DOM node creation, insertion and removal by using an inderect global eval
+			indirect(code);
+		}
+	}
+};
 
 /**
  * HTML-decodes the passed in string and returns the result.
@@ -811,7 +1297,7 @@ Firebolt.frag = function() {
  */
 Firebolt.htmlDecode = function(str) {
 	return createElement('div').html(str).text();
-}
+};
 
 /**
  * HTML-encodes the passed in string and returns the result.
@@ -822,7 +1308,7 @@ Firebolt.htmlDecode = function(str) {
  */
 Firebolt.htmlEncode = function(str) {
 	return createElement('div').text(str).html();
-}
+};
 
 /**
  * Determines if the passed in value is considered empty. The value is considered empty if it is one of the following:
@@ -853,6 +1339,14 @@ Firebolt.isEmpty = function(value, allowEmptyString) {
 Firebolt.isEmptyObject = isEmptyObject;
 
 /**
+ * Determines if a variable is a plain object.
+ * 
+ * @param {*} obj - The item to test.
+ * @memberOf Firebolt
+ */
+Firebolt.isPlainObject = isPlainObject;
+
+/**
  * Determines if the user is on a touchscreen device.
  * 
  * @returns {Boolean} `true` if the user is on a touchscreen device; else `false`.
@@ -861,6 +1355,62 @@ Firebolt.isEmptyObject = isEmptyObject;
 Firebolt.isTouchDevice = function() {
 	return 'ontouchstart' in window || 'onmsgesturechange' in window;
 };
+
+/**
+ * Creates a serialized representation of an array or object, suitable for use in a URL query string or Ajax request.  
+ * Unlike jQuery, arrays will be serialized like objects when `traditional` is not `true`, with the indices of
+ * the array becoming the keys of the query string parameters.
+ * 
+ * @param {Array|Object} obj - An array or object to serialize.
+ * @param {Boolean} traditional - A Boolean indicating whether to perform a traditional "shallow" serialization.
+ * @returns {String} The serialized string representation of the array or object.
+ */
+Firebolt.param = function(obj, traditional) {
+	return traditional ? serializeTraditional(obj) : serializeRecursive(obj);
+}
+
+/* Inspired by: http://stackoverflow.com/questions/1714786/querystring-encoding-of-a-javascript-object */
+function serializeRecursive(obj, prefix) {
+	var str = '',
+		key,
+		value,
+		cur;
+	for (key in obj) {
+		value = obj[key];
+		if (!isEmptyObject(value)) {
+			cur = prefix ? prefix + '[' + key + ']' : key;
+			str += (str ? '&' : '')
+				+ (typeof value == 'object' ? serializeRecursive(value, cur)
+											: encodeURIComponent(cur) + '=' + encodeURIComponent(value));
+		}
+	}
+	return str;
+}
+
+function serializeTraditional(obj) {
+	var qs = '',
+		key,
+		value,
+		i;
+	for (key in obj) {
+		//Add the key
+		qs += (qs ? '&' : '') + encodeURIComponent(key);
+
+		//Add the value
+		value = obj[key];
+		if (Array.isArray(value)) {
+			for (i = 0; i < value.length; i++) {
+				//Add key again for multiple array values
+				qs += (i ? '&' + encodeURIComponent(key) : '') + '=' + encodeURIComponent(value[i].toString());
+			}
+		}
+		else {
+			qs += '=' + encodeURIComponent(value.toString());
+		}
+	}
+
+	return qs;
+}
 
 /**
  * Specify a function to execute when the DOM is fully loaded.  
@@ -2059,7 +2609,7 @@ NodeCollectionPrototype.css = getFirstSetEachElement('css', function(numArgs, fi
  * @function NodeCollection.prototype.data
  * @param {Object} obj - An object of key-value pairs to add to each elements stored data.
  */
-NodeCollectionPrototype.data = getFirstSetEachElement('data', function(numArgs, firstArg) {
+NodeCollectionPrototype.data = getFirstSetEachElement('_data', function(numArgs, firstArg) {
 	return !numArgs || numArgs < 2 && typeofString(firstArg);
 });
 
@@ -2497,31 +3047,31 @@ defineProperties(Object[prototype], {
 	/**
 	 * Gets the object's stored data object.
 	 * 
-	 * @function Object.prototype.data
+	 * @function Object.prototype._data
 	 * @returns {Object} The object's stored data object.
 	 */
 	/**
-	 * Get the value at the named data store for the object as set by .data(name, value)
+	 * Get the value at the named data store for the object as set by ._data(name, value)
 	 * or by an HTML5 data-* attribute if the object is an {@link Element}.
 	 * 
-	 * @function Object.prototype.data
+	 * @function Object.prototype._data
 	 * @param {String} key - The name of the stored data.
 	 * @returns {*} The value of the stored data.
 	 */
 	/**
 	 * Stores arbitrary data associated with the object.
 	 * 
-	 * @function Object.prototype.data
+	 * @function Object.prototype._data
 	 * @param {String} key - A string naming the data to set.
 	 * @param {*} value - Any arbitrary data to store.
 	 */
 	/**
 	 * Stores arbitrary data associated with the object.
 	 * 
-	 * @function Object.prototype.data
+	 * @function Object.prototype._data
 	 * @param {Object} obj - An object of key-value pairs to add to the object's stored data.
 	 */
-	data: {
+	_data: {
 		value: function(key, value) {
 			return data(dataKeyPublic, this, key, value);
 		}
@@ -2676,18 +3226,37 @@ if (!StringPrototype.startsWith) {
 	});
 }
 
-/**
- * Returns the string split into an array of substrings (tokens) that were separated by white-space.
- *
- * @function String.prototype.tokenize
- * @returns {String[]} An array of tokens.
- * @example
- * var str = "The boy who lived.";
- * str.tokenize();  // returns ["The", "boy", "who", "lived."]
- */
-defineProperty(StringPrototype, 'tokenize', {
-	value: function() {
-		return this.match(rgxNonWhitespace) || [];
+defineProperties(StringPrototype, {
+	/**
+	 * Returns the string split into an array of substrings (tokens) that were separated by white-space.
+	 *
+	 * @function String.prototype.tokenize
+	 * @returns {String[]} An array of tokens.
+	 * @example
+	 * var str = "The boy who lived.";
+	 * str.tokenize();  // returns ["The", "boy", "who", "lived."]
+	 */
+	tokenize: {
+		value: function() {
+			return this.match(rgxNonWhitespace) || [];
+		}
+	},
+
+	/**
+	 * Appends query string parameters to a URL.
+	 *
+	 * @function String.prototype.URLAppend
+	 * @param {String} params - Query string parameters.
+	 * @returns {String} A reference to the string.
+	 * @example
+	 * var url = "http://google.com";
+	 * url = url.URLAppend('lang=en');  // "http://google.com?lang=en"
+	 * url = url.URLAppend('foo=bar');  // "http://google.com?lang=en&foo=bar"
+	 */
+	URLAppend: {
+		value: function(params) {
+			return this.concat(this.contains('?') ? '&' : '?', params);
+		}
 	}
 });
 
