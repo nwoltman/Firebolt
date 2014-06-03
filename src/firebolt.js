@@ -349,13 +349,6 @@ function insertBefore(newNode, refNode) {
 }
 
 /*
- * @see Firebolt.isPlainObject
- */
-function isPlainObject(obj) {
-	return Object[prototype].toString.call(obj) == '[object Object]';
-}
-
-/*
  * @see Firebolt.isEmptyObject
  */
 function isEmptyObject(object) {
@@ -403,6 +396,13 @@ function isHtml(str) {
 		return 1;
 	}
 	return 0;
+}
+
+/*
+ * @see Firebolt.isPlainObject
+ */
+function isPlainObject(obj) {
+	return Object[prototype].toString.call(obj) == '[object Object]';
 }
 
 function isUndefined(value) {
@@ -2974,7 +2974,7 @@ getOwnPropertyNames(NodeCollectionPrototype)
 			HTMLCollectionPrototype[methodName] = NodeListPrototype[methodName] = NodeCollectionPrototype[methodName];
 		}
 	});
-
+	window.NodeCollection = NodeCollection;
 /**
  * Returns the NodeCollection equivalent of the NodeList.
  * 
