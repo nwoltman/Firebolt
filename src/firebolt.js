@@ -1121,7 +1121,7 @@ Firebolt.ajax = function(url, settings) {
 		xhr.open(type, url, async, settings.username, settings.password);
 
 		//Merge provided headers with defaults
-		headers = extend({ 'X-Requested-With': 'XMLHttpRequest' }, headers);
+		headers = extend({'X-Requested-With': 'XMLHttpRequest'}, headers);
 
 		//Set the content type header if the user has changed it from the default or there is data to submit
 		if (settings.contentType != ajaxSettings.contentType || userData) {
@@ -1143,8 +1143,8 @@ Firebolt.ajax = function(url, settings) {
 			return false;
 		}
 
-		//If a timeout still needs to be added, do that now
-		if (timeout) {
+		//Set timeout if there is one
+		if (timeout > 0) {
 			timeout = setTimeout(function() {
 				textStatus = 'timeout';
 				xhr.abort();
@@ -1403,11 +1403,11 @@ function serializeTraditional(obj) {
 		if (Array.isArray(value)) {
 			for (i = 0; i < value.length; i++) {
 				//Add key again for multiple array values
-				qs += (i ? '&' + encodeURIComponent(key) : '') + '=' + encodeURIComponent(value[i].toString());
+				qs += (i ? '&' + encodeURIComponent(key) : '') + '=' + encodeURIComponent(value[i]);
 			}
 		}
 		else {
-			qs += '=' + encodeURIComponent(value.toString());
+			qs += '=' + encodeURIComponent(value);
 		}
 	}
 
