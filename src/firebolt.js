@@ -402,7 +402,7 @@ function isHtml(str) {
  * @see Firebolt.isPlainObject
  */
 function isPlainObject(obj) {
-	return Object[prototype].toString.call(obj) == '[object Object]';
+	return toString.call(obj) == '[object Object]';
 }
 
 function isUndefined(value) {
