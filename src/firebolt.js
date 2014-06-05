@@ -152,9 +152,8 @@ function createFragment(content) {
  */
 function data(dataStore, obj, key, value) {
 	var dataObject = obj[dataStore],
-		isElement = obj instanceof Element,
+		numAttributes = obj && obj.nodeType === 1 && obj.attributes.length,
 		dataAttributes,
-		attributes,
 		i;
 
 	if (!dataObject) {
@@ -164,14 +163,15 @@ function data(dataStore, obj, key, value) {
 			value: dataObject = {}
 		});
 
-		//If this is an Element, try loading "data-*" attributes
-		if (isElement) {
-			var attrib, val;
+		//If the object is an Element with attributes, try loading "data-*" attributes
+		if (numAttributes) {
+			var attributes = obj.attributes,
+				attrib,
+				val;
 
 			dataAttributes = {};
-			attributes = obj.attributes;
 
-			for (i = 0; i < attributes.length; i++) {
+			for (i = 0; i < numAttributes; i++) {
 				attrib = attributes[i];
 				if (attrib.name.startsWith('data-')) {
 					if (!rgxNoParse.test(val = attrib.value)) {
@@ -196,12 +196,12 @@ function data(dataStore, obj, key, value) {
 	/* This may look confusing but it's really saving space (as in the amount of code in the file).
 	 * What's happening is that `dataAttributes` is getting set to itself (if it was created above)
 	 * or it is set to the private data and is then checked to see if it is an empty object. */
-	if (isElement && !isEmptyObject(dataAttributes = dataAttributes || dataPrivate(obj, 'data-attrs'))) {
-		//Find the attributes the data object does not already have from the data attributes
-		//and add them to the data object
-		attributes = ArrayPrototype.remove.apply(Object.keys(dataAttributes), Object.keys(dataObject));
-		for (i = 0; i < attributes.length; i++) {
-			dataObject[attributes[i]] = dataAttributes[attributes[i]];
+	if (numAttributes && !isEmptyObject(dataAttributes = dataAttributes || dataPrivate(obj, 'data-attrs'))) {
+		//Add the data attributes to the data object if it does not already have the key
+		for (i in dataAttributes) {
+			if (!(i in dataObject)) {
+				dataObject[i] = dataAttributes[i];
+			}
 		}
 	}
 
