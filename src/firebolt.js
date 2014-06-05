@@ -2305,6 +2305,12 @@ NodeCollectionPrototype.constructor = NodeCollectionPrototype.__C__ = NodeCollec
  * Adds the queried elements to a copy of the existing collection (if they are not already in the collection)
  * and returns the result.
  * 
+ * Do not assume that this method appends the elements to the existing collection in the order they are passed to the method
+ * (that's what `concat` is for). When all elements are members of the same document, the resulting collection will be sorted
+ * in document order; that is, in order of each element's appearance in the document. If the collection consists of elements
+ * from different documents or ones not in any document, the sort order is undefined (but elements in the collection that are
+ * in the same document will still be in document order).
+ * 
  * @function NodeCollection.prototype.add
  * @param {String} selector - A CSS selector to use to find elements to add to the collection.
  * @returns {NodeCollection} The result of unioning the queried elements with the current collection.
@@ -2318,28 +2324,48 @@ NodeCollectionPrototype.constructor = NodeCollectionPrototype.__C__ = NodeCollec
  */
 /**
  * Adds the element to a copy of the existing collection (if it is not already in the collection)
- * and returns the result.  
- * If you're sure the element is not already in the collection, using {@linkcode NodeCollection#concat|concat}
- * would be more efficient.
+ * and returns the result.
  * 
  * @function NodeCollection.prototype.add
  * @param {Element|Node} element - A DOM Element or Node.
  * @returns {NodeCollection} The result of adding the element to the current collection.
  */
 /**
- * Returns the union of the current collection and the input one.  
- * If you're sure that none of the elements in the passed in collection are in the current collection,
- * using {@linkcode NodeCollection#concat|concat} would be more efficient.
+ * Returns the union of the current collection and the input one.
+ * 
+ * Do not assume that this method appends the elements to the existing collection in the order they are passed to the method
+ * (that's what `concat` is for). When all elements are members of the same document, the resulting collection will be sorted
+ * in document order; that is, in order of each element's appearance in the document. If the collection consists of elements
+ * from different documents or ones not in any document, the sort order is undefined (but elements in the collection that are
+ * in the same document will still be in document order).
  * 
  * @function NodeCollection.prototype.add
  * @param {NodeCollection|NodeList|HTMLCollection|Node[]} elements
  * @returns {NodeCollection} The result of adding the input elements to the current collection.
  */
 NodeCollectionPrototype.add = function(input) {
+	var newCollection;
 	if (input.nodeType) {
-		return this.concat(this.contains(input) ? 0 : input); //(this.concat(0) effectively clones the collection)
+		if (this.contains(input)) {
+			return new NodeCollection(this);
+		}
+		newCollection = this.concat(input);
 	}
-	return this.union(typeofString(input) ? Firebolt(input) : input);
+	else {
+		newCollection = this.union(typeofString(input) ? Firebolt(input) : input);
+	}
+
+	return newCollection.sort(function(a, b) {
+		var pos = a.compareDocumentPosition(b);
+		if (pos & 4) { //Node a should come first
+			pos = -1;
+		}
+		else if (pos & 1) { //Nodes are in different documents
+			pos = 0;
+		}
+		//else b should come first (pos is already positive)
+		return pos;
+	});
 };
 
 /**
