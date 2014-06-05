@@ -159,7 +159,6 @@ function data(dataStore, obj, key, value) {
 	if (!dataObject) {
 		//Define a non-enumerable object
 		defineProperty(obj, dataStore, {
-			writable: true, //So that the data can easily be cleared by .removeData()
 			value: dataObject = {}
 		});
 
@@ -3030,6 +3029,8 @@ Number[prototype].toPaddedString = function(length, radix) {
 
 //#region ============================ Object ================================
 
+//TODO: Move these somwhere else. Extending Object.prototype is bad.
+
 /**
  * @class Object
  * @classdesc The JavaScript Object class.
@@ -3098,16 +3099,22 @@ defineProperties(Object[prototype], {
 	 */
 	removeData: {
 		value: function(input) {
+			var dataObject = this[dataKeyPublic],
+				i = 0;
+
 			if (isUndefined(input)) {
-				this[dataKeyPublic] = {};
+				if (dataObject[dataKeyPrivate]) {
+					//Try deleting the data attributes object in case it was saved to the object (element)
+					delete dataObject[dataKeyPrivate]['data-attrs'];
+				}
+				input = Object.keys(dataObject); //Select all items for removal
 			}
-			else {
-				if (typeofString(input)) {
-					input = input.split(' ');
-				}
-				for (var i = 0; i < input.length; i++) {
-					delete this[dataKeyPublic][input[i]];
-				}
+			else if (typeofString(input)) {
+				input = input.split(' ');
+			}
+
+			for (; i < input.length; i++) {
+				delete dataObject[input[i]];
 			}
 
 			return this;
