@@ -64,6 +64,7 @@ var prototype = 'prototype',
 		},
 		async: true,
 		contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+		headers: {'X-Requested-With': 'XMLHttpRequest'},
 		isLocal: /^(?:file|.*-extension|widget):\/\//.test(location.href),
 		jsonp: 'callback',
 		jsonpCallback: function() {
@@ -869,7 +870,7 @@ Firebolt.ajax = function(url, settings) {
 	}
 
 	//Merge the passed in settings object with the default values
-	settings = extend({}, ajaxSettings, settings);
+	settings = extendDeep({}, ajaxSettings, settings);
 
 	url = settings.url;
 
@@ -1155,9 +1156,6 @@ Firebolt.ajax = function(url, settings) {
 		//Open the request
 		xhr.open(type, url, async, settings.username, settings.password);
 
-		//Merge provided headers with defaults
-		headers = extend({'X-Requested-With': 'XMLHttpRequest'}, headers);
-
 		//Set the content type header if the user has changed it from the default or there is data to submit
 		if (settings.contentType != ajaxSettings.contentType || userData) {
 			headers['Content-Type'] = settings.contentType;
@@ -1203,7 +1201,7 @@ Firebolt.ajaxSettings = ajaxSettings;
  * @memberOf Firebolt
  */
 Firebolt.ajaxSetup = function(options) {
-	return extend(ajaxSettings, options);
+	return extendDeep(ajaxSettings, options);
 }
 
 /**
