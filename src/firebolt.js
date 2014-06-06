@@ -231,13 +231,22 @@ function dataPrivate(obj, key, value) {
 function extend(target) {
 	var numArgs = arguments.length,
 		i = 1,
+		arg,
 		key;
 
 	if (numArgs > 1) {
+		if (target === true) { //`target` was actually the `deep` variable; extend recursively
+			return extendDeep.apply(this, ArrayPrototype.slice.call(arguments, 1));
+		}
+		if (!target) { //`target` was actually the `deep` variable, but was false
+			target = arguments[i++];
+		}
+
 		//Extend the target object
 		for (; i < numArgs; i++) {
-			for (key in arguments[i]) {
-				target[key] = arguments[i][key];
+			arg = arguments[i];
+			for (key in arg) {
+				target[key] = arg[key];
 			}
 		}
 		return target;
@@ -247,6 +256,33 @@ function extend(target) {
 	extend(NodeCollectionPrototype, target);
 	extend(NodeListPrototype, target);
 	extend(HTMLCollectionPrototype, target);
+}
+
+/*
+ * @see Firebolt.extend
+ */
+function extendDeep(target) {
+	var numArgs = arguments.length,
+		i = 1,
+		arg,
+		key,
+		val;
+
+	//Extend the target object, extending recursively if both the new and current value are plain objects
+	for (; i < numArgs; i++) {
+		arg = arguments[i];
+		for (key in arg) {
+			val = arg[key];
+			if (isPlainObject(target[key]) && isPlainObject(val)) {
+				extendDeep(target[key], val);
+			}
+			else {
+				target[key] = val;
+			}
+		}
+	}
+
+	return target;
 }
 
 /*
@@ -1207,6 +1243,15 @@ Firebolt.delay = function(callback, ms) {
 /**
  * Merge the contents of one or more objects into the first object.
  * 
+ * @param {Object} target - The object that will receive the new properties.
+ * @param {...Object} object - One or more objects whose properties will be added to the target object.
+ * @returns {Object} The target object.
+ * @memberOf Firebolt
+ */
+/**
+ * Recursively merge the contents of one or more objects into the target object.
+ * 
+ * @param {Boolean} deep - If `true`, the merge becomes recursive (performs a deep copy on object values).
  * @param {Object} target - The object that will receive the new properties.
  * @param {...Object} object - One or more objects whose properties will be added to the target object.
  * @returns {Object} The target object.
