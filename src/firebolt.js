@@ -1,6 +1,6 @@
 ﻿/**
  * Firebolt current core file.
- * @version 0.4.0
+ * @version 0.4.1
  * @author Nathan Woltman
  * @copyright 2014 Nathan Woltman
  * @license MIT https://github.com/FireboltJS/Firebolt/blob/master/LICENSE.txt
@@ -3374,65 +3374,3 @@ if (usesWebkit) { //WebKit speed boosters
 //#endregion Browser Compatibility and Speed Boosters
 
 })(window, document);
-
-
-//#region ============================ Timer =================================
-
-/**
- * @class
- * @example
- * // HTML
- * <div id="display">0</div>
- * 
- * // JavaScript
- * var seconds = 0,
- *     counter = new Timer(function() {
- *         seconds++;
- *         $ID('display').text(seconds);
- *     }, 1000).start();
- */
-function Timer(callback, interval, onstart, onstop) {
-	// Private
-	var _clearRef,
-		_isRunning = false,
-		_this = this;
-
-	// Public
-	_this.callback = callback;
-
-	_this.interval = interval;
-
-	_this.onstart = onstart;
-
-	_this.onstop = onstop;
-
-	_this.isRunning = function() {
-		return _isRunning;
-	};
-
-	_this.start = function() {
-		if (!_isRunning) {
-			_clearRef = setInterval(function() {
-				_this.callback();
-			}, interval);
-			_isRunning = true;
-			if (_this.onstart) {
-				_this.onstart();
-			}
-		}
-		return _this;
-	};
-
-	_this.stop = function() {
-		if (_isRunning) {
-			clearInterval(_clearRef);
-			_isRunning = false;
-			if (_this.onstop) {
-				_this.onstop();
-			}
-		}
-		return _this;
-	};
-}
-
-//#endregion Timer
