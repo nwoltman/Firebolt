@@ -37,10 +37,6 @@ var prototype = 'prototype',
 	dataKeyPrivate = ('FB' + 1 / Math.random()).replace('.', ''),
 	rgxNoParse = /^\d+\D/, //Don't try to parse strings that look like numbers but have non-digit characters
 
-	//Need this (unfortunately) to choose how to define the Firebolt function
-	isIE = /*@cc_on!@*/false || !!document.documentMode,
-	Firebolt,
-
 	/* Pre-built RegExps */
 	rgxGetOrHead = /GET|HEAD/i, //Determines if a request is a GET or HEAD request
 	rgxDomain = /\/?\/\/(?:\w+\.)?(.*?)(?:\/|$)/,
@@ -785,49 +781,31 @@ ElementPrototype.matches = ElementPrototype.matches || ElementPrototype.webkitMa
  * $('1<br>2<br>3 >');     // Returns ["1", <br>​, "2", <br>​, "3 >"]
  * $.create('div')         // Calls Firebolt's `create()` method to create a new div element 
  */
-Firebolt =
-	isIE //Define the Firebolt selector specifically for IE (because IE is awful with querySelectorAll for IDs)
-	? function(str) {
-		if (str[0] === '#') { //Check for a single ID
-			if (rgxClassOrId.test(str)) {
-				var collection = new NodeCollection(),
-					element = document.getElementById(str.slice(1));
-				if (element) {
-					collection.length = 1;
-					collection[0] = element;
-				}
-				return collection;
+function Firebolt(str) {
+	if (str[0] === '#') { //Check for a single ID
+		if (rgxClassOrId.test(str)) {
+			var collection = new NodeCollection(),
+				element = document.getElementById(str.slice(1));
+			if (element) {
+				collection.length = 1;
+				collection[0] = element;
 			}
+			return collection;
 		}
-		else if (str[0] === '.') { //Check for a single class name
-			if (rgxClassOrId.test(str)) {
-				return document.getElementsByClassName(str.slice(1));
-			}
-		}
-		else if (rgxTag.test(str)) { //Check for a single tag name
-			return document.getElementsByTagName(str);
-		}
-		else if (isHtml(str)) { //Check if the string is an HTML string
-			return htmlToNodes(str);
-		}
-		return document.querySelectorAll(str);
 	}
-	: function(str) {
-		if (str[0] !== '#') { //Filter out selection by ID
-			if (str[0] === '.') { //Check for a single class name
-				if (rgxClassOrId.test(str)) {
-					return document.getElementsByClassName(str.slice(1));
-				}
-			}
-			else if (rgxTag.test(str)) { //Check for a single tag name
-				return document.getElementsByTagName(str);
-			}
-			else if (isHtml(str)) { //Check if the string is an HTML string
-				return htmlToNodes(str);
-			}
+	else if (str[0] === '.') { //Check for a single class name
+		if (rgxClassOrId.test(str)) {
+			return document.getElementsByClassName(str.slice(1));
 		}
-		return document.querySelectorAll(str);
-	};
+	}
+	else if (rgxTag.test(str)) { //Check for a single tag name
+		return document.getElementsByTagName(str);
+	}
+	else if (isHtml(str)) { //Check if the string is an HTML string
+		return htmlToNodes(str);
+	}
+	return document.querySelectorAll(str);
+}
 
 /**
  * Perform an asynchronous HTTP (Ajax) request.  
