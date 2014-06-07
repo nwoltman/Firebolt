@@ -3334,9 +3334,9 @@ defineProperties(StringPrototype, {
 
 //#region ============ Browser Compatibility and Speed Boosters ==============
 
-var isOldIE = createElement('div').html('<!--[if IE]><i></i><![endif]-->').$TAG('i').length > 0,
-	isChrome = !!window.chrome && !window.opera,
+var isOldIE = createElement('div').html('<!--[if IE]><i></i><![endif]-->').$TAG('i').length,
 	isIOS = navigator.platform.startsWith('iP'), // iPhone, iPad, iPod
+	usesWebkit = 'WebkitAppearance' in document.documentElement.style,
 	noMultiParamClassListFuncs = (function() {
 		var elem = createElement('div');
 		if (elem.classList) {
@@ -3345,15 +3345,14 @@ var isOldIE = createElement('div').html('<!--[if IE]><i></i><![endif]-->').$TAG(
 		return elem.className.length !== 7;
 	})();
 
-if (isOldIE) {
-	/* Make the hasClass() function compatible with IE9 */
+if (isOldIE) { //IE9 compatibility
 	HTMLElementPrototype.hasClass = function(className) {
 		return new RegExp('(?:^|\\s)' + className + '(?:\\s|$)').test(this.className);
 	};
 }
 
-/* Browser (definitely IE) compatibility and Chrome speed boost for removeClass() */
-if (isChrome || noMultiParamClassListFuncs) {
+/* Browser (definitely IE) compatibility and speed boost for removeClass() */
+if (noMultiParamClassListFuncs || (usesWebkit && !isIOS)) {
 	HTMLElementPrototype.removeClass = function(value) {
 		if (isUndefined(value)) {
 			this.className = ''; //Remove all classes
@@ -3378,7 +3377,7 @@ if (isChrome || noMultiParamClassListFuncs) {
 	};
 }
 
-if (isChrome || isIOS) {
+if (usesWebkit) { //WebKit speed boosters
 	window.$1 = function(selector) {
 		if (selector[0] !== '#') { //Filter out selection by ID
 			if (selector[0] === '.') { //Check for a single class name
