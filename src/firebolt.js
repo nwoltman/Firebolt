@@ -1838,8 +1838,8 @@ HTMLElementPrototype.css = function(prop, value) {
  * <div id="mydiv"></div>
  */
 HTMLElementPrototype.empty = function() {
-	while (this.childNodes.length) {
-		this.removeChild(this.childNodes[0]);
+	while (this.firstChild) {
+		this.removeChild(this.firstChild);
 	}
 
 	return this;
