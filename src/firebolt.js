@@ -1,6 +1,6 @@
 ﻿/**
  * Firebolt current core file.
- * @version 0.4.1
+ * @version 0.4.2
  * @author Nathan Woltman
  * @copyright 2014 Nathan Woltman
  * @license MIT https://github.com/FireboltJS/Firebolt/blob/master/LICENSE.txt
@@ -31,6 +31,7 @@ var prototype = 'prototype',
 
 	//Property strings
 	insertAdjacentHTML = 'insertAdjacentHTML',
+	parentNode = 'parentNode',
 
 	//Data variables
 	dataKeyPublic = ('FB' + 1 / Math.random()).replace('.', ''),
@@ -117,7 +118,7 @@ function createFragment(content) {
 		}
 		else {
 			if (typeofString(item)) {
-				item = htmlToNodes(item);
+				item = createElement('body').html(item).childNodes;
 			}
 			var origLen = item.length,
 				j = 1;
@@ -360,24 +361,17 @@ function getPutOrToFunction(funcName) {
 }
 
 /*
- * Takes an HTML string and returns a NodeList created by the HTML.
- */
-function htmlToNodes(html) {
-	return createElement('div').html(html).childNodes;
-}
-
-/*
  * Function for inserting a node after a reference node.
  */
 function insertAfter(newNode, refNode) {
-	refNode.parentNode.insertBefore(newNode, refNode.nextSibling);
+	refNode[parentNode].insertBefore(newNode, refNode.nextSibling);
 }
 
 /*
  * Function for inserting a node before a reference node.
  */
 function insertBefore(newNode, refNode) {
-	refNode.parentNode.insertBefore(newNode, refNode);
+	refNode[parentNode].insertBefore(newNode, refNode);
 }
 
 /*
@@ -802,7 +796,7 @@ function Firebolt(str) {
 		return document.getElementsByTagName(str);
 	}
 	else if (isHtml(str)) { //Check if the string is an HTML string
-		return htmlToNodes(str);
+		return createFragment([str]).childNodes;
 	}
 	return document.querySelectorAll(str);
 }
@@ -1011,9 +1005,7 @@ Firebolt.ajax = function(url, settings) {
 
 		//Always remove the script after the request is done
 		completes.push(function() {
-			if (script.parentNode) { //Check for parent node before attempting to remove (may have been removed by timeout)
-				script.remove();
-			}
+			script.remove();
 		});
 
 		if (beforeSend && beforeSend.call(context, xhr, settings) === false) {
@@ -1449,6 +1441,17 @@ Firebolt.ready = function(callback) {
 		callback();
 	}
 };
+
+/**
+ * Creates a TextNode from the provided string.
+ * 
+ * @memberOf Firebolt
+ * @param {String} text - The string used to construct the TextNode.
+ * @returns {TextNode}
+ */
+Firebolt.text = function(text) {
+	return document.createTextNode(text);
+}
 
 //#endregion Firebolt
 
@@ -2145,7 +2148,7 @@ NodePrototype.afterPut = function() {
 	insertAfter(createFragment(arguments), this);
 
 	return this;
-}
+};
 
 /**
  * Appends this node to the end of the target element(s).
@@ -2172,7 +2175,7 @@ NodePrototype.appendTo = function(target) {
 	}
 
 	return this;
-}
+};
 
 /**
  * Appends content to the end of the node.
@@ -2185,7 +2188,7 @@ NodePrototype.appendWith = function() {
 	this.appendChild(createFragment(arguments));
 
 	return this;
-}
+};
 
 /**
  * Inserts content before the node.
@@ -2199,7 +2202,37 @@ NodePrototype.beforePut = function() {
 	insertBefore(createFragment(arguments), this);
 
 	return this;
-}
+};
+
+/**
+ * Get the node's ancestors, optionally filtered by a selector.
+ * 
+ * @function Node.prototype.parents
+ * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
+ * @returns {NodeCollection} - The set of the node's ancestors, ordered from the immediate parent on up.
+ */
+NodePrototype.parents = function(selector) {
+	var nc = new NodeCollection(),
+		node = this,
+		parent;
+
+	if (selector) { //Only add parents that match the selector
+		while (parent = node.parentElement) {
+			if (parent.matches(selector)) {
+				nc.push(parent);
+			}
+			node = parent;
+		}
+	}
+	else { //Add all parents to the collection
+		while (parent = node.parentElement) {
+			nc.push(parent);
+			node = parent;
+		}
+	}
+
+	return nc;
+};
 
 /**
  * Prepends content to the beginning of the node.
@@ -2212,7 +2245,7 @@ NodePrototype.prependWith = function() {
 	prepend(createFragment(arguments), this);
 
 	return this;
-}
+};
 
 /**
  * Prepends this node to the beginning of the target element(s).
@@ -2248,7 +2281,9 @@ NodePrototype.putBefore = getNodeInsertingFunction(insertBefore);
  * @returns void (undefined)
  */
 NodePrototype.remove = function() {
-	this.parentNode.removeChild(this);
+	if (this[parentNode]) {
+		this[parentNode].removeChild(this);
+	}
 };
 
 /**
@@ -2668,7 +2703,7 @@ NodeCollectionPrototype.empty = callOnEachElement('empty');
  * @returns {NodeCollection}
  */
 /**
- * Creates a new NodeCollection with all nodes that pass the test implemented by the provided function.
+ * Creates a new NodeCollection with all elements that pass the test implemented by the provided function.
  * (If you want to filter against another set of elements, use the {@linkcode Array#intersect|intersect} function.)
  * 
  * @function NodeCollection.prototype.filter
@@ -2727,7 +2762,48 @@ NodeCollectionPrototype.html = getFirstSetEachElement('html', function(numArgs) 
  */
 NodeCollectionPrototype.map = function(callback, thisArg) {
 	return new NodeCollection(ArrayPrototype.map.call(this, callback, thisArg));
-}
+};
+
+/**
+ * Get the ancestors of each node in the collection, optionally filtered by a selector.
+ * 
+ * @function NodeCollection.prototype.parents
+ * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
+ * @returns {NodeCollection} - The set of the elements' parent elements, sorted in reverse document order.
+ */
+NodeCollectionPrototype.parents = function(selector) {
+	var len = this.length;
+
+	//Simple and speedy for one node
+	if (len === 1) {
+		return this[0].parents(selector);
+	}
+
+	var nc = new NodeCollection(),
+		parents = [],
+		i = 0;
+
+	//Build a list of parent NodeCollections
+	for (; i < len; i++) {
+		parents.push(this[i].parents(selector));
+	}
+
+	//Union the collections so that the resulting collection contains unique elements
+	nc = ArrayPrototype.union.apply(nc, parents);
+
+	//Return the parent elements sorted in reverse document order
+	return nc.sort(function(a, b) {
+		var pos = a.compareDocumentPosition(b);
+		if (pos & 2) { //Node b should come first
+			pos = -1;
+		}
+		else if (pos & 1) { //Nodes are in different documents
+			pos = 0;
+		}
+		//else a should come first (pos is already positive)
+		return pos;
+	});
+};
 
 /**
  * Alias of {@link NodeCollection#prependWith} provided for similarity with jQuery.  
@@ -2761,7 +2837,7 @@ NodeCollectionPrototype.prependWith = NodeCollectionPrototype.prepend = function
 	}
 
 	return this;
-}
+};
 
 /**
  * Prepends each node in this collection to the beginning of the specified target(s).
@@ -3369,6 +3445,16 @@ if (usesWebkit) { //WebKit speed boosters
 		}
 		return document.querySelector(selector);
 	};
+}
+
+//Fix the parentElement property for Nodes in browsers than only support it on Element
+if (isUndefined(Firebolt.text(' ').parentElement)) {
+	defineProperty(NodePrototype, 'parentElement', {
+		get: function() {
+			var parent = this[parentNode];
+			return parent && parent.nodeType === 1 ? parent : null;
+		}
+	});
 }
 
 //#endregion Browser Compatibility and Speed Boosters
