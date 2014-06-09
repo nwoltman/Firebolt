@@ -325,6 +325,34 @@ function getFirstSetEachElement(funcName, callback) {
 	};
 }
 
+/*
+ * Returns a function that creates a set of elements in a certain direction around a given node (i.e. parents, children, siblings).
+ * 
+ * @param {String} funcName - The name of the function that retrieves elements for a single node.
+ * @param {Function} sorter - A function used to sort the returned set of elements.
+ */
+function getGetDirElementsFunc(funcName, sorter) {
+	return function(arg1, arg2) {
+		var len = this.length;
+
+		//Simple and speedy for one node
+		if (len === 1) {
+			return this[0][funcName](arg1, arg2);
+		}
+
+		//Build a list of NodeCollections
+		var collections = [],
+			i = 0;
+		for (; i < len; i++) {
+			collections.push(this[i][funcName](arg1, arg2));
+		}
+
+		//Union the collections so that the resulting collection contains unique elements and
+		//return the parent elements sorted in reverse document order
+		return ArrayPrototype.union.apply(NodeCollectionPrototype, collections).sort(sorter);
+	}
+};
+
 /* 
  * Returns the function body for Node#[putAfter, putBefore, or prependTo]
  * 
@@ -485,6 +513,30 @@ function isUndefined(value) {
  */
 function prepend(newNode, refNode) {
 	refNode.insertBefore(newNode, refNode.firstChild);
+}
+
+function sortDocOrder(a, b) {
+	var pos = a.compareDocumentPosition(b);
+	if (pos & 4) { //Node a should come first
+		pos = -1;
+	}
+	else if (pos & 1) { //Nodes are in different documents
+		pos = 0;
+	}
+	//else node b should come first (pos is already positive)
+	return pos;
+}
+
+function sortRevDocOrder(a, b) {
+	var pos = a.compareDocumentPosition(b);
+	if (pos & 2) { //Node b should come first
+		pos = -1;
+	}
+	else if (pos & 1) { //Nodes are in different documents
+		pos = 0;
+	}
+	//else node a should come first (pos is already positive)
+	return pos;
 }
 
 function typeofString(value) {
@@ -2262,6 +2314,40 @@ NodePrototype.parents = function(selector) {
 };
 
 /**
+ * Get the node's ancestors, up to but not including the element matched by the given selector.
+ * 
+ * @function Node.prototype.parentsUntil
+ * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
+ * @param {String} [filter] - A CSS selector used to filter the returned set of elements.
+ * @returns {NodeCollection} - The set of the node's ancestors, ordered from the immediate parent on up.
+ */
+/**
+ * Get the node's ancestors, up to but not including the given node.
+ * 
+ * @function Node.prototype.parentsUntil
+ * @param {Element} [element] - An element indicating that no more parents should be considered once this one is found to be an ancestor.
+ * @param {String} [filter] - A CSS selector used to filter the returned set of elements.
+ * @returns {NodeCollection} - The set of the node's ancestors, ordered from the immediate parent on up.
+ */
+NodePrototype.parentsUntil = function(until, filter) {
+	var nc = new NodeCollection(),
+		node = this,
+		stop = typeofString(until)
+			? function() {
+				return node.matches(until);
+			}
+			: function() {
+				return node == until;
+			};
+	while ((node = node.parentElement) && !stop()) {
+		if (!filter || node.matches(filter)) {
+			nc.push(node);
+		}
+	}
+	return nc;
+};
+
+/**
  * Prepends content to the beginning of the node.
  * 
  * @function Node.prototype.prependWith
@@ -2438,17 +2524,7 @@ NodeCollectionPrototype.add = function(input) {
 		newCollection = this.union(typeofString(input) ? Firebolt(input) : input);
 	}
 
-	return newCollection.sort(function(a, b) {
-		var pos = a.compareDocumentPosition(b);
-		if (pos & 4) { //Node a should come first
-			pos = -1;
-		}
-		else if (pos & 1) { //Nodes are in different documents
-			pos = 0;
-		}
-		//else node b should come first (pos is already positive)
-		return pos;
-	});
+	return newCollection.sort(sortDocOrder);
 };
 
 /**
@@ -2816,38 +2892,27 @@ NodeCollectionPrototype.parent = function(selector) {
  * 
  * @function NodeCollection.prototype.parents
  * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
- * @returns {NodeCollection} - The set of the elements' parent elements, sorted in reverse document order.
+ * @returns {NodeCollection} - The set of ancestors, sorted in reverse document order.
  */
-NodeCollectionPrototype.parents = function(selector) {
-	var len = this.length;
+NodeCollectionPrototype.parents = getGetDirElementsFunc('parents', sortRevDocOrder);
 
-	//Simple and speedy for one node
-	if (len === 1) {
-		return this[0].parents(selector);
-	}
-
-	var parents = [],
-		i = 0;
-
-	//Build a list of parent NodeCollections
-	for (; i < len; i++) {
-		parents.push(this[i].parents(selector));
-	}
-
-	//Union the collections so that the resulting collection contains unique elements and
-	//return the parent elements sorted in reverse document order
-	return ArrayPrototype.union.apply(NodeCollectionPrototype, parents).sort(function(a, b) {
-		var pos = a.compareDocumentPosition(b);
-		if (pos & 2) { //Node b should come first
-			pos = -1;
-		}
-		else if (pos & 1) { //Nodes are in different documents
-			pos = 0;
-		}
-		//else node a should come first (pos is already positive)
-		return pos;
-	});
-};
+/**
+ * Get the ancestors of each node in the collection, up to but not including the element matched by the given selector.
+ * 
+ * @function Node.prototype.parentsUntil
+ * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
+ * @param {String} [filter] - A CSS selector used to filter the returned set of elements.
+ * @returns {NodeCollection} - The set of ancestors, sorted in reverse document order.
+ */
+/**
+ * Get the ancestors of each node in the collection, up to but not including the given node.
+ * 
+ * @function NodeCollection.prototype.parentsUntil
+ * @param {Element} [element] - An element indicating that no more parents should be considered once this one is found to be an ancestor.
+ * @param {String} [filter] - A CSS selector used to filter the returned set of elements.
+ * @returns {NodeCollection} - The set of ancestors, sorted in reverse document order.
+ */
+NodeCollectionPrototype.parentsUntil = getGetDirElementsFunc('parentsUntil', sortRevDocOrder);
 
 /**
  * Alias of {@link NodeCollection#prependWith} provided for similarity with jQuery.  
