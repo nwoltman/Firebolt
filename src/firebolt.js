@@ -2464,7 +2464,7 @@ NodeCollectionPrototype.add = function(input) {
 		else if (pos & 1) { //Nodes are in different documents
 			pos = 0;
 		}
-		//else b should come first (pos is already positive)
+		//else node b should come first (pos is already positive)
 		return pos;
 	});
 };
@@ -2844,8 +2844,7 @@ NodeCollectionPrototype.parents = function(selector) {
 		return this[0].parents(selector);
 	}
 
-	var nc = new NodeCollection(),
-		parents = [],
+	var parents = [],
 		i = 0;
 
 	//Build a list of parent NodeCollections
@@ -2853,11 +2852,9 @@ NodeCollectionPrototype.parents = function(selector) {
 		parents.push(this[i].parents(selector));
 	}
 
-	//Union the collections so that the resulting collection contains unique elements
-	nc = ArrayPrototype.union.apply(nc, parents);
-
-	//Return the parent elements sorted in reverse document order
-	return nc.sort(function(a, b) {
+	//Union the collections so that the resulting collection contains unique elements and
+	//return the parent elements sorted in reverse document order
+	return ArrayPrototype.union.apply(NodeCollectionPrototype, parents).sort(function(a, b) {
 		var pos = a.compareDocumentPosition(b);
 		if (pos & 2) { //Node b should come first
 			pos = -1;
@@ -2865,7 +2862,7 @@ NodeCollectionPrototype.parents = function(selector) {
 		else if (pos & 1) { //Nodes are in different documents
 			pos = 0;
 		}
-		//else a should come first (pos is already positive)
+		//else node a should come first (pos is already positive)
 		return pos;
 	});
 };
