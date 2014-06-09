@@ -32,6 +32,8 @@ var prototype = 'prototype',
 	//Property strings
 	insertAdjacentHTML = 'insertAdjacentHTML',
 	parentNode = 'parentNode',
+	nextElementSibling = 'nextElementSibling',
+	previousElementSibling = 'previousElementSibling',
 
 	//Data variables
 	dataKeyPublic = ('FB' + 1 / Math.random()).replace('.', ''),
@@ -3506,7 +3508,8 @@ var isOldIE = createElement('div').html('<!--[if IE]><i></i><![endif]-->').$TAG(
 			elem.classList.add('one', 'two');
 		}
 		return elem.className.length !== 7;
-	})();
+	})(),
+	textNode = Firebolt.text(' ');
 
 if (isOldIE) { //IE9 compatibility
 	HTMLElementPrototype.hasClass = function(className) {
@@ -3557,11 +3560,37 @@ if (usesWebkit) { //WebKit speed boosters
 }
 
 //Fix the parentElement property for Nodes in browsers than only support it on Element
-if (isUndefined(Firebolt.text(' ').parentElement)) {
+if (isUndefined(textNode.parentElement)) {
 	defineProperty(NodePrototype, 'parentElement', {
 		get: function() {
 			var parent = this[parentNode];
 			return parent && parent.nodeType === 1 ? parent : null;
+		}
+	});
+}
+
+//Fix the nextElementSibling property for Nodes in browsers than only support it on Element
+if (isUndefined(textNode[nextElementSibling])) {
+	defineProperty(NodePrototype, nextElementSibling, {
+		get: function() {
+			var sibling = this;
+			while (sibling = sibling.nextSibling) {
+				if (sibling.nodeType === 1) break;
+			}
+			return sibling;
+		}
+	});
+}
+
+//Fix the previousElementSibling property for Nodes in browsers than only support it on Element
+if (isUndefined(textNode[previousElementSibling])) {
+	defineProperty(NodePrototype, previousElementSibling, {
+		get: function() {
+			var sibling = this;
+			while (sibling = sibling.previousSibling) {
+				if (sibling.nodeType === 1) break;
+			}
+			return sibling;
 		}
 	});
 }
