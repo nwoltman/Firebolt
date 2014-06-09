@@ -2363,25 +2363,19 @@ NodePrototype.text = function(text) {
 //#region ======================== NodeCollection ============================
 
 /**
- * This constructor is not globally visible and should not be called by user code.
- * 
  * @class NodeCollection
  * @mixes Array
  * @classdesc
- * A mutable collection of DOM nodes. It subclasses the native {@link Array} class (but take note that the
- * {@linkcode NodeCollection#clean|clean}, {@linkcode NodeCollection#remove|remove}, and {@linkcode NodeCollection#filter|filter}
- * functions have been overridden), and has all of the main DOM-manipulating functions.
+ * A mutable collection of DOM nodes. It subclasses the native {@link Array} class (but take note that the `.clean()`,
+ * `.remove()`, and `.filter()` functions have been overridden), and has all of the main DOM-manipulating functions.
  * 
  * It should be noted that all functions that do not have a specified return value, return the calling object,
  * allowing for function chaining.
- */
-/*
- * @private
- * @constructs NodeCollection
+ * 
  * @param {NodeList|HTMLCollection|Node[]} [nodes] - The collection of nodes the NodeCollection will be comprised of.
  * @param {Boolean} [single] - If truthy, the passed in value is a single node instead of a collection of nodes.
  */
-function NodeCollection(nodes, single) {
+var NodeCollection = window.NodeCollection = function(nodes, single) {
 	if (nodes) {
 		if (single) {
 			this.push(nodes);
@@ -2394,10 +2388,10 @@ function NodeCollection(nodes, single) {
 			}
 		}
 	}
-}
+},
 
 /* Subclass Array (not perfectly, but pretty close) */
-var NodeCollectionPrototype = NodeCollection[prototype] = new Array;
+NodeCollectionPrototype = NodeCollection[prototype] = [];
 
 /* Reset the constructor and set the private constructor (which will be inherited by NodeList and HTMLCollection) */
 NodeCollectionPrototype.constructor = NodeCollectionPrototype.__C__ = NodeCollection;
