@@ -2810,6 +2810,26 @@ NodeCollectionPrototype.map = function(callback, thisArg) {
 };
 
 /**
+ * Get the parent of each node in the collection, optionally filtered by a selector.
+ * 
+ * @function NodeCollection.prototype.parent
+ * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
+ * @returns {NodeCollection} - The set of parents. Unlike the `.parents()` function, this set may include Document and DocumentFragment nodes.
+ */
+NodeCollectionPrototype.parent = function(selector) {
+	var nc = new NodeCollection(),
+		i = 0,
+		parent;
+	for (; i < this.length; i++) {
+		parent = this[i].parentNode;
+		if ((!selector || (parent.matches && parent.matches(selector))) && nc.indexOf(parent) < 0) {
+			nc.push(parent);
+		}
+	}
+	return nc;
+};
+
+/**
  * Get the ancestors of each node in the collection, optionally filtered by a selector.
  * 
  * @function NodeCollection.prototype.parents
