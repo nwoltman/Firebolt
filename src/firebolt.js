@@ -2252,24 +2252,12 @@ NodePrototype.beforePut = function() {
  */
 NodePrototype.parents = function(selector) {
 	var nc = new NodeCollection(),
-		node = this,
-		parent;
-
-	if (selector) { //Only add parents that match the selector
-		while (parent = node.parentElement) {
-			if (parent.matches(selector)) {
-				nc.push(parent);
-			}
-			node = parent;
+		node = this;
+	while (node = node.parentElement) {
+		if (!selector || node.matches(selector)) {
+			nc.push(node);
 		}
 	}
-	else { //Add all parents to the collection
-		while (parent = node.parentElement) {
-			nc.push(parent);
-			node = parent;
-		}
-	}
-
 	return nc;
 };
 
