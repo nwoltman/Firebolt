@@ -39,6 +39,7 @@ var prototype = 'prototype',
 	rgxNoParse = /^\d+\D/, //Don't try to parse strings that look like numbers but have non-digit characters
 
 	/* Pre-built RegExps */
+	rgxTableLevel1 = /<t(?:h|b|f)/i, //Detects (non-deprected) first-level table elements: <thead>, <tbody>, <tfoot>
 	rgxGetOrHead = /GET|HEAD/i, //Determines if a request is a GET or HEAD request
 	rgxDomain = /\/?\/\/(?:\w+\.)?(.*?)(?:\/|$)/,
 	rgxDifferentNL = /^(?:af|ap|be|ins|pre|pu|tog)|remove(?:Class)?$/, //Determines if the function is different for NodeLists
@@ -118,7 +119,7 @@ function createFragment(content) {
 		}
 		else {
 			if (typeofString(item)) {
-				item = createElement('body').html(item).childNodes;
+				item = htmlToNodes(item);
 			}
 			var origLen = item.length,
 				j = 1;
@@ -358,6 +359,50 @@ function getPutOrToFunction(funcName) {
 
 		return this;
 	}
+}
+
+/*
+ * Takes an HTML string and returns a NodeList created by the HTML.
+ */
+function htmlToNodes(html) {
+	//Speedy for normal elements
+	var nodes = createElement('body').html(html).childNodes;
+
+	//If no nodes were created, it might be because browsers won't create certain elements in a body tag
+	//Such elements include <thead>, <tbody>, <tfoot>, <head>, <body>, <html>
+	if (!nodes.length && html) { //Check html to make sure it's not an empty string
+		var elem;
+
+		if (html.contains('<tr')) {
+			elem = createElement('tbody');
+		}
+		else if (html.contains('<td')) {
+			elem = createElement('tr');
+		}
+		else if (rgxTableLevel1.test(html)) {
+			elem = createElement('table');
+		}
+		else {
+			elem = createElement('html');
+
+			if (html.startsWith('<html')) {
+				return new NodeCollection(elem, 1);
+			}
+
+			elem.innerHTML = html;
+
+			if (html.contains('<head')) {
+				return new NodeCollection(elem.firstChild, 1);
+			}
+			if (html.contains('<body')) {
+				return new NodeCollection(elem.lastChild, 1);
+			}
+		}
+
+		nodes = elem.html(html).childNodes;
+	}
+
+	return nodes;
 }
 
 /*
@@ -778,13 +823,7 @@ ElementPrototype.matches = ElementPrototype.matches || ElementPrototype.webkitMa
 function Firebolt(str) {
 	if (str[0] === '#') { //Check for a single ID
 		if (rgxClassOrId.test(str)) {
-			var collection = new NodeCollection(),
-				element = document.getElementById(str.slice(1));
-			if (element) {
-				collection.length = 1;
-				collection[0] = element;
-			}
-			return collection;
+			return new NodeCollection(document.getElementById(str.slice(1)), 1);
 		}
 	}
 	else if (str[0] === '.') { //Check for a single class name
@@ -2340,13 +2379,19 @@ NodePrototype.text = function(text) {
  * @private
  * @constructs NodeCollection
  * @param {NodeList|HTMLCollection|Node[]} [nodes] - The collection of nodes the NodeCollection will be comprised of.
+ * @param {Boolean} [single] - If truthy, the passed in value is a single node instead of a collection of nodes.
  */
-function NodeCollection(nodes) {
+function NodeCollection(nodes, single) {
 	if (nodes) {
-		var len = this.length = nodes.length,
-			i = 0;
-		for (; i < len; i++) {
-			this[i] = nodes[i];
+		if (single) {
+			this.push(nodes);
+		}
+		else {
+			var len = this.length = nodes.length,
+				i = 0;
+			for (; i < len; i++) {
+				this[i] = nodes[i];
+			}
 		}
 	}
 }
