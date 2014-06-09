@@ -331,28 +331,65 @@ function getFirstSetEachElement(funcName, callback) {
  * Returns a function that creates a set of elements in a certain direction around a given node (i.e. parents, children, siblings).
  * 
  * @param {String} funcName - The name of the function that retrieves elements for a single node.
- * @param {Function} sorter - A function used to sort the returned set of elements.
+ * @param {Function} sorter - A function used to sort the union of multiple sets of returned elements. If sorter === 0, return an 'until' function.
  */
 function getGetDirElementsFunc(funcName, sorter) {
-	return function(arg1, arg2) {
-		var len = this.length;
+	//For NodeCollection.prototype
+	if (sorter) {
+		return function(arg1, arg2) {
+			var len = this.length;
 
-		//Simple and speedy for one node
-		if (len === 1) {
-			return this[0][funcName](arg1, arg2);
-		}
+			//Simple and speedy for one node
+			if (len === 1) {
+				return this[0][funcName](arg1, arg2);
+			}
 
-		//Build a list of NodeCollections
-		var collections = [],
-			i = 0;
-		for (; i < len; i++) {
-			collections.push(this[i][funcName](arg1, arg2));
-		}
+			//Build a list of NodeCollections
+			var collections = [],
+				i = 0;
+			for (; i < len; i++) {
+				collections.push(this[i][funcName](arg1, arg2));
+			}
 
-		//Union the collections so that the resulting collection contains unique elements and
-		//return the parent elements sorted in reverse document order
-		return ArrayPrototype.union.apply(NodeCollectionPrototype, collections).sort(sorter);
+			//Union the collections so that the resulting collection contains unique elements and
+			//return the parent elements sorted in reverse document order
+			return ArrayPrototype.union.apply(NodeCollectionPrototype, collections).sort(sorter);
+		};
 	}
+
+	//For Node.prototype
+	return sorter === 0
+		? function(until, filter) {
+			var nc = new NodeCollection(),
+				node = this,
+				stop = typeofString(until)
+					? function() { //Match by selector
+						return node.matches(until);
+					}
+					: until && until.length
+						? function() { //Match by Node[]
+							return until.contains(node);
+						}
+						: function() { //Match by Node (or if `until.length === 0`, this will always be false)
+							return node == until;
+						};
+			while ((node = node[funcName]) && !stop()) {
+				if (!filter || node.matches(filter)) {
+					nc.push(node);
+				}
+			}
+			return nc;
+		}
+		: function(selector) {
+			var nc = new NodeCollection(),
+				node = this;
+			while (node = node[funcName]) {
+				if (!selector || node.matches(selector)) {
+					nc.push(node);
+				}
+			}
+			return nc;
+		};
 };
 
 /* 
@@ -2298,56 +2335,46 @@ NodePrototype.beforePut = function() {
 };
 
 /**
- * Get the node's ancestors, optionally filtered by a selector.
+ * Gets all following siblings of the node, optionally filtered by a selector.
+ * 
+ * @function Node.prototype.nextAll
+ * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
+ * @returns {NodeCollection} The set of following sibling elements in order beginning with the closest sibling.
+ */
+NodePrototype.nextAll = getGetDirElementsFunc(nextElementSibling);
+
+/**
+ * Gets the node's following siblings, up to but not including the element matched by the selector, DOM node,
+ * or node in a collection.
+ * 
+ * @function Node.prototype.nextUntil
+ * @param {String|Element|Node[]} [nodes] - A CSS selector, an element, or a collection of nodes used to indicate
+ * that no more siblings should be considered.
+ * @param {String} [filter] - A CSS selector used to filter the returned set of elements.
+ * @returns {NodeCollection} - The set of following sibling elements in order beginning with the closest sibling.
+ */
+NodePrototype.nextUntil = getGetDirElementsFunc(nextElementSibling, 0);
+
+/**
+ * Gets the node's ancestors, optionally filtered by a selector.
  * 
  * @function Node.prototype.parents
  * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
  * @returns {NodeCollection} - The set of the node's ancestors, ordered from the immediate parent on up.
  */
-NodePrototype.parents = function(selector) {
-	var nc = new NodeCollection(),
-		node = this;
-	while (node = node.parentElement) {
-		if (!selector || node.matches(selector)) {
-			nc.push(node);
-		}
-	}
-	return nc;
-};
+NodePrototype.parents = getGetDirElementsFunc('parentElement');
 
 /**
- * Get the node's ancestors, up to but not including the element matched by the given selector.
+ * Gets the node's ancestors, up to but not including the element matched by the selector, DOM node,
+ * or node in a collection.
  * 
  * @function Node.prototype.parentsUntil
- * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
+ * @param {String|Element|Node[]} [nodes] - A CSS selector, an element, or a collection of nodes used to indicate
+ * that no more ancestors should be considered.
  * @param {String} [filter] - A CSS selector used to filter the returned set of elements.
  * @returns {NodeCollection} - The set of the node's ancestors, ordered from the immediate parent on up.
  */
-/**
- * Get the node's ancestors, up to but not including the given node.
- * 
- * @function Node.prototype.parentsUntil
- * @param {Element} [element] - An element indicating that no more parents should be considered once this one is found to be an ancestor.
- * @param {String} [filter] - A CSS selector used to filter the returned set of elements.
- * @returns {NodeCollection} - The set of the node's ancestors, ordered from the immediate parent on up.
- */
-NodePrototype.parentsUntil = function(until, filter) {
-	var nc = new NodeCollection(),
-		node = this,
-		stop = typeofString(until)
-			? function() {
-				return node.matches(until);
-			}
-			: function() {
-				return node == until;
-			};
-	while ((node = node.parentElement) && !stop()) {
-		if (!filter || node.matches(filter)) {
-			nc.push(node);
-		}
-	}
-	return nc;
-};
+NodePrototype.parentsUntil = getGetDirElementsFunc('parentElement', 0);
 
 /**
  * Prepends content to the beginning of the node.
@@ -2370,6 +2397,27 @@ NodePrototype.prependWith = function() {
  * @throws {HierarchyRequestError} The target(s) must implement the {@link ParentNode} interface.
  */
 NodePrototype.prependTo = getNodeInsertingFunction(prepend);
+
+/**
+ * Gets all preceeding siblings of the node, optionally filtered by a selector.
+ * 
+ * @function Node.prototype.prevAll
+ * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
+ * @returns {NodeCollection} The set of preceeding sibling elements in order beginning with the closest sibling.
+ */
+NodePrototype.prevAll = getGetDirElementsFunc(previousElementSibling);
+
+/**
+ * Gets the node's preceeding siblings, up to but not including the element matched by the selector, DOM node,
+ * or node in a collection.
+ * 
+ * @function Node.prototype.prevUntil
+ * @param {String|Element|Node[]} [nodes] - A CSS selector, an element, or a collection of nodes used to indicate
+ * that no more siblings should be considered.
+ * @param {String} [filter] - A CSS selector used to filter the returned set of elements.
+ * @returns {NodeCollection} - The set of preceeding sibling elements in order beginning with the closest sibling.
+ */
+NodePrototype.prevUntil = getGetDirElementsFunc(previousElementSibling, 0);
 
 /**
  * Inserts this node directly after the specified target(s).
@@ -2870,7 +2918,28 @@ NodeCollectionPrototype.map = function(callback, thisArg) {
 };
 
 /**
- * Get the parent of each node in the collection, optionally filtered by a selector.
+ * Gets all following siblings of each node in the collection, optionally filtered by a selector.
+ * 
+ * @function NodeCollection.prototype.nextAll
+ * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
+ * @returns {NodeCollection} The set of following sibling elements in order beginning with the closest sibling.
+ */
+NodeCollectionPrototype.nextAll = getGetDirElementsFunc('nextAll', sortDocOrder);
+
+/**
+ * Gets the following siblings of each node in the collection, up to but not including the elements matched by the selector,
+ * DOM node, or node in a collection.
+ * 
+ * @function NodeCollection.prototype.nextUntil
+ * @param {String|Element|Node[]} [nodes] - A CSS selector, an element, or a collection of nodes used to indicate
+ * that no more siblings should be considered.
+ * @param {String} [filter] - A CSS selector used to filter the returned set of elements.
+ * @returns {NodeCollection} - The set of following sibling elements in order beginning with the closest sibling.
+ */
+NodeCollectionPrototype.nextUntil = getGetDirElementsFunc('nextUntil', sortDocOrder);
+
+/**
+ * Gets the parent of each node in the collection, optionally filtered by a selector.
  * 
  * @function NodeCollection.prototype.parent
  * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
@@ -2890,7 +2959,7 @@ NodeCollectionPrototype.parent = function(selector) {
 };
 
 /**
- * Get the ancestors of each node in the collection, optionally filtered by a selector.
+ * Gets the ancestors of each node in the collection, optionally filtered by a selector.
  * 
  * @function NodeCollection.prototype.parents
  * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
@@ -2899,18 +2968,12 @@ NodeCollectionPrototype.parent = function(selector) {
 NodeCollectionPrototype.parents = getGetDirElementsFunc('parents', sortRevDocOrder);
 
 /**
- * Get the ancestors of each node in the collection, up to but not including the element matched by the given selector.
- * 
- * @function Node.prototype.parentsUntil
- * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
- * @param {String} [filter] - A CSS selector used to filter the returned set of elements.
- * @returns {NodeCollection} - The set of ancestors, sorted in reverse document order.
- */
-/**
- * Get the ancestors of each node in the collection, up to but not including the given node.
+ * Gets the ancestors of each node in the collection, up to but not including the elements matched by the selector,
+ * DOM node, or node in a collection.
  * 
  * @function NodeCollection.prototype.parentsUntil
- * @param {Element} [element] - An element indicating that no more parents should be considered once this one is found to be an ancestor.
+ * @param {String|Element|Node[]} [nodes] - A CSS selector, an element, or a collection of nodes used to indicate
+ * that no more ancestors should be considered.
  * @param {String} [filter] - A CSS selector used to filter the returned set of elements.
  * @returns {NodeCollection} - The set of ancestors, sorted in reverse document order.
  */
@@ -2958,6 +3021,27 @@ NodeCollectionPrototype.prependWith = NodeCollectionPrototype.prepend = function
  * @throws {HierarchyRequestError} The target(s) must implement the {@link ParentNode} interface.
  */
 NodeCollectionPrototype.prependTo = getPutOrToFunction('prependWith');
+
+/**
+ * Gets all preceeding siblings of each node in the collection, optionally filtered by a selector.
+ * 
+ * @function NodeCollection.prototype.prevAll
+ * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
+ * @returns {NodeCollection} The set of preceeding sibling elements in order beginning with the closest sibling.
+ */
+NodeCollectionPrototype.prevAll = getGetDirElementsFunc('prevAll', sortRevDocOrder);
+
+/**
+ * Gets the preceeding siblings of each node in the collection, up to but not including the elements matched by the selector,
+ * DOM node, or node in a collection.
+ * 
+ * @function NodeCollection.prototype.prevUntil
+ * @param {String|Element|Node[]} [nodes] - A CSS selector, an element, or a collection of nodes used to indicate
+ * that no more siblings should be considered.
+ * @param {String} [filter] - A CSS selector used to filter the returned set of elements.
+ * @returns {NodeCollection} - The set of preceeding sibling elements in order beginning with the closest sibling.
+ */
+NodeCollectionPrototype.prevUntil = getGetDirElementsFunc('prevUntil', sortRevDocOrder);
 
 /**
  * Gets the value of the specified property of the first element in the list.
