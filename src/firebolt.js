@@ -330,8 +330,9 @@ function getFirstSetEachElement(funcName, callback) {
 /*
  * Returns a function that creates a set of elements in a certain direction around a given node (i.e. parents, children, siblings).
  * 
- * @param {String} funcName - The name of the function that retrieves elements for a single node.
- * @param {Function} sorter - A function used to sort the union of multiple sets of returned elements. If sorter === 0, return an 'until' function.
+ * @param {String} funcName - The name of a function that retrieves elements for a single node.
+ * @param {Function|?} sorter - A function used to sort the union of multiple sets of returned elements.
+ * If sorter == 0, return an 'until' Node function.
  */
 function getGetDirElementsFunc(funcName, sorter) {
 	//For NodeCollection.prototype
@@ -351,14 +352,15 @@ function getGetDirElementsFunc(funcName, sorter) {
 				collections.push(this[i][funcName](arg1, arg2));
 			}
 
-			//Union the collections so that the resulting collection contains unique elements and
-			//return the parent elements sorted in reverse document order
+			//Union the collections so that the resulting collection contains unique elements
+			//and return the sorted result
 			return ArrayPrototype.union.apply(NodeCollectionPrototype, collections).sort(sorter);
 		};
 	}
 
 	//For Node.prototype
-	return sorter === 0
+	return sorter == 0
+		//nextUntil, prevUntil, parentsUntil
 		? function(until, filter) {
 			var nc = new NodeCollection(),
 				node = this,
@@ -380,6 +382,7 @@ function getGetDirElementsFunc(funcName, sorter) {
 			}
 			return nc;
 		}
+		//nextAll, prevAll, parents
 		: function(selector) {
 			var nc = new NodeCollection(),
 				node = this;
@@ -391,6 +394,31 @@ function getGetDirElementsFunc(funcName, sorter) {
 			return nc;
 		};
 };
+
+/*
+ * Returns a function for Node#next(), Node#prev(), NodeCollection#next(), or NodeCollection#prev().
+ * 
+ * @param {Boolean} [forNode=false] - If truthy, returns the function for Node.prototype (else the NodeCollection version).
+ */
+function getNextOrPrevFunc(dirElementSibling, forNode) {
+	return forNode
+		? function(selector) {
+			var sibling = this[dirElementSibling];
+			return (!selector || sibling && sibling.matches(selector)) && sibling || null;
+		}
+		: function(selector) {
+			var nc = new NodeCollection(),
+				i = 0,
+				sibling;
+			for (; i < this.length; i++) {
+				sibling = this[i][dirElementSibling];
+				if (sibling && (!selector || sibling.matches(selector))) {
+					nc.push(sibling);
+				}
+			}
+			return nc;
+		};
+}
 
 /* 
  * Returns the function body for Node#[putAfter, putBefore, or prependTo]
@@ -2335,6 +2363,41 @@ NodePrototype.beforePut = function() {
 };
 
 /**
+ * Gets the node's child elements, optionally filtered by a selector.
+ * 
+ * @function Node.prototype.childElements
+ * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
+ * @returns {NodeCollection}
+ */
+NodePrototype.childElements = function(selector) {
+	var children = this.children;
+
+	if (!selector) {
+		return new NodeCollection(children);
+	}
+
+	var nc = new NodeCollection(),
+		i = 0;
+	if (children) { //In case this node does not implement the ParentNode interface (and therefore children is undefined)
+		for (; i < children.length; i++) {
+			if (children[i].matches(selector)) {
+				nc[nc.length++] = children[i]; //(faster than push() in WebKit)
+			}
+		}
+	}
+	return nc;
+};
+
+/**
+ * Get the node's immediately following sibling element. If a selector is provided, it retrieves the next sibling only if it matches that selector.
+ * 
+ * @function Node.prototype.next
+ * @param {String} [selector] - A CSS selector to match the next sibling against.
+ * @returns {?Element}
+ */
+NodePrototype.next = getNextOrPrevFunc(nextElementSibling, 1);
+
+/**
  * Gets all following siblings of the node, optionally filtered by a selector.
  * 
  * @function Node.prototype.nextAll
@@ -2399,6 +2462,15 @@ NodePrototype.prependWith = function() {
 NodePrototype.prependTo = getNodeInsertingFunction(prepend);
 
 /**
+ * Get the node's immediately preceeding sibling element. If a selector is provided, it retrieves the previous sibling only if it matches that selector.
+ * 
+ * @function Node.prototype.prev
+ * @param {String} [selector] - A CSS selector to match the previous sibling against.
+ * @returns {?Element}
+ */
+NodePrototype.prev = getNextOrPrevFunc(previousElementSibling, 1);
+
+/**
  * Gets all preceeding siblings of the node, optionally filtered by a selector.
  * 
  * @function Node.prototype.prevAll
@@ -2447,6 +2519,19 @@ NodePrototype.remove = function() {
 	if (this[parentNode]) {
 		this[parentNode].removeChild(this);
 	}
+};
+
+/**
+ * Gets the node's siblings, optionally filtered by a selector.
+ * 
+ * @function Node.prototype.siblings
+ * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
+ * @returns {NodeCollection} - The set of the node's ancestors, ordered from the immediate parent on up.
+ * @throws {TypeError} The subject node must have a
+ * {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
+ */
+NodePrototype.siblings = function(selector) {
+	return ArrayPrototype.remove.call(this.parentNode.childElements(selector), this);
 };
 
 /**
@@ -2723,6 +2808,15 @@ NodeCollectionPrototype.beforePut = NodeCollectionPrototype.before = function() 
 }
 
 /**
+ * Gets the child elements of each element in the collection, optionally filtered by a selector.
+ * 
+ * @function NodeCollection.prototype.children
+ * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
+ * @returns {NodeCollection} The set of children, sorted in document order.
+ */
+NodeCollectionPrototype.children = getGetDirElementsFunc('childElements', sortDocOrder);
+
+/**
  * Returns a clone of the collection with all non-elements removed.
  * 
  * @returns {NodeCollection} A reference to the new collection.
@@ -2897,6 +2991,18 @@ NodeCollectionPrototype.html = getFirstSetEachElement('html', function(numArgs) 
 });
 
 /**
+ * Returns the `index`th item in the collection. If `index` is greater than or equal to the number of nodes in the list, this returns `null`.
+ * 
+ * @function NodeCollection.prototype.item
+ * @param {Number} index
+ * @returns {?Node}
+ * @see http://www.w3.org/TR/DOM-Level-3-Core/core.html#ID-844377136
+ */
+NodeCollectionPrototype.item = function(index) {
+	return this[index] || null;
+};
+
+/**
  * Alias of {@link NodeCollection#putAfter} provided for similarity with jQuery.
  * 
  * @function NodeCollection.prototype.insertAfter
@@ -2916,6 +3022,15 @@ NodeCollectionPrototype.html = getFirstSetEachElement('html', function(numArgs) 
 NodeCollectionPrototype.map = function(callback, thisArg) {
 	return new NodeCollection(ArrayPrototype.map.call(this, callback, thisArg));
 };
+
+/**
+ * Get the each node's immediately following sibling element. If a selector is provided, it retrieves the next sibling only if it matches that selector.
+ * 
+ * @function NodeCollection.prototype.next
+ * @param {String} [selector] - A CSS selector to match the next sibling against.
+ * @returns {NodeCollection} The collection of sibling elements.
+ */
+NodeCollectionPrototype.next = getNextOrPrevFunc(nextElementSibling);
 
 /**
  * Gets all following siblings of each node in the collection, optionally filtered by a selector.
@@ -3021,6 +3136,15 @@ NodeCollectionPrototype.prependWith = NodeCollectionPrototype.prepend = function
  * @throws {HierarchyRequestError} The target(s) must implement the {@link ParentNode} interface.
  */
 NodeCollectionPrototype.prependTo = getPutOrToFunction('prependWith');
+
+/**
+ * Get the each node's immediately preceeding sibling element. If a selector is provided, it retrieves the previous sibling only if it matches that selector.
+ * 
+ * @function NodeCollection.prototype.prev
+ * @param {String} [selector] - A CSS selector to match the previous sibling against.
+ * @returns {NodeCollection} The collection of sibling elements.
+ */
+NodeCollectionPrototype.prev = getNextOrPrevFunc(previousElementSibling);
 
 /**
  * Gets all preceeding siblings of each node in the collection, optionally filtered by a selector.
@@ -3149,6 +3273,16 @@ NodeCollectionPrototype.removeProp = callOnEachElement('removeProp');
  * @see HTMLElement.show
  */
 NodeCollectionPrototype.show = callOnEachElement('show');
+
+/**
+ * Gets the sibling elements of each node in the collection, optionally filtered by a selector.
+ * 
+ * @function NodeCollection.prototype.siblings
+ * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
+ * @returns {NodeCollection} The set of siblings, sorted in document order.
+ * @throws {TypeError} The target node(s) must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
+ */
+NodeCollectionPrototype.siblings = getGetDirElementsFunc('siblings', sortDocOrder);
 
 /*
  * See Array.prototype.slice
@@ -3291,7 +3425,35 @@ getOwnPropertyNames(NodeCollectionPrototype)
 			HTMLCollectionPrototype[methodName] = NodeListPrototype[methodName] = NodeCollectionPrototype[methodName];
 		}
 	});
-	window.NodeCollection = NodeCollection;
+
+/**
+ * Returns the specific node whose ID or, as a fallback, name matches the string specified by `name`.
+ * 
+ * @function NodeCollection.prototype.namedItem
+ * @param {String} name
+ * @returns {?Element}
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/HTMLCollection
+ */
+/**
+ * Returns the specific node whose ID or, as a fallback, name matches the string specified by `name`.
+ * 
+ * @function NodeList.prototype.namedItem
+ * @param {String} name
+ * @returns {?Element}
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/HTMLCollection
+ */
+NodeListPrototype.namedItem = NodeCollectionPrototype.namedItem = function(name) {
+	var i = 0,
+		node;
+	for (; i < this.length; i++) {
+		node = this[i];
+		if (node.id == name || node.name == name) {
+			return node;
+		}
+	}
+	return null;
+};
+
 /**
  * Returns the NodeCollection equivalent of the NodeList.
  * 
@@ -3675,6 +3837,20 @@ if (isUndefined(textNode[previousElementSibling])) {
 				if (sibling.nodeType === 1) break;
 			}
 			return sibling;
+		}
+	});
+}
+
+//Fix the children property for Document and DocumentFragment in browsers than only support it on Element
+if (!document.children) {
+	defineProperty(NodePrototype, 'children', {
+		get: function() {
+			//This method is faster in IE and slower in WebKit-based browsers, but it takes less code
+			//and calling children on Documents and DocumentFragments is rare so it's not a big deal.
+			//Also not using NodeCollection#clean() because that function is sort of on probation.
+			return new NodeCollection(arrayFilter.call(this.childNodes, function(node) {
+				return node.nodeType === 1;
+			}));
 		}
 	});
 }
