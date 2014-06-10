@@ -2587,7 +2587,7 @@ NodePrototype.text = function(text) {
 var NodeCollection = window.NodeCollection = function(nodes, single) {
 	if (nodes) {
 		if (single) {
-			this.push(nodes);
+			this[this.length++] = nodes; //(this is faster than push() in WebKit-based browsers)
 		}
 		else {
 			var len = this.length = nodes.length,
