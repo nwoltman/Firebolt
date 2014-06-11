@@ -11,72 +11,6 @@
 
 //#region =========================== Private ================================
 
-/*
- * Local variables that are compressed when this file is minified.
- */
-var prototype = 'prototype',
-	ArrayPrototype = Array[prototype],
-	ElementPrototype = Element[prototype],
-	HTMLElementPrototype = HTMLElement[prototype],
-	NodePrototype = Node[prototype],
-	NodeListPrototype = NodeList[prototype],
-	HTMLCollectionPrototype = HTMLCollection[prototype],
-	StringPrototype = String[prototype],
-	Object = window.Object,
-	defineProperty = Object.defineProperty,
-	defineProperties = Object.defineProperties,
-	getOwnPropertyNames = Object.getOwnPropertyNames,
-	arrayFilter = ArrayPrototype.filter,
-	encodeURIComponent = window.encodeURIComponent,
-
-	//Property strings
-	insertAdjacentHTML = 'insertAdjacentHTML',
-	parentNode = 'parentNode',
-	nextElementSibling = 'nextElementSibling',
-	previousElementSibling = 'previousElementSibling',
-
-	//Data variables
-	dataKeyPublic = ('FB' + 1 / Math.random()).replace('.', ''),
-	dataKeyPrivate = ('FB' + 1 / Math.random()).replace('.', ''),
-	rgxNoParse = /^\d+\D/, //Don't try to parse strings that look like numbers but have non-digit characters
-
-	/* Pre-built RegExps */
-	rgxTableLevel1 = /<t(?:h|b|f)/i, //Detects (non-deprected) first-level table elements: <thead>, <tbody>, <tfoot>
-	rgxGetOrHead = /GET|HEAD/i, //Determines if a request is a GET or HEAD request
-	rgxDomain = /\/?\/\/(?:\w+\.)?(.*?)(?:\/|$)/,
-	rgxDifferentNL = /^(?:af|ap|be|ins|pre|pu|tog)|remove(?:Class)?$/, //Determines if the function is different for NodeLists
-	rgxClassOrId = /^.[\w_-]+$/,
-	rgxTag = /^[A-Za-z]+$/,
-	rgxNonWhitespace = /\S+/g,
-	rgxSpaceChars = /[ \n\r\t\f]+/, //From W3C http://www.w3.org/TR/html5/single-page.html#space-character
-	
-	/* AJAX */
-	timestamp = Date.now(),
-	oldCallbacks = [],
-	ajaxSettings = {
-		accept: {
-			'*': '*/*',
-			html: 'text/html',
-			json: 'application/json, text/javascript',
-			script: 'text/javascript, application/javascript, application/ecmascript, application/x-ecmascript',
-			text: 'text/plain',
-			xml: 'application/xml, text/xml'
-		},
-		async: true,
-		contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
-		headers: {'X-Requested-With': 'XMLHttpRequest'},
-		isLocal: /^(?:file|.*-extension|widget):\/\//.test(location.href),
-		jsonp: 'callback',
-		jsonpCallback: function() {
-			var callback = oldCallbacks.pop() || dataKeyPublic + "_" + (timestamp++);
-			this[callback] = true;
-			return callback;
-		},
-		type: 'GET',
-		url: location.href,
-		xhr: XMLHttpRequest
-	};
-
 /** 
  * Calls the function with the passed in name on each element in an enumerable.
  * 
@@ -481,16 +415,16 @@ function htmlToNodes(html) {
 			elem = createElement('html');
 
 			if (html.startsWith('<html')) {
-				return new NodeCollection(elem, 1);
+				return new NodeCollection(elem);
 			}
 
 			elem.innerHTML = html;
 
 			if (html.contains('<head')) {
-				return new NodeCollection(elem.firstChild, 1);
+				return new NodeCollection(elem.firstChild);
 			}
 			if (html.contains('<body')) {
-				return new NodeCollection(elem.lastChild, 1);
+				return new NodeCollection(elem.lastChild);
 			}
 		}
 
@@ -606,9 +540,89 @@ function sortRevDocOrder(a, b) {
 	return pos;
 }
 
+/**
+ * Converts a set of nodes to a NodeCollection.
+ */
+function toNC(nodes) {
+	var len = nodes.length,
+		nc = new NodeCollection(len),
+		i = 0;
+	for (; i < len; i++) {
+		nc[i] = nodes[i];
+	}
+	return nc;
+}
+
 function typeofString(value) {
 	return typeof value == 'string';
 }
+
+/*
+ * Local variables that are compressed when this file is minified.
+ */
+var prototype = 'prototype',
+	ArrayPrototype = Array[prototype],
+	ElementPrototype = Element[prototype],
+	HTMLElementPrototype = HTMLElement[prototype],
+	NodePrototype = Node[prototype],
+	NodeListPrototype = NodeList[prototype],
+	HTMLCollectionPrototype = HTMLCollection[prototype],
+	StringPrototype = String[prototype],
+	Object = window.Object,
+	defineProperty = Object.defineProperty,
+	defineProperties = Object.defineProperties,
+	getOwnPropertyNames = Object.getOwnPropertyNames,
+	encodeURIComponent = window.encodeURIComponent,
+
+	//Property strings
+	insertAdjacentHTML = 'insertAdjacentHTML',
+	parentNode = 'parentNode',
+	nextElementSibling = 'nextElementSibling',
+	previousElementSibling = 'previousElementSibling',
+
+	//Data variables
+	dataKeyPublic = ('FB' + 1 / Math.random()).replace('.', ''),
+	dataKeyPrivate = ('FB' + 1 / Math.random()).replace('.', ''),
+	rgxNoParse = /^\d+\D/, //Don't try to parse strings that look like numbers but have non-digit characters
+
+	/* Pre-built RegExps */
+	rgxTableLevel1 = /<t(?:h|b|f)/i, //Detects (non-deprected) first-level table elements: <thead>, <tbody>, <tfoot>
+	rgxGetOrHead = /GET|HEAD/i, //Determines if a request is a GET or HEAD request
+	rgxDomain = /\/?\/\/(?:\w+\.)?(.*?)(?:\/|$)/,
+	rgxDifferentNL = /^(?:af|ap|be|ins|pre|pu|tog)|remove(?:Class)?$/, //Determines if the function is different for NodeLists
+	rgxClassOrId = /^.[\w_-]+$/,
+	rgxTag = /^[A-Za-z]+$/,
+	rgxNonWhitespace = /\S+/g,
+	rgxSpaceChars = /[ \n\r\t\f]+/, //From W3C http://www.w3.org/TR/html5/single-page.html#space-character
+
+	/* AJAX */
+	timestamp = Date.now(),
+	oldCallbacks = [],
+	ajaxSettings = {
+		accept: {
+			'*': '*/*',
+			html: 'text/html',
+			json: 'application/json, text/javascript',
+			script: 'text/javascript, application/javascript, application/ecmascript, application/x-ecmascript',
+			text: 'text/plain',
+			xml: 'application/xml, text/xml'
+		},
+		async: true,
+		contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+		headers: {'X-Requested-With': 'XMLHttpRequest'},
+		isLocal: /^(?:file|.*-extension|widget):\/\//.test(location.href),
+		jsonp: 'callback',
+		jsonpCallback: function() {
+			var callback = oldCallbacks.pop() || dataKeyPublic + "_" + (timestamp++);
+			this[callback] = true;
+			return callback;
+		},
+		type: 'GET',
+		url: location.href,
+		xhr: XMLHttpRequest
+	},
+
+	any, //Arbitrary variable that may be used for whatever
 
 //#endregion Private
 
@@ -622,12 +636,9 @@ function typeofString(value) {
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array|Array - JavaScript | MDN}
  */
 
-defineProperties(ArrayPrototype, {
+arrayExtensions = {
 	/* Private reference to the constructor */
-	__C__: {
-		writable: true,
-		value: Array
-	},
+	__C__: Array,
 
 	/**
 	 * Returns a copy of the array with all "empty" items (as defined by {@linkcode Firebolt.isEmpty}) removed.
@@ -637,18 +648,15 @@ defineProperties(ArrayPrototype, {
 	 * @returns {Array} A clean copy of the array.
 	 * @see Firebolt.isEmpty
 	 */
-	clean: {
-		writable: true,
-		value: function(allowEmptyStrings) {
-			var cleaned = [],
-				i = 0;
-			for (; i < this.length; i++) {
-				if (!Firebolt.isEmpty(this[i], allowEmptyStrings)) {
-					cleaned.push(this[i]);
-				}
+	clean: function(allowEmptyStrings) {
+		var cleaned = [],
+			i = 0;
+		for (; i < this.length; i++) {
+			if (!Firebolt.isEmpty(this[i], allowEmptyStrings)) {
+				cleaned.push(this[i]);
 			}
-			return cleaned;
 		}
+		return cleaned;
 	},
 
 	/**
@@ -656,10 +664,8 @@ defineProperties(ArrayPrototype, {
 	 * 
 	 * @function Array.prototype.clear
 	 */
-	clear: {
-		value: function() {
-			this.length = 0;
-		}
+	clear: function() {
+		this.length = 0;
 	},
 
 	/**
@@ -668,17 +674,14 @@ defineProperties(ArrayPrototype, {
 	 * @function Array.prototype.clone
 	 * @returns {Array} A copy of the array.
 	 */
-	clone: {
-		writable: true,
-		value: function() {
-			var len = this.length,
-				clone = new Array(len),
-				i = 0;
-			for (; i < len; i++) {
-				clone[i] = this[i];
-			}
-			return clone;
+	clone: function() {
+		var len = this.length,
+			clone = new this.__C__(len),
+			i = 0;
+		for (; i < len; i++) {
+			clone[i] = this[i];
 		}
+		return clone;
 	},
 
 	/**
@@ -687,10 +690,8 @@ defineProperties(ArrayPrototype, {
 	 * @function Array.prototype.contains
 	 * @returns {Boolean} `true` if the item is in the array; else `false`.
 	 */
-	contains: {
-		value: function(e) {
-			return this.indexOf(e) >= 0;
-		}
+	contains: function(e) {
+		return this.indexOf(e) >= 0;
 	},
 
 	/**
@@ -701,21 +702,19 @@ defineProperties(ArrayPrototype, {
 	 * @param {Array|Enumerable} array - Array or other enumerable object that has a `length` property.
 	 * @returns {Boolean} `true` if the arrays are equal; else `false`.
 	 */
-	equals: {
-		value: function(array) {
-			if (this === array) { //Easy check
-				return true;
-			}
-			if (this.length !== array.length) {
-				return false;
-			}
-			for (var i = 0; i < array.length; i++) {
-				if (this[i] !== array[i]) {
-					return false;
-				}
-			}
+	equals: function(array) {
+		if (this === array) { //Easy check
 			return true;
 		}
+		if (this.length !== array.length) {
+			return false;
+		}
+		for (var i = 0; i < array.length; i++) {
+			if (this[i] !== array[i]) {
+				return false;
+			}
+		}
+		return true;
 	},
 
 	/**
@@ -727,17 +726,15 @@ defineProperties(ArrayPrototype, {
 	 * @example
 	 * [1, 2, 3].intersect([2, 3, 4]);  // returns [2, 3]
 	 */
-	intersect: {
-		value: function(array) {
-			var intersection = new this.__C__(),
-				i = 0;
-			for (; i < array.length; i++) {
-				if (this.contains(array[i]) && intersection.indexOf(array[i]) < 0) {
-					intersection.push(array[i]);
-				}
+	intersect: function(array) {
+		var intersection = new this.__C__(),
+			i = 0;
+		for (; i < array.length; i++) {
+			if (this.contains(array[i]) && intersection.indexOf(array[i]) < 0) {
+				intersection.push(array[i]);
 			}
-			return intersection;
 		}
+		return intersection;
 	},
 
 	/**
@@ -746,10 +743,8 @@ defineProperties(ArrayPrototype, {
 	 * @function Array.prototype.last
 	 * @returns {*} The last item in the array, or `undefined` if the array is empty.
 	 */
-	last: {
-		value: function() {
-			return this[this.length - 1];
-		}
+	last: function() {
+		return this[this.length - 1];
 	},
 
 	/**
@@ -759,20 +754,17 @@ defineProperties(ArrayPrototype, {
 	 * @param {...*} items - Items to remove from the array.
 	 * @returns {Array} A reference to the array (so it's chainable).
 	 */
-	remove: {
-		writable: true,
-		value: function() {
-			for (var rindex, i = 0; i < arguments.length; i++) {
-				while ((rindex = this.indexOf(arguments[i])) >= 0) {
-					this.splice(rindex, 1);
-					if (!this.length) {
-						return this; //Exit early since there is nothing left to remove
-					}
+	remove: function() {
+		for (var rindex, i = 0; i < arguments.length; i++) {
+			while ((rindex = this.indexOf(arguments[i])) >= 0) {
+				this.splice(rindex, 1);
+				if (!this.length) {
+					return this; //Exit early since there is nothing left to remove
 				}
 			}
-
-			return this;
 		}
+
+		return this;
 	},
 
 	/**
@@ -784,22 +776,20 @@ defineProperties(ArrayPrototype, {
 	 * @example
 	 * [1, 2, 3].union([2, 3, 4, 5]);  // returns [1, 2, 3, 4, 5]
 	 */
-	union: {
-		value: function() {
-			var union = this.unique(),
-				i = 0,
-				array,
-				j;
-			for (; i < arguments.length; i++) {
-				array = arguments[i];
-				for (j = 0; j < array.length; j++) {
-					if (union.indexOf(array[j]) < 0) {
-						union.push(array[j]);
-					}
+	union: function() {
+		var union = this.unique(),
+			i = 0,
+			array,
+			j;
+		for (; i < arguments.length; i++) {
+			array = arguments[i];
+			for (j = 0; j < array.length; j++) {
+				if (union.indexOf(array[j]) < 0) {
+					union.push(array[j]);
 				}
-			};
-			return union;
-		}
+			}
+		};
+		return union;
 	},
 
 	/**
@@ -810,17 +800,15 @@ defineProperties(ArrayPrototype, {
 	 * @example
 	 * [1, 2, 3, 2, 1].unique();  // returns [1, 2, 3]
 	 */
-	unique: {
-		value: function() {
-			var uniq = new this.__C__(),
-				i = 0;
-			for (; i < this.length; i++) {
-				if (uniq.indexOf(this[i]) < 0) {
-					uniq.push(this[i]);
-				}
+	unique: function() {
+		var uniq = new this.__C__(),
+			i = 0;
+		for (; i < this.length; i++) {
+			if (uniq.indexOf(this[i]) < 0) {
+				uniq.push(this[i]);
 			}
-			return uniq;
 		}
+		return uniq;
 	},
 
 	/**
@@ -832,12 +820,11 @@ defineProperties(ArrayPrototype, {
 	 * @example
 	 * [1, 2, 3, 4, 5, 6].without(3, 4, 6);  // returns [1, 2, 5]
 	 */
-	without: {
-		value: function() {
-			var array = new this.__C__(),
-				i = 0,
-				j;
-			skip:
+	without: function() {
+		var array = new this.__C__(),
+			i = 0,
+			j;
+		skip:
 			for (; i < this.length; i++) {
 				for (j = 0; j < arguments.length; j++) {
 					if (this[i] === arguments[j]) {
@@ -846,10 +833,16 @@ defineProperties(ArrayPrototype, {
 				}
 				array.push(this[i]);
 			}
-			return array;
-		}
+		return array;
 	}
-});
+};
+
+//Define the properties on Array.prototype with Object.defineProperty
+for (any in arrayExtensions) {
+	defineProperty(ArrayPrototype, any, {
+		value: arrayExtensions[any]
+	});
+}
 
 //#endregion Array
 
@@ -942,7 +935,12 @@ ElementPrototype.matches = ElementPrototype.matches || ElementPrototype.webkitMa
 function Firebolt(str) {
 	if (str[0] === '#') { //Check for a single ID
 		if (rgxClassOrId.test(str)) {
-			return new NodeCollection(document.getElementById(str.slice(1)), 1);
+			var nc = new NodeCollection(),
+				elem = document.getElementById(str.slice(1));
+			if (elem) {
+				nc.push(elem);
+			}
+			return nc;
 		}
 	}
 	else if (str[0] === '.') { //Check for a single class name
@@ -2373,7 +2371,7 @@ NodePrototype.childElements = function(selector) {
 	var children = this.children;
 
 	if (!selector) {
-		return new NodeCollection(children);
+		return toNC(children);
 	}
 
 	var nc = new NodeCollection(),
@@ -2381,7 +2379,7 @@ NodePrototype.childElements = function(selector) {
 	if (children) { //In case this node does not implement the ParentNode interface (and therefore children is undefined)
 		for (; i < children.length; i++) {
 			if (children[i].matches(selector)) {
-				nc[nc.length++] = children[i]; //(faster than push() in WebKit)
+				nc.push(children[i]);
 			}
 		}
 	}
@@ -2572,6 +2570,8 @@ NodePrototype.text = function(text) {
 //#region ======================== NodeCollection ============================
 
 /**
+ * Same constructor as {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array|Array}.
+ * 
  * @class NodeCollection
  * @mixes Array
  * @classdesc
@@ -2580,30 +2580,21 @@ NodePrototype.text = function(text) {
  * 
  * It should be noted that all functions that do not have a specified return value, return the calling object,
  * allowing for function chaining.
- * 
- * @param {NodeList|HTMLCollection|Node[]} [nodes] - The collection of nodes the NodeCollection will be comprised of.
- * @param {Boolean} [single] - If truthy, the passed in value is a single node instead of a collection of nodes.
  */
-var NodeCollection = window.NodeCollection = function(nodes, single) {
-	if (nodes) {
-		if (single) {
-			this[this.length++] = nodes; //(this is faster than push() in WebKit-based browsers)
-		}
-		else {
-			var len = this.length = nodes.length,
-				i = 0;
-			for (; i < len; i++) {
-				this[i] = nodes[i];
-			}
-		}
-	}
-},
+var
+	//<iframe> Array subclassing
+	NodeCollection = window.NodeCollection = document.head.appendChild(any = createElement('iframe')).contentWindow.Array,
 
-/* Subclass Array (not perfectly, but pretty close) */
-NodeCollectionPrototype = NodeCollection[prototype] = [];
+	//Extend NodeCollection's prototype with the Array functions
+	NodeCollectionPrototype = extend(NodeCollection[prototype], arrayExtensions),
 
-/* Reset the constructor and set the private constructor (which will be inherited by NodeList and HTMLCollection) */
-NodeCollectionPrototype.constructor = NodeCollectionPrototype.__C__ = NodeCollection;
+	//Save a reference to the original filter function for use later on
+	ncFilter = NodeCollectionPrototype.filter;
+
+any.remove(); //Remove the iframe that was made to subclass Array
+
+/* Set the private constructor (which will be inherited by NodeList and HTMLCollection) */
+NodeCollectionPrototype.__C__ = NodeCollection;
 
 /**
  * Adds the queried elements to a copy of the existing collection (if they are not already in the collection)
@@ -2650,8 +2641,8 @@ NodeCollectionPrototype.constructor = NodeCollectionPrototype.__C__ = NodeCollec
 NodeCollectionPrototype.add = function(input) {
 	var newCollection;
 	if (input.nodeType) {
-		if (this.contains(input)) {
-			return new NodeCollection(this);
+		if (this.contains(input)) { //This collection already contains the input node
+			return toNC(this); //Return a clone of the current collection
 		}
 		newCollection = this.concat(input);
 	}
@@ -2835,40 +2826,6 @@ NodeCollectionPrototype.clean = function() {
 NodeCollectionPrototype.click = callOnEachElement('click');
 
 /**
- * Returns a duplicate of the collection, leaving the original intact.
- * 
- * @function NodeCollection.prototype.clone
- * @returns {NodeCollection} A copy of the collection.
- */
-NodeCollectionPrototype.clone = function() {
-	return new NodeCollection(this);
-}
-
-/**
- * Returns a new NodeCollection comprised of this collection joined with other NodeCollection(s) and/or value(s).
- * 
- * @function NodeCollection.prototype.concat
- * @param {...(Node|NodeCollection|NodeList|HTMLCollection|Node[])} nodes - One or more Nodes or NodeCollections to add to the collection.
- * @returns {NodeCollection} A copy of the collection with the added nodes.
- */
-NodeCollectionPrototype.concat = function() {
-	var collection = new NodeCollection(this),
-		i = 0,
-		arg;
-	for (; i < arguments.length; i++) {
-		if (arg = arguments[i]) {
-			if (arg instanceof Node) { //Node
-				collection.push(arg);
-			}
-			else { //NodeCollection|NodeList|HTMLCollection|Node[]
-				collection.push.apply(collection, arg);
-			}
-		}
-	}
-	return collection;
-}
-
-/**
  * Gets the computed style object of the first element in the list.
  * 
  * @function NodeCollection.prototype.css
@@ -2959,11 +2916,11 @@ NodeCollectionPrototype.empty = callOnEachElement('empty');
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter|Array.prototype.filter() - JavaScript | MDN}
  */
 NodeCollectionPrototype.filter = function(selector) {
-	return new NodeCollection(arrayFilter.call(this, 
+	return ncFilter.call(this, 
 		typeofString(selector)
 			? function(node) { return node.nodeType === 1 && node.matches(selector); } //Use CSS string filter
 			: selector //Use given filter function
-	));
+	);
 };
 
 /**
@@ -3015,13 +2972,6 @@ NodeCollectionPrototype.item = function(index) {
  * @function NodeCollection.prototype.insertBefore
  * @see NodeCollection#putBefore
  */
-
-/*
- * See Array.prototype.map - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
- */
-NodeCollectionPrototype.map = function(callback, thisArg) {
-	return new NodeCollection(ArrayPrototype.map.call(this, callback, thisArg));
-};
 
 /**
  * Get the each node's immediately following sibling element. If a selector is provided, it retrieves the next sibling only if it matches that selector.
@@ -3284,13 +3234,6 @@ NodeCollectionPrototype.show = callOnEachElement('show');
  */
 NodeCollectionPrototype.siblings = getGetDirElementsFunc('siblings', sortDocOrder);
 
-/*
- * See Array.prototype.slice
- */
-NodeCollectionPrototype.slice = function(start, end) {
-	return new NodeCollection(ArrayPrototype.slice.call(this, start, end));
-}
-
 /**
  * Gets the combined text contents of each node in the list.
  * 
@@ -3405,7 +3348,6 @@ NodeCollectionPrototype.toggleClass = callOnEachElement('toggleClass');
 
 /* Give NodeLists and HTMLCollections many of the same prototype functions as NodeCollections */
 getOwnPropertyNames(NodeCollectionPrototype)
-	.union(getOwnPropertyNames(ArrayPrototype))
 	.remove( //These methods should not be added to the NodeList prototype
 		'clear',
 		'length',
@@ -3418,7 +3360,7 @@ getOwnPropertyNames(NodeCollectionPrototype)
 	).forEach(function(methodName) {
 		if (rgxDifferentNL.test(methodName)) { //Convert to a NodeCollection first
 			HTMLCollectionPrototype[methodName] = NodeListPrototype[methodName] = function() {
-				return NodeCollectionPrototype[methodName].apply(new NodeCollection(this), arguments);
+				return NodeCollectionPrototype[methodName].apply(toNC(this), arguments);
 			}
 		}
 		else if (!NodeListPrototype[methodName]) {
@@ -3758,9 +3700,13 @@ var isOldIE = createElement('div').html('<!--[if IE]><i></i><![endif]-->').$TAG(
 	textNode = Firebolt.text(' ');
 
 if (isOldIE) { //IE9 compatibility
+
 	HTMLElementPrototype.hasClass = function(className) {
 		return new RegExp('(?:^|\\s)' + className + '(?:\\s|$)').test(this.className);
 	};
+
+	//Must persist the iframe otherwise IE won't remember what the NodeCollection function is
+	Firebolt.__$$ = any;
 }
 
 /* Browser (definitely IE) compatibility and speed boost for removeClass() */
@@ -3848,9 +3794,9 @@ if (!document.children) {
 			//This method is faster in IE and slower in WebKit-based browsers, but it takes less code
 			//and calling children on Documents and DocumentFragments is rare so it's not a big deal.
 			//Also not using NodeCollection#clean() because that function is sort of on probation.
-			return new NodeCollection(arrayFilter.call(this.childNodes, function(node) {
+			return ncFilter.call(this.childNodes, function(node) {
 				return node.nodeType === 1;
-			}));
+			});
 		}
 	});
 }
