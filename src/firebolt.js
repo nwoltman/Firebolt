@@ -2368,7 +2368,9 @@ NodePrototype.beforePut = function() {
  * @returns {NodeCollection}
  */
 NodePrototype.childElements = function(selector) {
-	var children = this.children;
+	//If this node does not implement the ParentNode interface, this.children will be `undefined`,
+	//so set children to an empty array so nothing will be added to the returned NodeCollection
+	var children = this.children || [];
 
 	if (!selector) {
 		return toNC(children);
@@ -2376,11 +2378,9 @@ NodePrototype.childElements = function(selector) {
 
 	var nc = new NodeCollection(),
 		i = 0;
-	if (children) { //In case this node does not implement the ParentNode interface (and therefore children is undefined)
-		for (; i < children.length; i++) {
-			if (children[i].matches(selector)) {
-				nc.push(children[i]);
-			}
+	for (; i < children.length; i++) {
+		if (children[i].matches(selector)) {
+			nc.push(children[i]);
 		}
 	}
 	return nc;
