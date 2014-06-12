@@ -3789,15 +3789,17 @@ if (isUndefined(textNode[previousElementSibling])) {
 
 //Fix the children property for Document and DocumentFragment in browsers than only support it on Element
 if (!document.children) {
-	defineProperty(NodePrototype, 'children', {
-		get: function() {
-			//This method is faster in IE and slower in WebKit-based browsers, but it takes less code
-			//and calling children on Documents and DocumentFragments is rare so it's not a big deal.
-			//Also not using NodeCollection#clean() because that function is sort of on probation.
-			return ncFilter.call(this.childNodes, function(node) {
-				return node.nodeType === 1;
-			});
-		}
+	[Document[prototype], DocumentFragment[prototype]].forEach(function(proto) {
+		defineProperty(proto, 'children', {
+			get: function() {
+				//This method is faster in IE and slower in WebKit-based browsers, but it takes less code
+				//and calling children on Documents and DocumentFragments is rare so it's not a big deal.
+				//Also not using NodeCollection#clean() because that function is sort of on probation.
+				return ncFilter.call(this.childNodes, function(node) {
+					return node.nodeType === 1;
+				});
+			}
+		});
 	});
 }
 
