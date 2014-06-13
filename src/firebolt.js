@@ -913,13 +913,12 @@ ElementPrototype.matches = ElementPrototype.matches || ElementPrototype.webkitMa
 //#region =========================== Firebolt ===============================
 
 /**
- * The Firebolt namespace object and selector function.
- * Can be referenced by the synonyms `FB` and `$` (on pages where `$` has not already been defined).
+ * The Firebolt namespace object and selector function (can also be referenced by the synonyms `FB` and `$`).
  * @namespace Firebolt
  */
 
 /**
- * The global Firebolt function. Can be referenced by the synonyms `FB` and `$` (on pages where `$` has not already been defined).  
+ * The global Firebolt function (can also be referenced by the synonyms `FB` and `$`).  
  * Returns a list of the elements either found in the DOM that match the passed in CSS selector or created by passing an HTML string.
  * 
  * @global
@@ -929,10 +928,9 @@ ElementPrototype.matches = ElementPrototype.matches || ElementPrototype.webkitMa
  * @returns {NodeList|HTMLCollection} A list of selected elements or newly created elements.
  * 
  * @example
- * $('button.btn-success') // Returns all button elements with the class "btn-success"
- * $('str <p>content</p>') // Creates a set of nodes and returns it as a NodeList (in this case ["str ", <p>content</p>])
- * $('1<br>2<br>3 >');     // Returns ["1", <br>​, "2", <br>​, "3 >"]
- * $.create('div')         // Calls Firebolt's `create()` method to create a new div element 
+ * $('button.btn-success'); // Returns all button elements with the class "btn-success"
+ * $('str <p>content</p>'); // Creates a set of nodes and returns it as a NodeList (in this case ["str ", <p>content</p>])
+ * $.create('div');         // Calls Firebolt's `create()` method to create a new div element 
  */
 function Firebolt(str) {
 	if (str[0] === '#') { //Check for a single ID
@@ -1659,13 +1657,9 @@ Function[prototype].delay = function(ms) {
 //#region =========================== Globals ================================
 
 /*
- * Firebolt namespace reference objects.
+ * Firebolt reference objects.
  */
-
-window.FB = window.Firebolt = Firebolt;
-if (!window.$) {
-	window.$ = Firebolt;
-}
+window.$ = window.FB = window.Firebolt = Firebolt;
 
 /**
  * PHP-style associative array (Object) of URL parameters.
