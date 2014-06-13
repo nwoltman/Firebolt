@@ -1,6 +1,6 @@
 ﻿/**
  * Firebolt current core file.
- * @version 0.4.2
+ * @version 0.5.0
  * @author Nathan Woltman
  * @copyright 2014 Nathan Woltman
  * @license MIT https://github.com/FireboltJS/Firebolt/blob/master/LICENSE.txt
@@ -621,6 +621,8 @@ var prototype = 'prototype',
 		url: location.href,
 		xhr: XMLHttpRequest
 	},
+
+	_$ = window.$, //Save the `$` variable in case something else is currently using it
 
 	any, //Arbitrary variable that may be used for whatever
 
@@ -1334,10 +1336,10 @@ Firebolt.ajaxSetup = function(options) {
  * Creates a new element with the specified tag name and attributes (optional).  
  * Partially an alias of `document.createElement()`.
  * 
+ * @function Firebolt.create
  * @param {String} tagName
  * @param {Object} [attributes] - The JSON-formatted attributes that the element should have once constructed.
  * @returns {Element}
- * @memberOf Firebolt
  */
 Firebolt.create = createElement;
 
@@ -1361,25 +1363,25 @@ Firebolt.delay = function(callback, ms) {
 /**
  * Extend the "Firebolt object" (a.k.a. NodeCollection, NodeList, and HTMLCollection).
  * 
+ * @function Firebolt.extend
  * @param {Object} object - An object with properties to add to the prototype of the collections returned by Firebolt.
- * @memberOf Firebolt
  */
 /**
  * Merge the contents of one or more objects into the first object.
  * 
+ * @function Firebolt.extend
  * @param {Object} target - The object that will receive the new properties.
  * @param {...Object} object - One or more objects whose properties will be added to the target object.
  * @returns {Object} The target object.
- * @memberOf Firebolt
  */
 /**
  * Recursively merge the contents of one or more objects into the target object.
  * 
+ * @function Firebolt.extend
  * @param {Boolean} deep - If `true`, the merge becomes recursive (performs a deep copy on object values).
  * @param {Object} target - The object that will receive the new properties.
  * @param {...Object} object - One or more objects whose properties will be added to the target object.
  * @returns {Object} The target object.
- * @memberOf Firebolt
  */
 Firebolt.extend = extend;
 
@@ -1502,17 +1504,17 @@ Firebolt.isEmpty = function(value, allowEmptyString) {
 /**
  * Determines if an object is empty (contains no enumerable properties).
  * 
+ * @function Firebolt.isEmptyObject
  * @param {Object} object - The object to be tested.
  * @returns {Boolean}
- * @memberOf Firebolt
  */
 Firebolt.isEmptyObject = isEmptyObject;
 
 /**
  * Determines if a variable is a plain object.
  * 
+ * @function Firebolt.isPlainObject
  * @param {*} obj - The item to test.
- * @memberOf Firebolt
  */
 Firebolt.isPlainObject = isPlainObject;
 
@@ -1524,6 +1526,20 @@ Firebolt.isPlainObject = isPlainObject;
  */
 Firebolt.isTouchDevice = function() {
 	return 'ontouchstart' in window || 'onmsgesturechange' in window;
+};
+
+/**
+ * Relinquishes Firebolt's control of the global `$` variable (restoring its previous value in the process).
+ * 
+ * @returns Firebolt
+ * @memberOf Firebolt
+ */
+Firebolt.noConflict = function() {
+	if (window.$ === Firebolt) {
+		window.$ = _$;
+	}
+
+	return Firebolt;
 };
 
 /**
