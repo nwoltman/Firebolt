@@ -572,6 +572,7 @@ var prototype = 'prototype',
 	defineProperty = Object.defineProperty,
 	defineProperties = Object.defineProperties,
 	getOwnPropertyNames = Object.getOwnPropertyNames,
+	decodeURIComponent = window.decodeURIComponent,
 	encodeURIComponent = window.encodeURIComponent,
 
 	//Property strings
@@ -956,6 +957,28 @@ function Firebolt(str) {
 	}
 	return document.querySelectorAll(str);
 }
+
+/**
+ * Returns a PHP-style associative array (Object) of URL parameters and updates the global {@linkcode $_GET} object at the same time.
+ * 
+ * @returns {Object.<String, String>}
+ * @see $_GET
+ * @see {@link http://www.php.net/manual/en/reserved.variables.get.php|PHP: $_GET - Manual}
+ * @memberOf Firebolt
+ */
+Firebolt._GET = function() {
+	window.$_GET = {};
+	var params = location.search.slice(1).split('&'),
+		i = 0,
+		key_val;
+	for (; i < params.length; i++) {
+		key_val = params[i].split('=');
+		if (key_val[0]) {
+			$_GET[decodeURIComponent(key_val[0])] = decodeURIComponent(key_val[1] || '');
+		}
+	}
+	return $_GET;
+};
 
 /**
  * Perform an asynchronous HTTP (Ajax) request.  
@@ -1662,7 +1685,10 @@ Function[prototype].delay = function(ms) {
 window.$ = window.FB = window.Firebolt = Firebolt;
 
 /**
- * PHP-style associative array (Object) of URL parameters.
+ * PHP-style associative array (Object) of URL parameters. This object is created when the page loads and thus contains the URL's
+ * query parameters at that time. However, it is possible to change the URL through JavaScript functions such as `history.pushState()`.
+ * If the URL may have changed and you need to the most recent query parameters, use Firebolt's {@linkcode Firebolt._GET|$._GET()}
+ * function, which also updates the $_GET object when it is called.
  * 
  * @global
  * @constant
@@ -1670,19 +1696,7 @@ window.$ = window.FB = window.Firebolt = Firebolt;
  * @type {Object.<String, String>}
  * @see {@link http://www.php.net/manual/en/reserved.variables.get.php|PHP: $_GET - Manual}
  */
-(function () {
-	window.$_GET = {};
-	var decode = decodeURIComponent,
-		params = location.search.slice(1).split('&'),
-		i = 0,
-		key_val;
-	for (; i < params.length; i++) {
-		key_val = params[i].split('=');
-		if (key_val[0]) {
-			$_GET[decode(key_val[0])] = decode(key_val[1] || '');
-		}
-	}
-})();
+Firebolt._GET(); // Just call the function to update the global $_GET object
 
 /**
  * Returns the first element within the document that matches the specified CSS selector.
