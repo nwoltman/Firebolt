@@ -477,14 +477,14 @@ function htmlToNodes(html) {
  * Function for inserting a node after a reference node.
  */
 function insertAfter(newNode, refNode) {
-	refNode[parentNode].insertBefore(newNode, refNode.nextSibling);
+	refNode.parentNode.insertBefore(newNode, refNode.nextSibling);
 }
 
 /*
  * Function for inserting a node before a reference node.
  */
 function insertBefore(newNode, refNode) {
-	refNode[parentNode].insertBefore(newNode, refNode);
+	refNode.parentNode.insertBefore(newNode, refNode);
 }
 
 /*
@@ -628,8 +628,6 @@ var
 	encodeURIComponent = window.encodeURIComponent,
 
 	//Property strings
-	insertAdjacentHTML = 'insertAdjacentHTML',
-	parentNode = 'parentNode',
 	nextElementSibling = 'nextElementSibling',
 	previousElementSibling = 'previousElementSibling',
 
@@ -2031,7 +2029,7 @@ HTMLElementPrototype.afterPut = function() {
 
 	for (; i >= 0; i--) {
 		if (typeofString(arg = arguments[i])) {
-			this[insertAdjacentHTML]('afterend', arg);
+			this.insertAdjacentHTML('afterend', arg);
 		}
 		else {
 			//When arg is a collection of nodes, create a fragment by passing the collection in an array
@@ -2053,7 +2051,7 @@ HTMLElementPrototype.appendWith = function() {
 
 	for (; i < arguments.length; i++) {
 		if (typeofString(arg = arguments[i])) {
-			this[insertAdjacentHTML]('beforeend', arg);
+			this.insertAdjacentHTML('beforeend', arg);
 		}
 		else {
 			//When arg is a collection of nodes, create a fragment by passing the collection in an array
@@ -2111,7 +2109,7 @@ HTMLElementPrototype.beforePut = function() {
 
 	for (; i < arguments.length; i++) {
 		if (typeofString(arg = arguments[i])) {
-			this[insertAdjacentHTML]('beforebegin', arg);
+			this.insertAdjacentHTML('beforebegin', arg);
 		}
 		else {
 			//When arg is a collection of nodes, create a fragment by passing the collection in an array
@@ -2288,7 +2286,7 @@ HTMLElementPrototype.prependWith = function() {
 
 	for (; i >= 0; i--) {
 		if (typeofString(arg = arguments[i])) {
-			this[insertAdjacentHTML]('afterbegin', arg);
+			this.insertAdjacentHTML('afterbegin', arg);
 		}
 		else {
 			//When arg is a collection of nodes, create a fragment by passing the collection in an array
@@ -2717,8 +2715,8 @@ NodePrototype.putBefore = getNodeInsertingFunction(insertBefore);
  * @returns void (undefined)
  */
 NodePrototype.remove = function() {
-	if (this[parentNode]) {
-		this[parentNode].removeChild(this);
+	if (this.parentNode) {
+		this.parentNode.removeChild(this);
 	}
 };
 
@@ -3860,7 +3858,7 @@ if (usesWebkit) { //WebKit speed boosters
 if (isUndefined(textNode.parentElement)) {
 	defineProperty(NodePrototype, 'parentElement', {
 		get: function() {
-			var parent = this[parentNode];
+			var parent = this.parentNode;
 			return parent && parent.nodeType === 1 ? parent : null;
 		}
 	});
