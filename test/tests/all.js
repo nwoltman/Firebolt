@@ -3,14 +3,14 @@
  */
 
 (function() {
-	var tests =
+	var modules =
 	[
-		'tests/Array.js',
-		'tests/String.js',
-		'tests/NodeList.js'
+		'Array',
+		'NodeList',
+		'String'
 	];
 
-	tests.forEach(function(file) {
-		$.getScript(file);
+	modules.forEach(function(module) {
+		$.getScript('tests/' + module + '.js');
 	});
 })();
