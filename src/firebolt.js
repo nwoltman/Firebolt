@@ -1165,7 +1165,7 @@ Firebolt.ajax = function(url, settings) {
 		});
 	}
 
-	if (crossDomain && (dataType == 'script' || dataTypeJSONP)) {
+	if ((crossDomain || settings.isLocal) && (dataType == 'script' || dataTypeJSONP)) {
 		//Prevent caching unless the user explicitly set cache to true
 		if (settings.cache !== true) {
 			url = url.URLAppend('_=' + (timestamp++));

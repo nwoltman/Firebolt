@@ -11,6 +11,6 @@
 	];
 
 	tests.forEach(function(file) {
-		document.body.appendChild($.create('script', {src: file}));
+		$.getScript(file);
 	});
 })();
