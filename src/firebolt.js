@@ -636,7 +636,7 @@ var
 	DATA_KEY_PRIVATE = ('FB' + 1 / Math.random()).replace('.', ''),
 	KEY_DATA_ATTRIBUTES = '0',
 	KEY_TOGGLE_CLASS = '1',
-	rgxNoParse = /^\d+\D/, //Don't try to parse strings that look like numbers but have non-digit characters
+	rgxNoParse = /^\d+\D/, //Matches strings that look like numbers but have non-digit characters
 
 	/* Pre-built RegExps */
 	rgxTableLevel1 = /<t(?:h|b|f)/i, //Detects (non-deprected) first-level table elements: <thead>, <tbody>, <tfoot>
@@ -1105,10 +1105,10 @@ Firebolt._GET = function() {
  * 
  * + Instead of passing a "jqXHR" to callbacks, the native XMLHttpRequest object is passed.
  * + The `context` setting defaults to the XMLHttpRequest object instead of the settings object.
- * + The `crossDomain` setting always defaults to `false`.
  * + The `contents` and `converters` settings are not supported.
  * + The `ifModifed` settings is currently not supported.
- * + The `data` setting is appended to the URL as a string for GET and HEAD requests and may be a string or a plain object or array to serialize.
+ * + The `data` setting may be a string or a plain object or array to serialize and is appended to the URL as a string for
+ * HEAD requests as well as GET requests.
  * + The `processData` setting has been left out because Firebolt will automatically process only plain objects and arrays
  * (so you don't need to set it to `false` to send a DOMDocument or another type of data&emsp;such as a FormData object).
  * + The `global` setting and the global AJAX functions defined by jQuery are not supported.
@@ -2779,6 +2779,19 @@ NodePrototype.text = function(text) {
  * A mutable collection of DOM nodes. It subclasses the native {@link Array} class (but take note that the `.clean()`,
  * `.remove()`, and `.filter()` functions have been overridden), and has all of the main DOM-manipulating functions.
  * 
+ * <strong>Note:</strong> Since it is nearly impossible to fully subclass the Array class in JavaScript, there is one minor
+ * hiccup with the way NodeCollection subclasses Array. The `instanceof` operator will not report that NodeCollection is an
+ * instance of anything other than a NodeCollection. It also will not report that `NodeCollection` is a function.
+ * This is demonstrated in the following code:
+ * ```javascript
+ * var nc = new NodeCollection();
+ * nc instanceof NodeCollection; // true
+ * nc instanceof Array;          // false
+ * nc instanceof Object;         // false
+ * nc.constructor instanceof Function; // false
+ * ```
+ * All other operations, such as `Array.isArray()` and `typeof`, will work correctly.
+ * 
  * It should be noted that all functions that do not have a specified return value, return the calling object,
  * allowing for function chaining.
  */
@@ -3494,18 +3507,18 @@ NodeCollectionPrototype.toggleClass = callOnEachElement('toggleClass');
  * + unshift
  * 
  * If you want to manipulate a NodeList using these functions, you must retrieve it as a NodeCollection by
- * calling {@linkcode NodeList#toNC|toNC()} on the NodeList.
+ * calling {@linkcode NodeList#toNC|.toNC()} on the NodeList.
  * 
  * Also note that the following functions return the NodeCollection equivalent of the NodeList instead of
  * the NodeList itself:
  * 
- * + afterPut/after
- * + appendWith/append
+ * + afterPut / after
+ * + appendWith / append
  * + appendTo
- * + beforePut/before
- * + putAfter/insertAfter
- * + putBefore/insertBefore
- * + prependWith/prepend
+ * + beforePut / before
+ * + putAfter / insertAfter
+ * + putBefore / insertBefore
+ * + prependWith / prepend
  * + prependTo
  * + remove
  * + removeClass
@@ -3534,6 +3547,7 @@ NodeCollectionPrototype.toggleClass = callOnEachElement('toggleClass');
  * + intersect
  * + map
  * + slice
+ * + sort
  * + union
  * + unique
  * + without
