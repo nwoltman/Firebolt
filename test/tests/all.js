@@ -5,6 +5,7 @@
 (function() {
 	var tests =
 	[
+		'tests/Array.js',
 		'tests/String.js',
 		'tests/NodeList.js'
 	];

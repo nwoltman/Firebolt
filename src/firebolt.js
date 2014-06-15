@@ -721,6 +721,25 @@ arrayExtensions = {
 	},
 
 	/**
+	 * Retrieve an item in the array.
+	 * 
+	 * @example
+	 * var array = [1, 2, 3];
+	 * array.get(0);  // 1
+	 * array.get(1);  // 2
+	 * array.get(-1); // 3
+	 * array.get(-2); // 2
+	 * array.get(5);  // undefined
+	 * 
+	 * @function Array.prototype.get
+	 * @param {Number} index - A zero-based integer indicating which item to retrieve.
+	 * @returns {*} The item at the specified index.
+	 */
+	get: function(index) {
+		return this[index < 0 ? index + this.length : index];
+	},
+
+	/**
 	 * Returns an array containing every item that is in both this array and the input array.
 	 * 
 	 * @function Array.prototype.intersect
@@ -738,16 +757,6 @@ arrayExtensions = {
 			}
 		}
 		return intersection;
-	},
-
-	/**
-	 * Returns the last item of the array.
-	 * 
-	 * @function Array.prototype.last
-	 * @returns {*} The last item in the array, or `undefined` if the array is empty.
-	 */
-	last: function() {
-		return this[this.length - 1];
 	},
 
 	/**
