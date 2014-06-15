@@ -93,7 +93,6 @@ function createFragment(content) {
  */
 function data(dataStore, obj, key, value) {
 	var dataObject = obj[dataStore],
-		numAttributes = obj && obj.nodeType === 1 && obj.attributes.length,
 		dataAttributes,
 		i;
 
@@ -103,9 +102,10 @@ function data(dataStore, obj, key, value) {
 			value: dataObject = {}
 		});
 
-		//If the object is an Element with attributes, try loading "data-*" attributes
-		if (numAttributes) {
+		//If the object is an Element, try loading "data-*" attributes
+		if (obj && obj.nodeType === 1) {
 			var attributes = obj.attributes,
+				numAttributes = attributes.length,
 				attrib,
 				val;
 
@@ -128,7 +128,7 @@ function data(dataStore, obj, key, value) {
 
 			//Save the data privately if there is any
 			if (!isEmptyObject(dataAttributes)) {
-				dataPrivate(obj, 'data-attrs', dataAttributes);
+				dataPrivate(obj, KEY_DATA_ATTRIBUTES, dataAttributes);
 			}
 		}
 	}
@@ -136,10 +136,10 @@ function data(dataStore, obj, key, value) {
 	/* This may look confusing but it's really saving space (as in the amount of code in the file).
 	 * What's happening is that `dataAttributes` is getting set to itself (if it was created above)
 	 * or it is set to the private data and is then checked to see if it is an empty object. */
-	if (numAttributes && !isEmptyObject(dataAttributes = dataAttributes || dataPrivate(obj, 'data-attrs'))) {
+	if (dataObject[DATA_KEY_PRIVATE] && !isEmptyObject(dataAttributes = dataAttributes || dataObject[DATA_KEY_PRIVATE][KEY_DATA_ATTRIBUTES])) {
 		//Add the data attributes to the data object if it does not already have the key
 		for (i in dataAttributes) {
-			if (!(i in dataObject)) {
+			if (isUndefined(dataObject[i])) {
 				dataObject[i] = dataAttributes[i];
 			}
 		}
@@ -164,8 +164,8 @@ function data(dataStore, obj, key, value) {
 function dataPrivate(obj, key, value) {
 	//The internal data is actually saved to the public data object
 	return data(
-		dataKeyPrivate,
-		obj[dataKeyPublic] || data(dataKeyPublic, obj),
+		DATA_KEY_PRIVATE,
+		obj[DATA_KEY_PUBLIC] || data(DATA_KEY_PUBLIC, obj),
 		key,
 		value
 	);
@@ -175,13 +175,13 @@ function dataPrivate(obj, key, value) {
  * @see Firebolt.removeData
  */
 function removeData(object, input) {
-	var dataObject = object[dataKeyPublic],
+	var dataObject = object[DATA_KEY_PUBLIC],
 		i = 0;
 
 	if (isUndefined(input)) {
-		if (dataObject[dataKeyPrivate]) {
+		if (dataObject[DATA_KEY_PRIVATE]) {
 			//Try deleting the data attributes object in case it was saved to the object (element)
-			delete dataObject[dataKeyPrivate]['data-attrs'];
+			delete dataObject[DATA_KEY_PRIVATE][KEY_DATA_ATTRIBUTES];
 		}
 		input = Object.keys(dataObject); //Select all items for removal
 	}
@@ -634,8 +634,10 @@ var
 	previousElementSibling = 'previousElementSibling',
 
 	//Data variables
-	dataKeyPublic = ('FB' + 1 / Math.random()).replace('.', ''),
-	dataKeyPrivate = ('FB' + 1 / Math.random()).replace('.', ''),
+	DATA_KEY_PUBLIC = ('FB' + 1 / Math.random()).replace('.', ''),
+	DATA_KEY_PRIVATE = ('FB' + 1 / Math.random()).replace('.', ''),
+	KEY_DATA_ATTRIBUTES = '0',
+	KEY_TOGGLE_CLASS = '1',
 	rgxNoParse = /^\d+\D/, //Don't try to parse strings that look like numbers but have non-digit characters
 
 	/* Pre-built RegExps */
@@ -666,7 +668,7 @@ var
 		isLocal: /^(?:file|.*-extension|widget):\/\//.test(location.href),
 		jsonp: 'callback',
 		jsonpCallback: function() {
-			var callback = oldCallbacks.pop() || dataKeyPublic + "_" + (timestamp++);
+			var callback = oldCallbacks.pop() || DATA_KEY_PUBLIC + "_" + (timestamp++);
 			this[callback] = true;
 			return callback;
 		},
@@ -987,7 +989,7 @@ ElementPrototype.$TAG = ElementPrototype.getElementsByTagName;
  * @param {Object} obj - An object of key-value pairs to add to each elements stored data.
  */
 ElementPrototype.data = function(key, value) {
-	return data(dataKeyPublic, this, key, value);
+	return data(DATA_KEY_PUBLIC, this, key, value);
 };
 
 /**
@@ -1507,7 +1509,7 @@ Firebolt.create = createElement;
  * @memberOf Firebolt
  */
 Firebolt.data = function(object, key, value) {
-	return data(dataKeyPublic, object, key, value);
+	return data(DATA_KEY_PUBLIC, object, key, value);
 };
 
 /**
@@ -1635,7 +1637,7 @@ Firebolt.globalEval = function(code) {
  * @memberOf Firebolt
  */
 Firebolt.hasData = function(object) {
-	return !isEmptyObject(object[dataKeyPublic]);
+	return !isEmptyObject(object[DATA_KEY_PUBLIC]);
 };
 
 /**
@@ -2463,13 +2465,13 @@ HTMLElementPrototype.toggleClass = function(value) {
 		}
 		else {
 			//Save the element's current class name
-			dataPrivate(this, 'togcls', this.className);
+			dataPrivate(this, KEY_TOGGLE_CLASS, this.className);
 			value = ''; //Set to an empty string so the class name will be cleared
 		}
 	}
 	else if (!value) {
 		//Retrieve the saved class name
-		value = dataPrivate(this, 'togcls') || '';
+		value = dataPrivate(this, KEY_TOGGLE_CLASS) || '';
 	}
 
 	//Set the new value
