@@ -54,8 +54,7 @@ function createFragment(content) {
 		item;
 
 	for (; i < content.length; i++) {
-		item = content[i];
-		if (item instanceof Node) {
+		if (isNode(item = content[i])) {
 			fragment.appendChild(item);
 		}
 		else {
@@ -404,7 +403,7 @@ function getNodeInsertingFunction(insertingCallback) {
 		if (typeofString(target)) {
 			target = Firebolt(target);
 		}
-		else if (target instanceof Node) {
+		else if (isNode(target)) {
 			insertingCallback(this, target);
 			return this;
 		}
@@ -597,10 +596,23 @@ function typeofString(value) {
 	return typeof value == 'string';
 }
 
-/*
- * Local variables that are compressed when this file is minified.
- */
-var prototype = 'prototype',
+var
+	/*
+	 * Determines if an item is a Node.
+	 * Gecko's instanceof Node is faster (but might want to check if that's because it caches previous calls).
+	 */
+	isNode = window.mozInnerScreenX != null
+		? function(obj) {
+			return obj instanceof Node;
+		}
+		: function(obj) {
+			return obj && obj.nodeType;
+		},
+
+	/*
+	 * Local variables that are compressed when this file is minified.
+	 */
+	prototype = 'prototype',
 	ArrayPrototype = Array[prototype],
 	ElementPrototype = Element[prototype],
 	HTMLElementPrototype = HTMLElement[prototype],
@@ -2022,7 +2034,7 @@ HTMLElementPrototype.afterPut = function() {
 		else {
 			//When arg is a collection of nodes, create a fragment by passing the collection in an array
 			//(that is the form of input createFragment expects since it normally takes a function's arg list)
-			insertAfter(arg instanceof Node ? arg : createFragment([arg]), this);
+			insertAfter(isNode(arg) ? arg : createFragment([arg]), this);
 		}
 	}
 
@@ -2044,7 +2056,7 @@ HTMLElementPrototype.appendWith = function() {
 		else {
 			//When arg is a collection of nodes, create a fragment by passing the collection in an array
 			//(that is the form of input createFragment expects since it normally takes a function's arg list)
-			this.appendChild(arg instanceof Node ? arg : createFragment([arg]));
+			this.appendChild(isNode(arg) ? arg : createFragment([arg]));
 		}
 	}
 
@@ -2102,7 +2114,7 @@ HTMLElementPrototype.beforePut = function() {
 		else {
 			//When arg is a collection of nodes, create a fragment by passing the collection in an array
 			//(that is the form of input createFragment expects since it normally takes a function's arg list)
-			insertBefore(arg instanceof Node ? arg : createFragment([arg]), this);
+			insertBefore(isNode(arg) ? arg : createFragment([arg]), this);
 		}
 	}
 
@@ -2279,7 +2291,7 @@ HTMLElementPrototype.prependWith = function() {
 		else {
 			//When arg is a collection of nodes, create a fragment by passing the collection in an array
 			//(that is the form of input createFragment expects since it normally takes a function's arg list)
-			prepend(arg instanceof Node ? arg : createFragment([arg]), this);
+			prepend(isNode(arg) ? arg : createFragment([arg]), this);
 		}
 	}
 
@@ -2506,7 +2518,7 @@ NodePrototype.appendTo = function(target) {
 	if (typeofString(target)) {
 		target = Firebolt(target);
 	}
-	else if (target instanceof Node) {
+	else if (isNode(target)) {
 		return target.appendChild(this);
 	}
 
