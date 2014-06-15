@@ -307,7 +307,7 @@ function getFirstSetEachElement(fn, callback) {
  * @param {Function|?} sorter - A function used to sort the union of multiple sets of returned elements.
  * If sorter == 0, return an 'until' Node function.
  */
-function getGetDirElementsFunc(funcName, sorter) {
+function getGetDirElementsFunc(direction, sorter) {
 	//For NodeCollection.prototype
 	if (sorter) {
 		return function(arg1, arg2) {
@@ -315,14 +315,14 @@ function getGetDirElementsFunc(funcName, sorter) {
 
 			//Simple and speedy for one node
 			if (len === 1) {
-				return this[0][funcName](arg1, arg2);
+				return this[0][direction](arg1, arg2);
 			}
 
 			//Build a list of NodeCollections
 			var collections = [],
 				i = 0;
 			for (; i < len; i++) {
-				collections.push(this[i][funcName](arg1, arg2));
+				collections.push(this[i][direction](arg1, arg2));
 			}
 
 			//Union the collections so that the resulting collection contains unique elements
@@ -348,7 +348,7 @@ function getGetDirElementsFunc(funcName, sorter) {
 						: function() { //Match by Node (or if `until.length === 0`, this will always be false)
 							return node == until;
 						};
-			while ((node = node[funcName]) && !stop()) {
+			while ((node = node[direction]) && !stop()) {
 				if (!filter || node.matches(filter)) {
 					nc.push(node);
 				}
@@ -359,7 +359,7 @@ function getGetDirElementsFunc(funcName, sorter) {
 		: function(selector) {
 			var nc = new NodeCollection(),
 				node = this;
-			while (node = node[funcName]) {
+			while (node = node[direction]) {
 				if (!selector || node.matches(selector)) {
 					nc.push(node);
 				}
