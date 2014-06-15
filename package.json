@@ -1,27 +1,34 @@
 {
   "name": "Firebolt",
-  "version": "0.3.0",
-  "description": "A Fast and Lightweight JavaScript Library for Modern Browsers",
-  "author": {
-    "name": "Nathan Woltman"
-  },
+  "version": "0.5.0",
+  "description": "A fast and lightweight JavaScript library for modern browsers.",
+  "homepage": "http://fireboltjs.com",
   "repository": {
     "type": "git",
     "url": "https://github.com/FireboltJS/Firebolt.git"
+  },
+  "bugs": {
+  	"url" : "https://github.com/FireboltJS/Firebolt/issues",
+  	"email" : "info@fireboltjs.com"
   },
   "keywords": [
     "firebolt",
     "javascript",
     "library"
   ],
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "https://github.com/FireboltJS/Firebolt/blob/master/LICENSE.txt"
-    }
-  ],
-  "maintainers": {
+  "license": {
+    "type": "MIT",
+    "url": "https://github.com/FireboltJS/Firebolt/blob/master/LICENSE.txt"
+  },
+  "author": {
     "name": "Nathan Woltman",
     "email": "nwoltman@outlook.com"
-  }
+  },
+  "contributors": {
+    "name": "Nathan Woltman",
+    "email": "nwoltman@outlook.com"
+  },
+  "files": [
+    "src"
+  ]
 }
