@@ -643,10 +643,12 @@ var
 	rgxGetOrHead = /GET|HEAD/i, //Determines if a request is a GET or HEAD request
 	rgxDomain = /\/?\/\/(?:\w+\.)?(.*?)(?:\/|$)/,
 	rgxDifferentNL = /^(?:af|ap|be|ins|prep|pu|tog)|remove(?:Class)?$/, //Determines if the function is different for NodeLists
-	rgxClassOrId = /^.[\w_-]+$/,
+	rgxId = /^#[^ \t-\f.,>:[+~]+$/, //Matches id values that do not contain other CSS selector characters
+	rgxClass = /^\.[^ \t-\f#,>:[+~]+$/, //Matches class values that do not contain other CSS selector characters
+	rgxAllDots = /\./g,
 	rgxTag = /^[A-Za-z]+$/,
 	rgxNonWhitespace = /\S+/g,
-	rgxSpaceChars = /[ \n\r\t\f]+/, //From W3C http://www.w3.org/TR/html5/single-page.html#space-character
+	rgxSpaceChars = /[ \t-\f]+/, //From W3C http://www.w3.org/TR/html5/single-page.html#space-character
 
 	/* AJAX */
 	timestamp = Date.now(),
@@ -1044,7 +1046,7 @@ ElementPrototype.removeData = function(input) {
  */
 function Firebolt(str) {
 	if (str[0] === '#') { //Check for a single ID
-		if (rgxClassOrId.test(str)) {
+		if (rgxId.test(str)) {
 			var nc = new NodeCollection(),
 				elem = document.getElementById(str.slice(1));
 			if (elem) {
@@ -1054,8 +1056,8 @@ function Firebolt(str) {
 		}
 	}
 	else if (str[0] === '.') { //Check for a single class name
-		if (rgxClassOrId.test(str)) {
-			return document.getElementsByClassName(str.slice(1));
+		if (rgxClass.test(str)) {
+			return document.getElementsByClassName(str.replace(rgxAllDots, ' '));
 		}
 	}
 	else if (rgxTag.test(str)) { //Check for a single tag name
@@ -1886,12 +1888,12 @@ Firebolt._GET(); // Just call the function to update the global $_GET object
  */
 window.$1 = function(selector) {
 	if (selector[0] === '.') { //Check for a single class name
-		if (rgxClassOrId.test(selector)) {
-			return document.getElementsByClassName(selector.slice(1))[0];
+		if (rgxClass.test(selector)) {
+			return document.getElementsByClassName(selector.replace(rgxAllDots, ' '))[0];
 		}
 	}
 	else if (selector[0] === '#') { //Check for a single id
-		if (rgxClassOrId.test(selector)) {
+		if (rgxId.test(selector)) {
 			return document.getElementById(selector.slice(1));
 		}
 	}
@@ -3856,8 +3858,8 @@ if (usesWebkit) { //WebKit speed boosters
 	window.$1 = function(selector) {
 		if (selector[0] !== '#') { //Filter out selection by ID
 			if (selector[0] === '.') { //Check for a single class name
-				if (rgxClassOrId.test(selector)) {
-					return document.getElementsByClassName(selector.slice(1))[0];
+				if (rgxClass.test(selector)) {
+					return document.getElementsByClassName(selector.replace(rgxAllDots, ' '))[0];
 				}
 			}
 			else if (rgxTag.test(selector)) { //Check for a single tag name
