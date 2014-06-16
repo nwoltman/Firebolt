@@ -930,7 +930,7 @@ for (any in arrayExtensions) {
  * @param {String} selector
  * @returns {NodeList} A list of selected elements.
  */
-ElementPrototype.$ = ElementPrototype.querySelectorAll;
+/* see Element.prototype.$QSA */
 
 /**
  * Returns the first element within the element that matches the specified CSS selector.  
@@ -940,7 +940,7 @@ ElementPrototype.$ = ElementPrototype.querySelectorAll;
  * @param {String} selector
  * @returns {?Element}
  */
-ElementPrototype.$1 = ElementPrototype.querySelector;
+/* see Element.prototype.$QS */
 
 /**
  * Returns a list of the elements within the element with the specified class name.  
@@ -961,6 +961,26 @@ ElementPrototype.$CLS = ElementPrototype.getElementsByClassName;
  * @returns {HTMLCollection|NodeList} A collection of elements with the specified tag name.
  */
 ElementPrototype.$TAG = ElementPrototype.getElementsByTagName;
+
+/**
+ * Returns the first element within the element that matches the specified CSS selector.  
+ * Alias of `Element.querySelector()`.
+ * 
+ * @function Element.prototype.$QS
+ * @param {String} selector
+ * @returns {?Element}
+ */
+ElementPrototype.$QS = ElementPrototype.$1 = ElementPrototype.querySelector;
+
+/**
+ * Returns a list of the elements within the element that match the specifed CSS selector.  
+ * Alias of `Element.querySelectorAll()`.
+ * 
+ * @function Element.prototype.$QSA
+ * @param {String} selector
+ * @returns {NodeList} A list of selected elements.
+ */
+ElementPrototype.$QSA = ElementPrototype.$ = ElementPrototype.querySelectorAll;
 
 /**
  * Gets the element's stored data object.
@@ -1902,7 +1922,7 @@ window.$1 = function(selector) {
 	}
 	//else
 	return document.querySelector(selector);
-}
+};
 
 /**
  * Returns a list of the elements within the document with the specified class name.  
@@ -1914,7 +1934,7 @@ window.$1 = function(selector) {
  */
 window.$CLS = function(className) {
 	return document.getElementsByClassName(className);
-}
+};
 
 /**
  * Returns the first element within the document with the specified id.  
@@ -1926,7 +1946,7 @@ window.$CLS = function(className) {
  */
 window.$ID = function(id) {
 	return document.getElementById(id);
-}
+};
 
 /**
  * Returns a list of the elements within the document with the specified name attribute.  
@@ -1938,7 +1958,7 @@ window.$ID = function(id) {
  */
 window.$NAME = function(name) {
 	return document.getElementsByName(name);
-}
+};
 
 /**
  * Returns a list of the elements within the document with the specified tag name.  
@@ -1950,7 +1970,31 @@ window.$NAME = function(name) {
  */
 window.$TAG = function(tagName) {
 	return document.getElementsByTagName(tagName);
-}
+};
+
+/**
+ * Returns the first element within the document that matches the specified CSS selector.  
+ * Alias of `document.querySelector()`.
+ * 
+ * @global
+ * @param {String} selector
+ * @returns {?Element}
+ */
+window.$QS = function(selector) {
+	return document.querySelector(selector);
+};
+
+/**
+ * Returns all elements within the document that match the specified CSS selector.  
+ * Alias of `document.querySelectorAll()`.
+ * 
+ * @global
+ * @param {String} selector
+ * @returns {?Element}
+ */
+window.$QSA = function(selector) {
+	return document.querySelectorAll(selector);
+};
 
 //#endregion Globals
 
