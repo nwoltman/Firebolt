@@ -2428,41 +2428,19 @@ HTMLElementPrototype.removeProp = function(propertyName) {
 };
 
 /**
- * Shows an element by giving it a certain display style. If no parameter is passed in,
- * Firebolt determines the element's default display style and sets it to that.  
- * NOTE: The element's default display style may be 'none', in which case the element would not be shown).
+ * Shows an element by determining its default display style and setting it to that.  
+ * NOTE: The element's default display style may be 'none', in which case the element would not be shown.
+ * The element will also not be shown if it's `visibility` is set to 'hidden' or its `opacity` is 0;
  * 
  * @function HTMLElement.prototype.show
- * @param {Number|String} [style] - The style of display the element should be shown with. Possibilities are:
- * <ul>
- * <li>0 => 'block'</li>
- * <li>1 => 'inline-block'</li>
- * <li>2 => 'inline'</li>
- * </ul>
- * For other display types, only the string parameter will be accepted.  
- * If the arguement is left blank, the element's default style will be used.
  */
-HTMLElementPrototype.show = function(style) {
-	if (typeof style == 'number') {
-		switch (style) {
-			case 0:
-				style = 'block';
-				break;
-			case 1:
-				style = 'inline-block';
-				break;
-			case 2:
-				style = 'inline';
-		}
-	}
-	if (!typeofString(style)) {
-		//Create a temporary element of the same type as this element to figure out what the default display value should be
-		var temp = createElement(this.tagName, {
-			style: 'width:0;height:0;border:0;margin:0;padding:0'
-		}).putAfter(document.body.lastChild);
+HTMLElementPrototype.show = function() {
+	//Create a temporary element of the same type as this element to figure out what the default display value should be
+	var temp = document.body.appendChild(createElement(this.tagName, {style: 'width:0;border:0;margin:0;padding:0'})),
 		style = temp.css('display');
-		temp.remove();
-	}
+
+	//Remove the temporary element and set this element's style to the retrieved style
+	temp.remove();
 	this.style.display = style;
 
 	return this;
@@ -3476,11 +3454,10 @@ NodeCollectionPrototype.removeData = callOnEachElement('removeData');
 NodeCollectionPrototype.removeProp = callOnEachElement('removeProp');
 
 /**
- * Shows each element in the set. For specifics, see {@link HTMLElement#show}.
+ * Shows each element in the collection. For specifics, see {@link HTMLElement#show}.
  * 
  * @function NodeCollection.prototype.show
- * @param {Number|String} [style] - The style of display the element should be shown with.
- * @see HTMLElement.show
+ * @see HTMLElement#show
  */
 NodeCollectionPrototype.show = callOnEachElement('show');
 
