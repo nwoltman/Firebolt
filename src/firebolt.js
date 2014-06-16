@@ -3854,22 +3854,6 @@ if (noMultiParamClassListFuncs || (usesWebkit && !isIOS)) {
 	};
 }
 
-if (usesWebkit) { //WebKit speed boosters
-	window.$1 = function(selector) {
-		if (selector[0] !== '#') { //Filter out selection by ID
-			if (selector[0] === '.') { //Check for a single class name
-				if (rgxClass.test(selector)) {
-					return document.getElementsByClassName(selector.replace(rgxAllDots, ' '))[0];
-				}
-			}
-			else if (rgxTag.test(selector)) { //Check for a single tag name
-				return document.getElementsByTagName(selector)[0];
-			}
-		}
-		return document.querySelector(selector);
-	};
-}
-
 //Fix the parentElement property for Nodes in browsers than only support it on Element
 if (isUndefined(textNode.parentElement)) {
 	defineProperty(NodePrototype, 'parentElement', {
