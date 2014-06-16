@@ -1604,7 +1604,7 @@ Firebolt.get = function(url, userData, success, dataType) {
 };
 
 /**
- * Load JSON-encoded data from the server using a GET HTTP request.
+ * Load JSON-encoded data from the server using a HTTP GET request.
  * 
  * @param {String} url - A string containing the URL to which the request will be sent.
  * @param {String|Object} [data] - A string or object that is sent to the server with the request as a query string.
@@ -1616,7 +1616,7 @@ Firebolt.getJSON = function(url, userData, success) {
 };
 
 /**
- * Load a JavaScript file from the server using a GET HTTP request, then execute it.
+ * Load a JavaScript file from the server using a HTTP GET request, then execute it.
  * 
  * @param {String} url - A string containing the URL to which the request will be sent.
  * @param {Function|Function[]} [success(data, textStatus, xhr)] - A callback function that is executed if the request succeeds.
@@ -1797,6 +1797,25 @@ function serializeTraditional(obj) {
 
 	return qs;
 }
+
+/**
+ * Load data from the server using a HTTP POST request.
+ * 
+ * @param {String} url - A string containing the URL to which the request will be sent.
+ * @param {String|Object} [data] - A string or object that is sent to the server with the request.
+ * @param {Function|Function[]} [success(data, textStatus, xhr)] - A callback function that is executed if the request succeeds.
+ * @param {String} [dataType] - The type of data expected from the server. Default: Intelligent Guess (xml, json, script, or html).
+ * @memberOf Firebolt
+ */
+Firebolt.post = function(url, userData, success, dataType) {
+	return Firebolt.ajax({
+		type: 'POST',
+		url: url,
+		data: userData,
+		success: success,
+		dataType: dataType
+	});
+};
 
 /**
  * Specify a function to execute when the DOM is fully loaded.  
