@@ -752,6 +752,21 @@ arrayExtensions = {
 	},
 
 	/**
+	 * Executes a function on each item in the array.  
+	 * The difference between this function and `Array#forEach` is that you can cancel the iteration by returning
+	 * `false` in the callback and the array is returned (allowing for function chaining).  
+	 * The difference between this function and `Array#every` is that only returning `false` in the callback will
+	 * cancel the iteration (instead of any falsy value) and the array is returned instead of a boolean.
+	 * 
+	 * @function Array.prototype.each
+	 * @param {function(*, Number, Array)} callback(value,index,array) - The function that will be executed on each item.
+	 * @returns {Array} this
+	 */
+	each: function(callback) {
+		return Firebolt.each(this, callback);
+	},
+
+	/**
 	 * Determines if the arrays are equal by doing a shallow comparison of their elements using strict equality.  
 	 * NOTE: The order of elements in the arrays DOES matter. The elements must be found in the same order for the arrays to be considered equal.
 	 * 
@@ -1547,6 +1562,42 @@ Firebolt.delay = function(callback, ms) {
 			clearTimeout(clearRef);
 		};
 	};
+};
+
+/**
+ * A generic iterator function, which can be used to iterate over both objects and arrays.
+ * Arrays and array-like objects with a length property (such as a NodeLists) are iterated
+ * by numeric index, from 0 to length-1. Other objects are iterated via their named properties.
+ * Iteration can be cancelled by returning `false` in the callback.
+ * 
+ * @function Firebolt.each
+ * @param {Array} array - The array or array-like object to iterate over.
+ * @param {function(*, Number, Array)} callback(value,index,array) - The function that will be executed on each item.
+ * @returns {Array} The input array.
+ */
+/**
+ * A generic iterator function, which can be used to iterate over both objects and arrays.
+ * Arrays and array-like objects with a length property (such as a NodeLists) are iterated
+ * by numeric index, from 0 to length-1. Other objects are iterated via their named properties.
+ * Iteration can be cancelled by returning `false` in the callback.
+ * 
+ * @function Firebolt.each
+ * @param {Object} object - The object to iterate over.
+ * @param {function(*, String, Object)} callback(value,key,object) - The function that will be executed on each item.
+ * @returns {Object} The input object.
+ */
+Firebolt.each = function(obj, callback) {
+	var len = obj.length,
+		i = 0;
+	if (len) {
+		while (i < len && callback(obj[i], i++, obj) !== false);
+	}
+	else {
+		for (i in obj) {
+			if (callback(obj[i], i, obj) === false) break;
+		}
+	}
+	return obj;
 };
 
 /**
