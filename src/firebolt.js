@@ -1057,7 +1057,7 @@ function Firebolt(str) {
 	}
 	else if (str[0] === '.') { //Check for a single class name
 		if (rgxClass.test(str)) {
-			return document.getElementsByClassName(str.replace(rgxAllDots, ' '));
+			return document.getElementsByClassName(str.slice(1).replace(rgxAllDots, ' '));
 		}
 	}
 	else if (rgxTag.test(str)) { //Check for a single tag name
@@ -1889,7 +1889,7 @@ Firebolt._GET(); // Just call the function to update the global $_GET object
 window.$1 = function(selector) {
 	if (selector[0] === '.') { //Check for a single class name
 		if (rgxClass.test(selector)) {
-			return document.getElementsByClassName(selector.replace(rgxAllDots, ' '))[0];
+			return document.getElementsByClassName(selector.slice(1).replace(rgxAllDots, ' '))[0];
 		}
 	}
 	else if (selector[0] === '#') { //Check for a single id
