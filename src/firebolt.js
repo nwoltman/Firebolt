@@ -613,6 +613,7 @@ var
 	 * Local variables that are compressed when this file is minified.
 	 */
 	prototype = 'prototype',
+	Array = window.Array,
 	ArrayPrototype = Array[prototype],
 	ElementPrototype = Element[prototype],
 	HTMLElementPrototype = HTMLElement[prototype],
@@ -2572,6 +2573,76 @@ HTMLElementPrototype.toggleClass = function(value) {
 	return this;
 };
 
+/**
+ * Retrieves the element's current value. If the element is a `<select>` element, `null` is returned if none of its options
+ * are selected and an array of selected options is returned if the element's `multiple` attribute is present.
+ * 
+ * @function HTMLElement.prototype.val
+ * @returns {String|Array|null} The element's value.
+ */
+/**
+ * Sets the element's value.
+ * 
+ * @function HTMLElement.prototype.val
+ * @param {String} value - The value to give to the element.
+ */
+/**
+ * Checks the element if its current value is in the input array of values and deselects it otherwise (only `<input>` elements with
+ * type `checkbox` or `radio`).  
+ * If the element is a `<select>` element, all of its options with a value matching one in the input array of values will be selected
+ * and all others deselected. If the select element does not allow multiple selection, only the first matching element is selected.
+ * 
+ * @function HTMLElement.prototype.val
+ * @param {String[]} values - The array of values used to determine if the element (or its options) should be checked (or selected).
+ */
+HTMLElementPrototype.val = function(value) {
+	//If `value` is not an array with values to check
+	if (!Array.isArray(value)) {
+		return this.prop('value', value);
+	}
+
+	//Check or uncheck this depending on if this element's value is in the array of values to check
+	this.checked = value.contains(this.value);
+
+	return this;
+};
+
+HTMLSelectElement[prototype].val = function(value) {
+	var multiple = this.multiple,
+		options = this.options,
+		i = 0;
+
+	if (isUndefined(value)) {
+		//If multiple selection is allowed and there is at least one selected item, return an array of selected values
+		if (multiple && this.selectedIndex >= 0) {
+			value = [];
+			for (; i < options.length; i++) {
+				if (options[i].selected) {
+					value.push(options[i].value);
+				}
+			}
+			return value;
+		}
+
+		//Else return the currently selected value or null
+		//(If multiple is true, this.value will be an empty string so null will be returned)
+		return this.value || null;
+	}
+	
+	if (typeofString(value)) {
+		this.value = value;
+	}
+	else {
+		//Select or deselect each option depending on if its value is in the array of values to check.
+		//Break once an option is selected if this select element does not allow multiple selection.
+		for (; i < options.length; i++) {
+			if ((options[i].selected = value.contains(options[i].value)) && !multiple) break;
+		}
+	}
+
+	return this;
+};
+
 //#endregion HTMLElement
 
 
@@ -3578,6 +3649,32 @@ NodeCollectionPrototype.text = function(text) {
  * @param {String} className - The class to be toggled for each element in the collection.
  */
 NodeCollectionPrototype.toggleClass = callOnEachElement('toggleClass');
+
+/**
+ * Retrieves the current value of the first element in the collection. If the element is a `<select>` element, `null` is returned if
+ * none of its options are selected and an array of selected options is returned if the element's `multiple` attribute is present.
+ * 
+ * @function NodeCollection.prototype.val
+ * @returns {String|Array|null} The first element's value.
+ */
+/**
+ * Sets the value of each element in the collection.
+ * 
+ * @function NodeCollection.prototype.val
+ * @param {String} value - The value to give to each element.
+ */
+/**
+ * Checks each element in the collection if its current value is in the input array of values and deselects it otherwise
+ * (only `<input>` elements with type `checkbox` or `radio`).  
+ * If an element is a `<select>` element, all of its options with a value matching one in the input array of values will be selected
+ * and all others deselected. If the select element does not allow multiple selection, only the first matching element is selected.
+ * 
+ * @function HTMLElement.prototype.val
+ * @param {String[]} values - The array of values used to determine if each element (or its options) should be checked (or selected).
+ */
+NodeCollectionPrototype.val = getFirstSetEachElement('val', function(numArgs) {
+	return !numArgs;
+});
 
 //#endregion NodeCollection
 
