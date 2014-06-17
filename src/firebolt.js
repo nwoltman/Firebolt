@@ -183,7 +183,7 @@ function removeData(object, input) {
 			//Try deleting the data attributes object in case it was saved to the object (element)
 			delete dataObject[DATA_KEY_PRIVATE][KEY_DATA_ATTRIBUTES];
 		}
-		input = Object.keys(dataObject); //Select all items for removal
+		input = keys(dataObject); //Select all items for removal
 	}
 	else if (typeofString(input)) {
 		input = input.split(' ');
@@ -624,7 +624,7 @@ var
 	Object = window.Object,
 	defineProperty = Object.defineProperty,
 	defineProperties = Object.defineProperties,
-	getOwnPropertyNames = Object.getOwnPropertyNames,
+	keys = Object.keys,
 	decodeURIComponent = window.decodeURIComponent,
 	encodeURIComponent = window.encodeURIComponent,
 
@@ -3753,8 +3753,8 @@ NodeCollectionPrototype.val = getFirstSetEachElement('val', function(numArgs) {
  */
 
 /* Give NodeLists and HTMLCollections many of the same prototype functions as NodeCollections */
-getOwnPropertyNames(NodeCollectionPrototype)
-	.remove( //These methods should not be added to the NodeList prototype
+keys(NodeCollectionPrototype)
+	.remove( //These properties should not be added to the NodeList prototype
 		'clear',
 		'length',
 		'pop',
