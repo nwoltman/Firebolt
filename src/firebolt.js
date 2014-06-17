@@ -6,7 +6,7 @@
  * @license MIT https://github.com/FireboltJS/Firebolt/blob/master/LICENSE.txt
  */
 
-(function(window, document) {
+(function(window, document, Array, Object, decodeURIComponent, encodeURIComponent) {
 	'use strict';
 
 //#region =========================== Private ================================
@@ -613,7 +613,6 @@ var
 	 * Local variables that are compressed when this file is minified.
 	 */
 	prototype = 'prototype',
-	Array = window.Array,
 	ArrayPrototype = Array[prototype],
 	ElementPrototype = Element[prototype],
 	HTMLElementPrototype = HTMLElement[prototype],
@@ -621,12 +620,9 @@ var
 	NodeListPrototype = NodeList[prototype],
 	HTMLCollectionPrototype = HTMLCollection[prototype],
 	StringPrototype = String[prototype],
-	Object = window.Object,
 	defineProperty = Object.defineProperty,
 	defineProperties = Object.defineProperties,
 	keys = Object.keys,
-	decodeURIComponent = window.decodeURIComponent,
-	encodeURIComponent = window.encodeURIComponent,
 
 	//Property strings
 	nextElementSibling = 'nextElementSibling',
@@ -4097,4 +4093,4 @@ if (!document.children) {
 
 //#endregion Browser Compatibility and Speed Boosters
 
-})(window, document);
+})(self, document, Array, Object, decodeURIComponent, encodeURIComponent); //self === window
