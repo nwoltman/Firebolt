@@ -433,14 +433,15 @@ function getPutOrToFunction(funcName) {
  * Takes an HTML string and returns a NodeList created by the HTML.
  */
 function htmlToNodes(html) {
-	//Speedy for normal elements
-	var nodes = createElement('body').html(html).childNodes;
+	//Speedy for normal elements -- just create a <body>, set its HTML, and retrieve the produced nodes
+	var elem = document.createElement('body'),
+		nodes;
+	elem.innerHTML = html;
+	nodes = elem.childNodes;
 
 	//If no nodes were created, it might be because browsers won't create certain elements in a body tag
-	//Such elements include <thead>, <tbody>, <tfoot>, <head>, <body>, <html>
+	//Such elements include <thead>, <tbody>, <tfoot>, <tr>, <td>, <head>, <body>, <html>
 	if (!nodes.length && html) { //Check html to make sure it's not an empty string
-		var elem;
-
 		if (html.contains('<tr')) {
 			elem = createElement('tbody');
 		}
@@ -467,7 +468,8 @@ function htmlToNodes(html) {
 			}
 		}
 
-		nodes = elem.html(html).childNodes;
+		elem.innerHTML = html;
+		nodes = elem.childNodes;
 	}
 
 	return nodes;
@@ -1065,18 +1067,36 @@ ElementPrototype.removeData = function(input) {
  * The global Firebolt function (can also be referenced by the synonyms `FB` and `$`).  
  * Returns a list of the elements either found in the DOM that match the passed in CSS selector or created by passing an HTML string.
  * 
+ * <strong>Note:</strong> Unlike jQuery, only a document may be passed as the `context` variable. This is because there is a simple,
+ * native method for selecting elements with an element as the root for the selection. The method is `element.querySelectorAll()`. If
+ * the element was created in the same document as Firebolt was loaded, it will have two aliases for `.querySelectorAll()` &mdash;
+ * {@linkcode Element#$|.$()} and {@linkcode Element#$QSA|.$QSA()}. If you want to write really performant and concise code, use some
+ * of {@link Element|Element's other native functions} as well.
+ * 
  * @global
  * @variation 2
  * @function Firebolt
  * @param {String} string - A CSS selector string or an HTML string.
+ * @param {Document} [context] - A DOM Document to serve as the context when selecting or creating elements.
  * @returns {NodeList|HTMLCollection} A list of selected elements or newly created elements.
+ * @throws {SyntaxError} When an invalid CSS selector is passed as the string.
  * 
  * @example
  * $('button.btn-success'); // Returns all button elements with the class "btn-success"
  * $('str <p>content</p>'); // Creates a set of nodes and returns it as a NodeList (in this case ["str ", <p>content</p>])
  * $.create('div');         // Calls Firebolt's `create()` method to create a new div element 
  */
-function Firebolt(str) {
+function Firebolt(str, context) {
+	if (context) {
+		//Set the scoped document variable to the context document and re-call this function
+		document = context;
+		var ret = Firebolt(str);
+
+		//Restore the document and return the retrieved object
+		document = window.document;
+		return ret;
+	}
+
 	if (str[0] === '#') { //Check for a single ID
 		if (rgxId.test(str)) {
 			var nc = new NodeCollection(),
