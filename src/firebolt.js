@@ -3685,7 +3685,7 @@ NodeCollectionPrototype.toggleClass = callOnEachElement('toggleClass');
  * If an element is a `<select>` element, all of its options with a value matching one in the input array of values will be selected
  * and all others deselected. If the select element does not allow multiple selection, only the first matching element is selected.
  * 
- * @function HTMLElement.prototype.val
+ * @function NodeCollection.prototype.val
  * @param {String[]} values - The array of values used to determine if each element (or its options) should be checked (or selected).
  */
 NodeCollectionPrototype.val = getFirstSetEachElement('val', function(numArgs) {
