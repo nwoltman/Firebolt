@@ -15,6 +15,7 @@ test("has correct functions", function() {
 			'append', 'appendWith',
 			'appendTo',
 			'before', 'beforePut',
+			'each',
 			'prependWith', 'prepend',
 			'prependTo',
 			'putAfter', 'insertAfter',

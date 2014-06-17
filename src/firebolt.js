@@ -643,7 +643,7 @@ var
 	rgxTableLevel1 = /<t(?:h|b|f)/i, //Detects (non-deprected) first-level table elements: <thead>, <tbody>, <tfoot>
 	rgxGetOrHead = /GET|HEAD/i, //Determines if a request is a GET or HEAD request
 	rgxDomain = /\/?\/\/(?:\w+\.)?(.*?)(?:\/|$)/,
-	rgxDifferentNL = /^(?:af|ap|be|ins|prep|pu|tog)|remove(?:Class)?$/, //Determines if the function is different for NodeLists
+	rgxDifferentNL = /^(?:af|ap|be|ea|ins|prep|pu|tog)|remove(?:Class)?$/, //Determines if the function is different for NodeLists
 	rgxId = /^#[^ \t-\f.,>:[+~]+$/, //Matches id values that do not contain other CSS selector characters
 	rgxClass = /^\.[^ \t-\f#,>:[+~]+$/, //Matches class values that do not contain other CSS selector characters
 	rgxAllDots = /\./g,
@@ -3706,6 +3706,7 @@ NodeCollectionPrototype.val = getFirstSetEachElement('val', function(numArgs) {
  * + appendWith / append
  * + appendTo
  * + beforePut / before
+ * + each
  * + putAfter / insertAfter
  * + putBefore / insertBefore
  * + prependWith / prepend
