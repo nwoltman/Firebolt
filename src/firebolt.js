@@ -642,10 +642,10 @@ var
 	rgxGetOrHead = /GET|HEAD/i, //Determines if a request is a GET or HEAD request
 	rgxDomain = /\/?\/\/(?:\w+\.)?(.*?)(?:\/|$)/,
 	rgxDifferentNL = /^(?:af|ap|be|ea|ins|prep|pu|tog)|remove(?:Class)?$/, //Determines if the function is different for NodeLists
-	rgxId = /^#[^ \t-\f.,>:[+~]+$/, //Matches id values that do not contain other CSS selector characters
-	rgxClass = /^\.[^ \t-\f#,>:[+~]+$/, //Matches class values that do not contain other CSS selector characters
+	rgxNotId = /[ .,>:[+~\t-\f]/, //Matches other characters that cannot be in an id selector
+	rgxNotClass = /[ #,>:[+~\t-\f]/, //Matches other characters that cannot be in a class selector
 	rgxAllDots = /\./g,
-	rgxTag = /^[A-Za-z]+$/,
+	rgxNotTag = /[^A-Za-z]/,
 	rgxNonWhitespace = /\S+/g,
 	rgxSpaceChars = /[ \t-\f]+/, //From W3C http://www.w3.org/TR/html5/single-page.html#space-character
 
@@ -1098,7 +1098,7 @@ function Firebolt(str, context) {
 	}
 
 	if (str[0] === '#') { //Check for a single ID
-		if (rgxId.test(str)) {
+		if (!rgxNotId.test(str)) {
 			var nc = new NodeCollection(),
 				elem = document.getElementById(str.slice(1));
 			if (elem) {
@@ -1108,11 +1108,11 @@ function Firebolt(str, context) {
 		}
 	}
 	else if (str[0] === '.') { //Check for a single class name
-		if (rgxClass.test(str)) {
+		if (!rgxNotClass.test(str)) {
 			return document.getElementsByClassName(str.slice(1).replace(rgxAllDots, ' '));
 		}
 	}
-	else if (rgxTag.test(str)) { //Check for a single tag name
+	else if (!rgxNotTag.test(str)) { //Check for a single tag name
 		return document.getElementsByTagName(str);
 	}
 	else if (isHtml(str)) { //Check if the string is an HTML string
@@ -1995,16 +1995,16 @@ Firebolt._GET(); // Just call the function to update the global $_GET object
  */
 window.$1 = function(selector) {
 	if (selector[0] === '.') { //Check for a single class name
-		if (rgxClass.test(selector)) {
+		if (!rgxNotClass.test(selector)) {
 			return document.getElementsByClassName(selector.slice(1).replace(rgxAllDots, ' '))[0];
 		}
 	}
 	else if (selector[0] === '#') { //Check for a single id
-		if (rgxId.test(selector)) {
+		if (!rgxNotId.test(selector)) {
 			return document.getElementById(selector.slice(1));
 		}
 	}
-	else if (rgxTag.test(selector)) { //Check for a single tag name
+	else if (!rgxNotTag.test(selector)) { //Check for a single tag name
 		return document.getElementsByTagName(selector)[0];
 	}
 	//else
