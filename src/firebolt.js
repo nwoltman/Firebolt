@@ -209,7 +209,7 @@ function extend(target) {
 
 	if (numArgs > 1) {
 		if (target === true) { //`target` was actually the `deep` variable; extend recursively
-			return extendDeep.apply(this, ArrayPrototype.slice.call(arguments, 1));
+			return extendDeep.apply(0, ArrayPrototype.slice.call(arguments, 1));
 		}
 		if (!target) { //`target` was actually the `deep` variable, but was false
 			target = arguments[i++];
@@ -239,17 +239,19 @@ function extendDeep(target) {
 		i = 1,
 		arg,
 		key,
-		val;
+		val,
+		tval;
 
-	//Extend the target object, extending recursively if both the new and current value are plain objects
+	//Extend the target object, extending recursively if the new value is a plain object
 	for (; i < numArgs; i++) {
 		arg = arguments[i];
 		for (key in arg) {
+			tval = target[key];
 			val = arg[key];
-			if (isPlainObject(target[key]) && isPlainObject(val)) {
-				extendDeep(target[key], val);
-			}
-			else {
+			if (tval !== val) {
+				if (isPlainObject(val)) {
+					val = extendDeep(isPlainObject(tval) ? tval : {}, val);
+				}
 				target[key] = val;
 			}
 		}
@@ -543,7 +545,7 @@ function isHtml(str) {
  * @see Firebolt.isPlainObject
  */
 function isPlainObject(obj) {
-	return toString.call(obj) == '[object Object]';
+	return obj && obj.toString() == '[object Object]';
 }
 
 function isUndefined(value) {
@@ -579,19 +581,6 @@ function sortRevDocOrder(a, b) {
 	}
 	//else node a should come first (pos is already positive)
 	return pos;
-}
-
-/**
- * Converts a set of nodes to a NodeCollection.
- */
-function toNC(nodes) {
-	var len = nodes.length,
-		nc = new NodeCollection(len),
-		i = 0;
-	for (; i < len; i++) {
-		nc[i] = nodes[i];
-	}
-	return nc;
 }
 
 function typeofString(value) {
@@ -2754,7 +2743,7 @@ NodePrototype.childElements = function(selector) {
 	var children = this.children || [];
 
 	if (!selector) {
-		return toNC(children);
+		return children.toNC();
 	}
 
 	var nc = new NodeCollection(),
@@ -2950,16 +2939,39 @@ NodePrototype.text = function(text) {
 
 //#region ======================== NodeCollection ============================
 
+//Save the clone function to toNC to be a way to make shallow copies of the NodeCollection/NodeList/HTMLCollection
+arrayExtensions.toNC = arrayExtensions.clone;
+
+/**
+ * Create a deep copy of the collection of nodes.
+ * 
+ * __Protip:__ If you want a shallow copy of the collection, use `.toNC()` (even thought that's a NodeList function,
+ * NodeCollections also have it in their prototype).
+ * 
+ * @function NodeCollection.prototype.clone
+ * @param {Boolean} [withData=false] - A boolean indicating if the element's data should be copied as well.
+ * @returns {NodeCollection}
+ */
+arrayExtensions.clone = function(withData) {
+	return this.map(function(node) {
+		var clone = node.cloneNode(true);
+		if (withData && node[DATA_KEY_PUBLIC]) {
+			extendDeep(clone.data(), node[DATA_KEY_PUBLIC]);
+		}
+		return clone;
+	});
+};
+
 /**
  * Same constructor as {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array|Array}.
  * 
  * @class NodeCollection
  * @mixes Array
  * @classdesc
- * A mutable collection of DOM nodes. It subclasses the native {@link Array} class (but take note that the `.clean()`,
+ * A mutable collection of DOM nodes. It subclasses the native {@link Array} class (but take note that the `.clone()`, `.clean()`,
  * `.remove()`, and `.filter()` functions have been overridden), and has all of the main DOM-manipulating functions.
  * 
- * <strong>Note:</strong> Since it is nearly impossible to fully subclass the Array class in JavaScript, there is one minor
+ * __Note:__ Since it is nearly impossible to fully subclass the Array class in JavaScript, there is one minor
  * hiccup with the way NodeCollection subclasses Array. The `instanceof` operator will not report that NodeCollection is an
  * instance of anything other than a NodeCollection. It also will not report that `NodeCollection` is a function.
  * This is demonstrated in the following code:
@@ -3036,7 +3048,7 @@ NodeCollectionPrototype.add = function(input) {
 	var newCollection;
 	if (input.nodeType) {
 		if (this.contains(input)) { //This collection already contains the input node
-			return toNC(this); //Return a clone of the current collection
+			return this.toNC(); //Return a shallow clone of the current collection
 		}
 		newCollection = this.concat(input);
 	}
@@ -3781,7 +3793,7 @@ Object.getOwnPropertyNames(NodeCollectionPrototype)
 	).forEach(function(methodName) {
 		if (rgxDifferentNL.test(methodName)) { //Convert to a NodeCollection first
 			HTMLCollectionPrototype[methodName] = NodeListPrototype[methodName] = function() {
-				return NodeCollectionPrototype[methodName].apply(toNC(this), arguments);
+				return NodeCollectionPrototype[methodName].apply(this.toNC(), arguments);
 			}
 		}
 		else if (!NodeListPrototype[methodName]) {
@@ -3823,7 +3835,7 @@ NodeListPrototype.namedItem = NodeCollectionPrototype.namedItem = function(name)
  * @function NodeList.prototype.toNC
  * @returns {NodeCollection}
  */
-NodeListPrototype.toNC = HTMLCollectionPrototype.toNC =
+//This function was added to the NodeList prototype in the loop above (because NodeCollection actually has this function too)
 
 /* HTMLCollections are always clean (since they can only contain HTMLElements) */
 HTMLCollectionPrototype.clean =
@@ -3831,8 +3843,8 @@ HTMLCollectionPrototype.clean =
 /* NodeLists/HTMLCollections always contain unique elements */
 NodeListPrototype.unique = HTMLCollectionPrototype.unique =
 
-/* All of the above functions are equivalent to calling NodeCollection#clone() on the NodeList/HTMLCollection */
-NodeCollectionPrototype.clone;
+/* All of the above functions are equivalent to calling NodeCollection#toNC() on the NodeList/HTMLCollection */
+NodeCollectionPrototype.toNC;
 
 //#endregion NodeList
 
