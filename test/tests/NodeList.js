@@ -22,8 +22,13 @@ test("has correct functions", function() {
 			'putBefore', 'insertBefore',
 			'remove',
 			'removeClass',
-			'toggleClass'
-	    ],
+			'replaceAll',
+			'replaceWith',
+			'toggleClass',
+			'unwrap',
+			'wrap',
+			'wrapInner'
+		],
 		nodeListFuncs = Object.keys(NodeList.prototype).remove('item', 'unique');
 
 	nodeListFuncs.forEach(function(methodName) {

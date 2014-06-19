@@ -396,7 +396,7 @@ function getNextOrPrevFunc(dirElementSibling, forNode) {
 }
 
 /* 
- * Returns the function body for Node#[putAfter, putBefore, or prependTo]
+ * Returns the function body for Node#[putAfter, putBefore, prependTo, replaceAll]
  * 
  * @param {Function} insertingCallback(newNode, refNode) - The callback that performs the insertion.
  */
@@ -422,13 +422,41 @@ function getNodeInsertingFunction(insertingCallback) {
 	}
 }
 
-/* Returns the function body for NodeCollection#[putAfter, putBefore, appendTo, or prependTo] */
-function getPutOrToFunction(funcName) {
+/* Returns the function body for NodeCollection#[putAfter, putBefore, appendTo, or prependTo, replaceAll] */
+function getPutToOrAllFunction(funcName) {
 	return function(target) {
 		(typeofString(target) ? Firebolt(target) : target)[funcName](this);
 
 		return this;
 	}
+}
+
+/*
+ * Takes in the input from `.wrap()` or `.wrapInner()` and returns a new element (or null/undefined) to be the wrapping element.
+ */
+function getWrappingElement(input) {
+	if (typeofString(input)) {
+		if (input[0] === '<') { //HTML
+			return htmlToNodes(input)[0];
+		}
+		//CSS selector
+		input = $1(input);
+	}
+	else if (!input.nodeType) { //Element[]
+		input = input[0];
+	}
+
+	return input && input.cloneNode(true);
+}
+
+/*
+ * Takes in a wrapping element and returns its deepest first element child (or itself if it has no child elements).
+ */
+function getWrappingInnerElement(wrapper) {
+	while (wrapper.firstElementChild) {
+		wrapper = wrapper.firstElementChild;
+	}
+	return wrapper;
 }
 
 /*
@@ -559,6 +587,13 @@ function prepend(newNode, refNode) {
 	refNode.insertBefore(newNode, refNode.firstChild);
 }
 
+/*
+ * Replaces a reference node with a new node.
+ */
+function replaceWith(newNode, refNode) {
+	refNode.parentNode.replaceChild(newNode, refNode);
+}
+
 function sortDocOrder(a, b) {
 	var pos = a.compareDocumentPosition(b);
 	if (pos & 4) { //Node a should come first
@@ -629,7 +664,7 @@ var
 	rgxTableLevel1 = /<t(?:h|b|f)/i, //Detects (non-deprected) first-level table elements: <thead>, <tbody>, <tfoot>
 	rgxGetOrHead = /GET|HEAD/i, //Determines if a request is a GET or HEAD request
 	rgxDomain = /\/?\/\/(?:\w+\.)?(.*?)(?:\/|$)/,
-	rgxDifferentNL = /^(?:af|ap|be|ea|ins|prep|pu|tog)|remove(?:Class)?$/, //Determines if the function is different for NodeLists
+	rgxDifferentNL = /^(?:af|ap|be|ea|ins|prep|pu|rep|tog)|wrap|remove(?:Class)?$/, //Determines if the function is different for NodeLists
 	rgxNotId = /[ .,>:[+~\t-\f]/, //Matches other characters that cannot be in an id selector
 	rgxNotClass = /[ #,>:[+~\t-\f]/, //Matches other characters that cannot be in a class selector
 	rgxAllDots = /\./g,
@@ -2876,6 +2911,28 @@ NodePrototype.putAfter = getNodeInsertingFunction(insertAfter);
 NodePrototype.putBefore = getNodeInsertingFunction(insertBefore);
 
 /**
+ * Replace the target with this node.
+ * 
+ * @function Node.prototype.replaceAll
+ * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes to be replaced by this node.
+ * @throws {TypeError} The target node(s) must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
+ */
+NodePrototype.replaceAll = getNodeInsertingFunction(replaceWith);
+
+/**
+ * Replace the node with some other content.
+ * 
+ * @function Node.prototype.replaceWith
+ * @param {String|Node|NodeCollection} content - A specific node, a collection of nodes, or some HTML to replace the subject node.
+ * @throws {TypeError} The subject node must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
+ */
+NodePrototype.replaceWith = function() {
+	replaceWith(createFragment(arguments), this);
+
+	return this;
+};
+
+/**
  * Removes this node from the DOM.
  * 
  * @function Node.prototype.remove
@@ -2920,6 +2977,51 @@ NodePrototype.text = function(text) {
 	}
 
 	this.textContent = text; //Set
+
+	return this;
+};
+
+/**
+ * Remove the node's parent from the DOM, leaving the node in its place.
+ * 
+ * @function Node.prototype.unwrap
+ * @throws {TypeError} The subject node must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode},
+ * which in turn must also have a ParentNode.
+ */
+NodePrototype.unwrap = function() {
+	this.parentNode.replaceWith(this);
+
+	return this;
+};
+
+/**
+ * Wrap an HTML structure around the node.
+ * 
+ * @function Node.prototype.wrap
+ * @param {String|Element|Element[]) wrappingElement - CSS selector&mdash;to select wrapping element(s)&mdash;, HTML string&mdash;to
+ * create wrapping element(s)&mdash;, element, or collection of elements used to specify the structure to wrap around the node.
+ * @throws {TypeError} The subject node must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
+ */
+NodePrototype.wrap = function(wrappingElement) {
+	if (wrappingElement = getWrappingElement(wrappingElement)) {
+		getWrappingInnerElement(wrappingElement).appendChild(this.replaceWith(wrappingElement));
+	}
+
+	return this;
+};
+
+/**
+ * Wrap an HTML structure around the content of the node.
+ * 
+ * @function Node.prototype.wrapInner
+ * @param {String|Element|Element[]) wrappingElement - CSS selector&mdash;to select wrapping element(s)&mdash;, HTML string&mdash;to
+ * create wrapping element(s)&mdash;, element, or collection of elements used to specify the structure to wrap the node's contents.
+ * @throws {HierarchyRequestError} The node must implement the {@link ParentNode} interface.
+ */
+NodePrototype.wrapInner = function(wrappingElement) {
+	if (wrappingElement = getWrappingElement(wrappingElement)) {
+		this.appendChild(getWrappingInnerElement(wrappingElement).appendWith(this.childNodes));
+	}
 
 	return this;
 };
@@ -3107,7 +3209,7 @@ NodeCollectionPrototype.afterPut = NodeCollectionPrototype.after = function() {
  * @param {String|ParentNode|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes to which each node will be appended.
  * @throws {HierarchyRequestError} The target(s) must implement the {@link ParentNode} interface.
  */
-NodeCollectionPrototype.appendTo = getPutOrToFunction('appendWith');
+NodeCollectionPrototype.appendTo = getPutToOrAllFunction('appendWith');
 
 /**
  * Alias of {@link NodeCollection#appendWith} provided for similarity with jQuery.  
@@ -3489,7 +3591,7 @@ NodeCollectionPrototype.prependWith = NodeCollectionPrototype.prepend = function
  * @param {String|ParentNode|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes to which each node will be prepended.
  * @throws {HierarchyRequestError} The target(s) must implement the {@link ParentNode} interface.
  */
-NodeCollectionPrototype.prependTo = getPutOrToFunction('prependWith');
+NodeCollectionPrototype.prependTo = getPutToOrAllFunction('prependWith');
 
 /**
  * Get the each node's immediately preceeding sibling element. If a selector is provided, it retrieves the previous sibling only if it matches that selector.
@@ -3552,7 +3654,7 @@ NodeCollectionPrototype.prop = getFirstSetEachElement('prop', function(numArgs, 
  * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes after which each node will be inserted.
  * @throws {TypeError} The target node(s) must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
  */
-NodeCollectionPrototype.putAfter = NodeCollectionPrototype.insertAfter = getPutOrToFunction('afterPut');
+NodeCollectionPrototype.putAfter = NodeCollectionPrototype.insertAfter = getPutToOrAllFunction('afterPut');
 
 /**
  * Inserts each node in this collection directly before the specified target(s).
@@ -3561,7 +3663,7 @@ NodeCollectionPrototype.putAfter = NodeCollectionPrototype.insertAfter = getPutO
  * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes before which each node will be inserted.
  * @throws {TypeError} The target node(s) must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
  */
-NodeCollectionPrototype.putBefore = NodeCollectionPrototype.insertBefore = getPutOrToFunction('beforePut');
+NodeCollectionPrototype.putBefore = NodeCollectionPrototype.insertBefore = getPutToOrAllFunction('beforePut');
 
 /**
  * Removes nodes in the collection from the DOM tree.
@@ -3620,6 +3722,42 @@ NodeCollectionPrototype.removeData = callOnEachElement('removeData');
 NodeCollectionPrototype.removeProp = callOnEachElement('removeProp');
 
 /**
+ * Replace the target with the nodes in this collection.
+ * 
+ * @function NodeCollection.prototype.replaceAll
+ * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes to be replaced
+ * by the nodes in this collection.
+ * @throws {TypeError} The target node(s) must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
+ */
+NodeCollectionPrototype.replaceAll = getPutToOrAllFunction('replaceWith');
+
+/**
+ * Replace each node in the collection with some other content.
+ * 
+ * @function NodeCollection.prototype.replaceWith
+ * @param {String|Node|NodeCollection} content - A specific node, a collection of nodes, or some HTML to replace each node in the collection.
+ * @throws {TypeError|NoModificationAllowedError} The subject collection of nodes must only contain nodes that have a
+ * {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
+ */
+NodeCollectionPrototype.replaceWith = function() {
+	var len = this.length,
+		firstNode = this[0];
+	if (len > 1) {
+		var fragment = createFragment(arguments),
+			i = 1;
+		for (; i < len; i++) {
+			replaceWith(fragment.cloneNode(true), this[i]);
+		}
+		replaceWith(fragment, firstNode);
+	}
+	else if (len) { //This collection only has one node
+		firstNode.replaceWith.apply(firstNode, arguments);
+	}
+
+	return this;
+};
+
+/**
  * Shows each element in the collection. For specifics, see {@link HTMLElement#show}.
  * 
  * @function NodeCollection.prototype.show
@@ -3676,6 +3814,27 @@ NodeCollectionPrototype.text = function(text) {
 NodeCollectionPrototype.toggleClass = callOnEachElement('toggleClass');
 
 /**
+ * Remove the each node's parent from the DOM, leaving the node in its place.
+ * 
+ * @function NodeCollection.prototype.unwrap
+ * @throws {TypeError} Each node must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode},
+ * which in turn must also have a ParentNode.
+ */
+NodeCollectionPrototype.unwrap = function() {
+	var parents = this.parent(),
+		i = 0,
+		parent;
+	for (; i < parents.length; i++) {
+		parent = parents[i];
+		if (parent.nodeName != 'BODY') {
+			parent.replaceWith(parent.childNodes);
+		}
+	}
+
+	return this;
+};
+
+/**
  * Retrieves the current value of the first element in the collection. If the element is a `<select>` element, `null` is returned if
  * none of its options are selected and an array of selected options is returned if the element's `multiple` attribute is present.
  * 
@@ -3700,6 +3859,42 @@ NodeCollectionPrototype.toggleClass = callOnEachElement('toggleClass');
 NodeCollectionPrototype.val = getFirstSetEachElement('val', function(numArgs) {
 	return !numArgs;
 });
+
+/**
+ * Wrap an HTML structure around each node in the collection.
+ * 
+ * @function NodeCollection.prototype.wrap
+ * @param {String|Element|Element[]) wrappingElement - CSS selector&mdash;to select wrapping element(s)&mdash;, HTML string&mdash;to
+ * create wrapping element(s)&mdash;, element, or collection of elements used to specify the wrapping structure.
+ * @throws {TypeError} The target node(s) must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
+ */
+NodeCollectionPrototype.wrap = function(wrappingElement) {
+	if (wrappingElement = getWrappingElement(wrappingElement)) {
+		for (var i = 0; i < this.length; i++) {
+			this[i].wrap(wrappingElement);
+		}
+	}
+
+	return this;
+};
+
+/**
+ * Wrap an HTML structure around the contents of each node in the collection.
+ * 
+ * @function NodeCollection.prototype.wrapInner
+ * @param {String|Element|Element[]) wrappingElement - CSS selector&mdash;to select wrapping element(s)&mdash;, HTML string&mdash;to
+ * create wrapping element(s)&mdash;, element, or collection of elements used to specify the wrapping structure.
+ * @throws {HierarchyRequestError} The target node(s) must implement the {@link ParentNode} interface.
+ */
+NodeCollectionPrototype.wrapInner = function(wrappingElement) {
+	if (wrappingElement = getWrappingElement(wrappingElement)) {
+		for (var i = 0; i < this.length; i++) {
+			this[i].wrapInner(wrappingElement);
+		}
+	}
+
+	return this;
+};
 
 //#endregion NodeCollection
 
@@ -3738,7 +3933,12 @@ NodeCollectionPrototype.val = getFirstSetEachElement('val', function(numArgs) {
  * + prependTo
  * + remove
  * + removeClass
+ * + replaceAll
+ * + replaceWith
  * + toggleClass
+ * + unwrap
+ * + wrap
+ * + wrapInner
  * 
  * This is because the functions my alter live NodeLists, as seen in this example:
  * 
