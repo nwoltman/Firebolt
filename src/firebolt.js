@@ -666,7 +666,7 @@ var
 
 	_$ = window.$, //Save the `$` variable in case something else is currently using it
 
-	any, //Arbitrary variable that may be used for whatever
+	any, //Arbitrary variable that may be used for whatever -- keep no references so this can be garbage collected
 
 //#endregion Private
 
@@ -1625,7 +1625,7 @@ Firebolt.each = function(obj, callback) {
  * @function Firebolt.extend
  * @param {Boolean} deep - If `true`, the merge becomes recursive (performs a deep copy on object values).
  * @param {Object} target - The object that will receive the new properties.
- * @param {...Object} object - One or more objects whose properties will be added to the target object.
+ * @param {...Object} object - One or more objects whose properties will be merged into the target object.
  * @returns {Object} The target object.
  */
 Firebolt.extend = extend;
@@ -1775,14 +1775,12 @@ Firebolt.isEmptyObject = isEmptyObject;
 Firebolt.isPlainObject = isPlainObject;
 
 /**
- * Determines if the user is on a touchscreen device.
+ * Indicates if the user is on a touchscreen device.
  * 
- * @returns {Boolean} `true` if the user is on a touchscreen device; else `false`.
+ * @property {Boolean} isTouchDevice - `true` if the user is on a touchscreen device; else `false`.
  * @memberOf Firebolt
  */
-Firebolt.isTouchDevice = function() {
-	return 'ontouchstart' in window || 'onmsgesturechange' in window;
-};
+Firebolt.isTouchDevice = 'ontouchstart' in window || 'onmsgesturechange' in window;
 
 /**
  * Relinquishes Firebolt's control of the global `$` variable (restoring its previous value in the process).
@@ -2971,8 +2969,8 @@ arrayExtensions.clone = function(withData) {
  * A mutable collection of DOM nodes. It subclasses the native {@link Array} class (but take note that the `.clone()`, `.clean()`,
  * `.remove()`, and `.filter()` functions have been overridden), and has all of the main DOM-manipulating functions.
  * 
- * __Note:__ Since it is nearly impossible to fully subclass the Array class in JavaScript, there is one minor
- * hiccup with the way NodeCollection subclasses Array. The `instanceof` operator will not report that NodeCollection is an
+ * __Note:__ Since it is nearly impossible to fully subclass the Array class in JavaScript, there is one minor hiccup
+ * with the way NodeCollection subclasses Array. The `instanceof` operator will not report that NodeCollection is an
  * instance of anything other than a NodeCollection. It also will not report that `NodeCollection` is a function.
  * This is demonstrated in the following code:
  * ```javascript
