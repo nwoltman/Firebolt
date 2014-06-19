@@ -24,7 +24,7 @@ test("has correct functions", function() {
 			'removeClass',
 			'toggleClass'
 	    ],
-		nodeListFuncs = Object.keys(NodeList.prototype).remove('item', 'unique', 'toNC');
+		nodeListFuncs = Object.keys(NodeList.prototype).remove('item', 'unique');
 
 	nodeListFuncs.forEach(function(methodName) {
 		if (differentFuncs.contains(methodName)) {
