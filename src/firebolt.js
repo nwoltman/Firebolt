@@ -1118,7 +1118,7 @@ ElementPrototype.removeData = function(input) {
  * The global Firebolt function (can also be referenced by the synonyms `FB` and `$`).  
  * Returns a list of the elements either found in the DOM that match the passed in CSS selector or created by passing an HTML string.
  * 
- * <strong>Note:</strong> Unlike jQuery, only a document may be passed as the `context` variable. This is because there is a simple,
+ * __Note:__ Unlike jQuery, only a document may be passed as the `context` variable. This is because there is a simple,
  * native method for selecting elements with an element as the root for the selection. The method is `element.querySelectorAll()`. If
  * the element was created in the same document as Firebolt was loaded, it will have two aliases for `.querySelectorAll()` &mdash;
  * {@linkcode Element#$|.$()} and {@linkcode Element#$QSA|.$QSA()}. If you want to write really performant and concise code, use some
@@ -2980,7 +2980,7 @@ NodePrototype.replaceAll = getNodeInsertingFunction(replaceWith);
  * Replace the node with some other content.
  * 
  * @function Node.prototype.replaceWith
- * @param {String|Node|NodeCollection} content - A specific node, a collection of nodes, or some HTML to replace the subject node.
+ * @param {..(String|Node|NodeCollection)} content - A specific node, a collection of nodes, or some HTML to replace the subject node.
  * @throws {TypeError} The subject node must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
  */
 NodePrototype.replaceWith = function() {
@@ -3225,10 +3225,11 @@ NodeCollectionPrototype.add = function(input) {
 NodeCollectionPrototype.addClass = callOnEachElement('addClass');
 
 /**
- * Alias of {@link NodeCollection#afterPut} provided for similarity with jQuery.  
- * Note that Firebolt does not define a method called "after" for Nodes. This is because the DOM Living Standard has defined
+ * Alias of {@link NodeCollection#afterPut} provided for similarity with jQuery.
+ * 
+ * Note that Firebolt does not define a method called "after" for {@link Node}. This is because the DOM Living Standard has defined
  * a native function called `after` for the {@link http://dom.spec.whatwg.org/#interface-childnode|ChildNode Interface} that
- * does not function in the same way as `afterPut`.
+ * does not function in the same way as `.afterPut()`.
  * 
  * @function NodeCollection.prototype.after
  * @see NodeCollection#afterPut
@@ -3269,10 +3270,11 @@ NodeCollectionPrototype.afterPut = NodeCollectionPrototype.after = function() {
 NodeCollectionPrototype.appendTo = getPutToOrAllFunction('appendWith');
 
 /**
- * Alias of {@link NodeCollection#appendWith} provided for similarity with jQuery.  
- * Note that Firebolt does not define a method called "append" for Nodes. This is because the DOM Living Standard has defined
+ * Alias of {@link NodeCollection#appendWith} provided for similarity with jQuery.
+ * 
+ * Note that Firebolt does not define a method called "append" for {@link Node}. This is because the DOM Living Standard has defined
  * a native function called `append` for the {@link http://dom.spec.whatwg.org/#interface-parentnode|ParentNode Interface} that
- * does not function in the same way as `appendWith`.
+ * does not function in the same way as `.appendWith()`.
  * 
  * @function NodeCollection.prototype.append
  * @see NodeCollection#appendWith
@@ -3327,10 +3329,11 @@ NodeCollectionPrototype.attr = getFirstSetEachElement('attr', function(numArgs) 
 });
 
 /**
- * Alias of {@link NodeCollection#beforePut} provided for similarity with jQuery.  
- * Note that Firebolt does not define a method called "before" for Nodes. This is because the DOM Living Standard has defined
+ * Alias of {@link NodeCollection#beforePut} provided for similarity with jQuery.
+ * 
+ * Note that Firebolt does not define a method called "before" for {@link Node}. This is because the DOM Living Standard has defined
  * a native function called `before` for the {@link http://dom.spec.whatwg.org/#interface-childnode|ChildNode Interface} that
- * does not function in the same way as `beforePut`.
+ * does not function in the same way as `.beforePut()`.
  * 
  * @function NodeCollection.prototype.before
  * @see NodeCollection#beforePut
@@ -3608,10 +3611,11 @@ NodeCollectionPrototype.parents = getGetDirElementsFunc('parents', sortRevDocOrd
 NodeCollectionPrototype.parentsUntil = getGetDirElementsFunc('parentsUntil', sortRevDocOrder);
 
 /**
- * Alias of {@link NodeCollection#prependWith} provided for similarity with jQuery.  
- * Note that Firebolt does not define a method called "prepend" for Nodes. This is because the DOM Living Standard has defined
+ * Alias of {@link NodeCollection#prependWith} provided for similarity with jQuery.
+ * 
+ * Note that Firebolt does not define a method called "prepend" for {@link Node}. This is because the DOM Living Standard has defined
  * a native function called `prepend` for the {@link http://dom.spec.whatwg.org/#interface-parentnode|ParentNode Interface} that
- * does not function in the same way as `prependWith`.
+ * does not function in the same way as `.prependWith()`.
  * 
  * @function NodeCollection.prototype.prepend
  * @see NodeCollection#prependWith
@@ -3792,7 +3796,7 @@ NodeCollectionPrototype.replaceAll = getPutToOrAllFunction('replaceWith');
  * Replace each node in the collection with some other content.
  * 
  * @function NodeCollection.prototype.replaceWith
- * @param {String|Node|NodeCollection} content - A specific node, a collection of nodes, or some HTML to replace each node in the collection.
+ * @param {...(String|Node|NodeCollection)} content - A specific node, a collection of nodes, or some HTML to replace each node in the collection.
  * @throws {TypeError|NoModificationAllowedError} The subject collection of nodes must only contain nodes that have a
  * {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
  */
