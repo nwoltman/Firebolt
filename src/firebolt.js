@@ -209,7 +209,7 @@ function extend(target) {
 
 	if (numArgs > 1) {
 		if (target === true) { //`target` was actually the `deep` variable; extend recursively
-			return extendDeep.apply(0, ArrayPrototype.slice.call(arguments, 1));
+			return extendDeep.apply(0, slice.call(arguments, 1));
 		}
 		if (!target) { //`target` was actually the `deep` variable, but was false
 			target = arguments[i++];
@@ -648,6 +648,9 @@ var
 	StringPrototype = String[prototype],
 	defineProperty = Object.defineProperty,
 	defineProperties = Object.defineProperties,
+
+	//Helpers
+	slice = ArrayPrototype.slice,
 
 	//Property strings
 	nextElementSibling = 'nextElementSibling',
@@ -1952,6 +1955,24 @@ Firebolt.removeData = removeData;
 Firebolt.text = function(text) {
 	return document.createTextNode(text);
 }
+
+/**
+ * Converts an array-like object (such as a function's `arguments` object) to a true {@link Array}.
+ * 
+ * @example
+ * function tester() {
+ *     console.log( $.makeArray(arguments) );
+ *     console.log( $.makeArray(arguments, 1) );
+ * }
+ * tester(1, 2, 3);  // logs "[1, 2, 3]" and "[2, 3]"
+ * 
+ * @param {Object} obj - Any object to turn into a native array.
+ * @param {Number} [startIndex=0] - An index in the input object at which to start creating the new array from.
+ * @returns {Array}
+ */
+Firebolt.makeArray = function(array, index) {
+	return slice.call(array, index);
+};
 
 //#endregion Firebolt
 
