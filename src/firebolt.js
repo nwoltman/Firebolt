@@ -432,6 +432,30 @@ function getPutToOrAllFunction(funcName) {
 }
 
 /*
+ * Returns a convenience function for setting and clearing timeouts and intervals.
+ * @see Function.prototype.delay
+ * @see Function.prototype.every
+ */
+function getTimingFunction(setTiming, clearTiming) {
+	return function(delay) {
+		var callback = this,
+			args = slice.call(arguments, 1),
+
+			// Only set the timing callback to be a function that applies the passed in arguments to this function
+			// if there are passed in arguments. Otherwise just set the original function as the callback.
+			clearRef = setTiming(args.length ? function() {
+				callback.apply(window, args);
+			} : callback, delay);
+
+		return {
+			clear: function() {
+				clearTiming(clearRef);
+			}
+		};
+	};
+}
+
+/*
  * Takes in the input from `.wrap()` or `.wrapInner()` and returns a new element (or null/undefined) to be the wrapping element.
  */
 function getWrappingElement(input) {
@@ -641,6 +665,7 @@ var
 	prototype = 'prototype',
 	ArrayPrototype = Array[prototype],
 	ElementPrototype = Element[prototype],
+	FunctionPrototype = Function[prototype],
 	HTMLElementPrototype = HTMLElement[prototype],
 	NodePrototype = Node[prototype],
 	NodeListPrototype = NodeList[prototype],
@@ -1591,23 +1616,6 @@ Firebolt.data = function(object, key, value) {
 };
 
 /**
- * Calls the passed in function after the specified amount of time in milliseconds.
- * 
- * @param {Function} callback - A function to be called after the specified amount of time.
- * @param {Number} ms - An integer between 0 and +∞ : [ 0, +∞).
- * @returns {Object} An object that can be used to cancel the callback before it is executed by calling `object.clear()`.
- * @memberOf Firebolt
- */
-Firebolt.delay = function(callback, ms) {
-	return new function() {
-		var clearRef = setTimeout(callback, ms);
-		this.clear = function() {
-			clearTimeout(clearRef);
-		};
-	};
-};
-
-/**
  * A generic iterator function, which can be used to iterate over both objects and arrays.
  * Arrays and array-like objects with a length property (such as a NodeLists) are iterated
  * by numeric index, from 0 to length-1. Other objects are iterated via their named properties.
@@ -1980,27 +1988,55 @@ Firebolt.makeArray = function(array, index) {
 //#region =========================== Function ===============================
 
 /**
- * The JavaScript Function interface.
  * @class Function
+ * @classdesc The JavaScript Function object.
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function|Function - JavaScript | MDN}
  */
 
 /**
  * Delays a function call for the specified number of milliseconds.
  * 
+ * __ATTENTION:__ Inside the function that is being delayed, `this` will refer to the `window` object.
+ * 
+ * @example <caption>Call a function at a later time</caption>
+ * window.alert.delay(2000, 'alert!');  // Waits 2 seconds, then opens an alert that says "alert!"
+ * 
+ * @example <caption>Set a timeout for a function but cancel it before it can be called</caption>
+ * var ref = window.alert.delay(2000, 'alert!');  // Sets the alert to be called in 2 seconds and saves a reference to the returned object
+ * 
+ * //----- Before 2 seconds ellapses -----
+ * ref.clear();  // Prevents the alert function from being called
+ * 
  * @function Function.prototype.delay
- * @param {Number} ms - The number of milliseconds to wait before calling the functions.
+ * @param {Number} delay - The number of milliseconds to wait before calling the functions.
+ * @param {...*} [args] - Arguments the function will be called with.
  * @returns {Object} An object that can be used to cancel the callback before it is executed by calling `object.clear()`.
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Window.setTimeout|window.setTimeout - Web API Interfaces | MDN}
  */
-Function[prototype].delay = function(ms) {
-	var that = this;
-	return new function() {
-		var clearRef = setTimeout(that, ms);
-		this.clear = function() {
-			clearTimeout(clearRef);
-		};
-	};
-};
+FunctionPrototype.delay = getTimingFunction(setTimeout, clearTimeout);
+
+/**
+ * Executes the function repeatedly, with a fixed time delay between each call to the function.
+ * 
+ * __ATTENTION:__ Inside the function that is being delayed, `this` will refer to the `window` object.
+ * 
+ * @example <caption>Set a function to repeat every 2 seconds and later stop it from continuing</caption>
+ * function logStuff() {
+ *     console.log('stuff');
+ * }
+ * 
+ * var ref = logStuff.every(2000);  // Waits 2 seconds, then logs "stuff" to the console and continues to do so every 2 seconds
+ * 
+ * //----- Later -----
+ * ref.clear();  // Stops the logging calls
+ * 
+ * @function Function.prototype.every
+ * @param {Number} delay - The number of milliseconds to wait between function calls.
+ * @param {...*} [args] - Arguments the function will be called with.
+ * @returns {Object} An object that can be used to cancel further calls to the function by calling `object.clear()`.
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Window.setInterval|window.setInterval - Web API Interfaces | MDN}
+ */
+FunctionPrototype.every = getTimingFunction(setInterval, clearInterval);
 
 //#endregion Function
 
