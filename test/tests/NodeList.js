@@ -29,7 +29,7 @@ test("has correct functions", function() {
 			'wrap',
 			'wrapInner'
 		],
-		nodeListFuncs = Object.keys(NodeList.prototype).remove('item', 'unique');
+		nodeListFuncs = Object.keys(NodeList.prototype).remove('item', 'uniq');
 
 	nodeListFuncs.forEach(function(methodName) {
 		if (differentFuncs.contains(methodName)) {

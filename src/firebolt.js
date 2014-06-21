@@ -13,15 +13,13 @@
 //#region =========================== Private ================================
 
 /** 
- * Calls the function with the passed in name on each element in a NodeCollection.
+ * Calls the passed in function on each element in a NodeCollection.
  * 
  * @private
- * @param {String} fn - The name of a function in HTMLElement's prototype.
+ * @param {Function} fn - The function to call on each element.
  * @returns {NodeCollection|NodeList|HTMLCollection} A reference to the NodeCollection.
  */
 function callOnEachElement(fn) {
-	fn = HTMLElementPrototype[fn];
-
 	return function() {
 		var len = this.length,
 			i = 0;
@@ -269,16 +267,14 @@ function getAjaxErrorStatus(xhr) {
 }
 
 /** 
- * Returns a function that calls the function with the passed in name on each element in a NodeCollection unless
- * the callback returns true, in which case the result of calling the function on the first element is returned.
+ * Returns a function that calls the passed in function on each element in a NodeCollection unless the callback
+ * returns true, in which case the result of calling the function on the first element is returned.
  * 
  * @private
- * @param {String} fn - The name of a function in HTMLElement's prototype.
+ * @param {Function} fn - The function to use as the getter or setter.
  * @param {Function} callback(numArgs, firstArg) - Function to determine if the value of the first element should be returned.
  */
 function getFirstSetEachElement(fn, callback) {
-	fn = HTMLElementPrototype[fn];
-
 	return function(firstArg) {
 		var items = this,
 			len = items.length,
@@ -3267,7 +3263,7 @@ NodeCollectionPrototype.add = function(input) {
  * @function NodeCollection.prototype.addClass
  * @param {String} className - The class to be added to each element in the collection.
  */
-NodeCollectionPrototype.addClass = callOnEachElement('addClass');
+NodeCollectionPrototype.addClass = callOnEachElement(HTMLElementPrototype.addClass);
 
 /**
  * Alias of {@link NodeCollection#afterPut} provided for similarity with jQuery.
@@ -3369,7 +3365,7 @@ NodeCollectionPrototype.appendWith = NodeCollectionPrototype.append = function()
  * @function NodeCollection.prototype.attr
  * @param {Object} attributes - An object of attribute-value pairs to set.
  */
-NodeCollectionPrototype.attr = getFirstSetEachElement('attr', function(numArgs) {
+NodeCollectionPrototype.attr = getFirstSetEachElement(HTMLElementPrototype.attr, function(numArgs) {
 	return numArgs < 2;
 });
 
@@ -3430,11 +3426,11 @@ NodeCollectionPrototype.clean = function() {
 }
 
 /**
- * Clicks each element in the list.
+ * Clicks each element in the collection.
  * 
  * @function NodeCollection.prototype.click
  */
-NodeCollectionPrototype.click = callOnEachElement('click');
+NodeCollectionPrototype.click = callOnEachElement(HTMLElementPrototype.click);
 
 /**
  * Gets the computed style object of the first element in the list.
@@ -3468,7 +3464,7 @@ NodeCollectionPrototype.click = callOnEachElement('click');
  * @function NodeCollection.prototype.css
  * @param {String} cssText - A CSS style string. To clear the style, pass in an empty string.
  */
-NodeCollectionPrototype.css = getFirstSetEachElement('css', function(numArgs, firstArg) {
+NodeCollectionPrototype.css = getFirstSetEachElement(HTMLElementPrototype.css, function(numArgs, firstArg) {
 	return !numArgs || numArgs < 2 && firstArg && typeofString(firstArg) && !firstArg.contains(':');
 });
 
@@ -3498,7 +3494,7 @@ NodeCollectionPrototype.css = getFirstSetEachElement('css', function(numArgs, fi
  * @function NodeCollection.prototype.data
  * @param {Object} obj - An object of key-value pairs to add to each elements stored data.
  */
-NodeCollectionPrototype.data = getFirstSetEachElement('data', function(numArgs, firstArg) {
+NodeCollectionPrototype.data = getFirstSetEachElement(ElementPrototype.data, function(numArgs, firstArg) {
 	return !numArgs || numArgs < 2 && typeofString(firstArg);
 });
 
@@ -3507,7 +3503,7 @@ NodeCollectionPrototype.data = getFirstSetEachElement('data', function(numArgs, 
  * 
  * @function NodeCollection.prototype.empty
  */
-NodeCollectionPrototype.empty = callOnEachElement('empty');
+NodeCollectionPrototype.empty = callOnEachElement(HTMLElementPrototype.empty);
 
 /**
  * Creates a new NodeCollection containing only the elements that match the provided selector.
@@ -3540,7 +3536,7 @@ NodeCollectionPrototype.filter = function(selector) {
  * @function NodeCollection.prototype.hide
  * @see HTMLElement#hide
  */
-NodeCollectionPrototype.hide = callOnEachElement('hide');
+NodeCollectionPrototype.hide = callOnEachElement(HTMLElementPrototype.hide);
 
 /**
  * Gets the inner HTML of the first element in the list.
@@ -3554,7 +3550,7 @@ NodeCollectionPrototype.hide = callOnEachElement('hide');
  * @function NodeCollection.prototype.html
  * @param {String} innerHTML - An HTML string.
  */
-NodeCollectionPrototype.html = getFirstSetEachElement('html', function(numArgs) {
+NodeCollectionPrototype.html = getFirstSetEachElement(HTMLElementPrototype.html, function(numArgs) {
 	return !numArgs;
 });
 
@@ -3749,7 +3745,7 @@ NodeCollectionPrototype.prevUntil = getGetDirElementsFunc('prevUntil', sortRevDo
  * @function NodeCollection.prototype.prop
  * @param {Object} properties - An object of property-value pairs to set.
  */
-NodeCollectionPrototype.prop = getFirstSetEachElement('prop', function(numArgs, firstArg) {
+NodeCollectionPrototype.prop = getFirstSetEachElement(HTMLElementPrototype.prop, function(numArgs, firstArg) {
 	return numArgs < 2 && typeofString(firstArg);
 });
 
@@ -3793,7 +3789,7 @@ NodeCollectionPrototype.remove = function(selector) {
  * @function NodeCollection.prototype.removeAttr
  * @param {String} attribute - The name of the attribute to be removed.
  */
-NodeCollectionPrototype.removeAttr = callOnEachElement('removeAttr');
+NodeCollectionPrototype.removeAttr = callOnEachElement(HTMLElementPrototype.removeAttr);
 
 /**
  * Removes the input class name from all elements in the list.
@@ -3801,7 +3797,7 @@ NodeCollectionPrototype.removeAttr = callOnEachElement('removeAttr');
  * @function NodeCollection.prototype.removeClass
  * @param {String} className - The class to be removed from each element in the collection.
  */
-NodeCollectionPrototype.removeClass = callOnEachElement('removeClass');
+NodeCollectionPrototype.removeClass = callOnEachElement(HTMLElementPrototype.removeClass);
 
 /**
  * Removes a previously stored piece of Firebolt data from each element.  
@@ -3817,7 +3813,7 @@ NodeCollectionPrototype.removeClass = callOnEachElement('removeClass');
  * @function NodeCollection.prototype.removeData
  * @param {Array|String} [list] - An array or space-separated string naming the pieces of data to remove.
  */
-NodeCollectionPrototype.removeData = callOnEachElement('removeData');
+NodeCollectionPrototype.removeData = callOnEachElement(HTMLElementPrototype.removeData);
 
 /**
  * Removes the specified property from each element in the list.
@@ -3825,7 +3821,7 @@ NodeCollectionPrototype.removeData = callOnEachElement('removeData');
  * @function NodeCollection.prototype.removeProp
  * @param {String} property - The name of the property to remove.
  */
-NodeCollectionPrototype.removeProp = callOnEachElement('removeProp');
+NodeCollectionPrototype.removeProp = callOnEachElement(HTMLElementPrototype.removeProp);
 
 /**
  * Replace the target with the nodes in this collection.
@@ -3869,7 +3865,7 @@ NodeCollectionPrototype.replaceWith = function() {
  * @function NodeCollection.prototype.show
  * @see HTMLElement#show
  */
-NodeCollectionPrototype.show = callOnEachElement('show');
+NodeCollectionPrototype.show = callOnEachElement(HTMLElementPrototype.show);
 
 /**
  * Gets the sibling elements of each node in the collection, optionally filtered by a selector.
@@ -3917,7 +3913,7 @@ NodeCollectionPrototype.text = function(text) {
  * @function NodeCollection.prototype.toggleClass
  * @param {String} className - The class to be toggled for each element in the collection.
  */
-NodeCollectionPrototype.toggleClass = callOnEachElement('toggleClass');
+NodeCollectionPrototype.toggleClass = callOnEachElement(HTMLElementPrototype.toggleClass);
 
 /**
  * Remove the each node's parent from the DOM, leaving the node in its place.
@@ -3962,9 +3958,19 @@ NodeCollectionPrototype.unwrap = function() {
  * @function NodeCollection.prototype.val
  * @param {String[]} values - The array of values used to determine if each element (or its options) should be checked (or selected).
  */
-NodeCollectionPrototype.val = getFirstSetEachElement('val', function(numArgs) {
-	return !numArgs;
-});
+NodeCollectionPrototype.val = function(value) {
+	//Get first
+	if (isUndefined(value)) {
+		return this[0].val();
+	}
+
+	//Set each
+	for (var i = 0; i < this.length; i++) {
+		this[i].val(value);
+	}
+
+	return this;
+};
 
 /**
  * Wrap an HTML structure around each node in the collection.
