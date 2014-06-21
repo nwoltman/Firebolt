@@ -727,9 +727,13 @@ var
 		xhr: XMLHttpRequest
 	},
 
+	/* Misc */
 	_$ = window.$, //Save the `$` variable in case something else is currently using it
 
 	any, //Arbitrary variable that may be used for whatever -- keep no references so this can be garbage collected
+
+	//This was in the bottom section, but it is needed in the Array section
+	isIOS = /^iP/.test(navigator.platform), // iPhone, iPad, iPod
 
 //#endregion Private
 
@@ -799,6 +803,20 @@ arrayExtensions = {
 	 */
 	contains: function(e) {
 		return this.indexOf(e) >= 0;
+	},
+
+	/**
+	 * Returns a new array with all of the values of this array that are not in any of the input arrays (performs a set difference).
+	 * 
+	 * __Note:__ The input arrays can be array-like objects (like a function's `arguments` object).
+	 * 
+	 * @function Array.prototype.diff
+	 * @param {...Array} arrays - One or more array-like objects.
+	 * @returns {Array}
+	 */
+	diff: function(array, others) {
+		//The union can be applied to the Array prototype because it is basically the same thing as an empty array
+		return this.without.apply(this, others ? array.union.apply(ArrayPrototype, arguments) : array);
 	},
 
 	/**
@@ -951,11 +969,23 @@ arrayExtensions = {
 	 * @example
 	 * [1, 2, 3, 4, 5, 6].without(3, 4, 6);  // returns [1, 2, 5]
 	 */
-	without: function() {
-		var array = new this.__C__(),
-			i = 0,
-			j;
-		skip:
+	without: isIOS
+		//Special, faster function for iOS (http://jsperf.com/arrwout), which also helps make Array#diff faster
+		? function() {
+			var array = new this.__C__(),
+				i = 0;
+			for (; i < this.length; i++) {
+				if (ArrayPrototype.indexOf.call(arguments, this[i]) < 0) {
+					array.push(this[i]);
+				}
+			}
+			return array;
+		}
+		: function() {
+			var array = new this.__C__(),
+				i = 0,
+				j;
+			skip:
 			for (; i < this.length; i++) {
 				for (j = 0; j < arguments.length; j++) {
 					if (this[i] === arguments[j]) {
@@ -964,8 +994,8 @@ arrayExtensions = {
 				}
 				array.push(this[i]);
 			}
-		return array;
-	}
+			return array;
+		}
 };
 
 //Define the properties on Array.prototype with Object.defineProperty
@@ -4282,7 +4312,6 @@ defineProperties(StringPrototype, {
 //#region ============ Browser Compatibility and Speed Boosters ==============
 
 var isOldIE = createElement('div').html('<!--[if IE]><i></i><![endif]-->').$TAG('i').length,
-	isIOS = navigator.platform.startsWith('iP'), // iPhone, iPad, iPod
 	usesWebkit = 'WebkitAppearance' in document.documentElement.style,
 	noMultiParamClassListFuncs = (function() {
 		var elem = createElement('div');
