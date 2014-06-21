@@ -1,13 +1,14 @@
 ﻿/**
  * Firebolt core file
- * @version 0.6.0
+ * @version 0.6.1
  * @author Nathan Woltman
  * @copyright 2014 Nathan Woltman
  * @license MIT https://github.com/FireboltJS/Firebolt/blob/master/LICENSE.txt
  */
 
 (function(window, document, Array, Object, decodeURIComponent, encodeURIComponent) {
-	'use strict';
+
+"use strict";
 
 //#region =========================== Private ================================
 
@@ -926,7 +927,7 @@ arrayExtensions = {
 	 * [1, 2, 3].union([2, 3, 4, 5]);  // returns [1, 2, 3, 4, 5]
 	 */
 	union: function() {
-		var union = this.unique(),
+		var union = this.uniq(),
 			i = 0,
 			array,
 			j;
@@ -944,19 +945,33 @@ arrayExtensions = {
 	/**
 	 * Returns a duplicate-free clone of the array.
 	 * 
-	 * @function Array.prototype.unique
-	 * @returns {Array} An array of unique items.
 	 * @example
-	 * [1, 2, 3, 2, 1].unique();  // returns [1, 2, 3]
+	 * // Unsorted
+	 * [1, 2, 3, 2, 1, 4].uniq();      // returns [1, 2, 3, 4]
+	 * // Sorted
+	 * [1, 2, 2, 3, 4, 4].uniq();      // returns [1, 2, 3, 4]
+	 * [1, 2, 2, 3, 4, 4].uniq(true);  // returns [1, 2, 3, 4] but faster than on the previous line
+	 * 
+	 * @function Array.prototype.uniq
+	 * @param {Boolean} [isSorted=false] - If the input array's contents are sorted and this is set to `true`,
+	 * a faster algorithm will be used to create the unique array.
+	 * @returns {Array}
 	 */
-	unique: function() {
+	uniq: function(isSorted) {
 		var uniq = new this.__C__(),
 			i = 0;
+
 		for (; i < this.length; i++) {
-			if (uniq.indexOf(this[i]) < 0) {
+			if (isSorted) {
+				if (this[i] !== this[i + 1]) {
+					uniq.push(this[i]);
+				}
+			}
+			else if (uniq.indexOf(this[i]) < 0) {
 				uniq.push(this[i]);
 			}
 		}
+
 		return uniq;
 	},
 
@@ -4130,7 +4145,7 @@ NodeListPrototype.namedItem = NodeCollectionPrototype.namedItem = function(name)
 HTMLCollectionPrototype.clean =
 
 /* NodeLists/HTMLCollections always contain unique elements */
-NodeListPrototype.unique = HTMLCollectionPrototype.unique =
+NodeListPrototype.uniq = HTMLCollectionPrototype.uniq =
 
 /* All of the above functions are equivalent to calling NodeCollection#toNC() on the NodeList/HTMLCollection */
 NodeCollectionPrototype.toNC;
