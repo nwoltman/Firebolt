@@ -4256,13 +4256,9 @@ if (!StringPrototype.contains) {
 	 * alert( str.contains(" is ") );    // true
 	 * alert( str.contains("summer") );  // false
 	 */
-	prototypeExtensions.contains = isIOS //Once again, iOS needs a faster version: http://jsperf.com/strcontains
-		? function(searchString, position) {
-			return str_indexOf.call(this, searchString, position) >= 0;
-		}
-		: function() {
-			return str_indexOf.apply(this, arguments) >= 0;
-		};
+	prototypeExtensions.contains = function() {
+		return str_indexOf.apply(this, arguments) >= 0;
+	};
 }
 
 if (!StringPrototype.endsWith) {
