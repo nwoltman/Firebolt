@@ -685,7 +685,6 @@ var
 
 	//Helpers
 	slice = ArrayPrototype.slice,
-	str_indexOf = StringPrototype.indexOf,
 
 	//Property strings
 	nextElementSibling = 'nextElementSibling',
@@ -4256,8 +4255,8 @@ if (!StringPrototype.contains) {
 	 * alert( str.contains(" is ") );    // true
 	 * alert( str.contains("summer") );  // false
 	 */
-	prototypeExtensions.contains = function() {
-		return str_indexOf.apply(this, arguments) >= 0;
+	prototypeExtensions.contains = function(searchString, position) {
+		return ('' + this).indexOf(searchString, position) >= 0;
 	};
 }
 
@@ -4276,8 +4275,9 @@ if (!StringPrototype.endsWith) {
 	 * alert( str.endsWith("am I", 8) );   // true
 	 */
 	prototypeExtensions.endsWith = function(searchString, position) {
-		position = (!isUndefined(position) && position < this.length ? position : this.length) - searchString.length;
-		return position >= 0 && this.indexOf(searchString, position) === position;
+		var str = '' + this;
+		position = (position < str.length ? position : str.length) - searchString.length;
+		return position >= 0 && str.indexOf(searchString, position) === position;
 	};
 }
 
@@ -4323,7 +4323,7 @@ if (!StringPrototype.startsWith) {
 	 * alert( str.endsWith("am I", 4) );  // true
 	 */
 	prototypeExtensions.startsWith = function(searchString, position) {
-		return this.lastIndexOf(searchString, position = position || 0) === position;
+		return ('' + this).lastIndexOf(searchString, position = position || 0) === position;
 	};
 }
 
