@@ -198,6 +198,19 @@ function removeData(object, input) {
 //#endregion Data Functions
 
 /*
+ * Uses Object.defineProperty to define the values in the prototypeExtension object on the passed in prototype object
+ */
+function definePrototypeExtensionsOn(proto) {
+	for (any in prototypeExtensions) {
+		defineProperty(proto, any, {
+			value: prototypeExtensions[any],
+			configurable: true,
+			writable: true
+		});
+	}
+}
+
+/*
  * @see Firebolt.extend
  */
 function extend(target) {
@@ -669,7 +682,6 @@ var
 	HTMLCollectionPrototype = HTMLCollection[prototype],
 	StringPrototype = String[prototype],
 	defineProperty = Object.defineProperty,
-	defineProperties = Object.defineProperties,
 
 	//Helpers
 	slice = ArrayPrototype.slice,
@@ -745,7 +757,7 @@ var
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array|Array - JavaScript | MDN}
  */
 
-arrayExtensions = {
+prototypeExtensions = {
 	/* Private reference to the constructor */
 	__C__: Array,
 
@@ -1010,12 +1022,8 @@ arrayExtensions = {
 		}
 };
 
-//Define the properties on Array.prototype with Object.defineProperty
-for (any in arrayExtensions) {
-	defineProperty(ArrayPrototype, any, {
-		value: arrayExtensions[any]
-	});
-}
+//Define the properties on Array.prototype
+definePrototypeExtensionsOn(ArrayPrototype);
 
 //#endregion Array
 
@@ -3139,7 +3147,7 @@ NodePrototype.wrapInner = function(wrappingElement) {
 //#region ======================== NodeCollection ============================
 
 //Save the clone function to toNC to be a way to make shallow copies of the NodeCollection/NodeList/HTMLCollection
-arrayExtensions.toNC = arrayExtensions.clone;
+prototypeExtensions.toNC = prototypeExtensions.clone;
 
 /**
  * Create a deep copy of the collection of nodes.
@@ -3151,7 +3159,7 @@ arrayExtensions.toNC = arrayExtensions.clone;
  * @param {Boolean} [withData=false] - A boolean indicating if the element's data should be copied as well.
  * @returns {NodeCollection}
  */
-arrayExtensions.clone = function(withData) {
+prototypeExtensions.clone = function(withData) {
 	return this.map(function(node) {
 		var clone = node.cloneNode(true);
 		if (withData && node[DATA_KEY_PUBLIC]) {
@@ -3191,7 +3199,7 @@ var
 	NodeCollection = window.NodeCollection = document.head.appendChild(any = createElement('iframe')).contentWindow.Array,
 
 	//Extend NodeCollection's prototype with the Array functions
-	NodeCollectionPrototype = extend(NodeCollection[prototype], arrayExtensions),
+	NodeCollectionPrototype = extend(NodeCollection[prototype], prototypeExtensions),
 
 	//Save a reference to the original filter function for use later on
 	ncFilter = NodeCollectionPrototype.filter;
@@ -4201,6 +4209,40 @@ Number[prototype].toPaddedString = function(length, radix) {
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String|String - JavaScript | MDN}
  */
 
+//Reuse the prototype extensions object to extend String
+prototypeExtensions = {
+	/**
+	 * Returns the string split into an array of substrings (tokens) that were separated by white-space.
+	 *
+	 * @function String.prototype.tokenize
+	 * @returns {String[]} An array of tokens.
+	 * @example
+	 * var str = "The boy who lived.";
+	 * str.tokenize();  // returns ["The", "boy", "who", "lived."]
+	 */
+	tokenize: function() {
+		return this.match(rgxNonWhitespace) || [];
+	},
+
+	/**
+	 * Appends query string parameters to a URL.
+	 *
+	 * @function String.prototype.URLAppend
+	 * @param {String} params - Query string parameters.
+	 * @returns {String} A reference to the string.
+	 * @example
+	 * var url = "http://google.com";
+	 * url = url.URLAppend('lang=en');  // "http://google.com?lang=en"
+	 * url = url.URLAppend('foo=bar');  // "http://google.com?lang=en&foo=bar"
+	 */
+	URLAppend: function(params) {
+		return this.concat(this.contains('?') ? '&' : '?', params);
+	}
+};
+
+
+/* Add ES6 functions to String.prototype */
+
 if (!StringPrototype.contains) {
 	/**
 	 * Determines whether the passed in string is in the current string.
@@ -4214,15 +4256,13 @@ if (!StringPrototype.contains) {
 	 * alert( str.contains(" is ") );    // true
 	 * alert( str.contains("summer") );  // false
 	 */
-	defineProperty(StringPrototype, 'contains', {
-		value: isIOS //Once again, iOS needs a faster version: http://jsperf.com/strcontains
-			? function(searchString, position) {
-				return str_indexOf.call(this, searchString, position) >= 0;
-			}
-			: function() {
-				return str_indexOf.apply(this, arguments) >= 0;
-			}
-	});
+	prototypeExtensions.contains = isIOS //Once again, iOS needs a faster version: http://jsperf.com/strcontains
+		? function(searchString, position) {
+			return str_indexOf.call(this, searchString, position) >= 0;
+		}
+		: function() {
+			return str_indexOf.apply(this, arguments) >= 0;
+		};
 }
 
 if (!StringPrototype.endsWith) {
@@ -4239,12 +4279,10 @@ if (!StringPrototype.endsWith) {
 	 * alert( str.endsWith("am I") );      // false
 	 * alert( str.endsWith("am I", 8) );   // true
 	 */
-	defineProperty(StringPrototype, 'endsWith', {
-		value: function(searchString, position) {
-			position = (!isUndefined(position) && position < this.length ? position : this.length) - searchString.length;
-			return position >= 0 && this.indexOf(searchString, position) === position;
-		}
-	});
+	prototypeExtensions.endsWith = function(searchString, position) {
+		position = (!isUndefined(position) && position < this.length ? position : this.length) - searchString.length;
+		return position >= 0 && this.indexOf(searchString, position) === position;
+	};
 }
 
 if (!StringPrototype.repeat) {
@@ -4262,18 +4300,16 @@ if (!StringPrototype.repeat) {
 	 * "abc".repeat(3.5) // "abcabcabc" (count will be converted to integer)
 	 * "0".repeat(5)     // "00000"
 	 */
-	defineProperty(StringPrototype, 'repeat', {
-		value: function(count) {
-			count = parseInt(count || 0);
-			if (isNaN(count) || count < 0) {
-				throw new RangeError('The repeat count must be positive and less than infinity.');
-			}
-			for (var str = '', i = 0; i < count; i++) {
-				str += this;
-			}
-			return str;
+	prototypeExtensions.repeat = function(count) {
+		count = parseInt(count || 0);
+		if (isNaN(count) || count < 0) {
+			throw new RangeError('The repeat count must be positive and less than infinity.');
 		}
-	});
+		for (var str = '', i = 0; i < count; i++) {
+			str += this;
+		}
+		return str;
+	};
 }
 
 if (!StringPrototype.startsWith) {
@@ -4290,47 +4326,13 @@ if (!StringPrototype.startsWith) {
 	 * alert( str.endsWith("am I") );     // false
 	 * alert( str.endsWith("am I", 4) );  // true
 	 */
-	defineProperty(StringPrototype, 'startsWith', {
-		value: function(searchString, position) {
-			position = position || 0;
-			return this.lastIndexOf(searchString, position) === position;
-		}
-	});
+	prototypeExtensions.startsWith = function(searchString, position) {
+		return this.lastIndexOf(searchString, position = position || 0) === position;
+	};
 }
 
-defineProperties(StringPrototype, {
-	/**
-	 * Returns the string split into an array of substrings (tokens) that were separated by white-space.
-	 *
-	 * @function String.prototype.tokenize
-	 * @returns {String[]} An array of tokens.
-	 * @example
-	 * var str = "The boy who lived.";
-	 * str.tokenize();  // returns ["The", "boy", "who", "lived."]
-	 */
-	tokenize: {
-		value: function() {
-			return this.match(rgxNonWhitespace) || [];
-		}
-	},
-
-	/**
-	 * Appends query string parameters to a URL.
-	 *
-	 * @function String.prototype.URLAppend
-	 * @param {String} params - Query string parameters.
-	 * @returns {String} A reference to the string.
-	 * @example
-	 * var url = "http://google.com";
-	 * url = url.URLAppend('lang=en');  // "http://google.com?lang=en"
-	 * url = url.URLAppend('foo=bar');  // "http://google.com?lang=en&foo=bar"
-	 */
-	URLAppend: {
-		value: function(params) {
-			return this.concat(this.contains('?') ? '&' : '?', params);
-		}
-	}
-});
+//Define the prototype properties on String.prototype
+definePrototypeExtensionsOn(StringPrototype);
 
 //#endregion String
 
