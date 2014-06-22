@@ -673,6 +673,7 @@ var
 
 	//Helpers
 	slice = ArrayPrototype.slice,
+	str_indexOf = StringPrototype.indexOf,
 
 	//Property strings
 	nextElementSibling = 'nextElementSibling',
@@ -4214,9 +4215,13 @@ if (!StringPrototype.contains) {
 	 * alert( str.contains("summer") );  // false
 	 */
 	defineProperty(StringPrototype, 'contains', {
-		value: function(searchString, position) {
-			return this.indexOf(searchString, position) >= 0;
-		}
+		value: isIOS //Once again, iOS needs a faster version: http://jsperf.com/strcontains
+			? function(searchString, position) {
+				return str_indexOf.call(this, searchString, position) >= 0;
+			}
+			: function() {
+				return str_indexOf.apply(this, arguments) >= 0;
+			}
 	});
 }
 
