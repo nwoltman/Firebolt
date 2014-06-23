@@ -2112,6 +2112,19 @@ window.$ = window.FB = window.Firebolt = Firebolt;
 Firebolt._GET(); // Just call the function to update the global $_GET object
 
 /**
+ * Returns the first element within the document with the specified ID. Can also be called by the alias `$ID()`.  
+ * Alias of `document.getElementById()`.
+ * 
+ * @global
+ * @function $$
+ * @param {String} id - A case-sensitive string representing the unique ID of the element being sought.
+ * @returns {?Element} The element with the specified ID or `null` if there is no such element in the document.
+ */
+window.$$ = window.$ID = function(id) {
+	return document.getElementById(id);
+};
+
+/**
  * Returns the first element within the document that matches the specified CSS selector.
  * If no element matches the selector, `null` or `undefined` may be returned.  
  * Alias of `document.querySelector()`, but with optimizations if a single class name, id, or tag name is input as the selector.
@@ -2151,16 +2164,14 @@ window.$CLS = function(className) {
 };
 
 /**
- * Returns the first element within the document with the specified id.  
+ * Returns the first element within the document with the specified ID. Can also be called by the alias `$$()`.  
  * Alias of `document.getElementById()`.
  * 
  * @global
- * @param {String} id
- * @returns {?Element} The element with the specified id.
+ * @function $ID
+ * @param {String} id - A case-sensitive string representing the unique ID of the element being sought.
+ * @returns {?Element} The element with the specified ID or `null` if there is no such element in the document.
  */
-window.$ID = function(id) {
-	return document.getElementById(id);
-};
 
 /**
  * Returns a list of the elements within the document with the specified name attribute.  
