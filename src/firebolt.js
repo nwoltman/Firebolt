@@ -316,26 +316,26 @@ function getFirstSetEachElement(fn, callback) {
  * Returns a function that creates a set of elements in a certain direction around
  * a given node (i.e. parents, children, siblings, find -> all descendants).
  * 
- * @param {String} funcName - The name of a function that retrieves elements for a single node.
- * @param {Function|?} sorter - A function used to sort the union of multiple sets of returned elements.
+ * @param {Function|String} direction - A function or name of a function that retrieves elements for a single node.
+ * @param {Function|Number} [sorter] - A function used to sort the union of multiple sets of returned elements.
  * If sorter == 0, return an 'until' Node function.
  */
 function getGetDirElementsFunc(direction, sorter) {
-	//For NodeCollection.prototype
 	if (sorter) {
-		return function(arg1, arg2) {
+		//For NodeCollection.prototype
+		return function() {
 			var len = this.length;
 
 			//Simple and speedy for one node
 			if (len === 1) {
-				return this[0][direction](arg1, arg2);
+				return direction.apply(this[0], arguments);
 			}
 
 			//Build a list of NodeCollections
 			var collections = [],
 				i = 0;
 			for (; i < len; i++) {
-				collections.push(this[i][direction](arg1, arg2));
+				collections.push(direction.apply(this[i], arguments));
 			}
 
 			//Union the collections so that the resulting collection contains unique elements and return the sorted result
@@ -360,22 +360,30 @@ function getGetDirElementsFunc(direction, sorter) {
 						: function() { //Match by Node (or if `until.length === 0`, this will always be false)
 							return node == until;
 						};
+
+			// Traverse all nodes in the direction and add them (or if there is a selector the ones that match it) to the NodeCollection
+			// until the `stop()` function returns `true`
 			while ((node = node[direction]) && !stop()) {
 				if (!filter || node.matches(filter)) {
 					nc.push(node);
 				}
 			}
+
 			return nc;
 		}
+
 		//nextAll, prevAll, parents
 		: function(selector) {
 			var nc = new NodeCollection(),
 				node = this;
+
+			//Traverse all nodes in the direction and add them (or if there is a selector the ones that match it) to the NodeCollection
 			while (node = node[direction]) {
 				if (!selector || node.matches(selector)) {
 					nc.push(node);
 				}
 			}
+
 			return nc;
 		};
 };
@@ -3451,7 +3459,7 @@ NodeCollectionPrototype.beforePut = NodeCollectionPrototype.before = function() 
  * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
  * @returns {NodeCollection} The set of children, sorted in document order.
  */
-NodeCollectionPrototype.children = getGetDirElementsFunc('childElements', sortDocOrder);
+NodeCollectionPrototype.children = getGetDirElementsFunc(HTMLElementPrototype.childElements, sortDocOrder);
 
 /**
  * Returns a clone of the collection with all non-elements removed.
@@ -3576,7 +3584,7 @@ NodeCollectionPrototype.filter = function(selector) {
  * @param {String|Element|Element[]} selector - A CSS selector, a collection of elements, or a single element used to match descendant elements against.
  * @returns {NodeList|NodeCollection}
  */
-NodeCollectionPrototype.find = getGetDirElementsFunc('find', sortDocOrder);
+NodeCollectionPrototype.find = getGetDirElementsFunc(ElementPrototype.find, sortDocOrder);
 
 /**
  * Hides each element in the collection.
@@ -3644,7 +3652,7 @@ NodeCollectionPrototype.next = getNextOrPrevFunc(nextElementSibling);
  * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
  * @returns {NodeCollection} The set of following sibling elements in order beginning with the closest sibling.
  */
-NodeCollectionPrototype.nextAll = getGetDirElementsFunc('nextAll', sortDocOrder);
+NodeCollectionPrototype.nextAll = getGetDirElementsFunc(HTMLElementPrototype.nextAll, sortDocOrder);
 
 /**
  * Gets the following siblings of each node in the collection, up to but not including the elements matched by the selector,
@@ -3656,7 +3664,7 @@ NodeCollectionPrototype.nextAll = getGetDirElementsFunc('nextAll', sortDocOrder)
  * @param {String} [filter] - A CSS selector used to filter the returned set of elements.
  * @returns {NodeCollection} - The set of following sibling elements in order beginning with the closest sibling.
  */
-NodeCollectionPrototype.nextUntil = getGetDirElementsFunc('nextUntil', sortDocOrder);
+NodeCollectionPrototype.nextUntil = getGetDirElementsFunc(HTMLElementPrototype.nextUntil, sortDocOrder);
 
 /**
  * Gets the parent of each node in the collection, optionally filtered by a selector.
@@ -3685,7 +3693,7 @@ NodeCollectionPrototype.parent = function(selector) {
  * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
  * @returns {NodeCollection} - The set of ancestors, sorted in reverse document order.
  */
-NodeCollectionPrototype.parents = getGetDirElementsFunc('parents', sortRevDocOrder);
+NodeCollectionPrototype.parents = getGetDirElementsFunc(HTMLElementPrototype.parents, sortRevDocOrder);
 
 /**
  * Gets the ancestors of each node in the collection, up to but not including the elements matched by the selector,
@@ -3697,7 +3705,7 @@ NodeCollectionPrototype.parents = getGetDirElementsFunc('parents', sortRevDocOrd
  * @param {String} [filter] - A CSS selector used to filter the returned set of elements.
  * @returns {NodeCollection} - The set of ancestors, sorted in reverse document order.
  */
-NodeCollectionPrototype.parentsUntil = getGetDirElementsFunc('parentsUntil', sortRevDocOrder);
+NodeCollectionPrototype.parentsUntil = getGetDirElementsFunc(HTMLElementPrototype.parentsUntil, sortRevDocOrder);
 
 /**
  * Alias of {@link NodeCollection#prependWith} provided for similarity with jQuery.
@@ -3759,7 +3767,7 @@ NodeCollectionPrototype.prev = getNextOrPrevFunc(previousElementSibling);
  * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
  * @returns {NodeCollection} The set of preceeding sibling elements in order beginning with the closest sibling.
  */
-NodeCollectionPrototype.prevAll = getGetDirElementsFunc('prevAll', sortRevDocOrder);
+NodeCollectionPrototype.prevAll = getGetDirElementsFunc(HTMLElementPrototype.prevAll, sortRevDocOrder);
 
 /**
  * Gets the preceeding siblings of each node in the collection, up to but not including the elements matched by the selector,
@@ -3771,7 +3779,7 @@ NodeCollectionPrototype.prevAll = getGetDirElementsFunc('prevAll', sortRevDocOrd
  * @param {String} [filter] - A CSS selector used to filter the returned set of elements.
  * @returns {NodeCollection} - The set of preceeding sibling elements in order beginning with the closest sibling.
  */
-NodeCollectionPrototype.prevUntil = getGetDirElementsFunc('prevUntil', sortRevDocOrder);
+NodeCollectionPrototype.prevUntil = getGetDirElementsFunc(HTMLElementPrototype.prevUntil, sortRevDocOrder);
 
 /**
  * Gets the value of the specified property of the first element in the list.
@@ -3923,7 +3931,7 @@ NodeCollectionPrototype.show = callOnEachElement(HTMLElementPrototype.show);
  * @returns {NodeCollection} The set of siblings, sorted in document order.
  * @throws {TypeError} The target node(s) must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
  */
-NodeCollectionPrototype.siblings = getGetDirElementsFunc('siblings', sortDocOrder);
+NodeCollectionPrototype.siblings = getGetDirElementsFunc(HTMLElementPrototype.siblings, sortDocOrder);
 
 /**
  * Gets the combined text contents of each node in the list.
