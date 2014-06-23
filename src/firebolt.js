@@ -3060,7 +3060,7 @@ NodePrototype.replaceAll = getNodeInsertingFunction(replaceWith);
  * Replace the node with some other content.
  * 
  * @function Node.prototype.replaceWith
- * @param {..(String|Node|NodeCollection)} content - A specific node, a collection of nodes, or some HTML to replace the subject node.
+ * @param {...(String|Node|NodeCollection)} content - A specific node, a collection of nodes, or some HTML to replace the subject node.
  * @throws {TypeError} The subject node must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
  */
 NodePrototype.replaceWith = function() {
