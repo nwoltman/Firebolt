@@ -313,7 +313,8 @@ function getFirstSetEachElement(fn, callback) {
 }
 
 /*
- * Returns a function that creates a set of elements in a certain direction around a given node (i.e. parents, children, siblings).
+ * Returns a function that creates a set of elements in a certain direction around
+ * a given node (i.e. parents, children, siblings, find -> all descendants).
  * 
  * @param {String} funcName - The name of a function that retrieves elements for a single node.
  * @param {Function|?} sorter - A function used to sort the union of multiple sets of returned elements.
@@ -337,8 +338,7 @@ function getGetDirElementsFunc(direction, sorter) {
 				collections.push(this[i][direction](arg1, arg2));
 			}
 
-			//Union the collections so that the resulting collection contains unique elements
-			//and return the sorted result
+			//Union the collections so that the resulting collection contains unique elements and return the sorted result
 			return ArrayPrototype.union.apply(NodeCollectionPrototype, collections).sort(sorter);
 		};
 	}
@@ -1124,6 +1124,26 @@ ElementPrototype.$QSA = ElementPrototype.$ = ElementPrototype.querySelectorAll;
  */
 ElementPrototype.data = function(key, value) {
 	return data(DATA_KEY_PUBLIC, this, key, value);
+};
+
+/**
+ * Gets the descendants of the element, filtered by a selector, collection of elements, or a single element.
+ * 
+ * __Protip:__ Since this method has multiple input types, type-checking is performed on the input to determine how the result will be calculated.
+ * If want to find descendant elements using a CSS selector, you should use the native `element.querySelectorAll()` or a Firebolt alias for
+ * that function (`.$QSA()` or `.$()`).
+ * 
+ * @function Element.prototype.find
+ * @param {String|Element|Element[]} selector - A CSS selector, a collection of elements, or a single element used to match descendant elements against.
+ * @returns {NodeList|NodeCollection}
+ */
+ElementPrototype.find = function(selector) {
+	if (typeofString(selector)) {
+		return this.$(selector);
+	}
+
+	//Return the intersection of all of the element's descendants with the elements in the input collection or single element (in an array)
+	return this.$('*').intersect(selector.nodeType ? [selector] : selector);
 };
 
 /**
@@ -3548,6 +3568,15 @@ NodeCollectionPrototype.filter = function(selector) {
 			: selector //Use given filter function
 	);
 };
+
+/**
+ * Gets the descendants of each element in the collection, filtered by a selector, collection of elements, or a single element.
+ * 
+ * @function NodeCollection.prototype.find
+ * @param {String|Element|Element[]} selector - A CSS selector, a collection of elements, or a single element used to match descendant elements against.
+ * @returns {NodeList|NodeCollection}
+ */
+NodeCollectionPrototype.find = getGetDirElementsFunc('find', sortDocOrder);
 
 /**
  * Hides each element in the collection.
