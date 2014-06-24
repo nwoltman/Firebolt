@@ -685,6 +685,7 @@ var
 	ElementPrototype = Element[prototype],
 	FunctionPrototype = Function[prototype],
 	HTMLElementPrototype = HTMLElement[prototype],
+	HTMLSelectElementPrototype = HTMLSelectElement[prototype],
 	NodePrototype = Node[prototype],
 	NodeListPrototype = NodeList[prototype],
 	HTMLCollectionPrototype = HTMLCollection[prototype],
@@ -706,16 +707,18 @@ var
 	rgxNoParse = /^\d+\D/, //Matches strings that look like numbers but have non-digit characters
 
 	/* Pre-built RegExps */
-	rgxTableLevel1 = /<t(?:h|b|f)/i, //Detects (non-deprected) first-level table elements: <thead>, <tbody>, <tfoot>
+	rgxTableLevel1 = /<t(?:h|b|f)/i, //Detects (non-deprecated) first-level table elements: <thead>, <tbody>, <tfoot>
 	rgxGetOrHead = /GET|HEAD/i, //Determines if a request is a GET or HEAD request
 	rgxDomain = /\/?\/\/(?:\w+\.)?(.*?)(?:\/|$)/,
 	rgxDifferentNL = /^(?:af|ap|be|ea|ins|prep|pu|rep|tog)|wrap|remove(?:Class)?$/, //Determines if the function is different for NodeLists
-	rgxNotId = /[ .,>:[+~\t-\f]/, //Matches other characters that cannot be in an id selector
+	rgxNotId = /[ .,>:[+~\t-\f]/,    //Matches other characters that cannot be in an id selector
 	rgxNotClass = /[ #,>:[+~\t-\f]/, //Matches other characters that cannot be in a class selector
 	rgxAllDots = /\./g,
 	rgxNotTag = /[^A-Za-z]/,
 	rgxNonWhitespace = /\S+/g,
 	rgxSpaceChars = /[ \t-\f]+/, //From W3C http://www.w3.org/TR/html5/single-page.html#space-character
+	rgxFormButton = /button|file|reset|submit/, //Matches input element types that are buttons
+	rgxCheckableElement = /checkbox|radio/,     //Matches checkbox or radio input element types
 
 	/* AJAX */
 	timestamp = Date.now(),
@@ -2681,6 +2684,41 @@ HTMLElementPrototype.removeProp = function(propertyName) {
 };
 
 /**
+ * Encode a form element or form control element as a string for submission in an HTTP request.
+ * 
+ * __Note:__ Unlike jQuery, successful `<select>` controls that have the `multiple` attribute will be encoded
+ * using {@linkcode Firebolt.param|Firebolt.param()} with the `traditional` parameter set to `false`, so its
+ * array value will be preserved in the encoded string.
+ * 
+ * @function HTMLElement.prototype.serialize
+ * @returns {String} A URL-encoded string of the form element's value or an empty string if the element is
+ * not a [successful control](http://www.w3.org/TR/html401/interact/forms.html#h-17.13.2).
+ * @this HTMLFormElement|HTMLInputElement|HTMLSelectElement|HTMLTextAreaElement
+ */
+HTMLElementPrototype.serialize = function() {
+	var type = this.type,
+		name = this.name,
+		value = this.val();
+
+	if (!name                                                 // Doesn't have a name
+		|| this.disabled                                      // Is disabled
+		|| value == null                                      // Is a <select> element and has no value or is not a form control
+		|| rgxFormButton.test(type)                           // Is a form button (button|file|reset|submit)
+		|| rgxCheckableElement.test(type) && !this.checked) { // Is a checkbox or radio button and is not checked
+		return '';
+	}
+
+	//Check if the value is a string because <select> elements may return an array of selected options
+	return typeofString(value) ? encodeURIComponent(name) + '=' + encodeURIComponent(value)
+							   : serializeRecursive( HTMLElementPrototype.prop.call({}, name, value) );
+};
+
+/* For form elements, return the serialization of its form controls */
+HTMLFormElement[prototype].serialize = function() {
+	return this.elements.serialize();
+};
+
+/**
  * Shows an element by determining its default display style and setting it to that.  
  * NOTE: The element's default display style may be 'none', in which case the element would not be shown.
  * The element will also not be shown if it's `visibility` is set to 'hidden' or its `opacity` is 0;
@@ -2789,7 +2827,7 @@ HTMLElementPrototype.val = function(value) {
 	return this;
 };
 
-HTMLSelectElement[prototype].val = function(value) {
+HTMLSelectElementPrototype.val = function(value) {
 	var multiple = this.multiple,
 		options = this.options,
 		i = 0;
@@ -3913,6 +3951,35 @@ NodeCollectionPrototype.replaceWith = function() {
 	}
 
 	return this;
+};
+
+/**
+ * Encode a set of form elements or form control elements as a string for submission in an HTTP request.  
+ * Note that only [successful controls](http://www.w3.org/TR/html401/interact/forms.html#h-17.13.2) will
+ * have their values added to the serialized string. All button elements (including file input buttons)
+ * are also ignored.
+ * 
+ * __Protip:__ The best way to serialize a single form is to select the form element and  call `.serialize()`
+ * directly on it (see {@link HTMLElement#serialize}).
+ * 
+ * @function NodeCollection.prototype.serialize
+ * @returns {String} A URL-encoded string of the elements' serialized values or an empty string if no element could be successfully serialized.
+ * @throws {TypeError} Each element in the collection must be an HTMLElement.
+ * @see HTMLElement#serialize
+ * @see {@link http://api.jquery.com/serialize/|.serialize() | jQuery API Documentation}
+ */
+NodeCollectionPrototype.serialize = function() {
+	var retStr = '',
+		i = 0,
+		val;
+
+	for (; i < this.length; i++) {
+		if (val = this[i].serialize()) {
+			retStr += (retStr ? '&' : '') + val;
+		}
+	}
+
+	return retStr;
 };
 
 /**
