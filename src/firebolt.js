@@ -1845,28 +1845,6 @@ Firebolt.hasData = function(object) {
 };
 
 /**
- * HTML-decodes the passed in string and returns the result.
- * 
- * @param {String} string - The string to decode.
- * @returns {String} The HTML-decoded text.
- * @memberOf Firebolt
- */
-Firebolt.htmlDecode = function(str) {
-	return createElement('div').html(str).text();
-};
-
-/**
- * HTML-encodes the passed in string and returns the result.
- * 
- * @param {String} string - The string to encode.
- * @returns {String} The HTML-encoded text.
- * @memberOf Firebolt
- */
-Firebolt.htmlEncode = function(str) {
-	return createElement('div').text(str).html();
-};
-
-/**
  * Determines if the passed in value is considered empty. The value is considered empty if it is one of the following:
  * <ul>
  * <li>`null`</li>
@@ -4357,6 +4335,19 @@ prototypeExtensions = {
 	},
 
 	/**
+	 * HTML-encodes the string by converting HTML special characters to their entity equivalents and returns the result.
+	 * 
+	 * @example
+	 * '<img src="//somesite.com" />'.escapeHTML();  // -> '&lt;img src="//somesite.com" /&gt;'
+	 * 
+	 * @function String.prototype.escapeHTML
+	 * @returns {String} The HTML-escaped text.
+	 */
+	escapeHTML: function() {
+		return createElement('div').text(this).innerHTML;
+	},
+
+	/**
 	 * Returns the string split into an array of substrings (tokens) that were separated by white-space.
 	 *
 	 * @function String.prototype.tokenize
@@ -4367,6 +4358,19 @@ prototypeExtensions = {
 	 */
 	tokenize: function() {
 		return this.match(rgxNonWhitespace) || [];
+	},
+
+	/**
+	 * HTML-decodes the string by converting entities of HTML special characters to their normal form and returns the result.
+	 * 
+	 * @example
+	 * '&lt;img src="//somesite.com" /&gt;'.unescapeHTML();  // -> '<img src="//somesite.com" />'
+	 * 
+	 * @function String.prototype.unescapeHTML
+	 * @returns {String} The HTML-unescaped text.
+	 */
+	unescapeHTML: function() {
+		return createElement('div').html(this).textContent;
 	},
 
 	/**

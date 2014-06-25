@@ -29,6 +29,13 @@ test("endsWith", function() {
 	equal(str.endsWith("?", 0), false);			// 13
 });
 
+test('escapeHTML', function() {
+	ok('<img src="site.com" data-a="a&b\'c" />'.escapeHTML() === '&lt;img src="site.com" data-a="a&amp;b\'c" /&gt;',
+		'escapes "<", ">", and "&"');
+
+	ok('  a \n\t  '.escapeHTML() === '  a \n\t  ', 'preserves whitespace');
+});
+
 test("repeat", function() {
 	expect(7);
 
@@ -70,4 +77,11 @@ test("startsWith", function() {
 	//False
 	ok(!str.startsWith("Who are"));	// 3
 	ok(!str.startsWith("am I"));	// 4
+});
+
+test('unescapeHTML', function() {
+	ok('&lt;img src="site.com" data-a="a&amp;b\'c" /&gt;'.unescapeHTML() === '<img src="site.com" data-a="a&b\'c" />',
+		'unescapes "<", ">", and "&"');
+
+	ok('  a \n\t  '.escapeHTML() === '  a \n\t  ', 'preserves whitespace');
 });
