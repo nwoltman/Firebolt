@@ -6,9 +6,9 @@
 /// <reference path="../qunit/qunit.js"/>
 /// <reference path="../../src/firebolt.js"/>
 
-module("NodeList.prototype");
+module('NodeList.prototype');
 
-test("has correct functions", function() {
+test('has correct functions', function() {
 	var NodeCollection = $TAG('div').toNC(),
 		differentFuncs = [
 			'after', 'afterPut',
@@ -34,11 +34,11 @@ test("has correct functions", function() {
 	nodeListFuncs.forEach(function(methodName) {
 		if (differentFuncs.contains(methodName)) {
 			ok(NodeList.prototype[methodName] !== NodeCollection[methodName],
-				'NodeList.prototype.' + methodName + " !== " + "NodeCollection.prototype." + methodName);
+				'NodeList.prototype.' + methodName + ' !== NodeCollection.prototype.' + methodName);
 		}
 		else {
 			ok(NodeList.prototype[methodName] === NodeCollection[methodName],
-				'NodeList.prototype.' + methodName + " === " + "NodeCollection.prototype." + methodName);
+				'NodeList.prototype.' + methodName + ' === NodeCollection.prototype.' + methodName);
 		}
 	});
 });
