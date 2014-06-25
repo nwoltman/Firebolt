@@ -276,7 +276,7 @@ function extendDeep(target) {
  * Returns the status text string for AJAX requests.
  */
 function getAjaxErrorStatus(xhr) {
-	return xhr.statusText.replace(xhr.status + ' ', '');
+	return xhr.readyState ? xhr.statusText.replace(xhr.status + ' ', '') : '';
 }
 
 /** 
