@@ -665,11 +665,16 @@ function typeofString(value) {
 }
 
 var
+	/* Browser/Engine detection */
+	usesWebkit = 'webkitAppearance' in document.documentElement.style,
+	usesGecko = window.mozInnerScreenX != null,
+	isIOS = /^iP/.test(navigator.platform), // iPhone, iPad, iPod
+
 	/*
 	 * Determines if an item is a Node.
 	 * Gecko's instanceof Node is faster (but might want to check if that's because it caches previous calls).
 	 */
-	isNode = window.mozInnerScreenX != null
+	isNode = usesGecko
 		? function(obj) {
 			return obj instanceof Node;
 		}
@@ -719,6 +724,7 @@ var
 	rgxSpaceChars = /[ \t-\f]+/, //From W3C http://www.w3.org/TR/html5/single-page.html#space-character
 	rgxFormButton = /button|file|reset|submit/, //Matches input element types that are buttons
 	rgxCheckableElement = /checkbox|radio/,     //Matches checkbox or radio input element types
+	rgxCamelizables = usesGecko ? /-+(.)/g : /^-+|-+(.)/g, //Matches dashed parts of CSS property names
 
 	/* AJAX */
 	timestamp = Date.now(),
@@ -749,11 +755,7 @@ var
 
 	/* Misc */
 	_$ = window.$, //Save the `$` variable in case something else is currently using it
-
 	any, //Arbitrary variable that may be used for whatever -- keep no references so this can be garbage collected
-
-	//This was in the bottom section, but it is needed in the Array section
-	isIOS = /^iP/.test(navigator.platform), // iPhone, iPad, iPod
 
 //#endregion Private
 
@@ -2464,14 +2466,14 @@ HTMLElementPrototype.css = function(prop, value) {
 		if (isUndefined(value)) {
 			if (prop && !prop.contains(':')) {
 				//Get the specified property
-				return getComputedStyle(this)[prop];
+				return getComputedStyle(this)[prop.camelize()];
 			}
 			//Else set the element's css text
 			this.style.cssText = prop;
 		}
 		else {
 			//Set the specified property
-			this.style[prop] = value;
+			this.style[prop.camelize()] = value;
 		}
 	}
 	else {
@@ -4323,8 +4325,37 @@ Number[prototype].toPaddedString = function(length, radix) {
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String|String - JavaScript | MDN}
  */
 
-//Reuse the prototype extensions object to extend String
+/*
+ * Used in the string replacement function to camelize dashed parts matched by a regex.
+ * This named function is pre-defined so that an anonymous function does not need to be created
+ * each time the String#camelize() function is called.
+ */
+function camelize(match, p1) {
+	return p1 ? p1.toUpperCase() : '';
+}
+
+//Reuse the prototype extensions variable to hold an object of String extensions
 prototypeExtensions = {
+	/**
+	 * Converts a string separated by dashes into its camelCase equivalent.
+	 * 
+	 * Firebolt uses this function to translate CSS property names to their DOM style-object property names.
+	 * 
+	 * __ATTENTION:__ Gecko browsers require style-object property names to start with an upper-case letter
+	 * if the CSS name starts with a dash (i.e. `-mox-binding` would need to be converted to `MozBinding`).
+	 * Because of this, strings starting with a dash will be capitalized in Gecko browsers and left to start
+	 * with a lower-case letter in all other browsers.
+	 * 
+	 * @example
+	 * 'background-color'.camelize();    // -> 'backgroundColor'
+	 * '-moz-box-orient'.camelize();     // -> 'MozBoxOrient'
+	 * '-ms-perspective'.camelize();     // -> 'msPerspective'
+	 * '-webkit-user-select'.camelize(); // -> 'webkitUserSelect'
+	 */
+	camelize: function() {
+		return this.replace(rgxCamelizables, camelize);
+	},
+
 	/**
 	 * Returns the string split into an array of substrings (tokens) that were separated by white-space.
 	 *
@@ -4451,7 +4482,6 @@ definePrototypeExtensionsOn(StringPrototype);
 //#region ============ Browser Compatibility and Speed Boosters ==============
 
 var isOldIE = createElement('div').html('<!--[if IE]><i></i><![endif]-->').$TAG('i').length,
-	usesWebkit = 'WebkitAppearance' in document.documentElement.style,
 	noMultiParamClassListFuncs = (function() {
 		var elem = createElement('div');
 		if (elem.classList) {
