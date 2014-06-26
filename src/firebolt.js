@@ -33,7 +33,7 @@ function callOnEachElement(fn) {
 }
 
 /*
- * @see Firebolt.create
+ * @see Firebolt.elem
  */
 function createElement(tagName, attributes) {
 	var el = document.createElement(tagName);
@@ -1217,7 +1217,7 @@ ElementPrototype.removeData = function(input) {
  * @example
  * $('button.btn-success'); // Returns all button elements with the class "btn-success"
  * $('str <p>content</p>'); // Creates a set of nodes and returns it as a NodeList (in this case ["str ", <p>content</p>])
- * $.create('div');         // Calls Firebolt's `create()` method to create a new div element 
+ * $.elem('div');         // Calls Firebolt's method to create a new div element 
  */
 function Firebolt(str, context) {
 	if (context) {
@@ -1650,17 +1650,6 @@ Firebolt.ajaxSetup = function(options) {
 }
 
 /**
- * Creates a new element with the specified tag name and attributes (optional).  
- * Partially an alias of `document.createElement()`.
- * 
- * @function Firebolt.create
- * @param {String} tagName
- * @param {Object} [attributes] - The JSON-formatted attributes that the element should have once constructed.
- * @returns {Element}
- */
-Firebolt.create = createElement;
-
-/**
  * Gets the object's stored data object.
  * 
  * @param {Object} object - An object. This can be anything that has Object in its prototype chain.
@@ -1732,6 +1721,17 @@ Firebolt.each = function(obj, callback) {
 	}
 	return obj;
 };
+
+/**
+ * Creates a new element with the specified tag name and attributes (optional).  
+ * Partially an alias of `document.createElement()`.
+ * 
+ * @function Firebolt.elem
+ * @param {String} tagName
+ * @param {Object} [attributes] - The JSON-formatted attributes that the element should have once constructed.
+ * @returns {Element}
+ */
+Firebolt.elem = createElement;
 
 /**
  * Extend the "Firebolt object" (a.k.a. NodeCollection, NodeList, and HTMLCollection).
