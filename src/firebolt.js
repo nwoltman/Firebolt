@@ -1110,6 +1110,44 @@ ElementPrototype.$QS = ElementPrototype.$1 = ElementPrototype.querySelector;
 ElementPrototype.$QSA = ElementPrototype.$ = ElementPrototype.querySelectorAll;
 
 /**
+ * Gets the value of the element's specified attribute.
+ * 
+ * @function Element.prototype.attr
+ * @param {String} attribute - The name of the attribute who's value you want to get.
+ * @returns {String} The value of the attribute.
+ */
+/**
+ * Sets the element's specified attribute.
+ * 
+ * @function Element.prototype.attr
+ * @param {String} attribute - The name of the attribute who's value should be set.
+ * @param {String} value - The value to set the specified attribute to.
+ */
+/**
+ * Sets the specified attributes of the element.
+ * 
+ * @function Element.prototype.attr
+ * @param {Object} attributes - An object of attribute-value pairs to set.
+ */
+ElementPrototype.attr = function(attrib, value) {
+	if (isUndefined(value)) {
+		if (typeofString(attrib)) {
+			return this.getAttribute(attrib); //Get
+		}
+
+		//Reuse the value parameter since it is undefined
+		for (value in attrib) {
+			this.setAttribute(value, attrib[value]); //Set multiple
+		}
+	}
+	else {
+		this.setAttribute(attrib, value); //Set single
+	}
+
+	return this;
+};
+
+/**
  * Gets the element's stored data object.
  * 
  * @function Element.prototype.data
@@ -1169,6 +1207,52 @@ ElementPrototype.find = function(selector) {
 ElementPrototype.matches = ElementPrototype.matches || ElementPrototype.webkitMatchesSelector || ElementPrototype.mozMatchesSelector || ElementPrototype.msMatchesSelector || ElementPrototype.oMatchesSelector;
 
 /**
+ * Gets the value of the element's specified property.
+ * 
+ * @function Element.prototype.prop
+ * @param {String} property - The name of the property who's value you want to get.
+ * @returns {?} The value of the property being retrieved.
+ */
+/**
+ * Sets the specified property of the element.
+ * 
+ * @function Element.prototype.prop
+ * @param {String} property - The name of the property to be set.
+ * @param {*} value - The value to set the property to.
+ */
+/**
+ * Sets the specified properties of the element.
+ * 
+ * @function Element.prototype.prop
+ * @param {Object} properties - An object of property-value pairs to set.
+ */
+ElementPrototype.prop = function(prop, value) {
+	if (isUndefined(value)) {
+		if (typeofString(prop)) {
+			return this[prop]; //Get
+		}
+		extend(this, prop); //Set multiple
+	}
+	else {
+		this[prop] = value; //Set single
+	}
+
+	return this;
+};
+
+/**
+ * Removes the specified attribute from the element.
+ * 
+ * @function Element.prototype.removeAttr
+ * @param {String} attribute - The name of the attribute to remove.
+ */
+ElementPrototype.removeAttr = function(attribute) {
+	this.removeAttribute(attribute);
+
+	return this;
+};
+
+/**
  * Removes a previously stored piece of Firebolt data.  
  * When called without any arguments, all data is removed.
  * 
@@ -1184,6 +1268,18 @@ ElementPrototype.matches = ElementPrototype.matches || ElementPrototype.webkitMa
  */
 ElementPrototype.removeData = function(input) {
 	return removeData(this, input);
+};
+
+/**
+ * Removes the specified property from the element.
+ * 
+ * @function Element.prototype.removeProp
+ * @param {String} propertyName - The name of the property to remove.
+ */
+ElementPrototype.removeProp = function(propertyName) {
+	delete this[propertyName];
+
+	return this;
 };
 
 //#endregion Element
@@ -2345,42 +2441,6 @@ HTMLElementPrototype.appendWith = function() {
 	return this;
 }
 
-/**
- * Gets the value of the element's specified attribute.
- * 
- * @function HTMLElement.prototype.attr
- * @param {String} attribute - The name of the attribute who's value you want to get.
- * @returns {String} The value of the attribute.
- */
-/**
- * Sets the element's specified attribute.
- * 
- * @function HTMLElement.prototype.attr
- * @param {String} attribute - The name of the attribute who's value should be set.
- * @param {String} value - The value to set the specified attribute to.
- */
-/**
- * Sets the specified attributes of the element.
- * 
- * @function HTMLElement.prototype.attr
- * @param {Object} attributes - An object of attribute-value pairs to set.
- */
-HTMLElementPrototype.attr = function(attrib, value) {
-	if (isUndefined(value)) {
-		if (typeofString(attrib)) {
-			return this.getAttribute(attrib); //Get
-		}
-		for (var attribute in attrib) {
-			this.setAttribute(attribute, attrib[attribute]); //Set multiple
-		}
-	}
-	else {
-		this.setAttribute(attrib, value); //Set single
-	}
-
-	return this;
-};
-
 /*
  * More performant version of Node#beforePut for HTMLElements.
  * @see Node#beforePut
@@ -2616,52 +2676,6 @@ HTMLElementPrototype.prependWith = function() {
 }
 
 /**
- * Gets the value of the element's specified property.
- * 
- * @function HTMLElement.prototype.prop
- * @param {String} property - The name of the property who's value you want to get.
- * @returns {?} The value of the property being retrieved.
- */
-/**
- * Sets the specified property of the element.
- * 
- * @function HTMLElement.prototype.prop
- * @param {String} property - The name of the property to be set.
- * @param {*} value - The value to set the property to.
- */
-/**
- * Sets the specified properties of the element.
- * 
- * @function HTMLElement.prototype.prop
- * @param {Object} properties - An object of property-value pairs to set.
- */
-HTMLElementPrototype.prop = function(prop, value) {
-	if (isUndefined(value)) {
-		if (typeofString(prop)) {
-			return this[prop]; //Get
-		}
-		extend(this, prop); //Set multiple
-	}
-	else {
-		this[prop] = value; //Set single
-	}
-
-	return this;
-};
-
-/**
- * Removes the specified attribute from the element.
- * 
- * @function HTMLElement.prototype.removeAttr
- * @param {String} attribute - The name of the attribute to remove.
- */
-HTMLElementPrototype.removeAttr = function(attribute) {
-	this.removeAttribute(attribute);
-
-	return this;
-};
-
-/**
  * @summary Removes the specified class(es) or all classes from the element.
  * 
  * @description
@@ -2683,18 +2697,6 @@ HTMLElementPrototype.removeClass = function(value) {
 		this.classList.remove.apply(this.classList, value.split(' '));
 	}
 	
-	return this;
-};
-
-/**
- * Removes the specified property from the element.
- * 
- * @function HTMLElement.prototype.removeProp
- * @param {String} propertyName - The name of the property to remove.
- */
-HTMLElementPrototype.removeProp = function(propertyName) {
-	delete this[propertyName];
-
 	return this;
 };
 
