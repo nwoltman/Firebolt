@@ -2419,12 +2419,20 @@ HTMLElementPrototype.beforePut = function() {
 /**
  * Sets the element's specified style property.
  * 
+ * __Note:__ If the passed in value is a number, it will be converted to a string and `'px'` will be appended
+ * to it prior to setting the CSS value.
+ * 
  * @function HTMLElement.prototype.css
  * @param {String} propertyName - The name of the style property to set.
  * @param {String|Number} value - A value to set for the specified property.
  */
 /**
  * Sets CSS style properties.
+ * 
+ * __Note:__ Unlike the previous version of this function that is used as a setter, the input style property names
+ * are assumed to already be in camel-case format (since this is an illegal object anyway: `{font-size: '12px'}`).
+ * Also, just like the previous function, if a value in the object is a number, it will be converted to a string
+ * and `'px'` will be appended to it prior to setting the CSS value.
  * 
  * @function HTMLElement.prototype.css
  * @param {Object.<String, String|Number>} properties - An object of CSS property-values.
@@ -2433,7 +2441,7 @@ HTMLElementPrototype.beforePut = function() {
  * Explicitly sets the element's inline CSS style, removing or replacing any current inline style properties.
  * 
  * @function HTMLElement.prototype.css
- * @param {String} cssText - A CSS style string. To clear the style, pass in an empty string.
+ * @param {String} cssText - A CSS style string. To clear the element's inline style, pass in an empty string.
  */
 HTMLElementPrototype.css = function(prop, value) {
 	if (isUndefined(prop)) {
@@ -2442,7 +2450,7 @@ HTMLElementPrototype.css = function(prop, value) {
 
 	if (typeofString(prop)) {
 		if (isUndefined(value)) {
-			if (prop && !prop.contains(':')) {
+			if (prop && prop.indexOf(':') < 0) {
 				//Get the specified property
 				return getComputedStyle(this)[prop.camelize()];
 			}
@@ -2451,12 +2459,15 @@ HTMLElementPrototype.css = function(prop, value) {
 		}
 		else {
 			//Set the specified property
-			this.style[prop.camelize()] = value;
+			this.style[prop.camelize()] = typeofString(value) ? value : value + 'px';
 		}
 	}
 	else {
 		//Set all specifed properties
-		extend(this.style, prop);
+		for (var propName in prop) {
+			value = prop[propName];
+			this.style[propName] = typeofString(value) ? value : value + 'px';
+		}
 	}
 
 	return this;
@@ -2534,28 +2545,52 @@ HTMLElementPrototype.html = function(innerHTML) {
  * Gets the element's current coordinates relative to the document.
  * 
  * @function HTMLElement.prototype.offset
- * @returns {{top: Number, left: Number}} An object containing the coordinates detailing the element's distance from the top and left of the screen.
+ * @returns {{top: Number, left: Number}} An object containing the coordinates detailing the element's distance from the top and left of the document.
  * @example
- * // HTML
  * <body style="margin: 0">
- *   <div id='a' style="position: absolute; margin: 10px; left: 10px"></div>
+ *   <div id="mydiv" style="position: absolute; margin: 10px; left: 10px"></div>
  * </body>
  * 
- * // JavaScript
- * var offset = $ID('a').offset();
- * alert( offset.top + ', ' + offset.left );  // "10, 20"
+ * <script>
+ * $$('mydiv').offset();  // -> Object {top: 10, left: 20}
+ * </script>
  */
-HTMLElementPrototype.offset = function() {
+/**
+ * Sets the element's coordinates relative to the document.
+ * 
+ * @function HTMLElement.prototype.offset
+ * @param {{top: Number, left: Number}} coordinates - An object containing the properties `top` and `left`,
+ * which are numbers indicating the new top and left coordinates for the element.
+ */
+HTMLElementPrototype.offset = function(coordinates) {
 	var el = this,
-		offset = {
-			top: 0,
-			left: 0
-		};
+		top = 0,
+		left = 0;
+
+	if (coordinates) {
+		//If the element's position is absolute or fixed, the coordinates can be directly set
+		var position = this.css('position');
+		if (position[0] === 'a' || position[0] === 'f') {
+			return this.css({top: coordinates.top, left: coordinates.left});
+		}
+
+		//Otherwise, reset the element's top and left values so relative coordinates can be calculated
+		this.css({top: 0, left: 0});
+	}
+
+	//Calculate the element's current offset
 	do {
-		offset.top += el.offsetTop + el.clientTop;
-		offset.left += el.offsetLeft + el.clientLeft;
+		top += el.offsetTop;
+		left += el.offsetLeft;
 	} while (el = el.offsetParent)
-	return offset;
+
+	//Set the element's coordinates with relative positioning or return the calculated coordinates
+	return coordinates ? this.css({
+			position: 'relative',
+			top: 0 - top + coordinates.top,
+			left: 0 - left + coordinates.left
+		})
+		: {top: top, left: left};
 };
 
 /*
@@ -3513,12 +3548,20 @@ NodeCollectionPrototype.click = callOnEachElement(HTMLElementPrototype.click);
 /**
  * Sets the specified style property for each element in the list.
  * 
+ * __Note:__ If the passed in value is number, it will be converted to a string and `'px'` will be appended
+ * to it prior to setting the CSS value.
+ * 
  * @function NodeCollection.prototype.css
  * @param {String} propertyName - The name of the style property to set.
  * @param {String|Number} value - A value to set for the specified property.
  */
 /**
  * Sets CSS style properties for each element in the list.
+ * 
+ * __Note:__ Unlike the previous version of this function that is used as a setter, the input style property names
+ * are assumed to already be in camel-case format (since this is an illegal object anyway: `{font-size: '12px'}`).
+ * Also, just like the previous function, if a value in the object is a number, it will be converted to a string
+ * and `'px'` will be appended to it prior to setting the CSS value.
  * 
  * @function NodeCollection.prototype.css
  * @param {Object.<String, String|Number>} properties - An object of CSS property-values.
@@ -3527,7 +3570,7 @@ NodeCollectionPrototype.click = callOnEachElement(HTMLElementPrototype.click);
  * Explicitly sets each elements' inline CSS style, removing or replacing any current inline style properties.
  * 
  * @function NodeCollection.prototype.css
- * @param {String} cssText - A CSS style string. To clear the style, pass in an empty string.
+ * @param {String} cssText - A CSS style string. To clear each element's inline style, pass in an empty string.
  */
 NodeCollectionPrototype.css = getFirstSetEachElement(HTMLElementPrototype.css, function(numArgs, firstArg) {
 	return !numArgs || numArgs < 2 && firstArg && typeofString(firstArg) && !firstArg.contains(':');
@@ -3683,6 +3726,24 @@ NodeCollectionPrototype.nextAll = getGetDirElementsFunc(HTMLElementPrototype.nex
  * @returns {NodeCollection} - The set of following sibling elements in order beginning with the closest sibling.
  */
 NodeCollectionPrototype.nextUntil = getGetDirElementsFunc(HTMLElementPrototype.nextUntil, sortDocOrder);
+
+/**
+ * Gets the current coordinates of the first element in the collection relative to the document.
+ * 
+ * @function NodeCollection.prototype.offset
+ * @returns {{top: Number, left: Number}} An object containing the coordinates detailing the element's distance from the top and left of the document.
+ * @see HTMLElement#offset
+ */
+/**
+ * Sets the each element's coordinates relative to the document.
+ * 
+ * @function NodeCollection.prototype.offset
+ * @param {{top: Number, left: Number}} coordinates - An object containing the properties `top` and `left`,
+ * which are numbers indicating the new top and left coordinates to set for each element.
+ */
+NodeCollectionPrototype.offset = getFirstSetEachElement(HTMLElementPrototype.offset, function(numArgs) {
+	return !numArgs;
+});
 
 /**
  * Gets the parent of each node in the collection, optionally filtered by a selector.
