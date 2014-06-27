@@ -90,7 +90,7 @@ function createFragment(content) {
  * @param {Object} obj - The object to store arbitrary data on.
  * @see HTMLElement#data
  */
-function data(dataStore, obj, key, value) {
+function _data(dataStore, obj, key, value) {
 	var dataObject = obj[dataStore],
 		dataAttributes,
 		i;
@@ -162,9 +162,9 @@ function data(dataStore, obj, key, value) {
 /* For saving data for internal use */
 function dataPrivate(obj, key, value) {
 	//The internal data is actually saved to the public data object
-	return data(
+	return _data(
 		DATA_KEY_PRIVATE,
-		obj[DATA_KEY_PUBLIC] || data(DATA_KEY_PUBLIC, obj),
+		obj[DATA_KEY_PUBLIC] || _data(DATA_KEY_PUBLIC, obj),
 		key,
 		value
 	);
@@ -1174,7 +1174,7 @@ ElementPrototype.attr = function(attrib, value) {
  * @param {Object} obj - An object of key-value pairs to add to each elements stored data.
  */
 ElementPrototype.data = function(key, value) {
-	return data(DATA_KEY_PUBLIC, this, key, value);
+	return _data(DATA_KEY_PUBLIC, this, key, value);
 };
 
 /**
@@ -1434,7 +1434,7 @@ Firebolt.ajax = function(url, settings) {
 		timeout = settings.timeout,
 		type = settings.type,
 		isGetOrHead = rgxGetOrHead.test(type),
-		userData = settings.data,
+		data = settings.data,
 		textStatus,
 		i;
 
@@ -1444,7 +1444,7 @@ Firebolt.ajax = function(url, settings) {
 			var callback = settings.statusCode[xhr.status];
 			if (callback) {
 				if (textStatus == 'success') {
-					callback.call(context, userData, textStatus, xhr);
+					callback.call(context, data, textStatus, xhr);
 				}
 				else {
 					callback.call(context, xhr, textStatus, errorThrown || getAjaxErrorStatus(xhr));
@@ -1476,7 +1476,7 @@ Firebolt.ajax = function(url, settings) {
 			}
 
 			//Set the data to the first item in the response
-			userData = responseContainer[0];
+			data = responseContainer[0];
 		}
 
 		textStatus = 'success';
@@ -1484,11 +1484,11 @@ Firebolt.ajax = function(url, settings) {
 		if (success) {
 			//Call the user-supplied data filter function if there is one
 			if (settings.dataFilter) {
-				userData = settings.dataFilter(userData, dataType);
+				data = settings.dataFilter(data, dataType);
 			}
 			//Execute all the success callbacks
 			for (i = 0; i < successes.length; i++) {
-				successes[i].call(context, userData, textStatus, xhr);
+				successes[i].call(context, data, textStatus, xhr);
 			}
 		}
 	}
@@ -1499,16 +1499,16 @@ Firebolt.ajax = function(url, settings) {
 		crossDomain = url.indexOf(domainMatch[1]) < 0;
 	}
 
-	if (userData) {
+	if (data) {
 		//Process data if necessary
-		if (Array.isArray(userData) || isPlainObject(userData)) {
-			userData = Firebolt.param(userData, settings.traditional);
+		if (Array.isArray(data) || isPlainObject(data)) {
+			data = Firebolt.param(data, settings.traditional);
 		}
 
 		//If the request is a GET or HEAD, append the data string to the URL
 		if (isGetOrHead) {
-			url = url.URLAppend(userData);
-			userData = undefined; //Clear the data so it is not sent later on
+			url = url.URLAppend(data);
+			data = undefined; //Clear the data so it is not sent later on
 		}
 	}
 
@@ -1658,21 +1658,21 @@ Firebolt.ajax = function(url, settings) {
 
 						//Set data based on the data type
 						if (dataType == 'xml') {
-							userData = xhr.responseXML;
+							data = xhr.responseXML;
 						}
 						else if (dataType == 'json') {
-							userData = JSON.parse(xhr.responseText);
+							data = JSON.parse(xhr.responseText);
 						}
 						else {
-							userData = xhr.responseText;
+							data = xhr.responseText;
 
 							if (dataType == 'script' || dataTypeJSONP) {
-								Firebolt.globalEval(userData);
+								Firebolt.globalEval(data);
 							}
 						}
 					}
 					else {
-						userData = '';
+						data = '';
 					}
 
 					//Invoke the success callbacks
@@ -1698,7 +1698,7 @@ Firebolt.ajax = function(url, settings) {
 		xhr.open(type, url, async, settings.username, settings.password);
 
 		//Set the content type header if the user has changed it from the default or there is data to submit
-		if (settings.contentType != ajaxSettings.contentType || userData) {
+		if (settings.contentType != ajaxSettings.contentType || data) {
 			headers['Content-Type'] = settings.contentType;
 		}
 
@@ -1726,7 +1726,7 @@ Firebolt.ajax = function(url, settings) {
 		}
 
 		//Send the XHR
-		xhr.send(userData);
+		xhr.send(data);
 	}
 
 	return xhr;
@@ -1779,7 +1779,7 @@ Firebolt.ajaxSetup = function(options) {
  * @memberOf Firebolt
  */
 Firebolt.data = function(object, key, value) {
-	return data(DATA_KEY_PUBLIC, object, key, value);
+	return _data(DATA_KEY_PUBLIC, object, key, value);
 };
 
 /**
@@ -1874,10 +1874,10 @@ Firebolt.frag = function() {
  * @param {String} [dataType] - The type of data expected from the server. Default: Intelligent Guess (xml, json, script, or html).
  * @memberOf Firebolt
  */
-Firebolt.get = function(url, userData, success, dataType) {
+Firebolt.get = function(url, data, success, dataType) {
 	return Firebolt.ajax({
 		url: url,
-		data: userData,
+		data: data,
 		success: success,
 		dataType: dataType
 	});
@@ -1891,8 +1891,8 @@ Firebolt.get = function(url, userData, success, dataType) {
  * @param {Function|Function[]} [success(data, textStatus, xhr)] - A callback function that is executed if the request succeeds.
  * @memberOf Firebolt
  */
-Firebolt.getJSON = function(url, userData, success) {
-	return Firebolt.get(url, userData, success, 'json');
+Firebolt.getJSON = function(url, data, success) {
+	return Firebolt.get(url, data, success, 'json');
 };
 
 /**
