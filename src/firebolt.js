@@ -3198,7 +3198,7 @@ NodePrototype.unwrap = function() {
  * Wrap an HTML structure around the node.
  * 
  * @function Node.prototype.wrap
- * @param {String|Element|Element[]) wrappingElement - CSS selector&mdash;to select wrapping element(s)&mdash;, HTML string&mdash;to
+ * @param {String|Element|Element[]} wrappingElement - CSS selector&mdash;to select wrapping element(s)&mdash;, HTML string&mdash;to
  * create wrapping element(s)&mdash;, element, or collection of elements used to specify the structure to wrap around the node.
  * @throws {TypeError} The subject node must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
  */
@@ -3214,7 +3214,7 @@ NodePrototype.wrap = function(wrappingElement) {
  * Wrap an HTML structure around the content of the node.
  * 
  * @function Node.prototype.wrapInner
- * @param {String|Element|Element[]) wrappingElement - CSS selector&mdash;to select wrapping element(s)&mdash;, HTML string&mdash;to
+ * @param {String|Element|Element[]} wrappingElement - CSS selector&mdash;to select wrapping element(s)&mdash;, HTML string&mdash;to
  * create wrapping element(s)&mdash;, element, or collection of elements used to specify the structure to wrap the node's contents.
  * @throws {HierarchyRequestError} The node must implement the {@link ParentNode} interface.
  */
