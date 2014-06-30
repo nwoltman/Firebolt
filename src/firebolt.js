@@ -1901,9 +1901,21 @@ Firebolt.frag = function() {
  * @param {String|Object} [data] - A string or object that is sent to the server with the request as a query string.
  * @param {Function|Function[]} [success(data, textStatus, xhr)] - A callback function that is executed if the request succeeds.
  * @param {String} [dataType] - The type of data expected from the server. Default: Intelligent Guess (xml, json, script, or html).
+ * This cannot be passed in as the second argument or else it will be confused for the string version of the `data` argument.
  * @memberOf Firebolt
  */
 Firebolt.get = function(url, data, success, dataType) {
+	//Organize arguments into their proper places
+	if (typeof data == 'function') {
+		dataType = dataType || success; //Using || because when getJSON is called dataType will have a value
+		success = data;
+		data = '';
+	}
+	else if (typeofString(success)) {
+		dataType = success;
+		success = 0;
+	}
+
 	return Firebolt.ajax({
 		url: url,
 		data: data,
