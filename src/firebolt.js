@@ -2105,11 +2105,22 @@ function serializeTraditional(obj) {
  * @param {String} [dataType] - The type of data expected from the server. Default: Intelligent Guess (xml, json, script, or html).
  * @memberOf Firebolt
  */
-Firebolt.post = function(url, userData, success, dataType) {
+Firebolt.post = function(url, data, success, dataType) {
+	//Organize arguments into their proper places
+	if (typeof data == 'function') {
+		dataType = success;
+		success = data;
+		data = '';
+	}
+	else if (typeofString(success)) {
+		dataType = success;
+		success = 0;
+	}
+
 	return Firebolt.ajax({
 		type: 'POST',
 		url: url,
-		data: userData,
+		data: data,
 		success: success,
 		dataType: dataType
 	});
