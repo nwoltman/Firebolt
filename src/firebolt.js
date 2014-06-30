@@ -2392,36 +2392,33 @@ window.$QSA = function(selector) {
  * @summary Adds the specified class(es) to the element.
  * 
  * @description
- * <h5>Note:</h5> Unlike jQuery, the format of the space-separated classes required by Firebolt is strict. Each class must
+ * __Note:__ Unlike jQuery, the format of the space-separated classes required by Firebolt is strict. Each class must name
  * be separated by only a single space character and there cannot be whitespace at the beginning or end of the string.
- * ```JavaScript
+ * ```javascript
  * element.addClass('one  two').removeClass('three ');  // Bad syntax
  * element.addClass('one two').removeClass('three');    // Correct syntax
  * ```
  * 
  * @function HTMLElement.prototype.addClass
  * @param {String} className - One or more space-separated classes to be added to the element's class attribute.
+ * @throws {TypeError} The input `value` must be string. __Note:__ This error will not be thrown if `value` is not a string and
+ * the element does not have a className value at the time of invocation.
  */
 HTMLElementPrototype.addClass = function(value) {
+	//Only need to determine which classes should be added if this element's className has a value
 	if (this.className) {
 		var newClasses = value.split(' '),
-			newClassName = this.className,
 			i = 0;
+		value = this.className; //Reuse the value argument to build the new class name
 		for (; i < newClasses.length; i++) {
 			if (!this.hasClass(newClasses[i])) {
-				newClassName += ' ' + newClasses[i];
+				value += ' ' + newClasses[i];
 			}
 		}
+	}
 
-		//Only assign if the new class name is different (longer) to avoid unnecessary rendering
-		if (newClassName.length > this.className.length) {
-			this.className = newClassName;
-		}
-	}
-	else {
-		//There currently is no class name so the passed in value can easily be set as the class name
-		this.className = value;
-	}
+	//Set the new value
+	this.className = value;
 
 	return this;
 };
