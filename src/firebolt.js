@@ -1899,9 +1899,9 @@ Firebolt.frag = function() {
  * 
  * @param {String} url - A string containing the URL to which the request will be sent.
  * @param {String|Object} [data] - A string or object that is sent to the server with the request as a query string.
- * @param {Function|Function[]} [success(data, textStatus, xhr)] - A callback function that is executed if the request succeeds.
+ * @param {Function} [success(data, textStatus, xhr)] - A callback function that is executed if the request succeeds.
+ * Required if dataType is provided, but can be `null` in that case.
  * @param {String} [dataType] - The type of data expected from the server. Default: Intelligent Guess (xml, json, script, or html).
- * This cannot be passed in as the second argument or else it will be confused for the string version of the `data` argument.
  * @memberOf Firebolt
  */
 Firebolt.get = function(url, data, success, dataType) {
@@ -1929,7 +1929,7 @@ Firebolt.get = function(url, data, success, dataType) {
  * 
  * @param {String} url - A string containing the URL to which the request will be sent.
  * @param {String|Object} [data] - A string or object that is sent to the server with the request as a query string.
- * @param {Function|Function[]} [success(data, textStatus, xhr)] - A callback function that is executed if the request succeeds.
+ * @param {Function} [success(data, textStatus, xhr)] - A callback function that is executed if the request succeeds.
  * @memberOf Firebolt
  */
 Firebolt.getJSON = function(url, data, success) {
@@ -1940,7 +1940,7 @@ Firebolt.getJSON = function(url, data, success) {
  * Load a JavaScript file from the server using a HTTP GET request, then execute it.
  * 
  * @param {String} url - A string containing the URL to which the request will be sent.
- * @param {Function|Function[]} [success(data, textStatus, xhr)] - A callback function that is executed if the request succeeds.
+ * @param {Function} [success(data, textStatus, xhr)] - A callback function that is executed if the request succeeds.
  * @memberOf Firebolt
  */
 Firebolt.getScript = function(url, success) {
@@ -2100,7 +2100,8 @@ function serializeTraditional(obj) {
  * 
  * @param {String} url - A string containing the URL to which the request will be sent.
  * @param {String|Object} [data] - A string or object that is sent to the server with the request.
- * @param {Function|Function[]} [success(data, textStatus, xhr)] - A callback function that is executed if the request succeeds.
+ * @param {Function} [success(data, textStatus, xhr)] - A callback function that is executed if the request succeeds.
+ * Required if dataType is provided, but can be `null` in that case.
  * @param {String} [dataType] - The type of data expected from the server. Default: Intelligent Guess (xml, json, script, or html).
  * @memberOf Firebolt
  */
