@@ -655,6 +655,13 @@ function replaceWith(newNode, refNode) {
 	refNode.parentNode.replaceChild(newNode, refNode);
 }
 
+/*
+ * Simply returns `false`. For use in Node.prototype.on/off
+ */
+function returnFalse() {
+	return false;
+}
+
 function sortDocOrder(a, b) {
 	var pos = a.compareDocumentPosition(b);
 	if (pos & 4) { //Node a should come first
@@ -3041,78 +3048,213 @@ NodePrototype.nextAll = getGetDirElementsFunc(nextElementSibling);
  */
 NodePrototype.nextUntil = getGetDirElementsFunc(nextElementSibling, 0);
 
-/* To be used by Node.prototype.off */
-function removeHandler(handlers, handler, eventType, node) {
+/* 
+ * Used by Node.prototype.off
+ * Removes the passed in handler from the array of handlers or removes all handlers if handler is undefined.
+ * Deletes the array of handlers if it is empty after handlers have been removed.
+ */
+function removeSelectorHandler(selectorHandlers, selector, handler) {
+	var handlers = selectorHandlers[selector];
 	if (handlers) {
 		if (handler) {
-			var objectsToRemove = [],
-				i = 0;
-			for (; i < handlers.length; i++) {
+			for (var i = 0; i < handlers.length; i++) {
 				if (handlers[i].fn === handler) {
-					objectsToRemove.push(handlers[i]);
+					handlers.splice(i--, 1); //Use i-- so that i has the same value when the loop completes and i++ happens
 				}
 			}
-			array_remove.apply(handlers, objectsToRemove);
 		}
 		else {
 			handlers.clear();
 		}
 
-		//If there are no more handlers left, remove the listener
 		if (!handlers.length) {
-			node.removeEventListener(eventType, handlers.trueHandler);
+			//The array of handlers is now empty so it can be deleted
+			delete selectorHandlers[selector];
 		}
 	}
 }
 
+/**
+ * Removes one or more event handlers set by `.on()` or `.one()`.
+ * 
+ * @function Node.prototype.off
+ * @param {String} events - One or more space-separated event types, such as "click" or "click keypress".
+ * @param {String} [selector] - A selector which should match the one originally passed to `.on()` when attaching event handlers.
+ * @param {Function} [handler] - A handler function previously attached for the event(s), or the special value `false` (see `Node#on()`).
+ * @see {@link http://api.jquery.com/off/#off-events-selector-handler|.off() | jQuery API Documentation}
+ */
+/**
+ * Removes one or more event handlers set by `.on()` or `.one()`.
+ * 
+ * @function Node.prototype.off
+ * @param {Object} events - An object where the string keys represent one or more space-separated event types and the values represent
+ * handler functions previously attached for the event(s).
+ * @param {String} [selector] - A selector which should match the one originally passed to `.on()` when attaching event handlers.
+ * @see {@link http://api.jquery.com/off/#off-events-selector|.off() | jQuery API Documentation}
+ */
+/**
+ * Removes all event handlers set by `.on()` or `.one()`.
+ * 
+ * @function Node.prototype.off
+ * @see {@link http://api.jquery.com/off/#off|.off() | jQuery API Documentation}
+ */
 NodePrototype.off = function(events, selector, handler) {
 	var eventHandlers = dataPrivate(this, KEY_EVENT_HANDLERS),
-		i = 0,
 		eventType,
 		selectorHandlers,
-		sel;
+		sel,
+		i;
 
 	//Don't bother doing anything if there haven't been any Firebolt handlers set
 	if (eventHandlers) {
-		//If events was passed in, remove those events, else remove all events
-		events = events ? events.split(' ') : Object.keys(eventHandlers);
-
-		if (selector && !typeofString(selector)) {
-			//The handler was in the selector argument and there is no real selector argument
-			handler = selector;
-			selector = 0;
+		if (typeof events == 'object') {
+			//Call this function for each event and handler in the object
+			for (i in events) {
+				this.off(i, selector, events[i]);
+			}
 		}
+		else {
+			//If events was passed in, remove those events, else remove all events
+			events = events ? events.split(' ') : Object.keys(eventHandlers);
 
-		for (; i < events.length; i++) {
-			if (selectorHandlers = eventHandlers[eventType = events[i]]) {
-				//If a selector was provided, remove events for that particular selector
-				if (selector) {
-					removeHandler(selectorHandlers[selector], handler, eventType, this);
-				}
-				else { //Remove events for all selectors
-					for (sel in selectorHandlers) {
-						removeHandler(selectorHandlers[sel], handler, eventType, this);
+			if (!isUndefined(selector) && !typeofString(selector)) {
+				//The handler was in the selector argument and there is no real selector argument
+				handler = selector;
+				selector = 0;
+			}
+
+			//If the handler is the value false, the handler should be a function that returns false
+			if (handler === false) {
+				handler = returnFalse;
+			}
+
+			for (i = 0; i < events.length; i++) {
+				if (selectorHandlers = eventHandlers[eventType = events[i]]) {
+					//If a selector was provided, remove handlers for that particular selector
+					if (selector) {
+						removeSelectorHandler(selectorHandlers, selector, handler);
+					}
+					else { //Remove handlers for all selectors
+						for (sel in selectorHandlers) {
+							removeSelectorHandler(selectorHandlers, sel, handler);
+						}
+					}
+
+					// If there are no more selectors left, the object for the current event can be deleted
+					// and the event listener must be removed
+					if (isEmptyObject(selectorHandlers)) {
+						delete eventHandlers[eventType];
+						this.removeEventListener(eventType, nodeEventHandler);
 					}
 				}
 			}
 		}
 	}
+
+	return this;
 };
 
 /* Slightly alter the Event#stopPropagation() method for more convenient use in Node#on() */
 EventPrototype._stopPropagation = EventPrototype.stopPropagation;
 EventPrototype.stopPropagation = function() {
 	this._stopPropagation();
-	this.isPropagationStopped = true;
+	this.propagationStopped = true;
 };
+
+/* This is the function that will be invoked for each event type when a handler is set with Node.prototype.on() */
+function nodeEventHandler(eventObject) {
+	var target = eventObject.target,
+		eType = eventObject.type,
+		selectorHandlers = this[DATA_KEY_PUBLIC][DATA_KEY_PRIVATE][KEY_EVENT_HANDLERS][eType], //Fast private data access (since it must exist)
+		selectorHandlersCopy = {},
+		selectors = Object.keys(selectorHandlers).remove(''), //Don't want the non-selector (for non-delegated handlers) in the array
+		numSelectors = selectors.length,
+		i = 0,
+		j = 0,
+		k,
+		selector,
+		path,
+		pathElement,
+		handlers,
+		handler;
+
+	// Only do delegated events if there are selectors that can be used to delegate events and if the target
+	// was not this element (since if it was this element there would be nothing to bubble up from)
+	if (numSelectors && target !== this) {
+		//Build a copy of the selector handlers so they won't be altered if `off` is ever called
+		for (; j < numSelectors; j++) {
+			selectorHandlersCopy[selectors[j]] = selectorHandlers[selectors[j]].clone();
+		}
+
+		//The bubble path is the elements from the target up to (but not including) this node
+		path = target.parentsUntil(this);
+
+		//Add the target to the front of the path if it has the matches function (meaning it is an element)
+		if (target.matches) {
+			path.unshift(target);
+		}
+
+		//Call the handlers for each selector on each element in the path or until propagation is stopped
+		for (; i < path.length && !eventObject.propagationStopped; i++) {
+			pathElement = path[i];
+
+			for (j = 0; j < numSelectors; j++) {
+				//Only call handlers if the element matches the current selector
+				if (pathElement.matches(selector = selectors[j])) {
+					handlers = selectorHandlersCopy[selector];
+
+					for (k = 0; k < handlers.length; k++) {
+						handler = handlers[k];
+
+						eventObject.data = handler.d; //Set data in the event object
+
+						//Call the function on the current element and stop stuff if it returns false
+						if (handler.fn.call(pathElement, eventObject) === false) {
+							eventObject.stopPropagation();
+							eventObject.preventDefault();
+						}
+
+						//Remove the handler if it should only occur once
+						if (handler.o) {
+							this.off(eType, selector, handler.fn);
+							handler.o = 0; //Make the handler's "one" value falsy so this part doesn't try to remove it again
+						}
+					} //End handlers looop
+				}
+			} //End selectors loop
+		} //End path loop
+	} //End delegated events section
+
+	//If propagation has not been stopped, call the non-delegated handlers (if there are any)
+	if (!eventObject.propagationStopped && (handlers = selectorHandlers[''])) {
+		handlers = handlers.clone(); //Use a clone so it won't be altered if `off` is ever called
+
+		for (k = 0; k < handlers.length; k++) {
+			handler = handlers[k];
+
+			eventObject.data = handler.d; //Set data in the event object
+
+			//Call the function on the element and stop stuff if it returns false
+			if (handler.fn.call(this, eventObject) === false) {
+				eventObject.stopPropagation();
+				eventObject.preventDefault();
+			}
+
+			//Remove the handler if it should only occur once
+			if (handler.o) {
+				this.off(eType, handler.fn);
+			}
+		}
+	}
+}
 
 /**
  * @summary Attaches an event handler function for one or more events to the node.
  *  
  * @description Check out [jQuery's documentation](http://api.jquery.com/on/) for details. There are only a couple minor differences:
  * 1. Firebolt does not offer event namespacing.
- * 2. There is no overloaded version where `events` is an object of event-function pairs.
- * 3. The native [Event](https://developer.mozilla.org/en-US/docs/Web/API/Event) object is passed to the handler (with an added `data` property).
+ * 2. The native [Event](https://developer.mozilla.org/en-US/docs/Web/API/Event) object is passed to the handler (with an added
+ * `data` property, and if propagation is stopped, there will be a `propagationStopped` property set to `true`).
  * 
  * @function Node.prototype.on
  * @param {String} events - One or more space-separated event types, such as "click" or "click keypress".
@@ -3121,123 +3263,112 @@ EventPrototype.stopPropagation = function() {
  * @param {*} [data] - Data to be passed to the handler in `eventObject.data` when an event is triggered.
  * @param {Function} handler(eventObject) - A function to execute when the event is triggered. Inside the function, `this` will refer to
  * the node the event was triggered on. The value `false` is also allowed as a shorthand for a function that simply does `return false`.
- * @see http://api.jquery.com/on/
+ * @see {@link http://api.jquery.com/on/#on-events-selector-data-handler|.on() | jQuery API Documentation}
+ */
+/**
+ * @summary Attaches an event handler function for one or more events to the node.
+ *  
+ * @description Check out [jQuery's documentation](http://api.jquery.com/on/) for details. There are only a couple minor differences:
+ * 1. Firebolt does not offer event namespacing.
+ * 2. The native [Event](https://developer.mozilla.org/en-US/docs/Web/API/Event) object is passed to the handler (with an added
+ * `data` property, and if propagation is stopped, there will be a `propagationStopped` property set to `true`).
+ * 
+ * @function Node.prototype.on
+ * @param {Object} events - An object where the string keys represent one or more space-separated event types and the values represent
+ * handler functions to be called for the event(s).
+ * @param {String} [selector] - A selector string to filter the descendants of the selected elements that trigger the event.
+ * If the selector is `null` or omitted, the event is always triggered when it reaches the selected element.
+ * @param {*} [data] - Data to be passed to the handler in `eventObject.data` when an event is triggered.
+ * @see {@link http://api.jquery.com/on/#on-events-selector-data|.on() | jQuery API Documentation}
  */
 NodePrototype.on = function(events, selector, data, handler, one) { //one is for internal use
-	events = events.split(' ');
-
-	var _this = this,
-		i = 0,
+	var eventHandlers = dataPrivate(this, KEY_EVENT_HANDLERS),
 		selectorIsString = typeofString(selector),
-		eventHandlers = dataPrivate(this, KEY_EVENT_HANDLERS),
 		savedHandlers,
 		eventType,
-		trueHandler; //The actual handler that will be set using node.addEventListener
+		i;
 
-	//Create the event handlers object if it does not already exist
-	if (!eventHandlers) {
-		dataPrivate(this, KEY_EVENT_HANDLERS, eventHandlers = {});
-	}
+	if (typeofString(events)) {
+		events = events.split(' ');
 
-	//Organize arguments into their proper places
-	if (isUndefined(handler)) {
-		if (isUndefined(data)) {
-			handler = selector; //The handler was in the selector argument
+		//Create the event handlers object if it does not already exist
+		if (!eventHandlers) {
+			dataPrivate(this, KEY_EVENT_HANDLERS, eventHandlers = {});
 		}
-		else {
-			handler = data; //The handler was in the data argument
-			data = selectorIsString ? undefined : selector; //Data was in the selector argument or undefined if selector is a string
+
+		//Organize arguments into their proper places
+		if (isUndefined(handler)) {
+			if (isUndefined(data)) {
+				handler = selector; //The handler was in the selector argument
+			}
+			else {
+				handler = data; //The handler was in the data argument
+				data = selectorIsString ? undefined : selector; //Data was in the selector argument or undefined if selector is a string
+			}
 		}
-	}
 
-	//If the handler is the value false, the handler should be a function that returns false
-	if (handler === false) {
-		handler = function() {
-			return false;
-		};
-	}
+		if (!selectorIsString) {
+			selector = ''; //Make the selector an empty string to be used as an object key
+		}
 
-	if (selectorIsString) {
-		trueHandler = function(eventObject) {
-			var target = eventObject.target,
-				handlers = eventHandlers[eventObject.type][selector].clone(); //Use a clone so it won't be altered if `off` is called
+		//If the handler is the value false, the handler should be a function that returns false
+		if (handler === false) {
+			handler = returnFalse;
+		}
 
-			if (target !== _this) {
-				//Get the elements that match the selector from the target up to (but not including) this node
-				var path = target.parentsUntil(_this, selector),
-					j = 0,
-					k;
-				//Add the target node to the path as well if it matches the selector
-				if (target.matches(selector)) {
-					path.unshift(target);
+		for (i = 0; i < events.length; i++) {
+			//Sanity check in case the user had multiple consecutive spaces in the input string of event types
+			if (eventType = events[i]) {
+				//Get the saved handlers object for the event type
+				savedHandlers = eventHandlers[eventType];
+
+				//If the object for the event doesn't exist, create it and add Firebolt's event function as a listener
+				if (!savedHandlers) {
+					savedHandlers = eventHandlers[eventType] = {}
+					this.addEventListener(eventType, nodeEventHandler);
 				}
 
-				//Call the handler on each element in the path or until propagation is stopped
-				for (; j < path.length; j++) {
-					for (k = 0; k < handlers.length; k++) {
-						eventObject.data = handlers[k].d; //Set data in the event object
-						if (handlers[k].fn.call(path[j], eventObject) === false) {
-							eventObject.stopPropagation();
-							eventObject.preventDefault();
-						}
-					}
-					if (eventObject.isPropagationStopped) break;
-				}
+				//Get the array of handlers for the selector or create it if it doesn't exist
+				savedHandlers = savedHandlers[selector] || (savedHandlers[selector] = []);
+
+				//Add the user-input handler and data to the array of handlers
+				savedHandlers.push({fn: handler, d: data, o: one});
 			}
-
-			//Remove all "one" handlers for this event type and selector
-			for (k = 0; k < handlers.length; k++) {
-				if (handlers[k].o) {
-					this.off(eventObject.type, selector, handlers[k].fn);
-				}
-			}
-		};
+		}
 	}
 	else {
-		selector = ''; //Make the selector an empty string to be used as an object key
-		trueHandler = function(eventObject) {
-			var handlers = eventHandlers[eventObject.type][selector].clone(), //Use a clone so it won't be altered if `off` is called
-				k = 0;
-			for (; k < handlers.length; k++) {
-				eventObject.data = handlers[k].d;
-				if (handlers[k].fn.call(_this, eventObject) === false) {
-					eventObject.stopPropagation();
-					eventObject.preventDefault();
-				}
-
-				//Remove the handler if it should only occur once
-				if (handlers[k].o) {
-					this.off(eventObject.type, selector, handlers[k].fn);
-				}
-			}
-		};
-	}
-
-	for (; i < events.length; i++) {
-		//Safety check in case the user had multiple consecutive spaces in the input string of event types
-		if (eventType = events[i]) {
-			//Get the saved handlers object for the event type or create it if it doesn't exist yet
-			savedHandlers = eventHandlers[eventType] || (eventHandlers[eventType] = {});
-
-			//Get the array of handlers for the selector or create it if it doesn't exist
-			savedHandlers = savedHandlers[selector] || (savedHandlers[selector] = []);
-
-			//If the array of handlers was just created, add the true handler as an event listener
-			//and save it as a property on the array at the same time
-			if (!savedHandlers.length) {
-				_this.addEventListener(eventType, savedHandlers.trueHandler = trueHandler);
-			}
-
-			//Add the user-input handler and data to the array of handlers
-			savedHandlers.push({fn: handler, d: data, o: one});
+		//Call this function for each event and handler in the object
+		for (i in events) {
+			this.on(i, selector, data, events[i], one);
 		}
 	}
 
-	return _this;
+	return this;
 };
 
+/**
+ * Attaches a handler to an event for the node. The handler is executed at most once per event type.  
+ * Exactly the same as `Node#on()` except the event handler is removed after it executes for the first time.
+ * 
+ * @function Node.prototype.one
+ * @param {String} events
+ * @param {String} [selector]
+ * @param {*} [data]
+ * @param {Function} handler(eventObject)
+ * @see {@link http://api.jquery.com/one/#one-events-selector-data-handler|.one() | jQuery API Documentation}
+ */
+/**
+ * Attaches a handler to an event for the node. The handler is executed at most once per event type.  
+ * Exactly the same as `Node#on()` except the event handler is removed after it executes for the first time.
+ * 
+ * @function Node.prototype.one
+ * @param {Object} events
+ * @param {String} [selector]
+ * @param {*} [data]
+ * @see {@link http://api.jquery.com/one/#one-events-selector-data|.one() | jQuery API Documentation}
+ */
 NodePrototype.one = function(events, selector, data, handler) {
-	this.on(events, selector, data, handler, 1);
+	return this.on(events, selector, data, handler, 1);
 };
 
 /**
@@ -3951,6 +4082,32 @@ NodeCollectionPrototype.nextAll = getGetDirElementsFunc(HTMLElementPrototype.nex
 NodeCollectionPrototype.nextUntil = getGetDirElementsFunc(HTMLElementPrototype.nextUntil, sortDocOrder);
 
 /**
+ * Removes one or more event handlers set by `.on()` or `.one()`.
+ * 
+ * @function NodeCollection.prototype.off
+ * @param {String} events - One or more space-separated event types, such as "click" or "click keypress".
+ * @param {String} [selector] - A selector which should match the one originally passed to `.on()` when attaching event handlers.
+ * @param {Function} [handler] - A handler function previously attached for the event(s), or the special value `false` (see `NodeCollection#on()`).
+ * @see {@link http://api.jquery.com/off/#off-events-selector-handler|.off() | jQuery API Documentation}
+ */
+/**
+ * Removes one or more event handlers set by `.on()` or `.one()`.
+ * 
+ * @function NodeCollection.prototype.off
+ * @param {Object} events - An object where the string keys represent one or more space-separated event types and the values represent
+ * handler functions previously attached for the event(s).
+ * @param {String} [selector] - A selector which should match the one originally passed to `.on()` when attaching event handlers.
+ * @see {@link http://api.jquery.com/off/#off-events-selector|.off() | jQuery API Documentation}
+ */
+/**
+ * Removes all event handlers set by `.on()` or `.one()`.
+ * 
+ * @function NodeCollection.prototype.off
+ * @see {@link http://api.jquery.com/off/#off|.off() | jQuery API Documentation}
+ */
+NodeCollectionPrototype.off = callOnEach(NodePrototype.off);
+
+/**
  * Gets the current coordinates of the first element in the collection relative to the document.
  * 
  * @function NodeCollection.prototype.offset
@@ -3973,8 +4130,8 @@ NodeCollectionPrototype.offset = getFirstSetEachElement(HTMLElementPrototype.off
  *  
  * @description Check out [jQuery's documentation](http://api.jquery.com/on/) for details. There are only a couple minor differences:
  * 1. Firebolt does not offer event namespacing.
- * 2. There is no overloaded version where `events` is an object of event-function pairs.
- * 3. The native [Event](https://developer.mozilla.org/en-US/docs/Web/API/Event) object is passed to the handler (with an added `data` property).
+ * 2. The native [Event](https://developer.mozilla.org/en-US/docs/Web/API/Event) object is passed to the handler (with an added
+ * `data` property, and if propagation is stopped, there will be a `propagationStopped` property set to `true`).
  * 
  * @function NodeCollection.prototype.on
  * @param {String} events - One or more space-separated event types, such as "click" or "click keypress".
@@ -3983,9 +4140,48 @@ NodeCollectionPrototype.offset = getFirstSetEachElement(HTMLElementPrototype.off
  * @param {*} [data] - Data to be passed to the handler in `eventObject.data` when an event is triggered.
  * @param {Function} handler(eventObject) - A function to execute when the event is triggered. Inside the function, `this` will refer to
  * the node the event was triggered on. The value `false` is also allowed as a shorthand for a function that simply does `return false`.
- * @see http://api.jquery.com/on/
+ * @see {@link http://api.jquery.com/on/#on-events-selector-data-handler|.on() | jQuery API Documentation}
+ */
+/**
+ * @summary Attaches an event handler function for one or more events to each node in the collection.
+ *  
+ * @description Check out [jQuery's documentation](http://api.jquery.com/on/) for details. There are only a couple minor differences:
+ * 1. Firebolt does not offer event namespacing.
+ * 2. The native [Event](https://developer.mozilla.org/en-US/docs/Web/API/Event) object is passed to the handler (with an added
+ * `data` property, and if propagation is stopped, there will be a `propagationStopped` property set to `true`).
+ * 
+ * @function NodeCollection.prototype.on
+ * @param {Object} events - An object where the string keys represent one or more space-separated event types and the values represent
+ * handler functions to be called for the event(s).
+ * @param {String} [selector] - A selector string to filter the descendants of the selected elements that trigger the event.
+ * If the selector is `null` or omitted, the event is always triggered when it reaches the selected element.
+ * @param {*} [data] - Data to be passed to the handler in `eventObject.data` when an event is triggered.
+ * @see {@link http://api.jquery.com/on/#on-events-selector-data|.on() | jQuery API Documentation}
  */
 NodeCollectionPrototype.on = callOnEach(NodePrototype.on);
+
+/**
+ * Attaches a handler to an event for each node in the collection. The handler is executed at most once per node, per event type.  
+ * Exactly the same as `NodeCollection#on()` except the event handler is removed after it executes for the first time.
+ * 
+ * @function NodeCollection.prototype.one
+ * @param {String} events
+ * @param {String} [selector]
+ * @param {*} [data]
+ * @param {Function} handler(eventObject)
+ * @see {@link http://api.jquery.com/one/#one-events-selector-data-handler|.one() | jQuery API Documentation}
+ */
+/**
+ * Attaches a handler to an event for each node in the collection. The handler is executed at most once per node, per event type.  
+ * Exactly the same as `NodeCollection#on()` except the event handler is removed after it executes for the first time.
+ * 
+ * @function NodeCollection.prototype.one
+ * @param {Object} events
+ * @param {String} [selector]
+ * @param {*} [data]
+ * @see {@link http://api.jquery.com/one/#one-events-selector-data|.one() | jQuery API Documentation}
+ */
+NodeCollectionPrototype.one = callOnEach(NodePrototype.one);
 
 /**
  * Gets the parent of each node in the collection, optionally filtered by a selector.
@@ -4889,7 +5085,3 @@ if (!document.children) {
 //#endregion Browser Compatibility and Speed Boosters
 
 })(self, document, Array, Object, decodeURIComponent, encodeURIComponent); //self === window
-
-function ef(e) {
-	console.log(e.data, this, e);
-}
