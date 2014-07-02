@@ -4926,17 +4926,18 @@ if (!StringPrototype.contains) {
 	 * alert( str.contains("summer") );  // false
 	 */
 	prototypeExtensions.contains = function(searchString, position) {
-		return ('' + this).indexOf(searchString, position) >= 0;
+		return this.toString().indexOf(searchString, position) >= 0;
 	};
 }
 
 if (!StringPrototype.endsWith) {
 	/**
-	 * Determines whether a string ends with the characters of another string.
+	 * Determines if a string ends with the characters of another string.
 	 *
 	 * @function String.prototype.endsWith
 	 * @param {String} searchString - The characters to be searched for at the end of this string.
-	 * @param {Number} [position=this.length] - Search within this string as if this string were only this long; clamped within the range established by this string's length.
+	 * @param {Number} [position=this.length] - Search within this string as if this string were only this long;
+	 * clamped within the range established by this string's length.
 	 * @returns {Boolean} `true` if this string ends with `searchString`; else `false`.
 	 * @example
 	 * var str = "Who am I, Gamling?";
@@ -4945,8 +4946,9 @@ if (!StringPrototype.endsWith) {
 	 * alert( str.endsWith("am I", 8) );   // true
 	 */
 	prototypeExtensions.endsWith = function(searchString, position) {
-		var str = '' + this;
-		position = (position < str.length ? position : str.length) - searchString.length;
+		var str = this.toString(),
+			strLen = str.length;
+		position = (position < strLen ? position : strLen) - searchString.length;
 		return position >= 0 && str.indexOf(searchString, position) === position;
 	};
 }
@@ -4993,7 +4995,7 @@ if (!StringPrototype.startsWith) {
 	 * alert( str.endsWith("am I", 4) );  // true
 	 */
 	prototypeExtensions.startsWith = function(searchString, position) {
-		return ('' + this).lastIndexOf(searchString, position = position || 0) === position;
+		return this.toString().lastIndexOf(searchString, position = position || 0) === position;
 	};
 }
 
