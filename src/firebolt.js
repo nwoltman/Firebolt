@@ -1536,7 +1536,7 @@ Firebolt.ajax = function(url, settings) {
 
 		//If the request is a GET or HEAD, append the data string to the URL
 		if (isGetOrHead) {
-			url = url.URLAppend(data);
+			url = url.appendParams(data);
 			data = undefined; //Clear the data so it is not sent later on
 		}
 	}
@@ -1550,7 +1550,7 @@ Firebolt.ajax = function(url, settings) {
 		}
 
 		//Append the callback name to the URL
-		url = url.URLAppend(settings.jsonp + '=' + jsonpCallback);
+		url = url.appendParams(settings.jsonp + '=' + jsonpCallback);
 
 		// Install callback
 		overwritten = window[jsonpCallback];
@@ -1580,7 +1580,7 @@ Firebolt.ajax = function(url, settings) {
 	if ((crossDomain || settings.isLocal) && (dataType == 'script' || dataTypeJSONP)) {
 		//Prevent caching unless the user explicitly set cache to true
 		if (settings.cache !== true) {
-			url = url.URLAppend('_=' + (timestamp++));
+			url = url.appendParams('_=' + (timestamp++));
 		}
 
 		var script = createElement('script').prop({
@@ -1638,7 +1638,7 @@ Firebolt.ajax = function(url, settings) {
 
 		//Prevent caching if necessary
 		if (isGetOrHead && settings.cache === false) {
-			url = url.URLAppend('_=' + (timestamp++));
+			url = url.appendParams('_=' + (timestamp++));
 		}
 
 		//The main XHR function for when the request has loaded (and track states in between for abort or timeout)
@@ -4837,6 +4837,21 @@ function camelize(match, p1) {
 //Reuse the prototype extensions variable to hold an object of String extensions
 prototypeExtensions = {
 	/**
+	 * Appends query string parameters to a URL.
+	 *
+	 * @function String.prototype.appendParams
+	 * @param {String} params - Query string parameters.
+	 * @returns {String} A reference to the string (chainable).
+	 * @example
+	 * var url = "www.google.com";
+	 * url = url.appendParams('lang=en'); // -> "www.google.com?lang=en"
+	 * url = url.appendParams('a=1&b=2'); // -> "www.google.com?lang=en&a=1&b=2"
+	 */
+	appendParams: function(params) {
+		return this + (this.contains('?') ? '&' : '?') + params;
+	},
+
+	/**
 	 * Converts a string separated by dashes into its camelCase equivalent.
 	 * 
 	 * Firebolt uses this function to translate CSS property names to their DOM style-object property names.
@@ -4893,21 +4908,6 @@ prototypeExtensions = {
 	 */
 	unescapeHTML: function() {
 		return createElement('div').html(this).textContent;
-	},
-
-	/**
-	 * Appends query string parameters to a URL.
-	 *
-	 * @function String.prototype.URLAppend
-	 * @param {String} params - Query string parameters.
-	 * @returns {String} A reference to the string.
-	 * @example
-	 * var url = "http://google.com";
-	 * url = url.URLAppend('lang=en');  // "http://google.com?lang=en"
-	 * url = url.URLAppend('foo=bar');  // "http://google.com?lang=en&foo=bar"
-	 */
-	URLAppend: function(params) {
-		return this.concat(this.contains('?') ? '&' : '?', params);
 	}
 };
 
