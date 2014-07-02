@@ -882,7 +882,7 @@ prototypeExtensions = {
 	 * @returns {Array} this
 	 */
 	each: function(callback) {
-		return Firebolt.each(this, callback);
+		return Firebolt.each(this, callback, 1);
 	},
 
 	/**
@@ -1820,6 +1820,8 @@ Firebolt.data = function(object, key, value) {
  * @function Firebolt.each
  * @param {Array} array - The array or array-like object to iterate over.
  * @param {function(*, Number, Array)} callback(value,index,array) - The function that will be executed on each item.
+ * @param {Boolean} [isArrayLike] - A hint you can give to Firebolt to tell it to use this version of the function so
+ * it can skip checking the object's type.
  * @returns {Array} The input array.
  */
 /**
@@ -1833,10 +1835,10 @@ Firebolt.data = function(object, key, value) {
  * @param {function(*, String, Object)} callback(value,key,object) - The function that will be executed on each item.
  * @returns {Object} The input object.
  */
-Firebolt.each = function(obj, callback) {
+Firebolt.each = function(obj, callback, isArrayLike) {
 	var len = obj.length,
 		i = 0;
-	if (len) {
+	if (isArrayLike || typeof len == 'number' && typeof obj != 'function' && obj.toString() != '[object Window]') {
 		while (i < len && callback(obj[i], i++, obj) !== false);
 	}
 	else {
