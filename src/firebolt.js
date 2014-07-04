@@ -754,6 +754,8 @@ var
 	rgxFormButton = /button|file|reset|submit/, //Matches input element types that are buttons
 	rgxCheckableElement = /checkbox|radio/,     //Matches checkbox or radio input element types
 	rgxCamelizables = usesGecko ? /-+(.)/g : /^-+|-+(.)/g, //Matches dashed parts of CSS property names
+	//Matches a CSS property name who's value will be a number that should be specifed in pixels
+	rgxCssNeedsPx = /height|width|size|top|right|bottom|left|radius/,
 
 	/* AJAX */
 	timestamp = Date.now(),
@@ -780,6 +782,43 @@ var
 		type: 'GET',
 		url: location.href,
 		xhr: XMLHttpRequest
+	},
+
+	/* Animations */
+	ANIMATION_DEFAULT_DURATION = 400,
+	ANIMATION_DEFAULT_EASING = 'swing',
+
+	animateElement = function(element, properties, duration, easing, complete) {
+		var cssProps = Object.keys(properties),
+			currentStyle = element.css(),
+			inlineStyle = element.style,
+			originalInlineTransition = inlineStyle.transition || inlineStyle.webkitTransition,
+			i = 0,
+			prop;
+
+		//Inline the element's current CSS styles so that they are for sure set explicitly
+		for (; i < cssProps.length; i++) {
+			prop = cssProps[i];
+			element.style[prop] = currentStyle[prop];
+		}
+
+		//Set up the CSS transition - { transition: properties duration easing; }
+		inlineStyle.transition = inlineStyle.webkitTransition = cssProps.toString() + ' ' + duration + 'ms ' + easing;
+
+		//Set the new values to transition to as soon as possible
+		setTimeout(function() {
+			element.css(properties);
+
+			//Set a timeout to call the complete callback after the transition is done
+			setTimeout(function() {
+				//Give the element back its original inline transition style
+				inlineStyle.transition = inlineStyle.webkitTransition = originalInlineTransition;
+
+				if (complete) {
+					complete.call(element); //Call the complete function in the context of the element
+				}
+			}, duration);
+		}, 0);
 	},
 
 	/* Misc */
@@ -1849,6 +1888,14 @@ Firebolt.each = function(obj, callback, isArrayLike) {
 	return obj;
 };
 
+/*
+ * Maps easing types to CSS transition functions.
+ * The easing extension can be used to fill this out more.
+ */
+Firebolt.easing = {
+	swing: 'cubic-bezier(.4,.04,.6,.98)' //Similar to jQuery's "swing"
+};
+
 /**
  * Creates a new element with the specified tag name and attributes (optional).  
  * Partially an alias of `document.createElement()`.
@@ -2469,7 +2516,42 @@ HTMLElementPrototype.afterPut = function() {
 	}
 
 	return this;
-}
+};
+
+/**
+ * Performs a custom animation of a set of CSS properties.
+ * 
+ * @function HTMLElement.prototype.animate
+ * @param {Object} properties - An object of CSS properties and values that the animation will move toward.
+ * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
+ * @param {String} [easing="swing"] - A string indicating which easing function to use for the transition. The string can be any
+ * [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp) or "swing". Use
+ * Firebolt's [easing extension](https://github.com/FireboltJS/firebolt-extensions/tree/master/easing) to get more options
+ * (or just grab some functions from it and use them as the `easing` parameter).
+ * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
+ * refer to the element that was animated.
+ */
+HTMLElementPrototype.animate = function(properties, duration, easing, complete) {
+	//Massage arguments into their proper places
+	if (isUndefined(duration) || typeof duration == 'function') {
+		complete = duration;
+		duration = ANIMATION_DEFAULT_DURATION;
+		easing = ANIMATION_DEFAULT_EASING;
+	}
+	else if (typeofString(duration)) {
+		complete = easing;
+		easing = duration;
+		duration = ANIMATION_DEFAULT_DURATION;
+	}
+	else if (!typeofString(easing)) {
+		complete = easing;
+		easing = ANIMATION_DEFAULT_EASING;
+	}
+
+	animateElement(this, properties, duration, Firebolt.easing[easing] || easing, complete);
+
+	return this;
+};
 
 /*
  * More performant version of Node#appendWith for HTMLElements.
@@ -2571,14 +2653,14 @@ HTMLElementPrototype.css = function(prop, value) {
 		}
 		else {
 			//Set the specified property
-			this.style[prop.camelize()] = typeofString(value) ? value : value + 'px';
+			this.style[prop.camelize()] = value && !typeofString(value) && rgxCssNeedsPx.test(prop) ? value + 'px' : value;
 		}
 	}
 	else {
 		//Set all specifed properties
 		for (var propName in prop) {
 			value = prop[propName];
-			this.style[propName] = typeofString(value) ? value : value + 'px';
+			this.style[propName] = value && !typeofString(value) && rgxCssNeedsPx.test(propName) ? value + 'px' : value;
 		}
 	}
 
@@ -3776,7 +3858,22 @@ NodeCollectionPrototype.afterPut = NodeCollectionPrototype.after = function() {
 	}
 
 	return this;
-}
+};
+
+/**
+ * Performs a custom animation of a set of CSS properties.
+ * 
+ * @function NodeCollection.prototype.animate
+ * @param {Object} properties - An object of CSS properties and values that the animation will move toward.
+ * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
+ * @param {String} [easing="swing"] - A string indicating which easing function to use for the transition. The string can be any
+ * [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp) or "swing". Use
+ * Firebolt's [easing extension](https://github.com/FireboltJS/firebolt-extensions/tree/master/easing) to get more options
+ * (or just grab some functions from it and use them as the `easing` parameter).
+ * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
+ * refer to the element that was animated.
+ */
+NodeCollectionPrototype.animate = callOnEachElement(HTMLElementPrototype.animate);
 
 /**
  * Appends each node in this collection to the end of the specified target(s).
