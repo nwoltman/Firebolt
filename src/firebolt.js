@@ -2807,13 +2807,13 @@ HTMLElementPrototype.prependWith = function() {
 	}
 
 	return this;
-}
+};
 
 /**
  * @summary Removes the specified class(es) or all classes from the element.
  * 
  * @description
- * <h5>Note:</h5> Unlike jQuery, the format of the space-separated classes required by Firebolt is strict. Each class must
+ * __Note:__ Unlike jQuery, the format of the space-separated classes required by Firebolt is strict. Each class must
  * be separated by only a single space character and there cannot be whitespace at the beginning or end of the string.
  * ```JavaScript
  * element.addClass('one  two').removeClass('three ');  // Bad syntax
@@ -2870,20 +2870,28 @@ HTMLFormElement[prototype].serialize = function() {
 };
 
 /**
- * Shows an element by determining its default display style and setting it to that.  
- * NOTE: The element's default display style may be 'none', in which case the element would not be shown.
- * The element will also not be shown if it's `visibility` is set to 'hidden' or its `opacity` is 0;
+ * Shows an element if it is hidden.  
+ * __Note:__ If the element's default display style is 'none' (such as is the case with `<script>` elements), it will not be shown.
+ * Also, this method will not show an element if its `visibility` is set to 'hidden' or its `opacity` is `0`.
  * 
  * @function HTMLElement.prototype.show
  */
 HTMLElementPrototype.show = function() {
-	//Create a temporary element of the same type as this element to figure out what the default display value should be
-	var temp = document.body.appendChild(createElement(this.tagName, {style: 'width:0;border:0;margin:0;padding:0'})),
-		style = temp.css('display');
+	var inlineStyle = this.style;
 
-	//Remove the temporary element and set this element's style to the retrieved style
-	temp.remove();
-	this.style.display = style;
+	if (inlineStyle.display == 'none') {
+		inlineStyle.display = '';
+	}
+
+	if (this.css('display') == 'none') {
+		//Create a temporary element of the same type as this element to figure out what the default display value should be
+		var temp = document.body.appendChild(createElement(this.tagName, {style: 'height:0;border:0;margin:0;padding:0'})),
+			style = temp.css('display');
+
+		//Remove the temporary element and set this element's style to the retrieved style
+		temp.remove();
+		inlineStyle.display = style;
+	}
 
 	return this;
 };
@@ -2892,7 +2900,7 @@ HTMLElementPrototype.show = function() {
  * @summary Add or remove one or more classes from the element depending on the class's presence (or lack thereof).
  * 
  * @description
- * <h5>Note:</h5> Unlike jQuery, the format of the space-separated classes required by Firebolt is strict. Each class must
+ * __Note:__ Unlike jQuery, the format of the space-separated classes required by Firebolt is strict. Each class must
  * be separated by only a single space character and there cannot be whitespace at the beginning or end of the string.
  * ```JavaScript
  * element.toggleClass('one  two ');  // Bad syntax
