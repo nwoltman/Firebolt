@@ -522,48 +522,42 @@ function getWrappingInnerElement(wrapper) {
 
 /*
  * Takes an HTML string and returns a NodeList created by the HTML.
+ * NOTE: Prototype functions added by Firebolt cannot be used in this function in case the context was changed in the Firebolt function
  */
-function htmlToNodes(html) {
-	//Speedy for normal elements -- just create a <body>, set its HTML, and retrieve the produced nodes
-	var elem = document.createElement('body'),
-		nodes;
-	elem.innerHTML = html;
-	nodes = elem.childNodes;
+function htmlToNodes(html, detachNodes) {
+	//If the HTML is just a single element without attributes, using document.createElement is much faster
+	if (rgxSingleTag.test(html)) {
+		return new NodeCollection(
+			//Create a new element from the HTML tag, retrieved by stripping "<" from the front and "/>" or ">" from the back
+			createElement(html.slice(1, html.length - (html[html.length - 2] === '/' ? 2 : 1)))
+		);
+	}
 
-	//If no nodes were created, it might be because browsers won't create certain elements in a body tag
-	//Such elements include <thead>, <tbody>, <tfoot>, <tr>, <td>, <head>, <body>, <html>
-	if (!nodes.length && html) { //Check html to make sure it's not an empty string
-		if (html.contains('<tr')) {
-			elem = createElement('tbody');
-		}
-		else if (html.contains('<td')) {
-			elem = createElement('tr');
-		}
-		else if (rgxTableLevel1.test(html)) {
+	//Speedy for most HTML; just create a <body> and set its HTML
+	var elem = createElement('body'),
+		childs;
+	elem.innerHTML = html;
+	childs = elem.firstChild;
+
+	//If no elements were created, it might be because browsers won't create certain elements in a body tag
+	if (!childs || html[0] === '<' && childs.nodeType !== 1) {
+		//The following supports only the creation of table elements
+		if (rgxTableLevel1.test(html)) {
 			elem = createElement('table');
 		}
-		else {
-			elem = createElement('html');
-
-			if (html.startsWith('<html')) {
-				return new NodeCollection(elem);
-			}
-
-			elem.innerHTML = html;
-
-			if (html.contains('<head')) {
-				return new NodeCollection(elem.firstChild);
-			}
-			if (html.contains('<body')) {
-				return new NodeCollection(elem.lastChild);
-			}
+		else if (html.contains('<tr')) {
+			elem = createElement('tbody');
+		}
+		else if (rgxTableLevel3.test(html)) {
+			elem = createElement('tr');
 		}
 
 		elem.innerHTML = html;
-		nodes = elem.childNodes;
 	}
 
-	return nodes;
+	childs = elem.childNodes;
+
+	return detachNodes ? childs.remove() : childs;
 }
 
 /*
@@ -742,7 +736,8 @@ var
 	rgxNoParse = /^\d+\D/, //Matches strings that look like numbers but have non-digit characters
 
 	/* Pre-built RegExps */
-	rgxTableLevel1 = /<t(?:h|b|f)/i, //Detects (non-deprecated) first-level table elements: <thead>, <tbody>, <tfoot>
+	rgxTableLevel1 = /<t(?:he|b|f)|<c(?:ap|ol)/i, //Matches <thead>, <tbody>, <tfoot>, <caption>, <col>, <colgroup>
+	rgxTableLevel3 = /<t(?:d|h)\b/, //Matches <td>, <th>
 	rgxGetOrHead = /GET|HEAD/i, //Determines if a request is a GET or HEAD request
 	rgxDomain = /\/?\/\/(?:\w+\.)?(.*?)(?:\/|$)/,
 	rgxDifferentNL = /^(?:af|ap|be|ea|ins|prep|pu|rep|toggleC)|wrap|remove(?:Class)?$/, //Determines if the function is different for NodeLists
@@ -750,6 +745,7 @@ var
 	rgxNotClass = /[ #,>:[+~\t-\f]/, //Matches other characters that cannot be in a class selector
 	rgxAllDots = /\./g,
 	rgxNotTag = /[^A-Za-z]/,
+	rgxSingleTag = /^<[A-Za-z]+\/?>$/, //Matches a single HTML tag such as "<div/>"
 	rgxNonWhitespace = /\S+/g,
 	rgxSpaceChars = /[ \t-\f]+/, //From W3C http://www.w3.org/TR/html5/single-page.html#space-character
 	rgxFormButton = /button|file|reset|submit/, //Matches input element types that are buttons
@@ -1376,7 +1372,7 @@ ElementPrototype.removeProp = function(propertyName) {
  * @function Firebolt
  * @param {String} string - A CSS selector string or an HTML string.
  * @param {Document} [context] - A DOM Document to serve as the context when selecting or creating elements.
- * @returns {NodeList|HTMLCollection} A list of selected elements or newly created elements.
+ * @returns {NodeList|HTMLCollection|NodeCollection} A NodeList/HTMLCollection of selected elements or a NodeCollection of newly created elements.
  * @throws {SyntaxError} When an invalid CSS selector is passed as the string.
  * 
  * @example
@@ -1385,21 +1381,22 @@ ElementPrototype.removeProp = function(propertyName) {
  * $.elem('div');         // Calls Firebolt's method to create a new div element 
  */
 function Firebolt(str, context) {
+	var nc, elem;
+
 	if (context) {
 		//Set the scoped document variable to the context document and re-call this function
 		document = context;
-		var ret = Firebolt(str);
+		nc = Firebolt(str);
 
 		//Restore the document and return the retrieved object
 		document = window.document;
-		return ret;
+		return nc;
 	}
 
 	if (str[0] === '#') { //Check for a single ID
 		if (!rgxNotId.test(str)) {
-			var nc = new NodeCollection(),
-				elem = document.getElementById(str.slice(1));
-			if (elem) {
+			nc = new NodeCollection();
+			if (elem = document.getElementById(str.slice(1))) {
 				nc.push(elem);
 			}
 			return nc;
@@ -1414,7 +1411,7 @@ function Firebolt(str, context) {
 		return document.getElementsByTagName(str);
 	}
 	else if (isHtml(str)) { //Check if the string is an HTML string
-		return createFragment([str]).childNodes;
+		return htmlToNodes(str, 1); //Pass in 1 to tell the htmlToNodes function to detach the nodes from their creation container
 	}
 	return document.querySelectorAll(str);
 }
