@@ -738,13 +738,14 @@ var
 	KEY_DATA_ATTRIBUTES = 'a',
 	KEY_EVENT_HANDLERS = 'b',
 	KEY_TOGGLE_CLASS = 'c',
+	KEY_DISPLAY_STYLE = 'd',
 	rgxNoParse = /^\d+\D/, //Matches strings that look like numbers but have non-digit characters
 
 	/* Pre-built RegExps */
 	rgxTableLevel1 = /<t(?:h|b|f)/i, //Detects (non-deprecated) first-level table elements: <thead>, <tbody>, <tfoot>
 	rgxGetOrHead = /GET|HEAD/i, //Determines if a request is a GET or HEAD request
 	rgxDomain = /\/?\/\/(?:\w+\.)?(.*?)(?:\/|$)/,
-	rgxDifferentNL = /^(?:af|ap|be|ea|ins|prep|pu|rep|tog)|wrap|remove(?:Class)?$/, //Determines if the function is different for NodeLists
+	rgxDifferentNL = /^(?:af|ap|be|ea|ins|prep|pu|rep|toggleC)|wrap|remove(?:Class)?$/, //Determines if the function is different for NodeLists
 	rgxNotId = /[ .,>:[+~\t-\f]/,    //Matches other characters that cannot be in an id selector
 	rgxNotClass = /[ #,>:[+~\t-\f]/, //Matches other characters that cannot be in a class selector
 	rgxAllDots = /\./g,
@@ -2870,7 +2871,7 @@ HTMLFormElement[prototype].serialize = function() {
 };
 
 /**
- * Shows an element if it is hidden.  
+ * Shows the element if it is hidden.  
  * __Note:__ If the element's default display style is 'none' (such as is the case with `<script>` elements), it will not be shown.
  * Also, this method will not show an element if its `visibility` is set to 'hidden' or its `opacity` is `0`.
  * 
@@ -2891,6 +2892,34 @@ HTMLElementPrototype.show = function() {
 		//Remove the temporary element and set this element's style to the retrieved style
 		temp.remove();
 		inlineStyle.display = style;
+	}
+
+	return this;
+};
+
+/**
+ * Shows the element if it is hidden or hides it if it is currently showing.
+ * 
+ * @function HTMLElement.prototype.toggle
+ * @see HTMLElement#hide
+ * @see HTMLElement#show
+ */
+HTMLElementPrototype.toggle = function() {
+	var inlineStyle = this.style,
+		displayStyle;
+
+	if (this.css('display') == 'none') {
+		if (displayStyle = dataPrivate(this, KEY_DISPLAY_STYLE)) {
+			inlineStyle.display = displayStyle;
+		}
+		else {
+			this.show();
+		}
+	}
+	else {
+		//Save the current display style to use when the element is shown again
+		dataPrivate(this, KEY_DISPLAY_STYLE, inlineStyle.display);
+		inlineStyle.display = 'none';
 	}
 
 	return this;
@@ -4596,6 +4625,15 @@ NodeCollectionPrototype.serialize = function() {
  * @see HTMLElement#show
  */
 NodeCollectionPrototype.show = callOnEachElement(HTMLElementPrototype.show);
+
+/**
+ * Shows each element in the collection if it is hidden or hides it if it is currently showing.
+ * 
+ * @function NodeCollection.prototype.toggle
+ * @see HTMLElement#hide
+ * @see HTMLElement#show
+ */
+NodeCollectionPrototype.toggle = callOnEachElement(HTMLElementPrototype.toggle);
 
 /**
  * Gets the sibling elements of each node in the collection, optionally filtered by a selector.
