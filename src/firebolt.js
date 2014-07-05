@@ -799,8 +799,8 @@ var
 			element.style[prop] = currentStyle[prop];
 		}
 
-		//Set up the CSS transition - { transition: properties duration easing; }
-		inlineStyle.transition = inlineStyle.webkitTransition = cssProps.toString() + ' ' + duration + 'ms ' + easing;
+		//Set up the CSS transition
+		inlineStyle.transition = inlineStyle.webkitTransition = 'all ' + duration + 'ms ' + easing;
 
 		//Set the new values to transition to as soon as possible
 		setTimeout(function() {
@@ -1891,7 +1891,7 @@ Firebolt.each = function(obj, callback, isArrayLike) {
  * The easing extension can be used to fill this out more.
  */
 Firebolt.easing = {
-	swing: 'cubic-bezier(.4,.04,.6,.98)' //Similar to jQuery's "swing"
+	swing: 'cubic-bezier(.36,0,.64,1)' //Essentially the same as jQuery (curve is identical in WolframAlpha)
 };
 
 /**
