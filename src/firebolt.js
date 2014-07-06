@@ -6,7 +6,7 @@
  * @license MIT https://github.com/FireboltJS/Firebolt/blob/master/LICENSE.txt
  */
 
-(function(window, document, Array, Object, decodeURIComponent, encodeURIComponent) {
+(function(window, document, Array, Object, decodeURIComponent, encodeURIComponent, getComputedStyle) {
 
 "use strict";
 
@@ -575,6 +575,13 @@ function insertBefore(newNode, refNode) {
 }
 
 /*
+ * Used by some "effects" functions to determine if the element's computed display style is "none" 
+ */
+function isComputedDisplayNone(element) {
+	return getComputedStyle(element).display == 'none';
+}
+
+/*
  * @see Firebolt.isEmptyObject
  */
 function isEmptyObject(object) {
@@ -824,6 +831,7 @@ var
 
 	/* Misc */
 	_$ = window.$, //Save the `$` variable in case something else is currently using it
+	iframe = createElement('iframe'), //Used for subclassing Array and determining default CSS values
 	any, //Arbitrary variable that may be used for whatever -- keep no references so this can be garbage collected
 
 //#endregion Private
@@ -2705,7 +2713,7 @@ HTMLElementPrototype.empty = function() {
  * refer to the element that was animated.
  */
 HTMLElementPrototype.fadeIn = function(duration, easing, complete) {
-	if (this.css('display') == 'none') {
+	if (isComputedDisplayNone(this)) {
 		this.css('opacity', 0).show().animate({opacity: 1}, duration, easing, complete);
 	}
 
@@ -2737,7 +2745,7 @@ HTMLElementPrototype.fadeOut = function(duration, easing, complete) {
  * refer to the element that was animated.
  */
 HTMLElementPrototype.fadeToggle = function(duration, easing, complete) {
-	return this.css('display') == 'none' ? this.fadeIn(duration, easing, complete) : this.fadeOut(duration, easing, complete);
+	return isComputedDisplayNone(this) ? this.fadeIn(duration, easing, complete) : this.fadeOut(duration, easing, complete);
 };
 
 /**
@@ -2931,14 +2939,12 @@ HTMLElementPrototype.show = function() {
 		inlineStyle.display = '';
 	}
 
-	if (this.css('display') == 'none') {
-		//Create a temporary element of the same type as this element to figure out what the default display value should be
-		var temp = document.body.appendChild(createElement(this.tagName, {style: 'height:0;border:0;margin:0;padding:0'})),
-			style = temp.css('display');
-
-		//Remove the temporary element and set this element's style to the retrieved style
-		temp.remove();
-		inlineStyle.display = style;
+	if (isComputedDisplayNone(this)) {
+		//Add an element of the same type as this element to the iframe's body to figure out what the default display value should be
+		inlineStyle.display = getComputedStyle(
+			document.head.appendChild(iframe).contentDocument.body.appendChild(iframe.contentDocument.createElement(this.tagName))
+		).display;
+		iframe.remove(); //Remove the iframe from the document (this also deletes its contents)
 	}
 
 	return this;
@@ -2955,7 +2961,7 @@ HTMLElementPrototype.toggle = function() {
 	var inlineStyle = this.style,
 		displayStyle;
 
-	if (this.css('display') == 'none') {
+	if (isComputedDisplayNone(this)) {
 		if (displayStyle = dataPrivate(this, KEY_DISPLAY_STYLE)) {
 			inlineStyle.display = displayStyle;
 		}
@@ -3830,7 +3836,7 @@ prototypeExtensions.clone = function(withData) {
  */
 var
 	//<iframe> Array subclassing
-	NodeCollection = window.NodeCollection = document.head.appendChild(any = createElement('iframe')).contentWindow.Array,
+	NodeCollection = window.NodeCollection = document.head.appendChild(iframe).contentWindow.Array,
 
 	//Extend NodeCollection's prototype with the Array functions
 	NodeCollectionPrototype = extend(NodeCollection[prototype], prototypeExtensions),
@@ -3838,7 +3844,7 @@ var
 	//Save a reference to the original filter function for use later on
 	ncFilter = NodeCollectionPrototype.filter;
 
-any.remove(); //Remove the iframe that was made to subclass Array
+iframe.remove(); //Remove the iframe that was made to subclass Array
 
 /* Set the private constructor (which will be inherited by NodeList and HTMLCollection) */
 NodeCollectionPrototype.__C__ = NodeCollection;
@@ -5251,8 +5257,6 @@ if (isOldIE) { //IE9 compatibility
 		return new RegExp('(?:^|\\s)' + className + '(?:\\s|$)').test(this.className);
 	};
 
-	//Must persist the iframe otherwise IE won't remember what the NodeCollection function is
-	Firebolt.__$$ = any;
 }
 
 /* Browser (definitely IE) compatibility and speed boost for removeClass() */
@@ -5335,4 +5339,4 @@ if (!document.children) {
 
 //#endregion Browser Compatibility and Speed Boosters
 
-})(self, document, Array, Object, decodeURIComponent, encodeURIComponent); //self === window
+})(self, document, Array, Object, decodeURIComponent, encodeURIComponent, getComputedStyle); //self === window
