@@ -785,7 +785,7 @@ var
 	ANIMATION_DEFAULT_DURATION = 400,
 	ANIMATION_DEFAULT_EASING = 'swing',
 
-	animateElement = function(element, properties, duration, easing, complete) {
+	animateElement = function(element, properties, duration, easing, complete, hideOnComplete) {
 		var cssProps = Object.keys(properties),
 			currentStyle = element.css(),
 			inlineStyle = element.style,
@@ -810,6 +810,10 @@ var
 			setTimeout(function() {
 				//Give the element back its original inline transition style
 				inlineStyle.transition = inlineStyle.webkitTransition = originalInlineTransition;
+
+				if (hideOnComplete) {
+					element.hide();
+				}
 
 				if (complete) {
 					complete.call(element); //Call the complete function in the context of the element
@@ -2529,7 +2533,7 @@ HTMLElementPrototype.afterPut = function() {
  * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
  * refer to the element that was animated.
  */
-HTMLElementPrototype.animate = function(properties, duration, easing, complete) {
+HTMLElementPrototype.animate = function(properties, duration, easing, complete, hideOnComplete) { // hideOnComplete is for internal use
 	//Massage arguments into their proper places
 	if (isUndefined(duration) || typeof duration == 'function') {
 		complete = duration;
@@ -2546,7 +2550,7 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 		easing = ANIMATION_DEFAULT_EASING;
 	}
 
-	animateElement(this, properties, duration, Firebolt.easing[easing] || easing, complete);
+	animateElement(this, properties, duration, Firebolt.easing[easing] || easing, complete, hideOnComplete);
 
 	return this;
 };
@@ -2688,6 +2692,52 @@ HTMLElementPrototype.empty = function() {
 	}
 
 	return this;
+};
+
+/**
+ * Displays the element by fading it to opaque.
+ * 
+ * @function HTMLElement.prototype.fadeIn
+ * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
+ * @param {String} [easing="swing"] - A string indicating which easing function to use for the transition. The string can be any
+ * [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp) or "swing".
+ * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
+ * refer to the element that was animated.
+ */
+HTMLElementPrototype.fadeIn = function(duration, easing, complete) {
+	if (this.css('display') == 'none') {
+		this.css('opacity', 0).show().animate({opacity: 1}, duration, easing, complete);
+	}
+
+	return this;
+};
+
+/**
+ * Hides the element by fading it to transparent.
+ * 
+ * @function HTMLElement.prototype.fadeOut
+ * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
+ * @param {String} [easing="swing"] - A string indicating which easing function to use for the transition. The string can be any
+ * [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp) or "swing".
+ * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
+ * refer to the element that was animated.
+ */
+HTMLElementPrototype.fadeOut = function(duration, easing, complete) {
+	return this.animate({opacity: 0}, duration, easing, complete, 1); //Pass in the 1 to hide the element when the animation completes
+};
+
+/**
+ * Displays or hides the element by animating its opacity.
+ * 
+ * @function HTMLElement.prototype.fadeToggle
+ * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
+ * @param {String} [easing="swing"] - A string indicating which easing function to use for the transition. The string can be any
+ * [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp) or "swing".
+ * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
+ * refer to the element that was animated.
+ */
+HTMLElementPrototype.fadeToggle = function(duration, easing, complete) {
+	return this.css('display') == 'none' ? this.fadeIn(duration, easing, complete) : this.fadeOut(duration, easing, complete);
 };
 
 /**
@@ -4120,6 +4170,42 @@ NodeCollectionPrototype.data = getFirstSetEachElement(ElementPrototype.data, fun
  * @function NodeCollection.prototype.empty
  */
 NodeCollectionPrototype.empty = callOnEachElement(HTMLElementPrototype.empty);
+
+/**
+ * Displays each element in the collection by fading it to opaque.
+ * 
+ * @function NodeCollection.prototype.fadeIn
+ * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
+ * @param {String} [easing="swing"] - A string indicating which easing function to use for the transition. The string can be any
+ * [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp) or "swing".
+ * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
+ * refer to the element that was animated.
+ */
+NodeCollectionPrototype.fadeIn = callOnEachElement(HTMLElementPrototype.fadeIn);
+
+/**
+ * Hides each element in the collection by fading it to transparent.
+ * 
+ * @function NodeCollection.prototype.fadeOut
+ * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
+ * @param {String} [easing="swing"] - A string indicating which easing function to use for the transition. The string can be any
+ * [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp) or "swing".
+ * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
+ * refer to the element that was animated.
+ */
+NodeCollectionPrototype.fadeOut = callOnEachElement(HTMLElementPrototype.fadeOut);
+
+/**
+ * Displays or hides each element in the collection by animating its opacity.
+ * 
+ * @function NodeCollection.prototype.fadeToggle
+ * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
+ * @param {String} [easing="swing"] - A string indicating which easing function to use for the transition. The string can be any
+ * [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp) or "swing".
+ * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
+ * refer to the element that was animated.
+ */
+NodeCollectionPrototype.fadeToggle = callOnEachElement(HTMLElementPrototype.fadeToggle);
 
 /**
  * Creates a new NodeCollection containing only the elements that match the provided selector.
