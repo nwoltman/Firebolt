@@ -772,8 +772,6 @@ var
 	rgxFormButton = /button|file|reset|submit/, //Matches input element types that are buttons
 	rgxCheckableElement = /checkbox|radio/,     //Matches checkbox or radio input element types
 	rgxCamelizables = usesGecko ? /-+(.)/g : /^-+|-+(.)/g, //Matches dashed parts of CSS property names
-	//Matches a CSS property name who's value will be a number that should be specifed in pixels
-	rgxCssNeedsPx = /height|width|size|top|right|bottom|left|radius/,
 
 	/* AJAX */
 	timestamp = Date.now(),
@@ -2645,7 +2643,7 @@ HTMLElementPrototype.beforePut = function() {
  * @returns {Object.<String, String>} The element's computed style object.
  */
 /**
- * Gets the value of the element's specified style property.
+ * Gets the value of the specified style property.
  * 
  * @function HTMLElement.prototype.css
  * @param {String} propertyName - The name of the style property who's value you want to retrieve.
@@ -2665,22 +2663,23 @@ HTMLElementPrototype.beforePut = function() {
  * @returns {Object.<String, String>} An object of property-value pairs where the values are the computed style values of the input properties.
  */
 /**
- * Sets the element's specified style property.
+ * Sets the specified style property.
  * 
- * __Note:__ If the passed in value is a number, it will be converted to a string and `'px'` will be appended
- * to it prior to setting the CSS value.
+ * __Note:__ Unlike jQuery, if the passed in value is a number, it will never be converted to a string with `'px'` appended to it
+ * to it prior to setting the CSS value. This helps keep the library small and fast and will force your code to be more obvious
+ * as to how it is changing the element's style (which is a good thing).
  * 
  * @function HTMLElement.prototype.css
  * @param {String} propertyName - The name of the style property to set.
- * @param {String|Number} value - A value to set for the specified property.
+ * @param {?String|?Number} value - A value to set for the specified property.
  */
 /**
  * Sets CSS style properties.
  * 
  * __Note:__ Unlike the previous version of this function that is used as a setter, the input style property names
  * are assumed to already be in camel-case format (since this is an illegal object anyway: `{font-size: '12px'}`).
- * Also, just like the previous function, if a value in the object is a number, it will be converted to a string
- * and `'px'` will be appended to it prior to setting the CSS value.
+ * Also, just like the previous function, if a value in the object is a number, it will never be converted to a
+ * string with `'px'` appended to it to it prior to setting the CSS value.
  * 
  * @function HTMLElement.prototype.css
  * @param {Object.<String, String|Number>} properties - An object of CSS property-values.
@@ -2712,7 +2711,7 @@ HTMLElementPrototype.css = function(prop, value) {
 		}
 		else {
 			//Set the specified property
-			_this.style[prop.camelize()] = value && !typeofString(value) && rgxCssNeedsPx.test(prop) ? value + 'px' : value;
+			_this.style[prop.camelize()] = value;
 		}
 	}
 	else {
@@ -2728,9 +2727,8 @@ HTMLElementPrototype.css = function(prop, value) {
 		}
 		else {
 			//Set all specifed properties
-			for (var propName in prop) {
-				value = prop[propName];
-				_this.style[propName] = value && !typeofString(value) && rgxCssNeedsPx.test(propName) ? value + 'px' : value;
+			for (value in prop) { //Reuse the value argument in place of a new var
+				_this.style[value] = prop[value];
 			}
 		}
 	}
