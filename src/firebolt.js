@@ -100,122 +100,6 @@ function createFragment(content) {
 	return fragment;
 }
 
-//#region Data Functions
-
-/**
- * Having this function allows for code reuse when storing private vs. user-accessible data.
- * @private
- * @param {String} dataStore - The key to the stored data object.
- * @param {Object} obj - The object to store arbitrary data on.
- * @see HTMLElement#data
- */
-function _data(dataStore, obj, key, value) {
-	var dataObject = obj[dataStore],
-		dataAttributes,
-		i;
-
-	if (!dataObject) {
-		//Define a non-enumerable object
-		defineProperty(obj, dataStore, {
-			value: dataObject = {}
-		});
-
-		//If the object is an Element, try loading "data-*" attributes
-		if (obj && obj.nodeType === 1) {
-			var attributes = obj.attributes,
-				numAttributes = attributes.length,
-				attrib,
-				val;
-
-			dataAttributes = {};
-
-			for (i = 0; i < numAttributes; i++) {
-				attrib = attributes[i];
-				if (attrib.name.startsWith('data-')) {
-					if (!rgxNoParse.test(val = attrib.value)) {
-						//Try to parse the value
-						try {
-							val = JSON.parse(val);
-						}
-						catch (e) { }
-					}
-					//Set the value in the data object (remembering to remove the "data-" part from the name)
-					dataAttributes[attrib.name.slice(5)] = val;
-				}
-			}
-
-			//Save the data privately if there is any
-			if (!isEmptyObject(dataAttributes)) {
-				dataPrivate(obj, KEY_DATA_ATTRIBUTES, dataAttributes);
-			}
-		}
-	}
-
-	/* This may look confusing but it's really saving space (as in the amount of code in the file).
-	 * What's happening is that `dataAttributes` is getting set to itself (if it was created above)
-	 * or it is set to the private data and is then checked to see if it is an empty object. */
-	if (dataObject[DATA_KEY_PRIVATE] && !isEmptyObject(dataAttributes = dataAttributes || dataObject[DATA_KEY_PRIVATE][KEY_DATA_ATTRIBUTES])) {
-		//Add the data attributes to the data object if it does not already have the key
-		for (i in dataAttributes) {
-			if (isUndefined(dataObject[i])) {
-				dataObject[i] = dataAttributes[i];
-			}
-		}
-	}
-
-	if (isUndefined(value)) {
-		if (typeof key == 'object') {
-			extend(dataObject, key); //Set multiple
-		}
-		else {
-			return isUndefined(key) ? dataObject : dataObject[key]; //Get data object or value
-		}
-	}
-	else {
-		dataObject[key] = value; //Set value
-	}
-	
-	return obj;
-}
-
-/* For saving data for internal use */
-function dataPrivate(obj, key, value) {
-	//The internal data is actually saved to the public data object
-	return _data(
-		DATA_KEY_PRIVATE,
-		obj[DATA_KEY_PUBLIC] || _data(DATA_KEY_PUBLIC, obj),
-		key,
-		value
-	);
-}
-
-/*
- * @see Firebolt.removeData
- */
-function removeData(object, input) {
-	var dataObject = object[DATA_KEY_PUBLIC],
-		i = 0;
-
-	if (isUndefined(input)) {
-		if (dataObject[DATA_KEY_PRIVATE]) {
-			//Try deleting the data attributes object in case it was saved to the object (element)
-			delete dataObject[DATA_KEY_PRIVATE][KEY_DATA_ATTRIBUTES];
-		}
-		input = keys(dataObject); //Select all items for removal
-	}
-	else if (typeofString(input)) {
-		input = input.split(' ');
-	}
-
-	for (; i < input.length; i++) {
-		delete dataObject[input[i]];
-	}
-
-	return object;
-}
-
-//#endregion Data Functions
-
 /*
  * Uses Object.defineProperty to define the values in the prototypeExtension object on the passed in prototype object
  */
@@ -748,14 +632,6 @@ var
 	nextElementSibling = 'nextElementSibling',
 	previousElementSibling = 'previousElementSibling',
 
-	//Data variables
-	DATA_KEY_PUBLIC = ('FB' + 1 / Math.random()).replace('.', ''),
-	DATA_KEY_PRIVATE = ('FB' + 1 / Math.random()).replace('.', ''),
-	KEY_DATA_ATTRIBUTES = 'a',
-	KEY_EVENT_HANDLERS = 'b',
-	KEY_TOGGLE_CLASS = 'c',
-	rgxNoParse = /^\d+\D/, //Matches strings that look like numbers but have non-digit characters
-
 	/* Pre-built RegExps */
 	rgxTableLevel1 = /<t(?:he|b|f)|<c(?:ap|ol)/i, //Matches <thead>, <tbody>, <tfoot>, <caption>, <col>, <colgroup>
 	rgxTableLevel3 = /<t(?:d|h)\b/, //Matches <td>, <th>
@@ -772,6 +648,7 @@ var
 	rgxFormButton = /button|file|reset|submit/, //Matches input element types that are buttons
 	rgxCheckableElement = /checkbox|radio/,     //Matches checkbox or radio input element types
 	rgxCamelizables = usesGecko ? /-+(.)/g : /^-+|-+(.)/g, //Matches dashed parts of CSS property names
+	rgxNoParse = /^\d+\D/, //Matches strings that look like numbers but have non-digit characters
 
 	/* AJAX */
 	timestamp = Date.now(),
@@ -791,7 +668,7 @@ var
 		isLocal: /^(?:file|.*-extension|widget):\/\//.test(location.href),
 		jsonp: 'callback',
 		jsonpCallback: function() {
-			var callback = oldCallbacks.pop() || DATA_KEY_PUBLIC + "_" + (timestamp++);
+			var callback = oldCallbacks.pop() || Firebolt.expando + "_" + (timestamp++);
 			this[callback] = true;
 			return callback;
 		},
@@ -1280,7 +1157,7 @@ ElementPrototype.attr = function(attrib, value) {
  * @param {Object} obj - An object of key-value pairs to add to each elements stored data.
  */
 ElementPrototype.data = function(key, value) {
-	return _data(DATA_KEY_PUBLIC, this, key, value);
+	return Firebolt.data(this, key, value, 1); //Pass in 1 to tell the generic function the object is an element
 };
 
 /**
@@ -1373,7 +1250,7 @@ ElementPrototype.removeAttr = function(attribute) {
  * @param {Array|String} [list] - An array or space-separated string naming the pieces of data to remove.
  */
 ElementPrototype.removeData = function(input) {
-	return removeData(this, input);
+	return Firebolt.removeData(this, input, 1); //Pass in 1 to tell the generic function the passed in object is an element
 };
 
 /**
@@ -1885,8 +1762,70 @@ Firebolt.ajaxSetup = function(options) {
  * @returns {Object} The passed in object.
  * @memberOf Firebolt
  */
-Firebolt.data = function(object, key, value) {
-	return _data(DATA_KEY_PUBLIC, object, key, value);
+Firebolt.data = function(object, key, value, isElement) {
+	var expando = Firebolt.expando,
+		dataStore = object[expando],
+		dataAttributes,
+		i;
+
+	if (!dataStore) {
+		//Define a non-enumerable object
+		defineProperty(object, expando, {
+			value: dataStore = {}
+		});
+
+		//If the object is an Element, try loading "data-*" attributes
+		if (isElement) {
+			var attributes = object.attributes,
+				attrib,
+				val;
+
+			dataAttributes = {};
+
+			for (i = 0; i < attributes.length; i++) {
+				attrib = attributes[i];
+				if (attrib.name.startsWith('data-')) {
+					if (!rgxNoParse.test(val = attrib.value)) {
+						//Try to parse the value
+						try {
+							val = JSON.parse(val);
+						}
+						catch (e) { }
+					}
+					//Set the value in the data attributes object (remembering to remove the "data-" part from the name)
+					dataAttributes[attrib.name.slice(5)] = val;
+				}
+			}
+
+			//Save the data attributes if there are any
+			if (!isEmptyObject(dataAttributes)) {
+				object.__DA__ = dataAttributes;
+			}
+		}
+	}
+
+	if (isElement && (dataAttributes = object.__DA__)) {
+		//Add the data attributes to the data store if it does not already have the key
+		for (i in dataAttributes) {
+			if (isUndefined(dataStore[i])) {
+				dataStore[i] = dataAttributes[i];
+			}
+		}
+	}
+
+	if (isUndefined(value)) {
+		if (typeof key == 'object') {
+			extend(dataStore, key); //Set multiple
+		}
+		else {
+			return isUndefined(key) ? dataStore : dataStore[key]; //Get data object or value
+		}
+	}
+	else {
+		dataStore[key] = value; //Set value
+	}
+
+	return object;
 };
 
 /**
@@ -1945,6 +1884,9 @@ Firebolt.easing = {
  * @returns {Element}
  */
 Firebolt.elem = createElement;
+
+/* The key where Firebolt stores data using $.data() */
+Firebolt.expando = 'FB' + Date.now() + 1 / Math.random();
 
 /**
  * Extend the "Firebolt object" (a.k.a. NodeCollection, NodeList, and HTMLCollection).
@@ -2066,7 +2008,7 @@ Firebolt.globalEval = function(code) {
  * @memberOf Firebolt
  */
 Firebolt.hasData = function(object) {
-	return !isEmptyObject(object[DATA_KEY_PUBLIC]);
+	return !isEmptyObject(object[Firebolt.expando]);
 };
 
 /**
@@ -2248,7 +2190,34 @@ Firebolt.ready = function(callback) {
  * @param {Array|String} [list] - An array or space-separated string naming the pieces of data to remove.
  * @returns {Object} The passed in object.
  */
-Firebolt.removeData = removeData;
+Firebolt.removeData = function(object, list, isElement) {
+	var dataObject = object[Firebolt.expando],
+		dataAttributes = isElement && object.__DA__,
+		i = 0;
+
+	if (isUndefined(list)) {
+		list = keys(dataObject); //Select all items for removal
+	}
+	else if (typeofString(list)) {
+		list = list.split(' ');
+	}
+
+	for (; i < list.length; i++) {
+		delete dataObject[list[i]];
+
+		if (dataAttributes) {
+			//Try deleting the data attribute in case it was saved to the element
+			delete dataAttributes[list[i]];
+		}
+	}
+
+	if (dataAttributes && isEmptyObject(dataAttributes)) {
+		//Delete the data attributes object from the element
+		delete object.__DA__;
+	}
+
+	return object;
+};
 
 /**
  * Creates a TextNode from the provided string.
@@ -3122,14 +3091,13 @@ HTMLElementPrototype.toggleClass = function(value) {
 			}
 		}
 		else {
-			//Save the element's current class name
-			dataPrivate(this, KEY_TOGGLE_CLASS, this.className);
+			this.__TC__ = this.className; //Save the element's current class name
 			value = ''; //Set to an empty string so the class name will be cleared
 		}
 	}
 	else if (!value) {
-		//Retrieve the saved class name
-		value = dataPrivate(this, KEY_TOGGLE_CLASS) || '';
+		//Retrieve the saved class name or an empty string if there is no saved class name
+		value = this.__TC__ || '';
 	}
 
 	//Set the new value
@@ -3398,7 +3366,7 @@ function removeSelectorHandler(selectorHandlers, selector, handler) {
  * @see {@link http://api.jquery.com/off/#off|.off() | jQuery API Documentation}
  */
 NodePrototype.off = function(events, selector, handler) {
-	var eventHandlers = dataPrivate(this, KEY_EVENT_HANDLERS),
+	var eventHandlers = this.__E__,
 		eventType,
 		selectorHandlers,
 		sel,
@@ -3462,9 +3430,10 @@ EventPrototype.stopPropagation = function() {
 
 /* This is the function that will be invoked for each event type when a handler is set with Node.prototype.on() */
 function nodeEventHandler(eventObject) {
-	var target = eventObject.target,
+	var _this = this, //Improves minification
+		target = eventObject.target,
 		eType = eventObject.type,
-		selectorHandlers = this[DATA_KEY_PUBLIC][DATA_KEY_PRIVATE][KEY_EVENT_HANDLERS][eType], //Fast private data access (since it must exist)
+		selectorHandlers = _this.__E__[eType],
 		selectorHandlersCopy = {},
 		selectors = keys(selectorHandlers).remove(''), //Don't want the non-selector (for non-delegated handlers) in the array
 		numSelectors = selectors.length,
@@ -3479,14 +3448,14 @@ function nodeEventHandler(eventObject) {
 
 	// Only do delegated events if there are selectors that can be used to delegate events and if the target
 	// was not this element (since if it was this element there would be nothing to bubble up from)
-	if (numSelectors && target !== this) {
+	if (numSelectors && target !== _this) {
 		//Build a copy of the selector handlers so they won't be altered if `off` is ever called
 		for (; j < numSelectors; j++) {
 			selectorHandlersCopy[selectors[j]] = selectorHandlers[selectors[j]].clone();
 		}
 
 		//The bubble path is the elements from the target up to (but not including) this node
-		path = target.parentsUntil(this);
+		path = target.parentsUntil(_this);
 
 		//Add the target to the front of the path if it has the matches function (meaning it is an element)
 		if (target.matches) {
@@ -3515,7 +3484,7 @@ function nodeEventHandler(eventObject) {
 
 						//Remove the handler if it should only occur once
 						if (handler.o) {
-							this.off(eType, selector, handler.fn);
+							_this.off(eType, selector, handler.fn);
 							handler.o = 0; //Make the handler's "one" value falsy so this part doesn't try to remove it again
 						}
 					} //End handlers looop
@@ -3534,14 +3503,14 @@ function nodeEventHandler(eventObject) {
 			eventObject.data = handler.d; //Set data in the event object
 
 			//Call the function on the element and stop stuff if it returns false
-			if (handler.fn.call(this, eventObject) === false) {
+			if (handler.fn.call(_this, eventObject) === false) {
 				eventObject.stopPropagation();
 				eventObject.preventDefault();
 			}
 
 			//Remove the handler if it should only occur once
 			if (handler.o) {
-				this.off(eType, handler.fn);
+				_this.off(eType, handler.fn);
 			}
 		}
 	}
@@ -3581,7 +3550,8 @@ function nodeEventHandler(eventObject) {
  * @see {@link http://api.jquery.com/on/#on-events-selector-data|.on() | jQuery API Documentation}
  */
 NodePrototype.on = function(events, selector, data, handler, one) { //one is for internal use
-	var eventHandlers = dataPrivate(this, KEY_EVENT_HANDLERS),
+	var _this = this, //Improves minification
+		eventHandlers = _this.__E__ || (_this.__E__ = {}),
 		selectorIsString = typeofString(selector),
 		savedHandlers,
 		eventType,
@@ -3589,11 +3559,6 @@ NodePrototype.on = function(events, selector, data, handler, one) { //one is for
 
 	if (typeofString(events)) {
 		events = events.split(' ');
-
-		//Create the event handlers object if it does not already exist
-		if (!eventHandlers) {
-			dataPrivate(this, KEY_EVENT_HANDLERS, eventHandlers = {});
-		}
 
 		//Organize arguments into their proper places
 		if (isUndefined(handler)) {
@@ -3624,7 +3589,7 @@ NodePrototype.on = function(events, selector, data, handler, one) { //one is for
 				//If the object for the event doesn't exist, create it and add Firebolt's event function as a listener
 				if (!savedHandlers) {
 					savedHandlers = eventHandlers[eventType] = {}
-					this.addEventListener(eventType, nodeEventHandler);
+					_this.addEventListener(eventType, nodeEventHandler);
 				}
 
 				//Get the array of handlers for the selector or create it if it doesn't exist
@@ -3638,11 +3603,11 @@ NodePrototype.on = function(events, selector, data, handler, one) { //one is for
 	else {
 		//Call this function for each event and handler in the object
 		for (i in events) {
-			this.on(i, selector, data, events[i], one);
+			_this.on(i, selector, data, events[i], one);
 		}
 	}
 
-	return this;
+	return _this;
 };
 
 /**
@@ -3905,9 +3870,10 @@ prototypeExtensions.toNC = prototypeExtensions.clone;
  */
 prototypeExtensions.clone = function(withData) {
 	return this.map(function(node) {
-		var clone = node.cloneNode(true);
-		if (withData && node[DATA_KEY_PUBLIC]) {
-			extendDeep(clone.data(), node[DATA_KEY_PUBLIC]);
+		var clone = node.cloneNode(true),
+			data = withData && node[Firebolt.expando];
+		if (data) {
+			extendDeep(clone.data(), data);
 		}
 		return clone;
 	});
