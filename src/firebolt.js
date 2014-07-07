@@ -201,7 +201,7 @@ function removeData(object, input) {
 			//Try deleting the data attributes object in case it was saved to the object (element)
 			delete dataObject[DATA_KEY_PRIVATE][KEY_DATA_ATTRIBUTES];
 		}
-		input = Object.keys(dataObject); //Select all items for removal
+		input = keys(dataObject); //Select all items for removal
 	}
 	else if (typeofString(input)) {
 		input = input.split(' ');
@@ -459,13 +459,18 @@ function getNodeInsertingFunction(insertingCallback) {
 	}
 }
 
-/* Returns the function body for NodeCollection#[putAfter, putBefore, appendTo, or prependTo, replaceAll] */
+/* Returns the function body for NodeCollection#[putAfter, putBefore, appendTo, prependTo, replaceAll] */
 function getPutToOrAllFunction(funcName) {
 	return function(target) {
 		(typeofString(target) ? Firebolt(target) : target)[funcName](this);
 
 		return this;
 	}
+}
+
+/* Returns the element's computed style object and uses caching to speed up future lookups. */
+function getStyleObject(element) {
+	return element.__CSO__ || (element.__CSO__ = getComputedStyle(element));
 }
 
 /*
@@ -578,7 +583,7 @@ function insertBefore(newNode, refNode) {
  * Used by some "effects" functions to determine if the element's computed display style is "none" 
  */
 function isComputedDisplayNone(element) {
-	return getComputedStyle(element).display == 'none';
+	return getStyleObject(element).display == 'none';
 }
 
 /*
@@ -663,6 +668,14 @@ function returnFalse() {
 	return false;
 }
 
+/*
+ * If the element is hidden, it is shown and the element is returned.
+ * If the element is not hidden, 0 is returned.
+ */
+function showIfHidden(element) {
+	return isComputedDisplayNone(element) ? element.show() : 0;
+}
+
 function sortDocOrder(a, b) {
 	var pos = a.compareDocumentPosition(b);
 	if (pos & 4) { //Node a should come first
@@ -723,11 +736,13 @@ var
 	NodeListPrototype = NodeList[prototype],
 	HTMLCollectionPrototype = HTMLCollection[prototype],
 	StringPrototype = String[prototype],
-	defineProperty = Object.defineProperty,
 
 	//Helpers
+	isArray = Array.isArray,
 	array_slice = ArrayPrototype.slice,
 	array_remove, //Will get set to Array.prototype.remove
+	defineProperty = Object.defineProperty,
+	keys = Object.keys,
 
 	//Property strings
 	nextElementSibling = 'nextElementSibling',
@@ -739,7 +754,6 @@ var
 	KEY_DATA_ATTRIBUTES = 'a',
 	KEY_EVENT_HANDLERS = 'b',
 	KEY_TOGGLE_CLASS = 'c',
-	KEY_DISPLAY_STYLE = 'd',
 	rgxNoParse = /^\d+\D/, //Matches strings that look like numbers but have non-digit characters
 
 	/* Pre-built RegExps */
@@ -791,9 +805,17 @@ var
 	/* Animations */
 	ANIMATION_DEFAULT_DURATION = 400,
 	ANIMATION_DEFAULT_EASING = 'swing',
-
-	animateElement = function(element, properties, duration, easing, complete, hideOnComplete) {
-		var cssProps = Object.keys(properties),
+	ANIMATION_NO_HEIGHT_OBJECT = {
+		height: 0,
+		marginTop: 0,
+		marginBottom: 0,
+		paddingTop: 0,
+		paddingBottom: 0,
+		overflow: 'hidden'
+	},
+	ANIMATION_HEIGHT_PROPERTIES = keys(ANIMATION_NO_HEIGHT_OBJECT), //NOTE: The 'overflow' property will have to be removed once Array#remove is defined
+	animateElement = function(element, properties, duration, easing, complete, cssTextToRestore, hideOnComplete) {
+		var cssProps = keys(properties),
 			currentStyle = element.css(),
 			inlineStyle = element.style,
 			originalInlineTransition = inlineStyle.transition || inlineStyle.webkitTransition,
@@ -815,8 +837,13 @@ var
 
 			//Set a timeout to call the complete callback after the transition is done
 			setTimeout(function() {
-				//Give the element back its original inline transition style
-				inlineStyle.transition = inlineStyle.webkitTransition = originalInlineTransition;
+				if (isUndefined(cssTextToRestore)) {
+					//Give the element back its original inline transition style
+					inlineStyle.transition = inlineStyle.webkitTransition = originalInlineTransition;
+				}
+				else {
+					inlineStyle.cssText = cssTextToRestore;
+				}
 
 				if (hideOnComplete) {
 					element.hide();
@@ -1115,6 +1142,10 @@ prototypeExtensions = {
 definePrototypeExtensionsOn(ArrayPrototype);
 
 //#endregion Array
+
+
+//Now that Array#remove has been defined, remove the 'overflow' property from the animation height properties
+ANIMATION_HEIGHT_PROPERTIES.remove('overflow');
 
 
 //#region =========================== Element ================================
@@ -1579,7 +1610,7 @@ Firebolt.ajax = function(url, settings) {
 
 	if (data) {
 		//Process data if necessary
-		if (Array.isArray(data) || isPlainObject(data)) {
+		if (isArray(data) || isPlainObject(data)) {
 			data = Firebolt.param(data, settings.traditional);
 		}
 
@@ -2140,7 +2171,7 @@ function serializeTraditional(obj) {
 
 		//Add the value
 		value = obj[key];
-		if (Array.isArray(value)) {
+		if (isArray(value)) {
 			for (i = 0; i < value.length; i++) {
 				//Add key again for multiple array values
 				qs += (i ? '&' + encodeURIComponent(key) : '') + '=' + encodeURIComponent(value[i]);
@@ -2541,7 +2572,7 @@ HTMLElementPrototype.afterPut = function() {
  * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
  * refer to the element that was animated.
  */
-HTMLElementPrototype.animate = function(properties, duration, easing, complete, hideOnComplete) { // hideOnComplete is for internal use
+HTMLElementPrototype.animate = function(properties, duration, easing, complete, cssTextToRestore, hideOnComplete) { //Last 2 are for internal use
 	//Massage arguments into their proper places
 	if (isUndefined(duration) || typeof duration == 'function') {
 		complete = duration;
@@ -2558,7 +2589,7 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete, 
 		easing = ANIMATION_DEFAULT_EASING;
 	}
 
-	animateElement(this, properties, duration, Firebolt.easing[easing] || easing, complete, hideOnComplete);
+	animateElement(this, properties, duration, Firebolt.easing[easing] || easing, complete, cssTextToRestore, hideOnComplete);
 
 	return this;
 };
@@ -2621,6 +2652,19 @@ HTMLElementPrototype.beforePut = function() {
  * @returns {String} The value of the specifed style property.
  */
 /**
+ * Explicitly sets the element's inline CSS style, removing or replacing any current inline style properties.
+ * 
+ * @function HTMLElement.prototype.css
+ * @param {String} cssText - A CSS style string. To clear the element's inline style, pass in an empty string.
+ */
+/**
+ * Gets an object of property-value pairs for the input array of CSS properties.
+ * 
+ * @function HTMLElement.prototype.css
+ * @param {String[]} propertyNames - An array of one or more CSS properties.
+ * @returns {Object.<String, String>} An object of property-value pairs where the values are the computed style values of the input properties.
+ */
+/**
  * Sets the element's specified style property.
  * 
  * __Note:__ If the passed in value is a number, it will be converted to a string and `'px'` will be appended
@@ -2641,40 +2685,62 @@ HTMLElementPrototype.beforePut = function() {
  * @function HTMLElement.prototype.css
  * @param {Object.<String, String|Number>} properties - An object of CSS property-values.
  */
-/**
- * Explicitly sets the element's inline CSS style, removing or replacing any current inline style properties.
- * 
- * @function HTMLElement.prototype.css
- * @param {String} cssText - A CSS style string. To clear the element's inline style, pass in an empty string.
- */
 HTMLElementPrototype.css = function(prop, value) {
+	var _this = this, //Improves minification
+		mustHide,
+		retVal;
+
 	if (isUndefined(prop)) {
-		return getComputedStyle(this);
+		// Use the window.getComputedStyle function and not the custom one that caches the style object
+		// just in case exposing the cached object could introduce the possibility of memory leaks
+		return getComputedStyle(_this);
 	}
 
 	if (typeofString(prop)) {
 		if (isUndefined(value)) {
 			if (prop && prop.indexOf(':') < 0) {
+				//In case the element has display style "none"
+				mustHide = showIfHidden(_this);
+
 				//Get the specified property
-				return getComputedStyle(this)[prop.camelize()];
+				retVal = getStyleObject(_this)[prop.camelize()];
 			}
-			//Else set the element's css text
-			this.style.cssText = prop;
+			else {
+				//Set the element's inline CSS style text
+				_this.style.cssText = prop;
+			}
 		}
 		else {
 			//Set the specified property
-			this.style[prop.camelize()] = value && !typeofString(value) && rgxCssNeedsPx.test(prop) ? value + 'px' : value;
+			_this.style[prop.camelize()] = value && !typeofString(value) && rgxCssNeedsPx.test(prop) ? value + 'px' : value;
 		}
 	}
 	else {
-		//Set all specifed properties
-		for (var propName in prop) {
-			value = prop[propName];
-			this.style[propName] = value && !typeofString(value) && rgxCssNeedsPx.test(propName) ? value + 'px' : value;
+		if (isArray(prop)) {
+			//In case the element has display style "none"
+			mustHide = showIfHidden(_this);
+
+			//Build an object with the values specified by the input array of properties
+			retVal = {};
+			for (value = 0; value < prop.length; value++) { //Reuse the value argument in place of a new var
+				retVal[prop[value]] = _this.__CSO__[prop[value].camelize()]; //The computed style object property must exist at this point
+			}
+		}
+		else {
+			//Set all specifed properties
+			for (var propName in prop) {
+				value = prop[propName];
+				_this.style[propName] = value && !typeofString(value) && rgxCssNeedsPx.test(propName) ? value + 'px' : value;
+			}
 		}
 	}
 
-	return this;
+	if (mustHide) {
+		//Hide the element since it was shown temporarily to obtain style values
+		_this.hide();
+	}
+
+	return retVal || _this;
 };
 
 /**
@@ -2714,7 +2780,9 @@ HTMLElementPrototype.empty = function() {
  */
 HTMLElementPrototype.fadeIn = function(duration, easing, complete) {
 	if (isComputedDisplayNone(this)) {
-		this.css('opacity', 0).show().animate({opacity: 1}, duration, easing, complete);
+		var cssTextToRestore = this.show().style.cssText,
+			opacityToMoveTo = this.css('opacity');
+		this.css('opacity', 0).animate({opacity: opacityToMoveTo}, duration, easing, complete, cssTextToRestore);
 	}
 
 	return this;
@@ -2731,7 +2799,9 @@ HTMLElementPrototype.fadeIn = function(duration, easing, complete) {
  * refer to the element that was animated.
  */
 HTMLElementPrototype.fadeOut = function(duration, easing, complete) {
-	return this.animate({opacity: 0}, duration, easing, complete, 1); //Pass in the 1 to hide the element when the animation completes
+	// Pass in the current cssText to restore after the animation completes
+	// Pass in the 1 to hide the element when the animation completes
+	return this.animate({opacity: 0}, duration, easing, complete, this.style.cssText, 1);
 };
 
 /**
@@ -2765,9 +2835,12 @@ HTMLElementPrototype.hasClass = function(className) {
  * @function HTMLElement.prototype.hide
  */
 HTMLElementPrototype.hide = function() {
-	this.style.display = 'none';
+	var _this = this;
 
-	return this;
+	_this.__DS__ = _this.style.display; //Save currently display style
+	_this.style.display = 'none';       //Hide the element by setting its display style to "none"
+
+	return _this;
 };
 
 /**
@@ -2936,7 +3009,7 @@ HTMLElementPrototype.show = function() {
 	var inlineStyle = this.style;
 
 	if (inlineStyle.display == 'none') {
-		inlineStyle.display = '';
+		inlineStyle.display = this.__DS__ || ''; //Use the saved display style or clear the display style
 	}
 
 	if (isComputedDisplayNone(this)) {
@@ -2951,6 +3024,56 @@ HTMLElementPrototype.show = function() {
 };
 
 /**
+ * Displays the element with a sliding motion.
+ * 
+ * @function HTMLElement.prototype.slideDown
+ * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
+ * @param {String} [easing="swing"] - A string indicating which easing function to use for the transition. The string can be any
+ * [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp) or "swing".
+ * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
+ * refer to the element that was animated.
+ */
+HTMLElementPrototype.slideDown = function(duration, easing, complete) {
+	if (isComputedDisplayNone(this)) {
+		var cssTextToRestore = this.show().style.cssText,
+			heightPropsToMoveTo = this.css(ANIMATION_HEIGHT_PROPERTIES);
+		this.css(ANIMATION_NO_HEIGHT_OBJECT).animate(heightPropsToMoveTo, duration, easing, complete, cssTextToRestore);
+	}
+
+	return this;
+};
+
+/**
+ * Displays or hides the element with a sliding motion.
+ * 
+ * @function HTMLElement.prototype.slideToggle
+ * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
+ * @param {String} [easing="swing"] - A string indicating which easing function to use for the transition. The string can be any
+ * [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp) or "swing".
+ * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
+ * refer to the element that was animated.
+ */
+HTMLElementPrototype.slideToggle = function(duration, easing, complete) {
+	return isComputedDisplayNone(this) ? this.slideDown(duration, easing, complete) : this.slideUp(duration, easing, complete);
+};
+
+/**
+ * Hides the element with a sliding motion.
+ * 
+ * @function HTMLElement.prototype.slideUp
+ * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
+ * @param {String} [easing="swing"] - A string indicating which easing function to use for the transition. The string can be any
+ * [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp) or "swing".
+ * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
+ * refer to the element that was animated.
+ */
+HTMLElementPrototype.slideUp = function(duration, easing, complete) {
+	// Pass in the current cssText to restore after the animation completes
+	// Pass in the 1 to hide the element when the animation completes
+	return this.animate(ANIMATION_NO_HEIGHT_OBJECT, duration, easing, complete, this.style.cssText, 1);
+};
+
+/**
  * Shows the element if it is hidden or hides it if it is currently showing.
  * 
  * @function HTMLElement.prototype.toggle
@@ -2958,24 +3081,7 @@ HTMLElementPrototype.show = function() {
  * @see HTMLElement#show
  */
 HTMLElementPrototype.toggle = function() {
-	var inlineStyle = this.style,
-		displayStyle;
-
-	if (isComputedDisplayNone(this)) {
-		if (displayStyle = dataPrivate(this, KEY_DISPLAY_STYLE)) {
-			inlineStyle.display = displayStyle;
-		}
-		else {
-			this.show();
-		}
-	}
-	else {
-		//Save the current display style to use when the element is shown again
-		dataPrivate(this, KEY_DISPLAY_STYLE, inlineStyle.display);
-		inlineStyle.display = 'none';
-	}
-
-	return this;
+	return isComputedDisplayNone(this) ? this.show() : this.hide();
 };
 
 /**
@@ -3058,7 +3164,7 @@ HTMLElementPrototype.toggleClass = function(value) {
  */
 HTMLElementPrototype.val = function(value) {
 	//If `value` is not an array with values to check
-	if (!Array.isArray(value)) {
+	if (!isArray(value)) {
 		return this.prop('value', value);
 	}
 
@@ -3310,7 +3416,7 @@ NodePrototype.off = function(events, selector, handler) {
 		}
 		else {
 			//If events was passed in, remove those events, else remove all events
-			events = events ? events.split(' ') : Object.keys(eventHandlers);
+			events = events ? events.split(' ') : keys(eventHandlers);
 
 			if (!isUndefined(selector) && !typeofString(selector)) {
 				//The handler was in the selector argument and there is no real selector argument
@@ -3362,7 +3468,7 @@ function nodeEventHandler(eventObject) {
 		eType = eventObject.type,
 		selectorHandlers = this[DATA_KEY_PUBLIC][DATA_KEY_PRIVATE][KEY_EVENT_HANDLERS][eType], //Fast private data access (since it must exist)
 		selectorHandlersCopy = {},
-		selectors = Object.keys(selectorHandlers).remove(''), //Don't want the non-selector (for non-delegated handlers) in the array
+		selectors = keys(selectorHandlers).remove(''), //Don't want the non-selector (for non-delegated handlers) in the array
 		numSelectors = selectors.length,
 		i = 0,
 		j = 0,
@@ -4137,7 +4243,7 @@ NodeCollectionPrototype.click = callOnEachElement(HTMLElementPrototype.click);
  * @param {String} cssText - A CSS style string. To clear each element's inline style, pass in an empty string.
  */
 NodeCollectionPrototype.css = getFirstSetEachElement(HTMLElementPrototype.css, function(numArgs, firstArg) {
-	return !numArgs || numArgs < 2 && firstArg && typeofString(firstArg) && !firstArg.contains(':');
+	return !numArgs || numArgs < 2 && firstArg && (typeofString(firstArg) && !firstArg.contains(':') || isArray(firstArg));
 });
 
 /**
@@ -4716,15 +4822,6 @@ NodeCollectionPrototype.serialize = function() {
 NodeCollectionPrototype.show = callOnEachElement(HTMLElementPrototype.show);
 
 /**
- * Shows each element in the collection if it is hidden or hides it if it is currently showing.
- * 
- * @function NodeCollection.prototype.toggle
- * @see HTMLElement#hide
- * @see HTMLElement#show
- */
-NodeCollectionPrototype.toggle = callOnEachElement(HTMLElementPrototype.toggle);
-
-/**
  * Gets the sibling elements of each node in the collection, optionally filtered by a selector.
  * 
  * @function NodeCollection.prototype.siblings
@@ -4733,6 +4830,51 @@ NodeCollectionPrototype.toggle = callOnEachElement(HTMLElementPrototype.toggle);
  * @throws {TypeError} The target node(s) must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
  */
 NodeCollectionPrototype.siblings = getGetDirElementsFunc(HTMLElementPrototype.siblings, sortDocOrder);
+
+/**
+ * Displays each element in the collection with a sliding motion.
+ * 
+ * @function NodeCollection.prototype.slideDown
+ * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
+ * @param {String} [easing="swing"] - A string indicating which easing function to use for the transition. The string can be any
+ * [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp) or "swing".
+ * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
+ * refer to the element that was animated.
+ */
+NodeCollectionPrototype.slideDown = callOnEachElement(HTMLElementPrototype.slideDown);
+
+/**
+ * Displays or hides each element in the collection with a sliding motion.
+ * 
+ * @function NodeCollection.prototype.slideToggle
+ * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
+ * @param {String} [easing="swing"] - A string indicating which easing function to use for the transition. The string can be any
+ * [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp) or "swing".
+ * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
+ * refer to the element that was animated.
+ */
+NodeCollectionPrototype.slideToggle = callOnEachElement(HTMLElementPrototype.slideToggle);
+
+/**
+ * Hides each element in the collection with a sliding motion.
+ * 
+ * @function NodeCollection.prototype.slideUp
+ * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
+ * @param {String} [easing="swing"] - A string indicating which easing function to use for the transition. The string can be any
+ * [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp) or "swing".
+ * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
+ * refer to the element that was animated.
+ */
+NodeCollectionPrototype.slideUp = callOnEachElement(HTMLElementPrototype.slideUp);
+
+/**
+ * Shows each element in the collection if it is hidden or hides it if it is currently showing.
+ * 
+ * @function NodeCollection.prototype.toggle
+ * @see HTMLElement#hide
+ * @see HTMLElement#show
+ */
+NodeCollectionPrototype.toggle = callOnEachElement(HTMLElementPrototype.toggle);
 
 /**
  * Gets the combined text contents of each node in the list.
