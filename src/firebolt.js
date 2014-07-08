@@ -52,6 +52,32 @@ function callOnEachElement(fn) {
 }
 
 /*
+ * Converts a string separated by dashes to its camelCase equivalent.
+ * Used to translate CSS property names to their DOM style-object property names.
+ * 
+ * Note: Gecko browsers require style-object property names to start with an upper-case letter
+ * if the CSS name starts with a dash (i.e. `-moz-binding` would need to be converted to `MozBinding`).
+ * Because of this, strings starting with a dash will be capitalized in Gecko browsers and left to start
+ * with a lower-case letter in all other browsers.
+ * 
+ * @example
+ * camelize('background-color');    // -> 'backgroundColor'
+ * camelize('-moz-box-orient');     // -> 'MozBoxOrient'
+ * camelize('-ms-perspective');     // -> 'msPerspective'
+ * camelize('-webkit-user-select'); // -> 'webkitUserSelect'
+ */
+function camelize(str) {
+	return str.replace(rgxCamelizables, camelizer);
+}
+
+/*
+ * Pre-defined so that an anonymous function does not need to be created each time camelize() is called.
+ */
+function camelizer(match, p1) {
+	return p1 ? p1.toUpperCase() : '';
+}
+
+/*
  * @see Firebolt.elem
  */
 function createElement(tagName, attributes) {
@@ -647,7 +673,7 @@ var
 	rgxSpaceChars = /[ \t-\f]+/, //From W3C http://www.w3.org/TR/html5/single-page.html#space-character
 	rgxFormButton = /button|file|reset|submit/, //Matches input element types that are buttons
 	rgxCheckableElement = /checkbox|radio/,     //Matches checkbox or radio input element types
-	rgxCamelizables = usesGecko ? /-+(.)/g : /^-+|-+(.)/g, //Matches dashed parts of CSS property names
+	rgxCamelizables = usesGecko ? /-+([a-z])/g : /^-+|-+([a-z])/g, //Matches dashed parts of CSS property names
 	rgxNoParse = /^\d+\D/, //Matches strings that look like numbers but have non-digit characters
 
 	/* AJAX */
@@ -691,7 +717,7 @@ var
 	ANIMATION_HEIGHT_PROPERTIES = keys(ANIMATION_NO_HEIGHT_OBJECT), //NOTE: The 'overflow' property will have to be removed once Array#remove is defined
 	animateElement = function(element, properties, duration, easing, complete, cssTextToRestore, hideOnComplete) {
 		var cssProps = keys(properties),
-			currentStyle = element.css(),
+			currentStyle = getStyleObject(element),
 			inlineStyle = element.style,
 			originalInlineTransition = inlineStyle.transition || inlineStyle.webkitTransition,
 			i = 0,
@@ -700,7 +726,7 @@ var
 		//Inline the element's current CSS styles so that they are for sure set explicitly
 		for (; i < cssProps.length; i++) {
 			prop = cssProps[i];
-			element.style[prop] = currentStyle[prop];
+			element.style[camelize(prop)] = currentStyle[prop];
 		}
 
 		//Set up the CSS transition
@@ -2634,7 +2660,7 @@ HTMLElementPrototype.beforePut = function() {
 /**
  * Sets the specified style property.
  * 
- * __Note:__ Unlike jQuery, if the passed in value is a number, it will never be converted to a string with `'px'` appended to it
+ * __Note:__ Unlike jQuery, if the passed in value is a number, it will not be converted to a string with `'px'` appended to it
  * to it prior to setting the CSS value. This helps keep the library small and fast and will force your code to be more obvious
  * as to how it is changing the element's style (which is a good thing).
  * 
@@ -2645,9 +2671,7 @@ HTMLElementPrototype.beforePut = function() {
 /**
  * Sets CSS style properties.
  * 
- * __Note:__ Unlike the previous version of this function that is used as a setter, the input style property names
- * are assumed to already be in camel-case format (since this is an illegal object anyway: `{font-size: '12px'}`).
- * Also, just like the previous function, if a value in the object is a number, it will never be converted to a
+ * __Note:__ Just like the previous function, if a value in the object is a number, it will not be converted to a
  * string with `'px'` appended to it to it prior to setting the CSS value.
  * 
  * @function HTMLElement.prototype.css
@@ -2671,7 +2695,7 @@ HTMLElementPrototype.css = function(prop, value) {
 				mustHide = showIfHidden(_this);
 
 				//Get the specified property
-				retVal = getStyleObject(_this)[prop.camelize()];
+				retVal = getStyleObject(_this)[camelize(prop)];
 			}
 			else {
 				//Set the element's inline CSS style text
@@ -2680,7 +2704,7 @@ HTMLElementPrototype.css = function(prop, value) {
 		}
 		else {
 			//Set the specified property
-			_this.style[prop.camelize()] = value;
+			_this.style[camelize(prop)] = value;
 		}
 	}
 	else {
@@ -2691,13 +2715,13 @@ HTMLElementPrototype.css = function(prop, value) {
 			//Build an object with the values specified by the input array of properties
 			retVal = {};
 			for (value = 0; value < prop.length; value++) { //Reuse the value argument in place of a new var
-				retVal[prop[value]] = _this.__CSO__[prop[value].camelize()]; //The computed style object property must exist at this point
+				retVal[prop[value]] = _this.__CSO__[camelize(prop[value])]; //The cached computed style object property must exist at this point
 			}
 		}
 		else {
 			//Set all specifed properties
 			for (value in prop) { //Reuse the value argument in place of a new var
-				_this.style[value] = prop[value];
+				_this.style[camelize(value)] = prop[value];
 			}
 		}
 	}
@@ -5163,15 +5187,6 @@ Number[prototype].toPaddedString = function(length, radix) {
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String|String - JavaScript | MDN}
  */
 
-/*
- * Used in the string replacement function to camelize dashed parts matched by a regex.
- * This named function is pre-defined so that an anonymous function does not need to be created
- * each time the String#camelize() function is called.
- */
-function camelize(match, p1) {
-	return p1 ? p1.toUpperCase() : '';
-}
-
 //Reuse the prototype extensions variable to hold an object of String extensions
 prototypeExtensions = {
 	/**
@@ -5187,26 +5202,6 @@ prototypeExtensions = {
 	 */
 	appendParams: function(params) {
 		return this + (this.contains('?') ? '&' : '?') + params;
-	},
-
-	/**
-	 * Converts a string separated by dashes into its camelCase equivalent.
-	 * 
-	 * Firebolt uses this function to translate CSS property names to their DOM style-object property names.
-	 * 
-	 * __ATTENTION:__ Gecko browsers require style-object property names to start with an upper-case letter
-	 * if the CSS name starts with a dash (i.e. `-mox-binding` would need to be converted to `MozBinding`).
-	 * Because of this, strings starting with a dash will be capitalized in Gecko browsers and left to start
-	 * with a lower-case letter in all other browsers.
-	 * 
-	 * @example
-	 * 'background-color'.camelize();    // -> 'backgroundColor'
-	 * '-moz-box-orient'.camelize();     // -> 'MozBoxOrient'
-	 * '-ms-perspective'.camelize();     // -> 'msPerspective'
-	 * '-webkit-user-select'.camelize(); // -> 'webkitUserSelect'
-	 */
-	camelize: function() {
-		return this.replace(rgxCamelizables, camelize);
 	},
 
 	/**
