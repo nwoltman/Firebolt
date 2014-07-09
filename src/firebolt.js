@@ -6,7 +6,7 @@
  * @license MIT https://github.com/FireboltJS/Firebolt/blob/master/LICENSE.txt
  */
 
-(function(window, document, Array, Object, decodeURIComponent, encodeURIComponent, getComputedStyle) {
+(function(window, document, Array, Object, decodeURIComponent, encodeURIComponent, getComputedStyle, parseFloat) {
 
 "use strict";
 
@@ -124,6 +124,37 @@ function createFragment(content) {
 	}
 
 	return fragment;
+}
+
+/*
+ * Used for animations to compute a new CSS value when doing += or -= for some value type.
+ * For this to work, the current value (in pixels) must be converted to the value type that is being changed.
+ * 
+ * @param {Number} curVal - The current CSS value in pixels.
+ * @param {Number} changeVal - The amount the current value should change. The value type is indicated by the `type` parameter.
+ * @param {String} type - "px", "em", "pt", "%", or "" (empty string, for things like opacity)
+ * @param {Element} element - The element who's CSS property is to be changed.
+ * @param {String} property - The name of the CSS property being changed.
+ */
+function cssMath(curVal, changeVal, type, element, property) {
+	if (type == 'em') {
+		curVal /= parseFloat(getStyleObject(element).fontSize);
+	}
+	else if (type == 'pt') {
+		curVal *= .75; //Close enough (who uses pt anyway?)
+	}
+	else if (type == '%') {
+		curVal *= 100 / parseFloat(getStyleObject(element.parentNode)[property]);
+	}
+
+	curVal += changeVal; //Add the change value (which may be negative)
+
+	//Convert invalid negative values to 0
+	if (curVal < 0 && /^height|width|padding|opacity/.test(property)) {
+		curVal = 0;
+	}
+
+	return curVal + type; //i.e. 1.5 + "em" -> "1.5em"
 }
 
 /*
@@ -706,56 +737,6 @@ var
 	/* Animations */
 	ANIMATION_DEFAULT_DURATION = 400,
 	ANIMATION_DEFAULT_EASING = 'swing',
-	ANIMATION_NO_HEIGHT_OBJECT = {
-		height: 0,
-		marginTop: 0,
-		marginBottom: 0,
-		paddingTop: 0,
-		paddingBottom: 0,
-		overflow: 'hidden'
-	},
-	ANIMATION_HEIGHT_PROPERTIES = keys(ANIMATION_NO_HEIGHT_OBJECT), //NOTE: The 'overflow' property will have to be removed once Array#remove is defined
-	animateElement = function(element, properties, duration, easing, complete, cssTextToRestore, hideOnComplete) {
-		var cssProps = keys(properties),
-			currentStyle = getStyleObject(element),
-			inlineStyle = element.style,
-			originalInlineTransition = inlineStyle.transition || inlineStyle.webkitTransition,
-			i = 0,
-			prop;
-
-		//Inline the element's current CSS styles so that they are for sure set explicitly
-		for (; i < cssProps.length; i++) {
-			prop = cssProps[i];
-			element.style[camelize(prop)] = currentStyle[prop];
-		}
-
-		//Set up the CSS transition
-		inlineStyle.transition = inlineStyle.webkitTransition = 'all ' + duration + 'ms ' + easing;
-
-		//Set the new values to transition to as soon as possible
-		setTimeout(function() {
-			element.css(properties);
-
-			//Set a timeout to call the complete callback after the transition is done
-			setTimeout(function() {
-				if (isUndefined(cssTextToRestore)) {
-					//Give the element back its original inline transition style
-					inlineStyle.transition = inlineStyle.webkitTransition = originalInlineTransition;
-				}
-				else {
-					inlineStyle.cssText = cssTextToRestore;
-				}
-
-				if (hideOnComplete) {
-					element.hide();
-				}
-
-				if (complete) {
-					complete.call(element); //Call the complete function in the context of the element
-				}
-			}, duration);
-		}, 0);
-	},
 
 	/* Misc */
 	_$ = window.$, //Save the `$` variable in case something else is currently using it
@@ -1043,10 +1024,6 @@ prototypeExtensions = {
 definePrototypeExtensionsOn(ArrayPrototype);
 
 //#endregion Array
-
-
-//Now that Array#remove has been defined, remove the 'overflow' property from the animation height properties
-ANIMATION_HEIGHT_PROPERTIES.remove('overflow');
 
 
 //#region =========================== Element ================================
@@ -2553,19 +2530,30 @@ HTMLElementPrototype.afterPut = function() {
 };
 
 /**
- * Performs a custom animation of a set of CSS properties.
+ * @summary Performs a custom animation of a set of CSS properties.
+ * 
+ * @description
+ * Just like HTMLElement#css, CSS properties must be specified the same way they would be in a style sheet since Firebolt
+ * does not append "px" to input numeric values (i.e. 1 != 1px).
+ * 
+ * Unlike jQuery, an object that specifies different easing types for different properties is not supported.
+ * (Should it be supported? [Tell me why](https://github.com/FireboltJS/Firebolt/issues).)
+ * 
+ * However, relative properties (indicated with `+=` or `-=`) and the `toggle` indicator are supported (although only
+ * the "t" is needed for toggling since Firebolt only looks at the first character to check if it is a "t").
+ * 
+ * For more `easing` options, use Firebolt's [easing extension](https://github.com/FireboltJS/firebolt-extensions/tree/master/easing)
+ * (or just grab some functions from it and use them as the `easing` parameter).
  * 
  * @function HTMLElement.prototype.animate
  * @param {Object} properties - An object of CSS properties and values that the animation will move toward.
  * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
  * @param {String} [easing="swing"] - A string indicating which easing function to use for the transition. The string can be any
- * [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp) or "swing". Use
- * Firebolt's [easing extension](https://github.com/FireboltJS/firebolt-extensions/tree/master/easing) to get more options
- * (or just grab some functions from it and use them as the `easing` parameter).
+ * [CSS transition timing function](https://developer.mozilla.org/en-US/docs/Web/CSS/transition-timing-function) or "swing".
  * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
  * refer to the element that was animated.
  */
-HTMLElementPrototype.animate = function(properties, duration, easing, complete, cssTextToRestore, hideOnComplete) { //Last 2 are for internal use
+HTMLElementPrototype.animate = function(properties, duration, easing, complete) {
 	//Massage arguments into their proper places
 	if (isUndefined(duration) || typeof duration == 'function') {
 		complete = duration;
@@ -2582,9 +2570,89 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete, 
 		easing = ANIMATION_DEFAULT_EASING;
 	}
 
-	animateElement(this, properties, duration, Firebolt.easing[easing] || easing, complete, cssTextToRestore, hideOnComplete);
+	var _this = this,
+		i = 0,
+		propertyNames = keys(properties),
+		inlineStyle = _this.style,
+		currentStyle = getStyleObject(_this),
+		isDisplayNone = isComputedDisplayNone(_this),
+		originalInlineTransition = inlineStyle.transition || inlineStyle.webkitTransition,
+		overflowToRestore,
+		cssTextToRestore,
+		hideOnComplete,
+		camelProp,
+		prop,
+		val;
 
-	return this;
+	//Parse properties
+	for (; i < propertyNames.length; i++) {
+		camelProp = camelize(prop = propertyNames[i]);
+
+		//Should set overflow to "hidden" when animating height or width properties
+		if ((prop == 'height' || prop == 'width') && isUndefined(overflowToRestore)) {
+			overflowToRestore = inlineStyle.overflow;
+			inlineStyle.overflow = 'hidden';
+		}
+
+		if (typeofString(val = properties[prop])) {
+			if (val[0] === 't') { //"toggle"
+				if (isDisplayNone) {
+					if (isUndefined(cssTextToRestore)) {
+						_this.show();
+						cssTextToRestore = inlineStyle.cssText;
+					}
+					val = currentStyle[camelProp];
+					inlineStyle[camelProp] = 0;
+				}
+				else {
+					val = 0;
+					cssTextToRestore = isUndefined(cssTextToRestore) ? inlineStyle.cssText : cssTextToRestore;
+					hideOnComplete = 1;
+				}
+			}
+			else if (val[1] === '=') { //"+=value" or "-=value"
+				val = cssMath(parseFloat(currentStyle[camelProp]), parseFloat(val.replace('=', '')), val.replace(/.*\d/, ''), _this, camelProp);
+			}
+
+			properties[prop] = val; //Set the value in the object of properties in case it changed
+		}
+	}
+
+	//Inline the element's current CSS styles (even if some properties were set to 0 in the loop because setting all at once here prevents bugs)
+	_this.css(_this.css(propertyNames));
+
+	//Set the CSS transition style
+	inlineStyle.transition = inlineStyle.webkitTransition = 'all ' + duration + 'ms ' + (Firebolt.easing[easing] || easing);
+
+	//Set the new values to transition to as soon as possible
+	setTimeout(function() {
+		_this.css(properties); //Setting the CSS values starts the transition
+
+		//Set a timeout to call the complete callback after the transition is done
+		setTimeout(function() {
+			if (isUndefined(cssTextToRestore)) {
+				//Give the element back its original inline transition style
+				inlineStyle.transition = inlineStyle.webkitTransition = originalInlineTransition;
+			}
+			else {
+				inlineStyle.cssText = cssTextToRestore;
+			}
+
+			if (typeofString(overflowToRestore)) {
+				inlineStyle.overflow = overflowToRestore;
+			}
+
+			if (hideOnComplete) {
+				_this.hide();
+			}
+
+			if (complete) {
+				complete.call(_this); //Call the complete function in the context of the element
+			}
+		}, duration);
+	}, 0);
+
+	return _this;
 };
 
 /*
@@ -2645,7 +2713,7 @@ HTMLElementPrototype.beforePut = function() {
  * @returns {String} The value of the specifed style property.
  */
 /**
- * Explicitly sets the element's inline CSS style, removing or replacing any current inline style properties.
+ * Explicitly sets the element's inline CSS style, replacing any current inline style properties.
  * 
  * @function HTMLElement.prototype.css
  * @param {String} cssText - A CSS style string. To clear the element's inline style, pass in an empty string.
@@ -2696,11 +2764,16 @@ HTMLElementPrototype.css = function(prop, value) {
 
 				//Get the specified property
 				retVal = getStyleObject(_this)[camelize(prop)];
+
+				if (mustHide) {
+					_this.hide(); //Hide the element since it was shown temporarily to obtain style value
+				}
+
+				return retVal;
 			}
-			else {
-				//Set the element's inline CSS style text
-				_this.style.cssText = prop;
-			}
+
+			//Set the element's inline CSS style text
+			_this.style.cssText = prop;
 		}
 		else {
 			//Set the specified property
@@ -2717,21 +2790,21 @@ HTMLElementPrototype.css = function(prop, value) {
 			for (value = 0; value < prop.length; value++) { //Reuse the value argument in place of a new var
 				retVal[prop[value]] = _this.__CSO__[camelize(prop[value])]; //The cached computed style object property must exist at this point
 			}
-		}
-		else {
-			//Set all specifed properties
-			for (value in prop) { //Reuse the value argument in place of a new var
-				_this.style[camelize(value)] = prop[value];
+
+			if (mustHide) {
+				_this.hide(); //Hide the element since it was shown temporarily to obtain style values
 			}
+
+			return retVal;
+		}
+
+		//Set all specifed properties
+		for (value in prop) { //Reuse the value argument in place of a new var
+			_this.style[camelize(value)] = prop[value];
 		}
 	}
 
-	if (mustHide) {
-		//Hide the element since it was shown temporarily to obtain style values
-		_this.hide();
-	}
-
-	return retVal || _this;
+	return _this;
 };
 
 /**
@@ -2770,13 +2843,7 @@ HTMLElementPrototype.empty = function() {
  * refer to the element that was animated.
  */
 HTMLElementPrototype.fadeIn = function(duration, easing, complete) {
-	if (isComputedDisplayNone(this)) {
-		var cssTextToRestore = this.show().style.cssText,
-			opacityToMoveTo = this.css('opacity');
-		this.css('opacity', 0).animate({opacity: opacityToMoveTo}, duration, easing, complete, cssTextToRestore);
-	}
-
-	return this;
+	return isComputedDisplayNone(this) ? this.fadeToggle(duration, easing, complete) : this;
 };
 
 /**
@@ -2790,9 +2857,7 @@ HTMLElementPrototype.fadeIn = function(duration, easing, complete) {
  * refer to the element that was animated.
  */
 HTMLElementPrototype.fadeOut = function(duration, easing, complete) {
-	// Pass in the current cssText to restore after the animation completes
-	// Pass in the 1 to hide the element when the animation completes
-	return this.animate({opacity: 0}, duration, easing, complete, this.style.cssText, 1);
+	return isComputedDisplayNone(this) ? this : this.fadeToggle(duration, easing, complete);
 };
 
 /**
@@ -2806,7 +2871,7 @@ HTMLElementPrototype.fadeOut = function(duration, easing, complete) {
  * refer to the element that was animated.
  */
 HTMLElementPrototype.fadeToggle = function(duration, easing, complete) {
-	return isComputedDisplayNone(this) ? this.fadeIn(duration, easing, complete) : this.fadeOut(duration, easing, complete);
+	return this.animate({opacity: 't'}, duration, easing, complete);
 };
 
 /**
@@ -3025,13 +3090,7 @@ HTMLElementPrototype.show = function() {
  * refer to the element that was animated.
  */
 HTMLElementPrototype.slideDown = function(duration, easing, complete) {
-	if (isComputedDisplayNone(this)) {
-		var cssTextToRestore = this.show().style.cssText,
-			heightPropsToMoveTo = this.css(ANIMATION_HEIGHT_PROPERTIES);
-		this.css(ANIMATION_NO_HEIGHT_OBJECT).animate(heightPropsToMoveTo, duration, easing, complete, cssTextToRestore);
-	}
-
-	return this;
+	return isComputedDisplayNone(this) ? this.slideToggle(duration, easing, complete) : this;
 };
 
 /**
@@ -3045,7 +3104,13 @@ HTMLElementPrototype.slideDown = function(duration, easing, complete) {
  * refer to the element that was animated.
  */
 HTMLElementPrototype.slideToggle = function(duration, easing, complete) {
-	return isComputedDisplayNone(this) ? this.slideDown(duration, easing, complete) : this.slideUp(duration, easing, complete);
+	return this.animate({
+		height: 't',
+		marginTop: 't',
+		marginBottom: 't',
+		paddingTop: 't',
+		paddingBottom: 't'
+	}, duration, easing, complete);
 };
 
 /**
@@ -3059,9 +3124,7 @@ HTMLElementPrototype.slideToggle = function(duration, easing, complete) {
  * refer to the element that was animated.
  */
 HTMLElementPrototype.slideUp = function(duration, easing, complete) {
-	// Pass in the current cssText to restore after the animation completes
-	// Pass in the 1 to hide the element when the animation completes
-	return this.animate(ANIMATION_NO_HEIGHT_OBJECT, duration, easing, complete, this.style.cssText, 1);
+	return isComputedDisplayNone(this) ? this : this.slideToggle(duration, easing, complete);
 };
 
 /**
@@ -4045,15 +4108,26 @@ NodeCollectionPrototype.afterPut = NodeCollectionPrototype.after = function() {
 };
 
 /**
- * Performs a custom animation of a set of CSS properties.
+ * @summary Performs a custom animation of a set of CSS properties.
+ * 
+ * @description
+ * Just like NodeCollection#css, CSS properties must be specified the same way they would be in a style sheet since Firebolt
+ * does not append "px" to input numeric values (i.e. 1 != 1px).
+ * 
+ * Unlike jQuery, an object that specifies different easing types for different properties is not supported.
+ * (Should it be supported? [Tell me why](https://github.com/FireboltJS/Firebolt/issues).)
+ * 
+ * However, relative properties (indicated with `+=` or `-=`) and the `toggle` indicator are supported (although only
+ * the "t" is needed for toggling since Firebolt only looks at the first character to check if it is a "t").
+ * 
+ * For more `easing` options, use Firebolt's [easing extension](https://github.com/FireboltJS/firebolt-extensions/tree/master/easing)
+ * (or just grab some functions from it and use them as the `easing` parameter).
  * 
  * @function NodeCollection.prototype.animate
  * @param {Object} properties - An object of CSS properties and values that the animation will move toward.
  * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
  * @param {String} [easing="swing"] - A string indicating which easing function to use for the transition. The string can be any
- * [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp) or "swing". Use
- * Firebolt's [easing extension](https://github.com/FireboltJS/firebolt-extensions/tree/master/easing) to get more options
- * (or just grab some functions from it and use them as the `easing` parameter).
+ * [CSS transition timing function](https://developer.mozilla.org/en-US/docs/Web/CSS/transition-timing-function) or "swing".
  * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
  * refer to the element that was animated.
  */
@@ -4191,44 +4265,50 @@ NodeCollectionPrototype.clean = function() {
 NodeCollectionPrototype.click = callOnEachElement(HTMLElementPrototype.click);
 
 /**
- * Gets the computed style object of the first element in the list.
+ * Gets the computed style object of the first element in the collection.
  * 
  * @function NodeCollection.prototype.css
  * @returns {Object.<String, String>} The element's computed style object.
  */
 /**
- * Gets the value of the specified style property of the first element in the list.
+ * Gets the value of the specified style property of the first element in the collection.
  * 
  * @function NodeCollection.prototype.css
  * @param {String} propertyName - The name of the style property who's value you want to retrieve.
  * @returns {String} The value of the specifed style property.
  */
 /**
- * Sets the specified style property for each element in the list.
+ * Explicitly sets each elements' inline CSS style, replacing any current inline style properties.
  * 
- * __Note:__ If the passed in value is number, it will be converted to a string and `'px'` will be appended
- * to it prior to setting the CSS value.
+ * @function NodeCollection.prototype.css
+ * @param {String} cssText - A CSS style string. To clear each element's inline style, pass in an empty string.
+ */
+/**
+ * Gets an object of property-value pairs for the input array of CSS properties for the first element in the collection.
+ * 
+ * @function NodeCollection.prototype.css
+ * @param {String[]} propertyNames - An array of one or more CSS properties.
+ * @returns {Object.<String, String>} An object of property-value pairs where the values are the computed style values of the input properties.
+ */
+/**
+ * Sets the specified style property for each element in the collection.
+ * 
+ * __Note:__ Unlike jQuery, if the passed in value is a number, it will not be converted to a string with `'px'` appended to it
+ * to it prior to setting the CSS value. This helps keep the library small and fast and will force your code to be more obvious
+ * as to how it is changing the element's style (which is a good thing).
  * 
  * @function NodeCollection.prototype.css
  * @param {String} propertyName - The name of the style property to set.
  * @param {String|Number} value - A value to set for the specified property.
  */
 /**
- * Sets CSS style properties for each element in the list.
+ * Sets CSS style properties for each element in the collection.
  * 
- * __Note:__ Unlike the previous version of this function that is used as a setter, the input style property names
- * are assumed to already be in camel-case format (since this is an illegal object anyway: `{font-size: '12px'}`).
- * Also, just like the previous function, if a value in the object is a number, it will be converted to a string
- * and `'px'` will be appended to it prior to setting the CSS value.
+ * __Note:__ Just like the previous function, if a value in the object is a number, it will not be converted to a
+ * string with `'px'` appended to it to it prior to setting the CSS value.
  * 
  * @function NodeCollection.prototype.css
  * @param {Object.<String, String|Number>} properties - An object of CSS property-values.
- */
-/**
- * Explicitly sets each elements' inline CSS style, removing or replacing any current inline style properties.
- * 
- * @function NodeCollection.prototype.css
- * @param {String} cssText - A CSS style string. To clear each element's inline style, pass in an empty string.
  */
 NodeCollectionPrototype.css = getFirstSetEachElement(HTMLElementPrototype.css, function(numArgs, firstArg) {
 	return !numArgs || numArgs < 2 && firstArg && (typeofString(firstArg) && !firstArg.contains(':') || isArray(firstArg));
@@ -5440,4 +5520,4 @@ if (!document.children) {
 
 //#endregion Browser Compatibility and Speed Boosters
 
-})(self, document, Array, Object, decodeURIComponent, encodeURIComponent, getComputedStyle); //self === window
+})(self, document, Array, Object, decodeURIComponent, encodeURIComponent, getComputedStyle, parseFloat); //self === window
