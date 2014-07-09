@@ -1157,7 +1157,7 @@ ElementPrototype.attr = function(attrib, value) {
  * Stores arbitrary data associated with the element.
  * 
  * @function Element.prototype.data
- * @param {Object} obj - An object of key-value pairs to add to each elements stored data.
+ * @param {Object} obj - An object of key-value pairs to add to the element's stored data.
  */
 ElementPrototype.data = function(key, value) {
 	return Firebolt.data(this, key, value, 1); //Pass in 1 to tell the generic function the object is an element
@@ -1735,35 +1735,35 @@ Firebolt.ajaxSetup = function(options) {
 /**
  * Gets the object's stored data object.
  * 
+ * @function Firebolt.data
  * @param {Object} object - An object. This can be anything that has Object in its prototype chain.
  * @returns {Object} The object's stored data object.
- * @memberOf Firebolt
  */
 /**
  * Get the value at the named data store for the object as set by {@linkcode Firebolt.data|Firebolt.data(key, value)}
  * or by an HTML5 data-* attribute if the object is an {@link Element}.
  * 
+ * @function Firebolt.data
  * @param {Object} object - An object. This can be anything that has Object in its prototype chain.
  * @param {String} key - The name of the stored data.
  * @returns {*} The value of the stored data.
- * @memberOf Firebolt
  */
 /**
  * Stores arbitrary data associated with the object.
  * 
+ * @function Firebolt.data
  * @param {Object} object - An object. This can be anything that has Object in its prototype chain.
  * @param {String} key - A string naming the data to set.
  * @param {*} value - Any arbitrary data to store.
  * @returns {Object} The passed in object.
- * @memberOf Firebolt
  */
 /**
  * Stores arbitrary data associated with the object.
  * 
+ * @function Firebolt.data
  * @param {Object} object - An object. This can be anything that has Object in its prototype chain.
  * @param {Object} data - An object of key-value pairs to add to the object's stored data.
  * @returns {Object} The passed in object.
- * @memberOf Firebolt
  */
 Firebolt.data = function(object, key, value, isElement) {
 	var expando = Firebolt.expando,
@@ -2540,7 +2540,7 @@ HTMLElementPrototype.afterPut = function() {
  * (Should it be supported? [Tell me why](https://github.com/FireboltJS/Firebolt/issues).)
  * 
  * However, relative properties (indicated with `+=` or `-=`) and the `toggle` indicator are supported (although only
- * the "t" is needed for toggling since Firebolt only looks at the first character to check if it is a "t").
+ * the `"t"` is needed for toggling since Firebolt only looks at the first character to check if it is a "t").
  * 
  * For more `easing` options, use Firebolt's [easing extension](https://github.com/FireboltJS/firebolt-extensions/tree/master/easing)
  * (or just grab some functions from it and use them as the `easing` parameter).
@@ -2552,6 +2552,7 @@ HTMLElementPrototype.afterPut = function() {
  * [CSS transition timing function](https://developer.mozilla.org/en-US/docs/Web/CSS/transition-timing-function) or "swing".
  * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
  * refer to the element that was animated.
+ * @see {@link http://api.jquery.com/animate/ | .animate() | jQuery API Documentation}
  */
 HTMLElementPrototype.animate = function(properties, duration, easing, complete) {
 	//Massage arguments into their proper places
@@ -4118,7 +4119,7 @@ NodeCollectionPrototype.afterPut = NodeCollectionPrototype.after = function() {
  * (Should it be supported? [Tell me why](https://github.com/FireboltJS/Firebolt/issues).)
  * 
  * However, relative properties (indicated with `+=` or `-=`) and the `toggle` indicator are supported (although only
- * the "t" is needed for toggling since Firebolt only looks at the first character to check if it is a "t").
+ * the `"t"` is needed for toggling since Firebolt only looks at the first character to check if it is a "t").
  * 
  * For more `easing` options, use Firebolt's [easing extension](https://github.com/FireboltJS/firebolt-extensions/tree/master/easing)
  * (or just grab some functions from it and use them as the `easing` parameter).
@@ -4130,6 +4131,7 @@ NodeCollectionPrototype.afterPut = NodeCollectionPrototype.after = function() {
  * [CSS transition timing function](https://developer.mozilla.org/en-US/docs/Web/CSS/transition-timing-function) or "swing".
  * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
  * refer to the element that was animated.
+ * @see {@link http://api.jquery.com/animate/ | .animate() | jQuery API Documentation}
  */
 NodeCollectionPrototype.animate = callOnEachElement(HTMLElementPrototype.animate);
 
@@ -4338,7 +4340,7 @@ NodeCollectionPrototype.css = getFirstSetEachElement(HTMLElementPrototype.css, f
  * Stores arbitrary data associated with each element in the collection
  * 
  * @function NodeCollection.prototype.data
- * @param {Object} obj - An object of key-value pairs to add to each elements stored data.
+ * @param {Object} obj - An object of key-value pairs to add to each element's stored data.
  */
 NodeCollectionPrototype.data = getFirstSetEachElement(ElementPrototype.data, function(numArgs, firstArg) {
 	return !numArgs || numArgs < 2 && typeofString(firstArg);
