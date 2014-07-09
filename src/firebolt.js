@@ -581,7 +581,7 @@ function isHtml(str) {
  * @see Firebolt.isPlainObject
  */
 function isPlainObject(obj) {
-	return obj && obj.toString() == '[object Object]';
+	return typeofObject(obj) && toString.call(obj) == '[object Object]';
 }
 
 function isUndefined(value) {
@@ -639,6 +639,50 @@ function sortRevDocOrder(a, b) {
 	}
 	//else node a should come first (pos is already positive)
 	return pos;
+}
+
+/*
+ * Given two Nodes who are clones of each other, this function copies data and events from node A to node B.
+ * This function will run recursively on the children of the nodes unless `doNotCopyChildNodes` is `true`.
+ * 
+ * @param {Node} nodeA - The node being copied.
+ * @param {Node} nodeB - The node that will receive nodeA's data and events.
+ * @param {!Boolean} doNotCopyChildNodes - Inidicates if data and events for child notes should not be copied.
+ */
+function copyDataAndEvents(nodeA, nodeB, doNotCopyChildNodes) {
+	var data = nodeA[Firebolt.expando],
+		events = nodeA.__E__;
+
+	//Data
+	if (data) {
+		//Use Firebolt.data in case the node was created in a different window
+		extendDeep(Firebolt.data(nodeB), data);
+	}
+
+	//From this point on, the `data` variable is reused as the counter (or property name) in loops
+
+	//Events
+	if (events) {
+		//Copy event data and set the handler for each type of event
+		nodeB.__E__ = extendDeep({}, events);
+		for (data in events) {
+			nodeB.addEventListener(data, nodeEventHandler);
+		}
+	}
+
+	//Copy data and events for child nodes
+	if (!doNotCopyChildNodes && (nodeA = nodeA.childNodes)) {
+		nodeB = nodeB.childNodes;
+
+		//The nodeA and nodeB variables are now the childNodes NodeLists or the original nodes
+		for (data = 0; data < nodeA.length; data++) {
+			copyDataAndEvents(nodeA[data], nodeB[data]);
+		}
+	}
+}
+
+function typeofObject(value) {
+	return typeof value == 'object';
 }
 
 function typeofString(value) {
@@ -1817,7 +1861,7 @@ Firebolt.data = function(object, key, value, isElement) {
 	}
 
 	if (isUndefined(value)) {
-		if (typeof key == 'object') {
+		if (typeofObject(key)) {
 			extend(dataStore, key); //Set multiple
 		}
 		else {
@@ -2030,7 +2074,7 @@ Firebolt.hasData = function(object) {
  * @memberOf Firebolt
  */
 Firebolt.isEmpty = function(value, allowEmptyString) {
-	return value == null || typeofString(value) && !allowEmptyString && !value || typeof value == 'object' && isEmptyObject(value);
+	return value == null || typeofString(value) && !allowEmptyString && !value || typeofObject(value) && isEmptyObject(value);
 };
 
 /**
@@ -2083,7 +2127,7 @@ Firebolt.noConflict = function() {
  */
 Firebolt.param = function(obj, traditional) {
 	return traditional ? serializeTraditional(obj) : serializeRecursive(obj);
-}
+};
 
 /* Inspired by: http://stackoverflow.com/questions/1714786/querystring-encoding-of-a-javascript-object */
 function serializeRecursive(obj, prefix) {
@@ -2096,7 +2140,7 @@ function serializeRecursive(obj, prefix) {
 		if (!isEmptyObject(value)) {
 			cur = prefix ? prefix + '[' + key + ']' : key;
 			str += (str ? '&' : '')
-				+ (typeof value == 'object' ? serializeRecursive(value, cur)
+				+ (typeofObject(value) ? serializeRecursive(value, cur)
 											: encodeURIComponent(cur) + '=' + encodeURIComponent(value));
 		}
 	}
@@ -2231,7 +2275,7 @@ Firebolt.removeData = function(object, list, isElement) {
  */
 Firebolt.text = function(text) {
 	return document.createTextNode(text);
-}
+};
 
 /**
  * Converts an array-like object (such as a function's `arguments` object) to a true {@link Array}.
@@ -2676,7 +2720,7 @@ HTMLElementPrototype.appendWith = function() {
 	}
 
 	return this;
-}
+};
 
 /*
  * More performant version of Node#beforePut for HTMLElements.
@@ -2698,7 +2742,7 @@ HTMLElementPrototype.beforePut = function() {
 	}
 
 	return this;
-}
+};
 
 /**
  * Gets the element's computed style object.
@@ -3348,6 +3392,26 @@ NodePrototype.beforePut = function() {
 };
 
 /**
+ * Create a clone of the node.
+ * 
+ * @function Node.prototype.clone
+ * @param {Boolean} [withDataAndEvents=false] - A boolean indicating if the node's data and events should be copied over to the clone.
+ * @param {Boolean} [deepWithDataAndEvents=value of withDataAndEvents] - If `false`, data and events for the descendants of the cloned node will
+ * not be copied over. If cloning with data and events and you know the descendants do not have any data or events that should be copied, using
+ * this variable (by setting it to `false`) will improve performance.
+ * @returns {NodeCollection}
+ */
+NodePrototype.clone = function(withDataAndEvents, deepWithDataAndEvents) {
+	var clone = this.cloneNode(true);
+
+	if (withDataAndEvents) {
+		copyDataAndEvents(this, clone, deepWithDataAndEvents === false);
+	}
+
+	return clone;
+};
+
+/**
  * Gets the node's child elements, optionally filtered by a selector.
  * 
  * @function Node.prototype.childElements
@@ -3462,7 +3526,7 @@ NodePrototype.off = function(events, selector, handler) {
 
 	//Don't bother doing anything if there haven't been any Firebolt handlers set
 	if (eventHandlers) {
-		if (typeof events == 'object') {
+		if (typeofObject(events)) {
 			//Call this function for each event and handler in the object
 			for (i in events) {
 				this.off(i, selector, events[i]);
@@ -3953,18 +4017,22 @@ prototypeExtensions.toNC = prototypeExtensions.clone;
  * NodeCollections also have it in their prototype).
  * 
  * @function NodeCollection.prototype.clone
- * @param {Boolean} [withData=false] - A boolean indicating if the element's data should be copied as well.
+ * @param {Boolean} [withDataAndEvents=false] - A boolean indicating if each node's data and events should be copied over to its clone.
+ * @param {Boolean} [deepWithDataAndEvents=value of withDataAndEvents] - If `false`, data and events for the descendants of the cloned nodes will
+ * not be copied over. If cloning with data and events and you know the descendants do not have any data or events that should be copied, using
+ * this variable (by setting it to `false`) will improve performance.
  * @returns {NodeCollection}
  */
-prototypeExtensions.clone = function(withData) {
-	return this.map(function(node) {
-		var clone = node.cloneNode(true),
-			data = withData && node[Firebolt.expando];
-		if (data) {
-			extendDeep(clone.data(), data);
-		}
-		return clone;
-	});
+prototypeExtensions.clone = function(withDataAndEvents, deepWithDataAndEvents) {
+	var len = this.length,
+		clone = new NodeCollection(len),
+		i = 0;
+
+	for (; i < len; i++) {
+		clone[i] = this[i].clone(withDataAndEvents, deepWithDataAndEvents);
+	}
+
+	return clone;
 };
 
 /**
