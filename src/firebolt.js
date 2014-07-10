@@ -309,21 +309,11 @@ function getGetDirElementsFunc(direction, sorter) {
 		? function(until, filter) {
 			var nc = new NodeCollection(),
 				node = this,
-				stop = typeofString(until)
-					? function() { //Match by selector
-						return node.matches(until);
-					}
-					: until && until.length
-						? function() { //Match by Node[]
-							return until.contains(node);
-						}
-						: function() { //Match by Node (or if `until.length === 0`, this will always be false)
-							return node == until;
-						};
+				stop = getNodeMatchingFunction(until);
 
 			// Traverse all nodes in the direction and add them (or if there is a selector the ones that match it) to the NodeCollection
 			// until the `stop()` function returns `true`
-			while ((node = node[direction]) && !stop()) {
+			while ((node = node[direction]) && !stop(node)) {
 				if (!filter || node.matches(filter)) {
 					nc.push(node);
 				}
@@ -346,7 +336,7 @@ function getGetDirElementsFunc(direction, sorter) {
 
 			return nc;
 		};
-};
+}
 
 /*
  * Returns a function for Node#next(), Node#prev(), NodeCollection#next(), or NodeCollection#prev().
@@ -398,6 +388,24 @@ function getNodeInsertingFunction(insertingCallback) {
 
 		return this;
 	}
+}
+
+/* 
+ * Returns a function used by Node#closest and Node#[nextUntil, prevUntil, parentsUntil] via getGetDirElementsFunc.
+ */
+function getNodeMatchingFunction(matcher) {
+	return typeofString(matcher) //Match by CSS selector
+		? function(node) {
+			return node.matches(matcher);
+		}
+		: matcher && matcher.length //Match by Node[]
+			? function(node) {
+				return matcher.contains(node);
+			}
+			//Match by Node (or if `matcher.length === 0`, this will always return false)
+			: function(node) {
+				return node === matcher;
+			};
 }
 
 /* Returns the function body for NodeCollection#[putAfter, putBefore, appendTo, prependTo, replaceAll] */
@@ -3412,6 +3420,37 @@ NodePrototype.clone = function(withDataAndEvents, deepWithDataAndEvents) {
 };
 
 /**
+ * @summary Gets the first node that matches the selector by testing the node itself and traversing up through its ancestors in the DOM tree.
+ * 
+ * @description
+ * __Note:__ Unlike jQuery, there is no version of this function where you can provide a "context" element, whose children that match
+ * the input CSS selector will be searched for a match. This is because it is very easy to get the matching children of an element
+ * youself using [`Element#querySelectorAll()`](https://developer.mozilla.org/en-US/docs/Web/API/Element.querySelectorAll) or Firebolt's
+ * alias `Element#$QSA()`.
+ * 
+ * @function Node.prototype.closest
+ * @param {String|Element|Node[]} selector - A CSS selector, a node, or a collection of nodes used to match the node and its parents against.
+ * @returns {?Node} - The first node that matches the selector.
+ */
+NodePrototype.closest = function(selector) {
+	var node = this,
+		isClosest = getNodeMatchingFunction(selector);
+
+	// If the selector is a string (meaning the isClosest function matches by CSS selector) and `this` doesn't have
+	// the Element#matches function, it is not an element so skip to its parent
+	if (typeofString(selector) && !node.matches) {
+		node = node.parentElement;
+	}
+
+	//Search the node's parent elements until the first match (when isClosest returns `true`) or there are no more parents
+	while (node && !isClosest(node)) {
+		node = node.parentElement;
+	}
+
+	return node;
+};
+
+/**
  * Gets the node's child elements, optionally filtered by a selector.
  * 
  * @function Node.prototype.childElements
@@ -4333,6 +4372,34 @@ NodeCollectionPrototype.clean = function() {
  * @function NodeCollection.prototype.click
  */
 NodeCollectionPrototype.click = callOnEachElement(HTMLElementPrototype.click);
+
+/**
+ * @summary For each node in the collection, gets the first node that matches the selector by testing the node itself
+ * and traversing up through its ancestors in the DOM tree.
+ * 
+ * @description
+ * __Note:__ Unlike jQuery, there is no version of this function where you can provide a "context" element, whose children that match
+ * the input CSS selector will be searched for a match. This is because it is very easy to get the matching children of an element
+ * youself using [`Element#querySelectorAll()`](https://developer.mozilla.org/en-US/docs/Web/API/Element.querySelectorAll) or Firebolt's
+ * alias `Element#$QSA()`.
+ * 
+ * @function NodeCollection.prototype.closest
+ * @param {String|Element|Node[]} selector - A CSS selector, a node, or a collection of nodes used to match the node and its parents against.
+ * @returns {Node[]} - A collection of "closest" nodes.
+ */
+NodeCollectionPrototype.closest = function(selector) {
+	var nc = new NodeCollection(),
+		i = 0,
+		node;
+
+	for (; i < this.length; i++) {
+		if (node = this[i].closest(selector)) {
+			nc.push(node);
+		}
+	}
+
+	return nc;
+};
 
 /**
  * Gets the computed style object of the first element in the collection.
