@@ -3400,6 +3400,32 @@ NodePrototype.beforePut = function() {
 };
 
 /**
+ * Gets the node's child elements, optionally filtered by a selector.
+ * 
+ * @function Node.prototype.childElements
+ * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
+ * @returns {NodeCollection}
+ */
+NodePrototype.childElements = function(selector) {
+	//If this node does not implement the ParentNode interface, this.children will be `undefined`,
+	//so set children to an empty array so nothing will be added to the returned NodeCollection
+	var children = this.children || [];
+
+	if (!selector) {
+		return children.toNC();
+	}
+
+	var nc = new NodeCollection(),
+		i = 0;
+	for (; i < children.length; i++) {
+		if (children[i].matches(selector)) {
+			nc.push(children[i]);
+		}
+	}
+	return nc;
+};
+
+/**
  * Create a clone of the node.
  * 
  * @function Node.prototype.clone
@@ -3451,32 +3477,6 @@ NodePrototype.closest = function(selector) {
 };
 
 /**
- * Gets the node's child elements, optionally filtered by a selector.
- * 
- * @function Node.prototype.childElements
- * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
- * @returns {NodeCollection}
- */
-NodePrototype.childElements = function(selector) {
-	//If this node does not implement the ParentNode interface, this.children will be `undefined`,
-	//so set children to an empty array so nothing will be added to the returned NodeCollection
-	var children = this.children || [];
-
-	if (!selector) {
-		return children.toNC();
-	}
-
-	var nc = new NodeCollection(),
-		i = 0;
-	for (; i < children.length; i++) {
-		if (children[i].matches(selector)) {
-			nc.push(children[i]);
-		}
-	}
-	return nc;
-};
-
-/**
  * Get the node's immediately following sibling element. If a selector is provided, it retrieves the next sibling only if it matches that selector.
  * 
  * @function Node.prototype.next
@@ -3499,8 +3499,8 @@ NodePrototype.nextAll = getGetDirElementsFunc(nextElementSibling);
  * or node in a collection.
  * 
  * @function Node.prototype.nextUntil
- * @param {String|Element|Node[]} [nodes] - A CSS selector, an element, or a collection of nodes used to indicate
- * that no more siblings should be considered.
+ * @param {String|Element|Node[]} [selector] - A CSS selector, an element, or a collection of nodes used to indicate
+ * where to stop matching following sibling elements.
  * @param {String} [filter] - A CSS selector used to filter the returned set of elements.
  * @returns {NodeCollection} - The set of following sibling elements in order beginning with the closest sibling.
  */
@@ -3840,8 +3840,8 @@ NodePrototype.parents = getGetDirElementsFunc('parentElement');
  * or node in a collection.
  * 
  * @function Node.prototype.parentsUntil
- * @param {String|Element|Node[]} [nodes] - A CSS selector, an element, or a collection of nodes used to indicate
- * that no more ancestors should be considered.
+ * @param {String|Element|Node[]} [selector] - A CSS selector, an element, or a collection of nodes used to indicate
+ * where to stop matching ancestor elements.
  * @param {String} [filter] - A CSS selector used to filter the returned set of elements.
  * @returns {NodeCollection} - The set of the node's ancestors, ordered from the immediate parent on up.
  */
@@ -3892,8 +3892,8 @@ NodePrototype.prevAll = getGetDirElementsFunc(previousElementSibling);
  * or node in a collection.
  * 
  * @function Node.prototype.prevUntil
- * @param {String|Element|Node[]} [nodes] - A CSS selector, an element, or a collection of nodes used to indicate
- * that no more siblings should be considered.
+ * @param {String|Element|Node[]} [selector] - A CSS selector, an element, or a collection of nodes used to indicate
+ * where to stop matching preceeding sibling elements.
  * @param {String} [filter] - A CSS selector used to filter the returned set of elements.
  * @returns {NodeCollection} - The set of preceeding sibling elements in order beginning with the closest sibling.
  */
@@ -4539,12 +4539,12 @@ NodeCollectionPrototype.fadeToggle = callOnEachElement(HTMLElementPrototype.fade
  * @function NodeCollection.prototype.filter
  * @param {Function} function(value, index, collection) - A function used as a test for each element in the collection.
  * @returns {NodeCollection}
- * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter|Array.prototype.filter() - JavaScript | MDN}
+ * @see [Array.prototype.filter() - JavaScript | MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter)
  */
 NodeCollectionPrototype.filter = function(selector) {
 	return ncFilter.call(this, 
 		typeofString(selector)
-			? function(node) { return node.nodeType === 1 && node.matches(selector); } //Use CSS string filter
+			? function(node) { return node.matches && node.matches(selector); } //Use CSS string filter
 			: selector //Use given filter function
 	);
 };
@@ -4631,8 +4631,8 @@ NodeCollectionPrototype.nextAll = getGetDirElementsFunc(HTMLElementPrototype.nex
  * DOM node, or node in a collection.
  * 
  * @function NodeCollection.prototype.nextUntil
- * @param {String|Element|Node[]} [nodes] - A CSS selector, an element, or a collection of nodes used to indicate
- * that no more siblings should be considered.
+ * @param {String|Element|Node[]} [selector] - A CSS selector, an element, or a collection of nodes used to indicate
+ * where to stop matching following sibling elements.
  * @param {String} [filter] - A CSS selector used to filter the returned set of elements.
  * @returns {NodeCollection} - The set of following sibling elements in order beginning with the closest sibling.
  */
@@ -4774,8 +4774,8 @@ NodeCollectionPrototype.parents = getGetDirElementsFunc(HTMLElementPrototype.par
  * DOM node, or node in a collection.
  * 
  * @function NodeCollection.prototype.parentsUntil
- * @param {String|Element|Node[]} [nodes] - A CSS selector, an element, or a collection of nodes used to indicate
- * that no more ancestors should be considered.
+ * @param {String|Element|Node[]} [selector] - A CSS selector, an element, or a collection of nodes used to indicate
+ * where to stop matching ancestor elements.
  * @param {String} [filter] - A CSS selector used to filter the returned set of elements.
  * @returns {NodeCollection} - The set of ancestors, sorted in reverse document order.
  */
@@ -4848,8 +4848,8 @@ NodeCollectionPrototype.prevAll = getGetDirElementsFunc(HTMLElementPrototype.pre
  * DOM node, or node in a collection.
  * 
  * @function NodeCollection.prototype.prevUntil
- * @param {String|Element|Node[]} [nodes] - A CSS selector, an element, or a collection of nodes used to indicate
- * that no more siblings should be considered.
+ * @param {String|Element|Node[]} [selector] - A CSS selector, an element, or a collection of nodes used to indicate
+ * where to stop matching preceeding sibling elements.
  * @param {String} [filter] - A CSS selector used to filter the returned set of elements.
  * @returns {NodeCollection} - The set of preceeding sibling elements in order beginning with the closest sibling.
  */
