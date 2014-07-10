@@ -2961,6 +2961,10 @@ HTMLElementPrototype.hide = function() {
 /**
  * Sets the element's inner HTML.
  * 
+ * __Protip:__ Quite often, this function is used to set the text contents of elements. However, if the text being set does not
+ * (or should not) contain any actual HTML, the `Node#text()` function should be used instead as it will be faster and also
+ * prevent unwanted HTML from being injected into the page.
+ * 
  * @function HTMLElement.prototype.html
  * @param {String} innerHTML - An HTML string.
  */
@@ -3965,14 +3969,22 @@ NodePrototype.siblings = function(selector) {
 };
 
 /**
- * Gets this node's text content (specifically uses the native JavaScript property `Node.textContent`).
+ * @summary Gets this node's text content (specifically uses the native JavaScript property `Node.textContent`).
+ * 
+ * @description There is a known bug where `<body>` elements will have an empty string as the `text` property instead of this function
+ * due to browsers continuing to implement a deprecated API on the HTMLBodyElement prototype. Please using the native `textContect`
+ * property to get and set the text content of `<body>` elements instead of attempting to use this function.
  * 
  * @function Node.prototype.text
  * @returns {String} The node's text content.
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.textContent|Node.textContent - Web API Interfaces | MDN}
  */
 /**
- * Sets this node's text content (specifically uses the native JavaScript property `Node.textContent`).
+ * @summary Sets this node's text content (specifically uses the native JavaScript property `Node.textContent`).
+ * 
+ * @description There is a known bug where `<body>` elements will have an empty string as the `text` property instead of this function
+ * due to browsers continuing to implement a deprecated API on the HTMLBodyElement prototype. Please using the native `textContect`
+ * property to get and set the text content of `<body>` elements instead of attempting to use this function.
  * 
  * @function Node.prototype.text
  * @param {String|*} text - The text or content that will be converted to a string to be set as the node's text content.
