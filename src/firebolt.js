@@ -1,4 +1,4 @@
-﻿/**
+﻿/*!
  * Firebolt core file
  * @version 0.7.5
  * @author Nathan Woltman
@@ -3971,9 +3971,9 @@ NodePrototype.siblings = function(selector) {
 /**
  * @summary Gets this node's text content (specifically uses the native JavaScript property `Node.textContent`).
  * 
- * @description There is a known bug where `<body>` elements will have an empty string as the `text` property instead of this function
- * due to browsers continuing to implement a deprecated API on the HTMLBodyElement prototype. Please using the native `textContect`
- * property to get and set the text content of `<body>` elements instead of attempting to use this function.
+ * @description __ATTENTION:__ There is a known bug where `<body>` elements will have an empty string as the `text` property instead
+ * of this function due to browsers continuing to implement a deprecated API on the HTMLBodyElement prototype. Please use the native
+ * `textContent` property to get and set the text content of `<body>` elements instead of attempting to use this function.
  * 
  * @function Node.prototype.text
  * @returns {String} The node's text content.
@@ -3982,9 +3982,9 @@ NodePrototype.siblings = function(selector) {
 /**
  * @summary Sets this node's text content (specifically uses the native JavaScript property `Node.textContent`).
  * 
- * @description There is a known bug where `<body>` elements will have an empty string as the `text` property instead of this function
- * due to browsers continuing to implement a deprecated API on the HTMLBodyElement prototype. Please using the native `textContect`
- * property to get and set the text content of `<body>` elements instead of attempting to use this function.
+ * @description __ATTENTION:__ There is a known bug where `<body>` elements will have an empty string as the `text` property instead
+ * of this function due to browsers continuing to implement a deprecated API on the HTMLBodyElement prototype. Please use the native
+ * `textContent` property to get and set the text content of `<body>` elements instead of attempting to use this function.
  * 
  * @function Node.prototype.text
  * @param {String|*} text - The text or content that will be converted to a string to be set as the node's text content.
