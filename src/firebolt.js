@@ -746,7 +746,7 @@ var
 	rgxTableLevel3 = /<t(?:d|h)\b/, //Matches <td>, <th>
 	rgxGetOrHead = /GET|HEAD/i, //Determines if a request is a GET or HEAD request
 	rgxDomain = /\/?\/\/(?:\w+\.)?(.*?)(?:\/|$)/,
-	rgxDifferentNL = /^(?:af|ap|be|ea|ins|prep|pu|rep|toggleC)|wrap|remove(?:Class)?$/, //Determines if the function is different for NodeLists
+	rgxDifferentNL = /^(?:af|ap|be|conc|ea|ins|prep|pu|rep|toggleC)|wrap|remove(?:Class)?$/, //Determines if the function is different for NodeLists
 	rgxNotId = /[ .,>:[+~\t-\f]/,    //Matches other characters that cannot be in an id selector
 	rgxNotClass = /[ #,>:[+~\t-\f]/, //Matches other characters that cannot be in a class selector
 	rgxAllDots = /\./g,
@@ -1351,7 +1351,7 @@ ElementPrototype.removeProp = function(propertyName) {
  * @example
  * $('button.btn-success'); // Returns all button elements with the class "btn-success"
  * $('str <p>content</p>'); // Creates a set of nodes and returns it as a NodeList (in this case ["str ", <p>content</p>])
- * $.elem('div');         // Calls Firebolt's method to create a new div element 
+ * $.elem('div');           // Calls Firebolt's method to create a new div element 
  */
 function Firebolt(str, context) {
 	var nc, elem;
@@ -2068,13 +2068,12 @@ Firebolt.hasData = function(object) {
 
 /**
  * Determines if the passed in value is considered empty. The value is considered empty if it is one of the following:
- * <ul>
- * <li>`null`</li>
- * <li>`undefined`</li>
- * <li>a zero-length array</li>
- * <li>an empty object (as defined by {@linkcode Firebolt.isEmptyObject})</li>
- * <li>a zero-length string (unless the `allowEmptyString` parameter is set to a truthy value)</li>
- * </ul>
+ * 
+ * + `null`
+ * + `undefined`
+ * + a zero-length array
+ * + an empty object (as defined by {@linkcode Firebolt.isEmptyObject})
+ * + a zero-length string (unless the `allowEmptyString` parameter is set to a truthy value)
  * 
  * @param {*} value - The value to be tested.
  * @param {Boolean} [allowEmptyString=false] - Set this to true to regard zero-length strings as not empty.
@@ -2988,7 +2987,7 @@ HTMLElementPrototype.html = function(innerHTML) {
  * </body>
  * 
  * <script>
- * $$('mydiv').offset();  // -> Object {top: 10, left: 20}
+ *   $$('mydiv').offset();  // -> Object {top: 10, left: 20}
  * </script>
  */
 /**
@@ -5231,10 +5230,12 @@ NodeCollectionPrototype.wrapInner = function(wrappingElement) {
 
 /**
  * @classdesc
- * The HTML DOM NodeList interface. This is the main object returned by {@link Firebolt#Firebolt|Firebolt}.  
- *   
- * Represents a collection of DOM Nodes. NodeLists have almost the exact same API as {@link NodeCollection}.  
- * However, unlike NodeCollections, NodeLists are immutable and therefore do not have any of the following functions:
+ * The HTML DOM NodeList interface. Represents a collection of DOM Nodes and is the main object returned by {@link Firebolt(2) | Firebolt}.
+ * 
+ * NodeLists have <u>almost</u> the exact same API as {@link NodeCollection}, so there are a few caveats to take note of:
+ * 
+ * <u>__1.__</u>
+ * Unlike NodeCollections, NodeLists are immutable and therefore do not have any of the following functions:
  * 
  * + clear
  * + pop
@@ -5247,7 +5248,8 @@ NodeCollectionPrototype.wrapInner = function(wrappingElement) {
  * If you want to manipulate a NodeList using these functions, you must retrieve it as a NodeCollection by
  * calling {@linkcode NodeList#toNC|.toNC()} on the NodeList.
  * 
- * Also note that the following functions return the NodeCollection equivalent of the NodeList instead of
+ * <u>__2.__</u>
+ * The following functions return the NodeCollection equivalent of the NodeList instead of
  * the NodeList itself:
  * 
  * + afterPut / after
@@ -5268,19 +5270,22 @@ NodeCollectionPrototype.wrapInner = function(wrappingElement) {
  * + wrap
  * + wrapInner
  * 
- * This is because the functions my alter live NodeLists, as seen in this example:
+ * This is because these functions my alter live NodeLists, as seen in this example:
  * 
- * ```JavaScript
- * var $blueThings = $CLS('blue');
- * $blueThings.length = 10;  // for example
- * $blueThings.removeClass('blue'); // returns $blueThings as a NodeCollection
- * $blueThings.length === 0; // true - since now there are no elements with the 'blue' class
- * ```
+ * <pre class="sunlight-highlight-javascript">
+ * var blueThings = $CLS('blue');
+ * console.log(blueThings.length); // -> 10 (for example)
+ * 
+ * var ncBlueThings = blueThings.removeClass('blue');
+ * blueThings.length === 0;   // -> true (since now there are no elements with the 'blue' class)
+ * ncBlueThing.length === 10; // -> true (since `removeClass` returned the NodeList as a NodeCollection)
+ * </pre>
  * 
  * Returning a NodeCollection allows for correct functionality when chaining calls originally made on a NodeList,
  * but be aware that a live NodeList saved as a variable may be altered by these functions.
  * 
- * Finally, since it is not possible to manually create a new NodeList in JavaScript (there are tricks but
+ * <u>__3.__</u>
+ * Since it is not possible to manually create a new NodeList in JavaScript (there are tricks but
  * they are slow and not worth it), the following functions return a NodeCollection instead of a NodeList:
  * 
  * + add
@@ -5297,7 +5302,19 @@ NodeCollectionPrototype.wrapInner = function(wrappingElement) {
  * + without
  * 
  * This, however, should not be worrisome since NodeCollections have all of the same functions as NodeLists
- * with the added benefits of being mutable and static (not live).  
+ * with the added benefits of being mutable and static (not live).
+ * 
+ * <u>__4.__</u>
+ * Passing a NodeList (or HTMLCollection) as a parameter to the `NodeCollection#concat()` function will add the NodeList itself to
+ * the collection instead of merging in its elements. This is because NodeLists and HTMLCollections don't directly inherit from
+ * NodeCollection/Array (they are merely given some of their functions), so they are treated as objects instead of arrays. A simple
+ * way to fix this is to call `.toNC()` on the NodeList/HTMLCollection when passing it as a parameter to `concat` like so:
+ * 
+ * <pre class="sunlight-highlight-javascript">
+ * var nodes = $QSA('div.special'),
+ *     moreNodes = $TAG('p'),
+ *     concatenation = nodes.concat( moreNodes.toNC() );
+ * </pre>
  * <br />
  * 
  * @class NodeList
