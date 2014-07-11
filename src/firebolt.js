@@ -3480,6 +3480,20 @@ NodePrototype.closest = function(selector) {
 };
 
 /**
+ * Gets the child nodes of the element as a {@link NodeCollection}.
+ * 
+ * __Protip:__ If you don't need the child nodes in a NodeCollection, you should access them using the native
+ * `childNodes` property (which is a {@link NodeList}).
+ * 
+ * @function Node.prototype.contents
+ * @returns {NodeCollection}
+ * @see [Node.childNodes - Web API Interfaces | MDN](https://developer.mozilla.org/en-US/docs/Web/API/Node.childNodes)
+ */
+NodePrototype.contents = function() {
+	return this.childNodes.toNC();
+};
+
+/**
  * Get the node's immediately following sibling element. If a selector is provided, it retrieves the next sibling only if it matches that selector.
  * 
  * @function Node.prototype.next
@@ -4407,6 +4421,25 @@ NodeCollectionPrototype.closest = function(selector) {
 		if (node = this[i].closest(selector)) {
 			nc.push(node);
 		}
+	}
+
+	return nc;
+};
+
+/**
+ * @summary Gets the child nodes of each element in the collection.
+ * 
+ * @description If `this` collection contains duplicates, the returned collection will contain duplicates.
+ * 
+ * @function NodeCollection.prototype.contents
+ * @returns {NodeCollection} The collection of all the child nodes of the elements in the collection.
+ */
+NodeCollectionPrototype.contents = function() {
+	var nc = new NodeCollection(),
+		i = 0;
+
+	for (; i < this.length; i++) {
+		NodeCollectionPrototype.push.apply(nc, this[i].childNodes);
 	}
 
 	return nc;
