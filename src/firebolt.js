@@ -428,21 +428,33 @@ function getStyleObject(element) {
  * @see Function.prototype.every
  */
 function getTimingFunction(setTiming, clearTiming) {
-	return function(delay) {
-		var callback = this,
-			args = array_slice.call(arguments, 1),
+	return function(delay, args, thisArg) {
+		thisArg = thisArg || !isArray(args) && args || window;
 
-			// Only set the timing callback to be a function that applies the passed in arguments to this function
-			// if there are passed in arguments. Otherwise just set the original function as the callback.
-			clearRef = setTiming(args.length ? function() {
-				callback.apply(window, args);
-			} : callback, delay);
+		var
+			fn = this,
 
-		return {
-			clear: function() {
-				clearTiming(clearRef);
-			}
-		};
+			callback = function() {
+				callbackObject.hasExecuted = true;
+				fn.apply(thisArg, args);
+			},
+
+			clearRef = setTiming(callback, delay),
+
+			callbackObject = {
+				hasExecuted: false,
+				execute: function(cancel) {
+					if (cancel !== false) {
+						clearTiming(clearRef);
+					}
+					callback();
+				},
+				cancel: function() {
+					clearTiming(clearRef);
+				}
+			};
+
+		return callbackObject;
 	};
 }
 
@@ -2316,31 +2328,35 @@ Firebolt.makeArray = function(array, index) {
 /**
  * Delays a function call for the specified number of milliseconds.
  * 
- * __ATTENTION:__ Inside the function that is being delayed, `this` will refer to the `window` object.
+ * @example <caption>Call a function at a later time:</caption>
+ * window.alert.delay(2000, ['alert!']);  // Waits 2 seconds, then opens an alert that says "alert!"
  * 
- * @example <caption>Call a function at a later time</caption>
- * window.alert.delay(2000, 'alert!');  // Waits 2 seconds, then opens an alert that says "alert!"
- * 
- * @example <caption>Set a timeout for a function but cancel it before it can be called</caption>
- * var ref = window.alert.delay(2000, 'alert!');  // Sets the alert to be called in 2 seconds and saves a reference to the returned object
+ * @example <caption>Set a timeout for a function but cancel it before it can be called:</caption>
+ * var ref = window.alert.delay(2000, ['alert!']);  // Sets the alert to be called in 2 seconds and saves a reference to the returned object
  * 
  * //----- Before 2 seconds ellapses -----
- * ref.clear();  // Prevents the alert function from being called
+ * ref.cancel();  // Prevents the alert function from being called
  * 
  * @function Function.prototype.delay
  * @param {Number} delay - The number of milliseconds to wait before calling the functions.
- * @param {...*} [args] - Arguments the function will be called with.
- * @returns {Object} An object that can be used to cancel the callback before it is executed by calling `object.clear()`.
- * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Window.setTimeout|window.setTimeout - Web API Interfaces | MDN}
+ * @param {Array} [args] - An array containing the arguments the function will be called with.
+ * @param {*} [thisArg=window] - An object you want `this` to refer to inside the function.
+ * If `thisArg` is an Array, `args` must be present (but may be `null`).
+ * @returns {Object} An object with the following properties:
+ * + `hasExecuted` - A boolean, initialized to `false`, that is set to `true` when the delayed function executes.
+ * + `execute` - A function that, when called, will execute the function immediately and cancel the timeout so it is not called again by the browser.
+ * To prevent the timeout from being cancelled, call this function with the parameter `false`.
+ * + `cancel` - A function that, when called, will cancel the timeout to prevent the function from being executed (if it hasn't been already).
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Window.setTimeout | window.setTimeout - Web API Interfaces | MDN}
  */
-FunctionPrototype.delay = getTimingFunction(setTimeout, clearTimeout);
+defineProperty(FunctionPrototype, 'delay', {
+	value: getTimingFunction(setTimeout, clearTimeout)
+});
 
 /**
  * Executes the function repeatedly, with a fixed time delay between each call to the function.
  * 
- * __ATTENTION:__ Inside the function that is being delayed, `this` will refer to the `window` object.
- * 
- * @example <caption>Set a function to repeat every 2 seconds and later stop it from continuing</caption>
+ * @example <caption>Set a function to repeat every 2 seconds and later stop it from continuing:</caption>
  * function logStuff() {
  *     console.log('stuff');
  * }
@@ -2352,11 +2368,19 @@ FunctionPrototype.delay = getTimingFunction(setTimeout, clearTimeout);
  * 
  * @function Function.prototype.every
  * @param {Number} delay - The number of milliseconds to wait between function calls.
- * @param {...*} [args] - Arguments the function will be called with.
- * @returns {Object} An object that can be used to cancel further calls to the function by calling `object.clear()`.
- * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Window.setInterval|window.setInterval - Web API Interfaces | MDN}
+ * @param {Array} [args] - An array containing the arguments the function will be called with.
+ * @param {*} [thisArg=window] - An object you want `this` to refer to inside the function.
+ * If `thisArg` is an Array, `args` must be present (but may be `null`).
+ * @returns {Object} An object with the following properties:
+ * + `hasExecuted` - A boolean, inialized to `false`, that is set to `true` each time the function executes.
+ * + `execute` - A function that, when called, will execute the function immediately and cancel the interval so the function will stop being called.
+ * To prevent the interval from being cancelled, call this function with the parameter `false`.
+ * + `cancel` - A function that, when called, will cancel the interval so the function will stop being called.
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Window.setInterval | window.setInterval - Web API Interfaces | MDN}
  */
-FunctionPrototype.every = getTimingFunction(setInterval, clearInterval);
+defineProperty(FunctionPrototype, 'every', {
+	value: getTimingFunction(setInterval, clearInterval)
+});
 
 //#endregion Function
 
