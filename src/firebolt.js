@@ -2704,8 +2704,9 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 	setTimeout(function() {
 		_this.css(properties); //Setting the CSS values starts the transition
 
-		//Set a timeout to call the complete callback after the transition is done
-		setTimeout(function() {
+		// Delay a function that cleans up the animation and calls the complete callback after the transition is done
+		// and save a reference to the callback object on the element
+		_this._$A_ = (function() {
 			if (isUndefined(cssTextToRestore)) {
 				//Give the element back its original inline transition style
 				inlineStyle.transition = inlineStyle.webkitTransition = originalInlineTransition;
@@ -2725,7 +2726,10 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 			if (complete) {
 				complete.call(_this); //Call the complete function in the context of the element
 			}
-		}, duration);
+
+			//Delete the callback object (helps indicate the animation has completed)
+			delete _this._$A_;
+		}).delay(duration);
 	}, 0);
 
 	return _this;
@@ -2948,6 +2952,20 @@ HTMLElementPrototype.fadeOut = function(duration, easing, complete) {
  */
 HTMLElementPrototype.fadeToggle = function(duration, easing, complete) {
 	return this.animate({opacity: 't'}, duration, easing, complete);
+};
+
+/**
+ * Immediately completes the element's currently running animation.
+ * 
+ * @function HTMLElement.prototype.finish
+ */
+// ReSharper disable once UnusedParameter
+HTMLElementPrototype.finish = function(animFinishCallback) { //The unused argument to prevents the need for a `var` declaration (saves space)
+	if (animFinishCallback = this._$A_) {
+		animFinishCallback.execute();
+	}
+
+	return this;
 };
 
 /**
@@ -4625,6 +4643,13 @@ NodeCollectionPrototype.filter = function(selector) {
  * @returns {NodeList|NodeCollection}
  */
 NodeCollectionPrototype.find = getGetDirElementsFunc(ElementPrototype.find, sortDocOrder);
+
+/**
+ * Immediately completes the currently running animation for each element in the collection.
+ * 
+ * @function NodeCollection.prototype.finish
+ */
+NodeCollectionPrototype.finish = callOnEachElement(HTMLElementPrototype.finish);
 
 /**
  * Hides each element in the collection.
