@@ -2620,6 +2620,8 @@ HTMLElementPrototype.afterPut = function() {
  * For more `easing` options, use Firebolt's [easing extension](https://github.com/FireboltJS/firebolt-extensions/tree/master/easing)
  * (or just grab some functions from it and use them as the `easing` parameter).
  * 
+ * __Note:__ In IE 9, the easing for all animations will be linear.
+ * 
  * @function HTMLElement.prototype.animate
  * @param {Object} properties - An object of CSS properties and values that the animation will move toward.
  * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
@@ -2653,6 +2655,7 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 		currentStyle = getStyleObject(_this),
 		isDisplayNone = isComputedDisplayNone(_this),
 		originalInlineTransition = inlineStyle.transition || inlineStyle.webkitTransition,
+		ie9ChangeByProps = {},
 		overflowToRestore,
 		cssTextToRestore,
 		hideOnComplete,
@@ -2692,6 +2695,12 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 
 			properties[prop] = val; //Set the value in the object of properties in case it changed
 		}
+
+		if (isOldIE) {
+			// The amount of linear change per frame = (newValue - currentValue) * framePeriod / duration
+			// Where: framePeriod = 25 ms (for 40 Hz) and currentValue = cssMath(currentValue + 0)
+			ie9ChangeByProps[camelProp] = (parseFloat(val) - parseFloat(cssMath(parseFloat(currentStyle[camelProp]), 0, (val + '').replace(/.*\d/, ''), _this, camelProp))) * 25 / duration;
+		}
 	}
 
 	//Inline the element's current CSS styles (even if some properties were set to 0 in the loop because setting all at once here prevents bugs)
@@ -2702,11 +2711,27 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 
 	//Set the new values to transition to as soon as possible
 	setTimeout(function() {
-		_this.css(properties); //Setting the CSS values starts the transition
+		if (isOldIE) {
+			//Set an interval to increment the CSS properties by their respective amounts each frame period
+			easing = (function() {
+				for (prop in ie9ChangeByProps) {
+					inlineStyle[prop] = parseFloat(inlineStyle[prop]) + ie9ChangeByProps[prop] + inlineStyle[prop].replace(/.*\d/, '');
+				}
+			}).every(25);
+		}
+		else {
+			_this.css(properties); //Setting the CSS values starts the transition
+		}
 
 		// Delay a function that cleans up the animation and calls the complete callback after the transition is done
 		// and save a reference to the callback object on the element
 		_this._$A_ = (function() {
+			if (isOldIE) {
+				//End the interval and set all the final CSS values
+				easing.cancel();
+				_this.css(properties);
+			}
+
 			if (isUndefined(cssTextToRestore)) {
 				//Give the element back its original inline transition style
 				inlineStyle.transition = inlineStyle.webkitTransition = originalInlineTransition;
