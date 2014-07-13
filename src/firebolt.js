@@ -419,7 +419,7 @@ function getPutToOrAllFunction(funcName) {
 
 /* Returns the element's computed style object and uses caching to speed up future lookups. */
 function getStyleObject(element) {
-	return element.__CSO__ || (element.__CSO__ = getComputedStyle(element));
+	return element._$CSO_ || (element._$CSO_ = getComputedStyle(element));
 }
 
 /*
@@ -671,7 +671,7 @@ function sortRevDocOrder(a, b) {
  */
 function copyDataAndEvents(nodeA, nodeB, doNotCopyChildNodes) {
 	var data = nodeA[Firebolt.expando],
-		events = nodeA.__E__;
+		events = nodeA._$E_;
 
 	//Data
 	if (data) {
@@ -684,7 +684,7 @@ function copyDataAndEvents(nodeA, nodeB, doNotCopyChildNodes) {
 	//Events
 	if (events) {
 		//Copy event data and set the handler for each type of event
-		nodeB.__E__ = extendDeep({}, events);
+		nodeB._$E_ = extendDeep({}, events);
 		for (data in events) {
 			nodeB.addEventListener(data, nodeEventHandler);
 		}
@@ -821,7 +821,7 @@ var
 
 prototypeExtensions = {
 	/* Private reference to the constructor */
-	__C__: Array,
+	_$C_: Array,
 
 	/**
 	 * Returns a copy of the array with all "empty" items (as defined by {@linkcode Firebolt.isEmpty}) removed.
@@ -859,7 +859,7 @@ prototypeExtensions = {
 	 */
 	clone: function() {
 		var len = this.length,
-			clone = new this.__C__(len),
+			clone = new this._$C_(len),
 			i = 0;
 		for (; i < len; i++) {
 			clone[i] = this[i];
@@ -958,7 +958,7 @@ prototypeExtensions = {
 	 * [1, 2, 3].intersect([2, 3, 4]);  // returns [2, 3]
 	 */
 	intersect: function(array) {
-		var intersection = new this.__C__(),
+		var intersection = new this._$C_(),
 			i = 0;
 		for (; i < array.length; i++) {
 			if (this.contains(array[i]) && intersection.indexOf(array[i]) < 0) {
@@ -1029,7 +1029,7 @@ prototypeExtensions = {
 	 * @returns {Array}
 	 */
 	uniq: function(isSorted) {
-		var uniq = new this.__C__(),
+		var uniq = new this._$C_(),
 			i = 0;
 
 		for (; i < this.length; i++) {
@@ -1058,7 +1058,7 @@ prototypeExtensions = {
 	without: isIOS
 		//Special, faster function for iOS (http://jsperf.com/arrwout), which also helps make Array#diff faster
 		? function() {
-			var array = new this.__C__(),
+			var array = new this._$C_(),
 				i = 0;
 			for (; i < this.length; i++) {
 				if (ArrayPrototype.indexOf.call(arguments, this[i]) < 0) {
@@ -1068,7 +1068,7 @@ prototypeExtensions = {
 			return array;
 		}
 		: function() {
-			var array = new this.__C__(),
+			var array = new this._$C_(),
 				i = 0,
 				j;
 			skip:
@@ -1866,12 +1866,12 @@ Firebolt.data = function(object, key, value, isElement) {
 
 			//Save the data attributes if there are any
 			if (!isEmptyObject(dataAttributes)) {
-				object.__DA__ = dataAttributes;
+				object._$DA_ = dataAttributes;
 			}
 		}
 	}
 
-	if (isElement && (dataAttributes = object.__DA__)) {
+	if (isElement && (dataAttributes = object._$DA_)) {
 		//Add the data attributes to the data store if it does not already have the key
 		for (i in dataAttributes) {
 			if (isUndefined(dataStore[i])) {
@@ -2258,7 +2258,7 @@ Firebolt.ready = function(callback) {
  */
 Firebolt.removeData = function(object, list, isElement) {
 	var dataObject = object[Firebolt.expando],
-		dataAttributes = isElement && object.__DA__,
+		dataAttributes = isElement && object._$DA_,
 		i = 0;
 
 	if (isUndefined(list)) {
@@ -2279,7 +2279,7 @@ Firebolt.removeData = function(object, list, isElement) {
 
 	if (dataAttributes && isEmptyObject(dataAttributes)) {
 		//Delete the data attributes object from the element
-		delete object.__DA__;
+		delete object._$DA_;
 	}
 
 	return object;
@@ -2864,7 +2864,7 @@ HTMLElementPrototype.css = function(prop, value) {
 			//Build an object with the values specified by the input array of properties
 			retVal = {};
 			for (value = 0; value < prop.length; value++) { //Reuse the value argument in place of a new var
-				retVal[prop[value]] = _this.__CSO__[camelize(prop[value])]; //The cached computed style object property must exist at this point
+				retVal[prop[value]] = _this._$CSO_[camelize(prop[value])]; //The cached computed style object property must exist at this point
 			}
 
 			if (mustHide) {
@@ -2969,7 +2969,7 @@ HTMLElementPrototype.hasClass = function(className) {
 HTMLElementPrototype.hide = function() {
 	var _this = this;
 
-	_this.__DS__ = _this.style.display; //Save currently display style
+	_this._$DS_ = _this.style.display; //Save currently display style
 	_this.style.display = 'none';       //Hide the element by setting its display style to "none"
 
 	return _this;
@@ -3145,7 +3145,7 @@ HTMLElementPrototype.show = function() {
 	var inlineStyle = this.style;
 
 	if (inlineStyle.display == 'none') {
-		inlineStyle.display = this.__DS__ || ''; //Use the saved display style or clear the display style
+		inlineStyle.display = this._$DS_ || ''; //Use the saved display style or clear the display style
 	}
 
 	if (isComputedDisplayNone(this)) {
@@ -3258,13 +3258,13 @@ HTMLElementPrototype.toggleClass = function(value) {
 			}
 		}
 		else {
-			this.__TC__ = this.className; //Save the element's current class name
+			this._$TC_ = this.className; //Save the element's current class name
 			value = ''; //Set to an empty string so the class name will be cleared
 		}
 	}
 	else if (!value) {
 		//Retrieve the saved class name or an empty string if there is no saved class name
-		value = this.__TC__ || '';
+		value = this._$TC_ || '';
 	}
 
 	//Set the new value
@@ -3598,7 +3598,7 @@ function removeSelectorHandler(selectorHandlers, selector, handler) {
  * @see {@link http://api.jquery.com/off/#off|.off() | jQuery API Documentation}
  */
 NodePrototype.off = function(events, selector, handler) {
-	var eventHandlers = this.__E__,
+	var eventHandlers = this._$E_,
 		eventType,
 		selectorHandlers,
 		sel,
@@ -3665,7 +3665,7 @@ function nodeEventHandler(eventObject) {
 	var _this = this, //Improves minification
 		target = eventObject.target,
 		eType = eventObject.type,
-		selectorHandlers = _this.__E__[eType],
+		selectorHandlers = _this._$E_[eType],
 		selectorHandlersCopy = {},
 		selectors = keys(selectorHandlers).remove(''), //Don't want the non-selector (for non-delegated handlers) in the array
 		numSelectors = selectors.length,
@@ -3783,7 +3783,7 @@ function nodeEventHandler(eventObject) {
  */
 NodePrototype.on = function(events, selector, data, handler, one) { //one is for internal use
 	var _this = this, //Improves minification
-		eventHandlers = _this.__E__ || (_this.__E__ = {}),
+		eventHandlers = _this._$E_ || (_this._$E_ = {}),
 		selectorIsString = typeofString(selector),
 		savedHandlers,
 		eventType,
@@ -4161,7 +4161,7 @@ var
 iframe.remove(); //Remove the iframe that was made to subclass Array
 
 /* Set the private constructor (which will be inherited by NodeList and HTMLCollection) */
-NodeCollectionPrototype.__C__ = NodeCollection;
+NodeCollectionPrototype._$C_ = NodeCollection;
 
 /**
  * Adds the queried elements to a copy of the existing collection (if they are not already in the collection)
