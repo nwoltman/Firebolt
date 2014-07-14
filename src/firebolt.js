@@ -2839,7 +2839,7 @@ HTMLElementPrototype.beforePut = function() {
  * 
  * @function HTMLElement.prototype.css
  * @param {String} propertyName - The name of the style property to set.
- * @param {?String|?Number} value - A value to set for the specified property.
+ * @param {?String|Number} value - A value to set for the specified property.
  */
 /**
  * Sets CSS style properties.
@@ -3554,7 +3554,7 @@ NodePrototype.closest = function(selector) {
  * 
  * @function Node.prototype.contents
  * @returns {NodeCollection}
- * @see [Node.childNodes - Web API Interfaces | MDN](https://developer.mozilla.org/en-US/docs/Web/API/Node.childNodes)
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.childNodes | Node.childNodes - Web API Interfaces | MDN}
  */
 NodePrototype.contents = function() {
 	return this.childNodes.toNC();
@@ -4650,7 +4650,7 @@ NodeCollectionPrototype.fadeToggle = callOnEachElement(HTMLElementPrototype.fade
  * @function NodeCollection.prototype.filter
  * @param {Function} function(value, index, collection) - A function used as a test for each element in the collection.
  * @returns {NodeCollection}
- * @see [Array.prototype.filter() - JavaScript | MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter)
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter | Array.prototype.filter() - JavaScript | MDN}
  */
 NodeCollectionPrototype.filter = function(selector) {
 	return ncFilter.call(this, 
