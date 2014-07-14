@@ -2915,19 +2915,20 @@ HTMLElementPrototype.css = function(prop, value) {
 /**
  * Removes all of the element's child nodes.
  * 
- * @function HTMLElement.prototype.empty
  * @example
  * // HTML (before)
- * <div id="mydiv">
- *     <span>Inside Span</span>
- *     Some Text
- * </div>
- *
+ * // <div id="mydiv">
+ * //     <span>Inside Span</span>
+ * //     Some Text
+ * // </div>
+ * 
  * // JavaScript
  * $ID('mydiv').empty();
  *
  * // HTML (after)
- * <div id="mydiv"></div>
+ * // <div id="mydiv"></div>
+ * 
+ * @function HTMLElement.prototype.empty
  */
 HTMLElementPrototype.empty = function() {
 	while (this.firstChild) {
@@ -3049,13 +3050,12 @@ HTMLElementPrototype.html = function(innerHTML) {
  * @function HTMLElement.prototype.offset
  * @returns {{top: Number, left: Number}} An object containing the coordinates detailing the element's distance from the top and left of the document.
  * @example
- * <body style="margin: 0">
- *   <div id="mydiv" style="position: absolute; margin: 10px; left: 10px"></div>
- * </body>
+ * // HTML
+ * // <body style="margin: 0">
+ * //   <div id="mydiv" style="position: absolute; margin: 10px; left: 10px"></div>
+ * // </body>
  * 
- * <script>
- *   $$('mydiv').offset();  // -> Object {top: 10, left: 20}
- * </script>
+ * $$('mydiv').offset();  // -> Object {top: 10, left: 20}
  */
 /**
  * Sets the element's coordinates relative to the document.
@@ -3123,7 +3123,7 @@ HTMLElementPrototype.prependWith = function() {
  * @description
  * __Note:__ Unlike jQuery, the format of the space-separated classes required by Firebolt is strict. Each class must
  * be separated by only a single space character and there cannot be whitespace at the beginning or end of the string.
- * ```JavaScript
+ * ```javascript
  * element.addClass('one  two').removeClass('three ');  // Bad syntax
  * element.addClass('one two').removeClass('three');    // Correct syntax
  * ```
@@ -3267,7 +3267,7 @@ HTMLElementPrototype.toggle = function() {
  * @description
  * __Note:__ Unlike jQuery, the format of the space-separated classes required by Firebolt is strict. Each class must
  * be separated by only a single space character and there cannot be whitespace at the beginning or end of the string.
- * ```JavaScript
+ * ```javascript
  * element.toggleClass('one  two ');  // Bad syntax
  * element.toggleClass('one two');    // Correct syntax
  * ```
@@ -5379,14 +5379,14 @@ NodeCollectionPrototype.wrapInner = function(wrappingElement) {
  * 
  * This is because these functions my alter live NodeLists, as seen in this example:
  * 
- * <pre class="sunlight-highlight-javascript">
+ * ```javascript
  * var blueThings = $CLS('blue');
  * console.log(blueThings.length); // -> 10 (for example)
  * 
  * var ncBlueThings = blueThings.removeClass('blue');
  * blueThings.length === 0;   // -> true (since now there are no elements with the 'blue' class)
  * ncBlueThing.length === 10; // -> true (since `removeClass` returned the NodeList as a NodeCollection)
- * </pre>
+ * ```
  * 
  * Returning a NodeCollection allows for correct functionality when chaining calls originally made on a NodeList,
  * but be aware that a live NodeList saved as a variable may be altered by these functions.
@@ -5417,11 +5417,11 @@ NodeCollectionPrototype.wrapInner = function(wrappingElement) {
  * NodeCollection/Array (they are merely given some of their functions), so they are treated as objects instead of arrays. A simple
  * way to fix this is to call `.toNC()` on the NodeList/HTMLCollection when passing it as a parameter to `concat` like so:
  * 
- * <pre class="sunlight-highlight-javascript">
+ * ```javascript
  * var nodes = $QSA('div.special'),
  *     moreNodes = $TAG('p'),
  *     concatenation = nodes.concat( moreNodes.toNC() );
- * </pre>
+ * ```
  * <br />
  * 
  * @class NodeList
@@ -5457,15 +5457,6 @@ Object.getOwnPropertyNames(NodeCollectionPrototype)
  * @function NodeCollection.prototype.namedItem
  * @param {String} name
  * @returns {?Element}
- * @see https://developer.mozilla.org/en-US/docs/Web/API/HTMLCollection
- */
-/**
- * Returns the specific node whose ID or, as a fallback, name matches the string specified by `name`.
- * 
- * @function NodeList.prototype.namedItem
- * @param {String} name
- * @returns {?Element}
- * @see https://developer.mozilla.org/en-US/docs/Web/API/HTMLCollection
  */
 NodeListPrototype.namedItem = NodeCollectionPrototype.namedItem = function(name) {
 	var i = 0,
