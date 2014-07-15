@@ -1,7 +1,5 @@
-Firebolt
+<a href="http://fireboltjs.com" target="_blank">Firebolt</a> - JavaScript Empowered
 ========
-
-> Slim, sleek, and speedy
 
 Firebolt is a fast and lightweight JavaScript library for modern browsers. Its core functionality is based on jQuery, so if you already know how to use jQuery, you know how to use Firebolt (with a few minor exceptions).
 
