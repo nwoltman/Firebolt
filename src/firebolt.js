@@ -3277,10 +3277,17 @@ HTMLElementPrototype.slideUp = function(duration, easing, complete) {
  * Shows the element if it is hidden or hides it if it is currently showing.
  * 
  * @function HTMLElement.prototype.toggle
+ * @param {Boolean} [showOrHide] - A Boolean indicating whether to show or hide the element (`true` => show, `false` => hide).
  * @see HTMLElement#hide
  * @see HTMLElement#show
  */
-HTMLElementPrototype.toggle = function() {
+HTMLElementPrototype.toggle = function(showOrHide) {
+	if (showOrHide === true) {
+		return this.show();
+	}
+	else if (showOrHide === false) {
+		return this.hide();
+	}
 	return isComputedDisplayNone(this) ? this.show() : this.hide();
 };
 
@@ -3297,9 +3304,17 @@ HTMLElementPrototype.toggle = function() {
  * 
  * @function HTMLElement.prototype.toggleClass
  * @param {String} [className] - One or more space-separated classes to be toggled. If left empty, the element's current class is toggled.
+ * @param {Boolean} [addOrRemove] - A Boolean indicating whether to add or remove the class (`true` => add, `false` => remove).
  */
-HTMLElementPrototype.toggleClass = function(value) {
-	if (this.className) {
+HTMLElementPrototype.toggleClass = function(value, addOrRemove) {
+	if (addOrRemove === true) {
+		return this.addClass(value);
+	}
+	else if (addOrRemove === false) {
+		return this.removeClass(value);
+	}
+
+	if (this.className && value !== true) {
 		if (value) {
 			var togClasses = value.split(' '),
 			curClasses = this.className.split(rgxSpaceChars),
@@ -3328,9 +3343,9 @@ HTMLElementPrototype.toggleClass = function(value) {
 			value = ''; //Set to an empty string so the class name will be cleared
 		}
 	}
-	else if (!value) {
+	else if (!value || value === true) {
 		//Retrieve the saved class name or an empty string if there is no saved class name
-		value = this._$TC_ || '';
+		value = value !== false && this._$TC_ || (value ? this.className : '');
 	}
 
 	//Set the new value
@@ -5217,6 +5232,7 @@ NodeCollectionPrototype.slideUp = callOnEachElement(HTMLElementPrototype.slideUp
  * Shows each element in the collection if it is hidden or hides it if it is currently showing.
  * 
  * @function NodeCollection.prototype.toggle
+ * @param {Boolean} [showOrHide] - A Boolean indicating whether to show or hide the elements (`true` => show, `false` => hide).
  * @see HTMLElement#hide
  * @see HTMLElement#show
  */
@@ -5257,6 +5273,7 @@ NodeCollectionPrototype.text = function(text) {
  * 
  * @function NodeCollection.prototype.toggleClass
  * @param {String} className - The class to be toggled for each element in the collection.
+ * @param {Boolean} [addOrRemove] - A Boolean indicating whether to add or remove the class (`true` => add, `false` => remove).
  */
 NodeCollectionPrototype.toggleClass = callOnEachElement(HTMLElementPrototype.toggleClass);
 
