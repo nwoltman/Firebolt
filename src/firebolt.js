@@ -490,18 +490,20 @@ function getWrappingInnerElement(wrapper) {
  * Takes an HTML string and returns a NodeList created by the HTML.
  * NOTE: Prototype functions added by Firebolt cannot be used in this function in case the context was changed in the Firebolt function
  */
-function htmlToNodes(html, detachNodes) {
+function htmlToNodes(html, detachNodes, single) {
+	var elem, childs;
+
 	//If the HTML is just a single element without attributes, using document.createElement is much faster
 	if (rgxSingleTag.test(html)) {
-		return new NodeCollection(
-			//Create a new element from the HTML tag, retrieved by stripping "<" from the front and "/>" or ">" from the back
-			createElement(html.slice(1, html.length - (html[html.length - 2] === '/' ? 2 : 1)))
+		//Create a new element from the HTML tag, retrieved by stripping "<" from the front and "/>" or ">" from the back
+		elem = createElement(
+			html.slice(1, html.length - (html[html.length - 2] === '/' ? 2 : 1))
 		);
+		return single ? elem : new NodeCollection(elem);
 	}
 
 	//Speedy for most HTML; just create a <body> and set its HTML
-	var elem = createElement('body'),
-		childs;
+	elem = createElement('body');
 	elem.innerHTML = html;
 	childs = elem.firstChild;
 
@@ -519,6 +521,11 @@ function htmlToNodes(html, detachNodes) {
 		}
 
 		elem.innerHTML = html;
+	}
+
+	if (single) {
+		//Only the `$1` function uses the `single` argument so the returned node must always be removed
+		return elem.removeChild(elem.firstChild);
 	}
 
 	childs = elem.childNodes;
@@ -1365,40 +1372,38 @@ ElementPrototype.removeProp = function(propertyName) {
  * $('str <p>content</p>'); // Creates a set of nodes and returns it as a NodeList (in this case ["str ", <p>content</p>])
  * $.elem('div');           // Calls Firebolt's method to create a new div element 
  */
-function Firebolt(str, context) {
-	var nc, elem;
-
+function Firebolt(selector, context) {
 	if (context) {
 		//Set the scoped document variable to the context document and re-call this function
 		document = context;
-		nc = Firebolt(str);
+		context = Firebolt(selector); //Reuse the context argument to hode the returned collection
 
-		//Restore the document and return the retrieved object
+		//Restore the document and return the retrieved collection
 		document = window.document;
-		return nc;
+		return context;
 	}
 
-	if (str[0] === '#') { //Check for a single ID
-		if (!rgxNotId.test(str)) {
-			nc = new NodeCollection();
-			if (elem = document.getElementById(str.slice(1))) {
-				nc.push(elem);
+	if (selector[0] === '.') { //Check for a single class name
+		if (!rgxNotClass.test(selector)) {
+			return document.getElementsByClassName(selector.slice(1).replace(rgxAllDots, ' '));
+		}
+	}
+	else if (selector[0] === '#') { //Check for a single ID
+		if (!rgxNotId.test(selector)) {
+			context = new NodeCollection(); //Use the unused context argument to be the NodeCollection
+			if (selector = document.getElementById(selector.slice(1))) { //Reuse the selector argument to be the retrieved element
+				context.push(selector);
 			}
-			return nc;
+			return context;
 		}
 	}
-	else if (str[0] === '.') { //Check for a single class name
-		if (!rgxNotClass.test(str)) {
-			return document.getElementsByClassName(str.slice(1).replace(rgxAllDots, ' '));
-		}
+	else if (!rgxNotTag.test(selector)) { //Check for a single tag name
+		return document.getElementsByTagName(selector);
 	}
-	else if (!rgxNotTag.test(str)) { //Check for a single tag name
-		return document.getElementsByTagName(str);
+	else if (isHtml(selector)) { //Check if the string is an HTML string
+		return htmlToNodes(selector, 1); //Pass in 1 to tell the htmlToNodes function to detach the nodes from their creation container
 	}
-	else if (isHtml(str)) { //Check if the string is an HTML string
-		return htmlToNodes(str, 1); //Pass in 1 to tell the htmlToNodes function to detach the nodes from their creation container
-	}
-	return document.querySelectorAll(str);
+	return document.querySelectorAll(selector);
 }
 
 /**
@@ -2420,15 +2425,30 @@ window.$$ = window.$ID = function(id) {
 };
 
 /**
- * Returns the first element within the document that matches the specified CSS selector.
- * If no element matches the selector, `null` or `undefined` may be returned.  
- * Alias of `document.querySelector()`, but with optimizations if a single class name, id, or tag name is input as the selector.
+ * Returns the first element within the document that matches the specified CSS selector or the element created from the input HTML string.  
+ * Basically the same thing as {@link Firebolt(2)}, but only dealing with a single element.
+ * 
+ * @example
+ * $1('button.btn-success'); // Returns the first <button> element with the class "btn-success"
+ * $1('<p>content</p>');     // Creates a new <p> element containing the string "content".
  * 
  * @global
- * @param {String} selector
- * @returns {?Element}
+ * @param {String} string - A CSS selector string or an HTML string.
+ * @param {Document} [context] - A DOM Document to serve as the context when selecting or creating an element.
+ * @returns {?Element} - The selected element (or `null` if no element matched the selector) or the created element.
+ * @throws {SyntaxError} When an invalid CSS selector is passed as the string.
  */
-window.$1 = function(selector) {
+window.$1 = function(selector, context) {
+	if (context) {
+		//Set the scoped document variable to the context document and re-call this function
+		document = context;
+		context = $1(selector); //Reuse the context argument
+
+		//Restore the document and return the retrieved element
+		document = window.document;
+		return context;
+	}
+
 	if (selector[0] === '.') { //Check for a single class name
 		if (!rgxNotClass.test(selector)) {
 			return document.getElementsByClassName(selector.slice(1).replace(rgxAllDots, ' '))[0];
@@ -2441,6 +2461,9 @@ window.$1 = function(selector) {
 	}
 	else if (!rgxNotTag.test(selector)) { //Check for a single tag name
 		return document.getElementsByTagName(selector)[0];
+	}
+	else if (isHtml(selector)) { //Check if the string is an HTML string
+		return htmlToNodes(selector, 1, 1); //Pass in the second 1 to tell the htmlToNodes function to return only one node
 	}
 	//else
 	return document.querySelector(selector);
