@@ -2426,7 +2426,7 @@ window.$$ = window.$ID = function(id) {
 
 /**
  * Returns the first element within the document that matches the specified CSS selector or the element created from the input HTML string.  
- * Basically the same thing as {@link Firebolt(2)}, but only dealing with a single element.
+ * Basically the same thing as `$()`, but only dealing with a single element.
  * 
  * @example
  * $1('button.btn-success'); // Returns the first <button> element with the class "btn-success"
