@@ -5229,16 +5229,6 @@ NodeCollectionPrototype.slideToggle = callOnEachElement(HTMLElementPrototype.sli
 NodeCollectionPrototype.slideUp = callOnEachElement(HTMLElementPrototype.slideUp);
 
 /**
- * Shows each element in the collection if it is hidden or hides it if it is currently showing.
- * 
- * @function NodeCollection.prototype.toggle
- * @param {Boolean} [showOrHide] - A Boolean indicating whether to show or hide the elements (`true` => show, `false` => hide).
- * @see HTMLElement#hide
- * @see HTMLElement#show
- */
-NodeCollectionPrototype.toggle = callOnEachElement(HTMLElementPrototype.toggle);
-
-/**
  * Gets the combined text contents of each node in the list.
  * 
  * @function NodeCollection.prototype.text
@@ -5267,6 +5257,16 @@ NodeCollectionPrototype.text = function(text) {
 
 	return this;
 };
+
+/**
+ * Shows each element in the collection if it is hidden or hides it if it is currently showing.
+ * 
+ * @function NodeCollection.prototype.toggle
+ * @param {Boolean} [showOrHide] - A Boolean indicating whether to show or hide the elements (`true` => show, `false` => hide).
+ * @see HTMLElement#hide
+ * @see HTMLElement#show
+ */
+NodeCollectionPrototype.toggle = callOnEachElement(HTMLElementPrototype.toggle);
 
 /**
  * Toggles the input class name for all elements in the list.
