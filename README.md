@@ -3,15 +3,14 @@
 
 Firebolt is a fast and lightweight JavaScript library for modern browsers. Its core functionality is based on jQuery, so if you already know how to use jQuery, you know how to use Firebolt (with a few minor exceptions).
 
----
-
-**WARNING:** This project is still in the early stages of development. The API could change at any time and code is unstable.
-
----
-
 Similar to <a href="http://zeptojs.com" target="_blank">Zepto.js</a>, Firebolt does not aim for 100% jQuery coverage. It stays lean by only targeting only modern browsers and specifically leaves out jQuery functions that were made obsolete by ES5 (i.e `jQuery.trim()`).
 
 In addition to being very small, Firebolt also aims to be blazing fast. Many functions are heavily perfomance tested using <a href="http://jsperf.com" target="_blank">jsPerf</a> to obtain the highest possible performance average across today's most commonly used browsers.
+
+<p align="center">
+  <br />
+  <img src="http://fireboltjs.com/img/firebolt.jpg" />
+</p>
 
 ### The Secret Sauce
 
@@ -33,7 +32,7 @@ Even though the code is very similar for both Firebolt and jQuery (although Fire
 
 (This is a pretty feeble example of Firebolt's abilites. In the future, there will be a page of examples to show how you can write clear and performant code with Firebolt).
 
-Furthermore, Firebolt's code base is alphabetized by class then function name, so it is fairly easy to find and remove any functions you don't need to make the library even smaller should you decide to use it, or on the other side of the spectrum, you can simply extract a few functions if you don't need the whole libary. All of this is just fine since Firebolt is open source software and is released under the friendly [MIT licence](https://github.com/FireboltJS/Firebolt/blob/master/LICENSE.txt).
+Furthermore, Firebolt's code base is alphabetized by class then function name, so it is fairly easy to find and remove any functions you don't need to make the library even smaller should you decide to use it, or on the other side of the spectrum, you can simply extract a few functions if you don't need the whole libary. All of this is just fine since Firebolt is open source software and is released under the friendly [MIT license](https://github.com/FireboltJS/Firebolt/blob/master/LICENSE.txt).
 
 
 ## Browser Support
