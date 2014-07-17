@@ -85,6 +85,26 @@ function createElement(tagName, attributes) {
 	return attributes ? el.attr(attributes) : el;
 }
 
+/*
+ * Takes a string indicating an event type and returns an Event object that bubbles and is cancelable.
+ * @param {String} eventType - The name of the type of event (such as "click").
+ */
+// ReSharper disable once UnusedParameter
+function createEventObject(eventType, event) {
+	if (Event.length) {
+		event = new Event(eventType, {
+			bubbles: true,
+			cancelable: true
+		});
+	}
+	else {
+		event = document.createEvent('Event');
+		event.initEvent(eventType, true, true);
+	}
+
+	return event;
+}
+
 /**
  * Creates a new DocumentFragment and (optionally) appends the passed in content to it.
  * 
@@ -3742,7 +3762,7 @@ EventPrototype.stopPropagation = function() {
 };
 
 /* This is the function that will be invoked for each event type when a handler is set with Node.prototype.on() */
-function nodeEventHandler(eventObject) {
+function nodeEventHandler(eventObject, extraParameters) {
 	var _this = this, //Improves minification
 		target = eventObject.target,
 		eType = eventObject.type,
@@ -3757,7 +3777,12 @@ function nodeEventHandler(eventObject) {
 		path,
 		pathElement,
 		handlers,
-		handler;
+		handler,
+		result;
+
+	if (isUndefined(extraParameters)) {
+		extraParameters = eventObject._$P_;
+	}
 
 	// Only do delegated events if there are selectors that can be used to delegate events and if the target
 	// was not this element (since if it was this element there would be nothing to bubble up from)
@@ -3789,8 +3814,11 @@ function nodeEventHandler(eventObject) {
 
 						eventObject.data = handler.d; //Set data in the event object
 
-						//Call the function on the current element and stop stuff if it returns false
-						if (handler.fn.call(pathElement, eventObject) === false) {
+						//Call the function on the current element (along with any extra parameters)
+						result = handler.fn.call(pathElement, eventObject, extraParameters);
+
+						//Stop propagation and call preventDefault() if the handler returned `false`
+						if (result === false) {
 							eventObject.stopPropagation();
 							eventObject.preventDefault();
 						}
@@ -3815,8 +3843,11 @@ function nodeEventHandler(eventObject) {
 
 			eventObject.data = handler.d; //Set data in the event object
 
-			//Call the function on the element and stop stuff if it returns false
-			if (handler.fn.call(_this, eventObject) === false) {
+			//Call the function on the current element (along with any extra parameters)
+			result = handler.fn.call(_this, eventObject, extraParameters);
+
+			//Stop propagation and call preventDefault() if the handler returned `false`
+			if (result === false) {
 				eventObject.stopPropagation();
 				eventObject.preventDefault();
 			}
@@ -3827,6 +3858,8 @@ function nodeEventHandler(eventObject) {
 			}
 		}
 	}
+
+	return result;
 }
 
 /**
@@ -4116,6 +4149,52 @@ NodePrototype.text = function(text) {
 	this.textContent = text; //Set
 
 	return this;
+};
+
+/**
+ * Triggers a real DOM event on the node for the given event type.
+ * 
+ * @function Node.prototype.trigger
+ * @param {String} eventType - A string containing a JavaScript event type, such as "click" or "submit".
+ * @param {*} extraParameters - Additional parameters that will be passed as the second argument to the triggered event handler(s).
+ */
+/**
+ * Uses the input Event object to trigger the specified event on the node.
+ * 
+ * @function Node.prototype.trigger
+ * @param {Event} event - An {@link https://developer.mozilla.org/en-US/docs/Web/API/Event | Event} object.
+ * @param {*} extraParameters - Additional parameters that will be passed as the second argument to the triggered event handler(s).
+ */
+NodePrototype.trigger = function(event, extraParameters) {
+	if (typeofString(event)) {
+		event = createEventObject(event);
+	}
+
+	event._$P_ = extraParameters;
+
+	this.dispatchEvent(event);
+
+	return this;
+};
+
+/**
+ * @summary Executes all handlers attached to the node for an event type.
+ * 
+ * @description
+ * The `.triggerHandler()` method behaves similarly to `.trigger()`, with the following exceptions:
+ * 
+ * + The `.triggerHandler()` method does not cause the default behavior of an event to occur (such as a form submission or button click).
+ * + Events triggered with `.triggerHandler()` do not bubble up the DOM hierarchy; if they are not handled by the target node directly,
+ *   they do nothing.
+ * + Instead of returning the node, `.triggerHandler()` returns whatever value was returned by the last handler it caused to be executed.
+ *   If no handlers are triggered, it returns `undefined`.
+ * 
+ * @function Node.prototype.triggerHandler
+ * @param {String} eventType - A string containing a JavaScript event type, such as "click" or "submit".
+ * @param {*} extraParameters - Additional parameters that will be passed as the second argument to the triggered event handler(s).
+ */
+NodePrototype.triggerHandler = function(event, extraParameters) {
+	return nodeEventHandler.call(this, createEventObject(event), extraParameters);
 };
 
 /**
@@ -5276,6 +5355,43 @@ NodeCollectionPrototype.toggle = callOnEachElement(HTMLElementPrototype.toggle);
  * @param {Boolean} [addOrRemove] - A Boolean indicating whether to add or remove the class (`true` => add, `false` => remove).
  */
 NodeCollectionPrototype.toggleClass = callOnEachElement(HTMLElementPrototype.toggleClass);
+
+/**
+ * Triggers a real DOM event on each node in the collection for the given event type.
+ * 
+ * @function NodeCollection.prototype.trigger
+ * @param {String} eventType - A string containing a JavaScript event type, such as "click" or "submit".
+ * @param {*} extraParameters - Additional parameters that will be passed as the second argument to the triggered event handler(s).
+ */
+/**
+ * Uses the input Event object to trigger the specified event on each node in the collection.
+ * 
+ * @function NodeCollection.prototype.trigger
+ * @param {Event} event - An {@link https://developer.mozilla.org/en-US/docs/Web/API/Event | Event} object.
+ * @param {*} extraParameters - Additional parameters that will be passed as the second argument to the triggered event handler(s).
+ */
+NodeCollectionPrototype.trigger = callOnEach(NodePrototype.trigger);
+
+/**
+ * @summary Executes all handlers attached to the node for an event type.
+ * 
+ * @description
+ * The `.triggerHandler()` method behaves similarly to `.trigger()`, with the following exceptions:
+ * 
+ * + The `.triggerHandler()` method does not cause the default behavior of an event to occur (such as a form submission or button click).
+ * + While `.trigger()` will operate on all nodes in the collection, `.triggerHandler()` only affects the first node.
+ * + Events triggered with `.triggerHandler()` do not bubble up the DOM hierarchy; if they are not handled by the target node directly,
+ *   they do nothing.
+ * + Instead of returning the node, `.triggerHandler()` returns whatever value was returned by the last handler it caused to be executed.
+ *   If no handlers are triggered, it returns `undefined`.
+ * 
+ * @function NodeCollection.prototype.triggerHandler
+ * @param {String} eventType - A string containing a JavaScript event type, such as "click" or "submit".
+ * @param {*} extraParameters - Additional parameters that will be passed as the second argument to the triggered event handler(s).
+ */
+NodeCollectionPrototype.triggerHandler = function(eventType, extraParameters) {
+	return this[0] && this[0].triggerHandler(eventType, extraParameters);
+};
 
 /**
  * Remove the each node's parent from the DOM, leaving the node in its place.
