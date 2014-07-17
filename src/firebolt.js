@@ -1127,26 +1127,6 @@ definePrototypeExtensionsOn(ArrayPrototype);
  */
 
 /**
- * Returns a list of the elements within the element that match the specifed CSS selector.  
- * Alias of `Element.querySelectorAll()`.
- * 
- * @function Element.prototype.$
- * @param {String} selector
- * @returns {NodeList} A list of selected elements.
- */
-/* see Element.prototype.$QSA */
-
-/**
- * Returns the first element within the element that matches the specified CSS selector.  
- * Alias of `Element.querySelector()`.
- * 
- * @function Element.prototype.$1
- * @param {String} selector
- * @returns {?Element}
- */
-/* see Element.prototype.$QS */
-
-/**
  * Returns a list of the elements within the element with the specified class name.  
  * Alias of `Element.getElementsByClassName()`.
  * 
@@ -1174,7 +1154,7 @@ ElementPrototype.$TAG = ElementPrototype.getElementsByTagName;
  * @param {String} selector
  * @returns {?Element}
  */
-ElementPrototype.$QS = ElementPrototype.$1 = ElementPrototype.querySelector;
+ElementPrototype.$QS = ElementPrototype.querySelector;
 
 /**
  * Returns a list of the elements within the element that match the specifed CSS selector.  
@@ -1184,7 +1164,7 @@ ElementPrototype.$QS = ElementPrototype.$1 = ElementPrototype.querySelector;
  * @param {String} selector
  * @returns {NodeList} A list of selected elements.
  */
-ElementPrototype.$QSA = ElementPrototype.$ = ElementPrototype.querySelectorAll;
+ElementPrototype.$QSA = ElementPrototype.querySelectorAll;
 
 /**
  * Gets the value of the element's specified attribute.
@@ -1258,8 +1238,8 @@ ElementPrototype.data = function(key, value) {
  * Gets the descendants of the element, filtered by a selector, collection of elements, or a single element.
  * 
  * __Protip:__ Since this method has multiple input types, type-checking is performed on the input to determine how the result will be calculated.
- * If want to find descendant elements using a CSS selector, you should use the native `element.querySelectorAll()` or a Firebolt alias for
- * that function (`.$QSA()` or `.$()`).
+ * If want to find descendant elements using a CSS selector, you should use the native `element.querySelectorAll()` or the Firebolt alias for
+ * that function (`.$QSA()`).
  * 
  * @function Element.prototype.find
  * @param {String|Element|Element[]} selector - A CSS selector, a collection of elements, or a single element used to match descendant elements against.
@@ -1267,11 +1247,11 @@ ElementPrototype.data = function(key, value) {
  */
 ElementPrototype.find = function(selector) {
 	if (typeofString(selector)) {
-		return this.$(selector);
+		return this.$QSA(selector);
 	}
 
 	//Return the intersection of all of the element's descendants with the elements in the input collection or single element (in an array)
-	return this.$('*').intersect(selector.nodeType ? [selector] : selector);
+	return this.$QSA('*').intersect(selector.nodeType ? [selector] : selector);
 };
 
 /**
@@ -1375,9 +1355,9 @@ ElementPrototype.removeProp = function(propertyName) {
  * 
  * __Note:__ Unlike jQuery, only a document may be passed as the `context` variable. This is because there is a simple,
  * native method for selecting elements with an element as the root for the selection. The method is `element.querySelectorAll()`. If
- * the element was created in the same document as Firebolt was loaded, it will have two aliases for `.querySelectorAll()` &mdash;
- * {@linkcode Element#$|.$()} and {@linkcode Element#$QSA|.$QSA()}. If you want to write really performant and concise code, use some
- * of {@link Element|Element's other native functions} as well.
+ * the element was created in the same document as Firebolt was loaded, it will have an alias for `.querySelectorAll()` &mdash;
+ * {@linkcode Element#$QSA|.$QSA()}. If you want to write really performant and concise code, use some of
+ * {@link Element}'s other native functions as well.
  * 
  * @global
  * @variation 2
