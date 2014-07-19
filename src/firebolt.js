@@ -783,7 +783,7 @@ var
 	/* Pre-built RegExps */
 	rgxTableLevel1 = /<t(?:he|b|f)|<c(?:ap|ol)/i, //Matches <thead>, <tbody>, <tfoot>, <caption>, <col>, <colgroup>
 	rgxTableLevel3 = /<t(?:d|h)\b/, //Matches <td>, <th>
-	rgxGetOrHead = /GET|HEAD/i, //Determines if a request is a GET or HEAD request
+	rgxGetOrHead = /GET|HEAD/, //Determines if a request is a GET or HEAD request
 	rgxDomain = /\/?\/\/(?:\w+\.)?(.*?)(?:\/|$)/,
 	rgxDifferentNL = /^(?:af|ap|be|conc|ea|ins|prep|pu|rep|toggleC)|wrap|remove(?:Class)?$/, //Determines if the function is different for NodeLists
 	rgxNotId = /[ .,>:[+~\t-\f]/,    //Matches other characters that cannot be in an id selector
@@ -801,6 +801,7 @@ var
 	/* AJAX */
 	timestamp = Date.now(),
 	oldCallbacks = [],
+	lastModifiedValues = {},
 	ajaxSettings = {
 		accept: {
 			'*': '*/*',
@@ -1429,27 +1430,26 @@ Firebolt._GET = function() {
 };
 
 /**
- * Perform an asynchronous HTTP (Ajax) request.  
- * See the next function description for more information.
+ * Perform an asynchronous HTTP (Ajax) request.
  * 
  * @param {String} url - A string containing the URL to which the request will be sent.
  * @param {Object} [settings] - A set of key/value pairs that configure the Ajax request. All settings are optional.
  * @memberOf Firebolt
  */
 /**
- * Perform an asynchronous HTTP (Ajax) request.
+ * @summary Perform an asynchronous HTTP (Ajax) request.
  * 
+ * @description
  * For documentation, see {@link http://api.jquery.com/jQuery.ajax/|jQuery.ajax()}.  
  * However, Firebolt AJAX requests differ from jQuery's in the following ways:
  * 
  * + Instead of passing a "jqXHR" to callbacks, the native XMLHttpRequest object is passed.
  * + The `context` setting defaults to the XMLHttpRequest object instead of the settings object.
  * + The `contents` and `converters` settings are not supported.
- * + The `ifModifed` settings is currently not supported.
  * + The `data` setting may be a string or a plain object or array to serialize and is appended to the URL as a string for
- * HEAD requests as well as GET requests.
+ *   HEAD requests as well as GET requests.
  * + The `processData` setting has been left out because Firebolt will automatically process only plain objects and arrays
- * (so you don't need to set it to `false` to send a DOMDocument or another type of data&emsp;such as a FormData object).
+ *   (so you don't need to set it to `false` to send a DOMDocument or another type of data&emsp;such as a FormData object).
  * + The `global` setting and the global AJAX functions defined by jQuery are not supported.
  * 
  * To get the full set of AJAX features that jQuery provides, use the Firebolt AJAX extension plugin (if there ever is one).
@@ -1485,10 +1485,12 @@ Firebolt.ajax = function(url, settings) {
 		error = settings.error,
 		errors = typeof error == 'function' ? [error] : error,
 		crossDomain = settings.crossDomain,
+		ifModified = settings.ifModified,
+		lastModifiedValue = ifModified && lastModifiedValues[url],
 		success = settings.success,
 		successes = typeof success == 'function' ? [success] : success,
 		timeout = settings.timeout,
-		type = settings.type,
+		type = settings.type.toUpperCase(),
 		isGetOrHead = rgxGetOrHead.test(type),
 		data = settings.data,
 		textStatus,
@@ -1534,8 +1536,6 @@ Firebolt.ajax = function(url, settings) {
 			//Set the data to the first item in the response
 			data = responseContainer[0];
 		}
-
-		textStatus = 'success';
 
 		if (success) {
 			//Call the user-supplied data filter function if there is one
@@ -1617,6 +1617,7 @@ Firebolt.ajax = function(url, settings) {
 				if (timeout) {
 					clearTimeout(timeout);
 				}
+				textStatus = 'success';
 				callSuccesses();
 				callCompletes();
 			},
@@ -1686,11 +1687,14 @@ Firebolt.ajax = function(url, settings) {
 				if (statusCode === 204 || type === 'HEAD') { //If no content
 					textStatus = 'nocontent';
 				}
-				else if (statusCode === 304) { //If not modified
+				else if (ifModified && url in lastModifiedValues && statusCode === 304) { //If not modified
 					textStatus = 'notmodified';
 				}
 				else {
 					textStatus = 'success';
+					if (ifModified) {
+						lastModifiedValues[url] = xhr.getResponseHeader('Last-Modified');
+					}
 				}
 
 				try {
@@ -1763,6 +1767,11 @@ Firebolt.ajax = function(url, settings) {
 			headers['Accept'] = settings.accept[settings.dataType] || settings.accept['*'];
 		}
 
+		//If there is a lastModifiedValue URL, set the 'If-Modified-Since' header
+		if (lastModifiedValue) {
+			headers['If-Modified-Since'] = lastModifiedValue;
+		}
+
 		//Set the request headers in the XHR
 		for (i in headers) {
 			xhr.setRequestHeader(i, headers[i]);
@@ -1799,7 +1808,7 @@ Firebolt.ajaxSettings = ajaxSettings;
  */
 Firebolt.ajaxSetup = function(options) {
 	return extendDeep(ajaxSettings, options);
-}
+};
 
 /**
  * Gets the object's stored data object.
