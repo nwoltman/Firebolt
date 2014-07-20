@@ -12,10 +12,9 @@
 
 //#region =========================== Private ================================
 
-/**
+/*
  * Calls the passed in function on each item in the enumerable.
  * 
- * @private
  * @param {Function} fn - The function to call on each item.
  * @returns {Enumerable} `this`
  * @this An enumerable object such as Array or NodeList.
@@ -31,10 +30,9 @@ function callOnEach(fn) {
 	};
 }
 
-/** 
+/*
  * Calls the passed in function on each element in a NodeCollection.
  * 
- * @private
  * @param {Function} fn - The function to call on each element.
  * @returns {NodeCollection|NodeList|HTMLCollection} A reference to the NodeCollection.
  */
@@ -75,6 +73,46 @@ function camelize(str) {
  */
 function camelizer(match, p1) {
 	return p1 ? p1.toUpperCase() : '';
+}
+
+/*
+ * Given two Nodes who are clones of each other, this function copies data and events from node A to node B.
+ * This function will run recursively on the children of the nodes unless `doNotCopyChildNodes` is `true`.
+ * 
+ * @param {Node} nodeA - The node being copied.
+ * @param {Node} nodeB - The node that will receive nodeA's data and events.
+ * @param {!Boolean} doNotCopyChildNodes - Inidicates if data and events for child notes should not be copied.
+ */
+function copyDataAndEvents(nodeA, nodeB, doNotCopyChildNodes) {
+	var data = nodeA[Firebolt.expando],
+		events = nodeA._$E_;
+
+	//Data
+	if (data) {
+		//Use Firebolt.data in case the node was created in a different window
+		extendDeep(Firebolt.data(nodeB), data);
+	}
+
+	//From this point on, the `data` variable is reused as the counter (or property name) in loops
+
+	//Events
+	if (events) {
+		//Copy event data and set the handler for each type of event
+		nodeB._$E_ = extendDeep({}, events);
+		for (data in events) {
+			nodeB.addEventListener(data, nodeEventHandler);
+		}
+	}
+
+	//Copy data and events for child nodes
+	if (!doNotCopyChildNodes && (nodeA = nodeA.childNodes)) {
+		nodeB = nodeB.childNodes;
+
+		//The nodeA and nodeB variables are now the childNodes NodeLists or the original nodes
+		for (data = 0; data < nodeA.length; data++) {
+			copyDataAndEvents(nodeA[data], nodeB[data]);
+		}
+	}
 }
 
 /*
@@ -688,46 +726,6 @@ function sortRevDocOrder(a, b) {
 	}
 	//else node a should come first (pos is already positive)
 	return pos;
-}
-
-/*
- * Given two Nodes who are clones of each other, this function copies data and events from node A to node B.
- * This function will run recursively on the children of the nodes unless `doNotCopyChildNodes` is `true`.
- * 
- * @param {Node} nodeA - The node being copied.
- * @param {Node} nodeB - The node that will receive nodeA's data and events.
- * @param {!Boolean} doNotCopyChildNodes - Inidicates if data and events for child notes should not be copied.
- */
-function copyDataAndEvents(nodeA, nodeB, doNotCopyChildNodes) {
-	var data = nodeA[Firebolt.expando],
-		events = nodeA._$E_;
-
-	//Data
-	if (data) {
-		//Use Firebolt.data in case the node was created in a different window
-		extendDeep(Firebolt.data(nodeB), data);
-	}
-
-	//From this point on, the `data` variable is reused as the counter (or property name) in loops
-
-	//Events
-	if (events) {
-		//Copy event data and set the handler for each type of event
-		nodeB._$E_ = extendDeep({}, events);
-		for (data in events) {
-			nodeB.addEventListener(data, nodeEventHandler);
-		}
-	}
-
-	//Copy data and events for child nodes
-	if (!doNotCopyChildNodes && (nodeA = nodeA.childNodes)) {
-		nodeB = nodeB.childNodes;
-
-		//The nodeA and nodeB variables are now the childNodes NodeLists or the original nodes
-		for (data = 0; data < nodeA.length; data++) {
-			copyDataAndEvents(nodeA[data], nodeB[data]);
-		}
-	}
 }
 
 function typeofObject(value) {
