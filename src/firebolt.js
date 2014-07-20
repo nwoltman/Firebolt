@@ -6,7 +6,7 @@
  * @license MIT https://github.com/FireboltJS/Firebolt/blob/master/LICENSE.txt
  */
 
-(function(window, document, Array, Object, decodeURIComponent, encodeURIComponent, getComputedStyle, parseFloat) {
+(function(window, document, Array, Object, decodeURIComponent, encodeURIComponent, getComputedStyle, parseFloat, setTimeout, clearTimeout) {
 
 "use strict";
 
@@ -635,6 +635,8 @@ function isUndefined(value) {
 	return value === undefined;
 }
 
+function NOOP() { }
+
 /*
  * Prepends a node to a reference node. 
  */
@@ -784,7 +786,6 @@ var
 	rgxTableLevel1 = /<t(?:he|b|f)|<c(?:ap|ol)/i, // Matches <thead>, <tbody>, <tfoot>, <caption>, <col>, <colgroup>
 	rgxTableLevel3 = /<t(?:d|h)\b/,               // Matches <td>, <th>
 	rgxDataType = /\b(?:xml|json)\b|script\b/,    // Matches an AJAX data type in Content-Type header
-	rgxDomain = /\/?\/\/(?:\w+\.)?(.*?)(?:\/|$)/, // Extracts the domain from a URL
 	rgxDifferentNL = /^(?:af|ap|be|conc|ea|ins|prep|pu|rep|toggleC)|wrap|remove(?:Class)?$/, //Determines if the function is different for NodeLists
 	rgxNotId = /[ .,>:[+~\t-\f]/,    //Matches other characters that cannot be in an id selector
 	rgxNotClass = /[ #,>:[+~\t-\f]/, //Matches other characters that cannot be in a class selector
@@ -800,29 +801,11 @@ var
 
 	/* AJAX */
 	timestamp = Date.now(),
-	oldCallbacks = [],
-	lastModifiedValues = {},
 	ajaxSettings = {
-		accept: {
-			'*': '*/*',
-			html: 'text/html',
-			json: 'application/json, text/javascript',
-			script: 'text/javascript, application/javascript, application/ecmascript, application/x-ecmascript',
-			text: 'text/plain',
-			xml: 'application/xml, text/xml'
-		},
 		async: true,
-		headers: {'X-Requested-With': 'XMLHttpRequest'},
 		isLocal: /^(?:file|.*-extension|widget):/.test(location.href),
-		jsonp: 'callback',
-		jsonpCallback: function() {
-			var callback = oldCallbacks.pop() || Firebolt.expando + "_" + (timestamp++);
-			this[callback] = true;
-			return callback;
-		},
 		type: 'GET',
-		url: location.href,
-		xhr: XMLHttpRequest
+		url: location.href
 	},
 
 	/* Animations */
@@ -1431,31 +1414,43 @@ Firebolt._GET = function() {
 /**
  * Perform an asynchronous HTTP (Ajax) request.
  * 
+ * @function Firebolt.ajax
  * @param {String} url - A string containing the URL to which the request will be sent.
  * @param {Object} [settings] - A set of key/value pairs that configure the Ajax request. All settings are optional.
- * @memberOf Firebolt
+ * @returns {XMLHttpRequest} The XMLHttpRequest object this request is using (only for requests where the dataType is not "script".
  */
 /**
  * @summary Perform an asynchronous HTTP (Ajax) request.
  * 
  * @description
- * For documentation, see {@link http://api.jquery.com/jQuery.ajax/ | jQuery.ajax()}.  
- * However, Firebolt AJAX requests differ from jQuery's in the following ways:
+ * This is a simplified version of jQuery's {@link http://api.jquery.com/jQuery.ajax/ | jQuery.ajax()} function.  
+ * Firebolt's basic AJAX requests differ from jQuery's in the following ways:
  * 
- * + Instead of passing a "jqXHR" to callbacks, the native XMLHttpRequest object is passed.
- * + The `context` setting defaults to the XMLHttpRequest object instead of the settings object.
- * + The `contents` and `converters` settings are not supported.
- * + The `data` setting may be a string or a plain object or array to serialize and is appended to the URL as a string for
- *   HEAD requests as well as GET requests.
- * + The `processData` setting has been left out because Firebolt will automatically process only plain objects and arrays
- *   (so you don't need to set it to `false` to send a DOMDocument or another type of data&emsp;such as a FormData object).
- * + The `global` setting and the global AJAX functions defined by jQuery are not supported.
+ * 1. Instead of passing a "jqXHR" to callbacks, the native XMLHttpRequest object is passed.
+ * 2. The `data` setting may be a string or a plain object or array to serialize and is appended to the URL as a string for
+ *    HEAD requests as well as GET requests.
+ * 3. The `processData` setting has been left out because Firebolt will automatically process only plain objects and arrays
+ *    (so you wouldn't need to set it to `false` to send another type of data&emsp;such as a `FormData` object).
+ * 4. The `success`, `error`, and `complete` settings can only be set to a function, not an array of functions.
+ * 5. JSONP is not supported.
+ * 6. In addition to the above, the following settings are not supported:
+ *    + accepts
+ *    + contents
+ *    + context
+ *    + converters
+ *    + dataFilter
+ *    + global
+ *    + ifModified
+ *    + jsonp
+ *    + jsonpCallback
+ *    + statusCode
+ *    + xhr
  * 
- * To get the full set of AJAX features that jQuery provides, use the Firebolt AJAX extension plugin (if there ever is one).
+ * To get the (almost) full set of AJAX features that jQuery provides, use the Firebolt AJAX extension.
  * 
+ * @function Firebolt.ajax
  * @param {Object} [settings] - A set of key/value pairs that configure the Ajax request. All settings are optional.
- * @returns {XMLHttpRequest} The XMLHttpRequest object this request is using (only for requests where the dataType is not "script" or "jsonp".
- * @memberOf Firebolt
+ * @returns {XMLHttpRequest} The XMLHttpRequest object this request is using.
  */
 Firebolt.ajax = function(url, settings) {
 	//Parameter processing
@@ -1473,81 +1468,23 @@ Firebolt.ajax = function(url, settings) {
 	url = settings.url;
 
 	//Create the XMLHttpRequest and give it settings
-	var xhr = extend(new settings.xhr(), settings.xhrFields),
+	var xhr = extend(new XMLHttpRequest(), settings.xhrFields),
 		async = settings.async,
 		beforeSend = settings.beforeSend,
-		complete = settings.complete || [],
-		completes = typeof complete == 'function' ? [complete] : complete,
+		complete = settings.complete || NOOP,
 		contentType = settings.contentType,
-		context = settings.context || xhr,
+		crossDomain = settings.crossDomain || url.contains('//') && url.indexOf(document.domain) < 0,
 		dataType = settings.dataType,
-		dataTypeJSONP = dataType == 'jsonp',
-		error = settings.error,
-		errors = typeof error == 'function' ? [error] : error,
-		crossDomain = settings.crossDomain || url.contains('//') && url.indexOf( (location.href.match(rgxDomain) || [])[1] ) < 0,
-		ifModified = settings.ifModified,
-		lastModifiedValue = ifModified && lastModifiedValues[url],
-		success = settings.success,
-		successes = typeof success == 'function' ? [success] : success,
+		error = settings.error || NOOP,
+		headers = settings.headers || {}, //For true XHRs only
+		lastState = 0, //For true XHRs only
+		success = settings.success || NOOP,
 		timeout = settings.timeout,
 		type = settings.type.toUpperCase(),
 		isGetOrHead = type == 'GET' || type == 'HEAD',
 		data = settings.data,
-		textStatus,
-		i;
-
-	function callCompletes(errorThrown) {
-		//Execute the status code callback (if there is one that matches the status code)
-		if (settings.statusCode) {
-			var callback = settings.statusCode[xhr.status];
-			if (callback) {
-				if (textStatus == 'success') {
-					callback.call(context, data, textStatus, xhr);
-				}
-				else {
-					callback.call(context, xhr, textStatus, errorThrown || getAjaxErrorStatus(xhr));
-				}
-			}
-		}
-		//Execute all the complete callbacks
-		for (i = 0; i < completes.length; i++) {
-			completes[i].call(context, xhr, textStatus, errorThrown || getAjaxErrorStatus(xhr));
-		}
-	}
-
-	function callErrors(errorThrown) {
-		if (error) {
-			//Execute all the error callbacks
-			for (i = 0; i < errors.length; i++) {
-				errors[i].call(context, xhr, textStatus, errorThrown || getAjaxErrorStatus(xhr));
-			}
-		}
-	}
-
-	function callSuccesses() {
-		//Handle last-minute JSONP
-		if (dataTypeJSONP) {
-			//Call errors and return if the JSONP function was not called
-			if (!responseContainer) {
-				textStatus = 'parsererror';
-				return callErrors(jsonpCallback + " was not called");
-			}
-
-			//Set the data to the first item in the response
-			data = responseContainer[0];
-		}
-
-		if (success) {
-			//Call the user-supplied data filter function if there is one
-			if (settings.dataFilter) {
-				data = settings.dataFilter(data, dataType);
-			}
-			//Execute all the success callbacks
-			for (i = 0; i < successes.length; i++) {
-				successes[i].call(context, data, textStatus, xhr);
-			}
-		}
-	}
+		statusCode, //For true XHRs only
+		textStatus;
 
 	if (data) {
 		//Process data if necessary
@@ -1558,47 +1495,11 @@ Firebolt.ajax = function(url, settings) {
 		//If the request is a GET or HEAD, append the data string to the URL
 		if (isGetOrHead) {
 			url = url.appendParams(data);
-			data = undefined; //Clear the data so it is not sent later on
+			data = null; //Clear the data so it is not sent later on
 		}
 	}
 
-	if (dataTypeJSONP) {
-		var jsonpCallback = settings.jsonpCallback,
-			responseContainer,
-			overwritten;
-		if (!typeofString(jsonpCallback)) {
-			jsonpCallback = settings.jsonpCallback();
-		}
-
-		//Append the callback name to the URL
-		url = url.appendParams(settings.jsonp + '=' + jsonpCallback);
-
-		// Install callback
-		overwritten = window[jsonpCallback];
-		window[jsonpCallback] = function() {
-			responseContainer = arguments;
-		};
-
-		//Push JSONP cleanup onto complete callback array
-		completes.push(function() {
-			// Restore preexisting value
-			window[jsonpCallback] = overwritten;
-
-			if (settings[jsonpCallback]) {
-				//Save the callback name for future use
-				oldCallbacks.push(jsonpCallback);
-			}
-
-			//Call if `overwritten` was a function and there was a response
-			if (responseContainer && typeof overwritten == 'function') {
-				overwritten(responseContainer[0]);
-			}
-
-			responseContainer = overwritten = undefined;
-		});
-	}
-
-	if ((crossDomain || settings.isLocal) && (dataType == 'script' || dataTypeJSONP)) {
+	if (dataType == 'script' && (crossDomain || settings.isLocal)) { //Set up an HTML script loader
 		//Prevent caching unless the user explicitly set cache to true
 		if (settings.cache !== true) {
 			url = url.appendParams('_=' + (timestamp++));
@@ -1611,49 +1512,39 @@ Firebolt.ajax = function(url, settings) {
 				if (timeout) {
 					clearTimeout(timeout);
 				}
-				textStatus = 'success';
-				callSuccesses();
-				callCompletes();
+				script.remove();
+				success(data, textStatus = 'success', xhr);
+				complete(xhr, textStatus);
 			},
 			onerror: function(ex) {
 				if (timeout) {
 					clearTimeout(timeout);
 				}
-				textStatus = 'error';
-				callErrors(ex.type);
-				callCompletes(ex.type);
+				script.remove();
+				error(xhr, textStatus = 'error', ex.type);
+				complete(xhr, textStatus);
 			}
 		}).prop(isOldIE ? 'defer' : 'async', async);
 
-		//Always remove the script after the request is done
-		completes.push(function() {
-			script.remove();
-		});
-
-		if (beforeSend && beforeSend.call(context, xhr, settings) === false) {
+		if (beforeSend && beforeSend(xhr, settings) === false) {
 			//If the beforeSend function returned false, do not send the request
 			return false;
 		}
 
-		//Add timeout
+		//Set a timeout if there is one
 		if (timeout) {
 			timeout = setTimeout(function() {
 				script.remove();
-				textStatus = 'timeout';
-				callErrors();
-				callCompletes(textStatus);
+				error(xhr, textStatus = 'timeout', '');
+				complete(xhr, textStatus);
 			}, timeout);
 		}
 
 		//Append the script to the head of the document to load it
 		document.head.appendChild(script);
 	}
-	else {
-		//Data just for real XHRs
-		var headers = settings.headers,
-			lastState = 0,
-			statusCode;
-
+	else { //Set up a true XHR
+		//Override the requested MIME type in the XHR if there is one specified in the settings
 		if (settings.mimeType) {
 			xhr.overrideMimeType(settings.mimeType);
 		}
@@ -1663,14 +1554,17 @@ Firebolt.ajax = function(url, settings) {
 			url = url.appendParams('_=' + (timestamp++));
 		}
 
+		//Set the content type header if there is data to submit or the user has specifed a particular content type
+		if (data || contentType) {
+			headers['Content-Type'] = contentType || 'application/x-www-form-urlencoded; charset=UTF-8';
+		}
+
 		//The main XHR function for when the request has loaded (and track states in between for abort or timeout)
 		xhr.onreadystatechange = function() {
-			if (xhr.readyState !== 4) {
-				lastState = xhr.readyState;
+			if ((lastState = xhr.readyState) < 4) {
 				return;
 			}
 
-			//For browsers that don't natively support XHR timeouts
 			if (timeout) {
 				clearTimeout(timeout);
 			}
@@ -1678,17 +1572,11 @@ Firebolt.ajax = function(url, settings) {
 			statusCode = xhr.status;
 
 			if (statusCode >= 200 && statusCode < 300 || statusCode === 304 || settings.isLocal && xhr.responseText) { //Success
-				if (statusCode === 204 || type === 'HEAD') { //If no content
+				if (statusCode === 204 || type == 'HEAD') { //If no content
 					textStatus = 'nocontent';
-				}
-				else if (ifModified && url in lastModifiedValues && statusCode === 304) { //If not modified
-					textStatus = 'notmodified';
 				}
 				else {
 					textStatus = 'success';
-					if (ifModified) {
-						lastModifiedValues[url] = xhr.getResponseHeader('Last-Modified');
-					}
 				}
 
 				try {
@@ -1711,7 +1599,7 @@ Firebolt.ajax = function(url, settings) {
 						else {
 							data = xhr.responseText;
 
-							if (dataType == 'script' || dataTypeJSONP) {
+							if (dataType == 'script') {
 								Firebolt.globalEval(data);
 							}
 						}
@@ -1720,55 +1608,39 @@ Firebolt.ajax = function(url, settings) {
 						data = '';
 					}
 
-					//Invoke the success callbacks
-					callSuccesses();
+					//Invoke the success callback
+					success(data, textStatus, xhr);
 				}
 				catch (e) {
-					textStatus = 'parsererror';
-					callErrors();
+					error(xhr, textStatus = 'parsererror', getAjaxErrorStatus(xhr));
 				}
 			}
 			else { //Error
 				if (textStatus != 'timeout') {
 					textStatus = lastState < 3 ? 'abort' : 'error';
 				}
-				callErrors();
+				error(xhr, textStatus, getAjaxErrorStatus(xhr));
 			}
 
-			//Invoke the complete callbacks
-			callCompletes();
+			//Invoke the complete callback
+			complete(xhr, textStatus);
 		};
 
 		//Open the request
 		xhr.open(type, url, async, settings.username, settings.password);
 
-		//Set the content type header if there is data to submit or the user has specifed a particular content type
-		if (data || contentType) {
-			headers['Content-Type'] = contentType || 'application/x-www-form-urlencoded; charset=UTF-8';
-		}
-
-		//If the data type has been set, set the accept header
-		if (settings.dataType) {
-			headers['Accept'] = settings.accept[settings.dataType] || settings.accept['*'];
-		}
-
-		//If there is a lastModifiedValue URL, set the 'If-Modified-Since' header
-		if (lastModifiedValue) {
-			headers['If-Modified-Since'] = lastModifiedValue;
-		}
-
 		//Set the request headers in the XHR
-		for (i in headers) {
-			xhr.setRequestHeader(i, headers[i]);
+		for (type in headers) { //Reuse the `type` variable since it has already served its purpose in opening the XHR
+			xhr.setRequestHeader(type, headers[type]);
 		}
 
-		if (beforeSend && beforeSend.call(context, xhr, settings) === false) {
+		if (beforeSend && beforeSend(xhr, settings) === false) {
 			//If the beforeSend function returned false, do not send the request
 			return false;
 		}
 
-		//Set timeout if there is one
-		if (timeout > 0) {
+		//Set a timeout if there is one
+		if (timeout) {
 			timeout = setTimeout(function() {
 				textStatus = 'timeout';
 				xhr.abort();
@@ -1781,9 +1653,6 @@ Firebolt.ajax = function(url, settings) {
 
 	return xhr;
 };
-
-/* Expose the AJAX settings (just because jQuery does this, even though it's not documented). */
-Firebolt.ajaxSettings = ajaxSettings;
 
 /**
  * Sets default values for future Ajax requests. Use of this function is not recommended.
@@ -5914,4 +5783,4 @@ if (!document.children) {
 
 //#endregion Browser Compatibility and Speed Boosters
 
-})(self, document, Array, Object, decodeURIComponent, encodeURIComponent, getComputedStyle, parseFloat); //self === window
+})(self, document, Array, Object, decodeURIComponent, encodeURIComponent, getComputedStyle, parseFloat, setTimeout, clearTimeout); //self === window
