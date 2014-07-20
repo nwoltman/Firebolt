@@ -4117,33 +4117,36 @@ prototypeExtensions.clone = function(withDataAndEvents, deepWithDataAndEvents) {
 };
 
 /**
- * Same constructor as {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array|Array}.
+ * Same constructor as {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array | Array}.
  * 
  * @class NodeCollection
  * @mixes Array
  * @classdesc
  * A mutable collection of DOM nodes. It subclasses the native {@link Array} class (but take note that the `.clone()`, `.clean()`,
  * `.remove()`, and `.filter()` functions have been overridden), and has all of the main DOM-manipulating functions.
+ * `NodeCollection` can also be reference by its shorter alias: `NC`.
  * 
  * __Note:__ Since it is nearly impossible to fully subclass the Array class in JavaScript, there is one minor hiccup
  * with the way NodeCollection subclasses Array. The `instanceof` operator will not report that NodeCollection is an
  * instance of anything other than a NodeCollection. It also will not report that `NodeCollection` is a function.
  * This is demonstrated in the following code:
  * ```javascript
- * var nc = new NodeCollection();
- * nc instanceof NodeCollection; // true
- * nc instanceof Array;          // false
- * nc instanceof Object;         // false
+ * var nc = new NodeCollection(); // (or 'new NC()' for short)
+ * nc instanceof NodeCollection;  // true
+ * nc instanceof NC;     // true
+ * nc instanceof Array;  // false
+ * nc instanceof Object; // false
  * nc.constructor instanceof Function; // false
  * ```
  * All other operations, such as `Array.isArray()` and `typeof`, will work correctly.
  * 
  * It should be noted that all functions that do not have a specified return value, return the calling object,
- * allowing for function chaining.
+ * allowing for function chaining.  
+ * <br />
  */
 var
 	//<iframe> Array subclassing
-	NodeCollection = window.NodeCollection = document.head.appendChild(iframe).contentWindow.Array,
+	NodeCollection = window.NodeCollection = window.NC = document.head.appendChild(iframe).contentWindow.Array,
 
 	//Extend NodeCollection's prototype with the Array functions
 	NodeCollectionPrototype = extend(NodeCollection[prototype], prototypeExtensions),
