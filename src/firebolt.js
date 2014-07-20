@@ -824,11 +824,11 @@ var
  * @class Array
  * @classdesc The JavaScript Array object.
  * @mixes Object
- * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array|Array - JavaScript | MDN}
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array | Array - JavaScript | MDN}
  */
 
 prototypeExtensions = {
-	/* Private reference to the constructor */
+	/* Private reference to the Array constructor */
 	_$C_: Array,
 
 	/**
@@ -842,11 +842,13 @@ prototypeExtensions = {
 	clean: function(allowEmptyStrings) {
 		var cleaned = [],
 			i = 0;
+
 		for (; i < this.length; i++) {
 			if (!Firebolt.isEmpty(this[i], allowEmptyStrings)) {
 				cleaned.push(this[i]);
 			}
 		}
+
 		return cleaned;
 	},
 
@@ -860,18 +862,20 @@ prototypeExtensions = {
 	},
 
 	/**
-	 * Returns a duplicate of the array, leaving the original array intact.
+	 * Returns a duplicate of the array.
 	 * 
 	 * @function Array.prototype.clone
-	 * @returns {Array} A copy of the array.
+	 * @returns {Array} A shallow copy of the array.
 	 */
 	clone: function() {
 		var len = this.length,
 			clone = new this._$C_(len),
 			i = 0;
+
 		for (; i < len; i++) {
 			clone[i] = this[i];
 		}
+
 		return clone;
 	},
 
@@ -894,16 +898,43 @@ prototypeExtensions = {
 	 * @param {...Array} arrays - One or more array-like objects.
 	 * @returns {Array}
 	 */
-	diff: function(array, others) {
-		//The union can be applied to the Array prototype because it is basically the same thing as an empty array
-		return this.without.apply(this, others ? array.union.apply(ArrayPrototype, arguments) : array);
+	diff: function() {
+		var arrays = arguments,
+			difference = new this._$C_(),
+			i = 0,
+			j,
+			k,
+			item,
+			array;
+
+	skip:
+		for (; i < this.length; i++) {
+			item = this[i];
+
+			for (j = 0; j < arrays.length; j++) {
+				array = arrays[j];
+
+				for (k = 0; k < array.length; k++) {
+					if (item === array[k]) {
+						continue skip;
+					}
+				}
+			}
+
+			//The item was not part of any of the input arrays so it can be added to the difference array
+			difference.push(item);
+		}
+
+		return difference;
 	},
 
 	/**
-	 * Executes a function on each item in the array.  
-	 * The difference between this function and `Array#forEach` is that you can cancel the iteration by returning
+	 * @summary Executes a function on each item in the array.
+	 * 
+	 * @description
+	 * The difference between this function and `Array#forEach()` is that you can cancel the iteration by returning
 	 * `false` in the callback and the array is returned (allowing for function chaining).  
-	 * The difference between this function and `Array#every` is that only returning `false` in the callback will
+	 * The difference between this function and `Array#every()` is that only returning `false` in the callback will
 	 * cancel the iteration (instead of any falsy value) and the array is returned instead of a boolean.
 	 * 
 	 * @function Array.prototype.each
@@ -915,8 +946,9 @@ prototypeExtensions = {
 	},
 
 	/**
-	 * Determines if the arrays are equal by doing a shallow comparison of their elements using strict equality.  
-	 * NOTE: The order of elements in the arrays DOES matter. The elements must be found in the same order for the arrays to be considered equal.
+	 * Determines if the arrays are equal by doing a shallow comparison of their elements using strict equality.
+	 * 
+	 * __Note:__ The order of elements in the arrays DOES matter. The elements must be found in the same order for the arrays to be considered equal.
 	 * 
 	 * @function Array.prototype.equals
 	 * @param {Array|Enumerable} array - Array or other enumerable object that has a `length` property.
@@ -926,14 +958,17 @@ prototypeExtensions = {
 		if (this === array) { //Easy check
 			return true;
 		}
+
 		if (this.length !== array.length) {
 			return false;
 		}
+
 		for (var i = 0; i < array.length; i++) {
 			if (this[i] !== array[i]) {
 				return false;
 			}
 		}
+
 		return true;
 	},
 
@@ -959,20 +994,23 @@ prototypeExtensions = {
 	/**
 	 * Returns an array containing every item that is in both this array and the input array.
 	 * 
+	 * @example
+	 * [1, 2, 3].intersect([2, 3, 4]); // -> [2, 3]
+	 * 
 	 * @function Array.prototype.intersect
 	 * @param {Array|Enumerable} array - Array or other enumerable object that has a `length` property.
 	 * @returns {Array} An array that is the intersection of this array and the input array.
-	 * @example
-	 * [1, 2, 3].intersect([2, 3, 4]);  // returns [2, 3]
 	 */
 	intersect: function(array) {
 		var intersection = new this._$C_(),
 			i = 0;
+
 		for (; i < array.length; i++) {
 			if (this.contains(array[i]) && intersection.indexOf(array[i]) < 0) {
 				intersection.push(array[i]);
 			}
 		}
+
 		return intersection;
 	},
 
@@ -984,40 +1022,49 @@ prototypeExtensions = {
 	 * @returns {Array} A reference to the array (so it's chainable).
 	 */
 	remove: array_remove = function() {
-		for (var rindex, i = 0; i < arguments.length; i++) {
-			while ((rindex = this.indexOf(arguments[i])) >= 0) {
-				this.splice(rindex, 1);
-				if (!this.length) {
-					return this; //Exit early since there is nothing left to remove
+		var args = arguments,
+			_this = this,
+			i = 0,
+			rindex;
+
+		for (; i < args.length; i++) {
+			while ((rindex = _this.indexOf(args[i])) >= 0) {
+				_this.splice(rindex, 1);
+				if (!_this.length) {
+					return _this; //Exit early since there is nothing left to remove
 				}
 			}
 		}
 
-		return this;
+		return _this;
 	},
 
 	/**
 	 * Returns an array containing every distinct item that is in either this array or the input array.
 	 * 
+	 * @example
+	 * [1, 2, 3].union([2, 3, 4, 5]); // -> [1, 2, 3, 4, 5]
+	 * 
 	 * @function Array.prototype.union
 	 * @param {...Array} array - One or more arrays or array-like objects.
 	 * @returns {Array} An array that is the union of this array and the input array.
-	 * @example
-	 * [1, 2, 3].union([2, 3, 4, 5]);  // returns [1, 2, 3, 4, 5]
 	 */
 	union: function() {
-		var union = this.uniq(),
+		var args = arguments,
+			union = this.uniq(),
 			i = 0,
-			array,
-			j;
-		for (; i < arguments.length; i++) {
-			array = arguments[i];
+			j,
+			array;
+
+		for (; i < args.length; i++) {
+			array = args[i];
 			for (j = 0; j < array.length; j++) {
 				if (union.indexOf(array[j]) < 0) {
 					union.push(array[j]);
 				}
 			}
 		};
+
 		return union;
 	},
 
@@ -1026,10 +1073,11 @@ prototypeExtensions = {
 	 * 
 	 * @example
 	 * // Unsorted
-	 * [1, 2, 3, 2, 1, 4].uniq();      // returns [1, 2, 3, 4]
+	 * [4, 2, 3, 2, 1, 4].uniq();     // -> [1, 2, 3, 4]
+	 * 
 	 * // Sorted
-	 * [1, 2, 2, 3, 4, 4].uniq();      // returns [1, 2, 3, 4]
-	 * [1, 2, 2, 3, 4, 4].uniq(true);  // returns [1, 2, 3, 4] but faster than on the previous line
+	 * [1, 2, 2, 3, 4, 4].uniq();     // -> [1, 2, 3, 4]
+	 * [1, 2, 2, 3, 4, 4].uniq(true); // -> [1, 2, 3, 4] (but faster than on the previous line)
 	 * 
 	 * @function Array.prototype.uniq
 	 * @param {Boolean} [isSorted=false] - If the input array's contents are sorted and this is set to `true`,
@@ -1057,39 +1105,31 @@ prototypeExtensions = {
 	/**
 	 * Returns a copy of the current array without any elements from the input parameters.
 	 * 
+	 * @example
+	 * [1, 2, 3, 4, 5, 6].without(3, 4, 6); // -> [1, 2, 5]
+	 * 
 	 * @function Array.prototype.without
 	 * @param {...*} items - One or more items to leave out of the returned array.
 	 * @returns {Array}
-	 * @example
-	 * [1, 2, 3, 4, 5, 6].without(3, 4, 6);  // returns [1, 2, 5]
 	 */
-	without: isIOS
-		//Special, faster function for iOS (http://jsperf.com/arrwout), which also helps make Array#diff faster
-		? function() {
-			var array = new this._$C_(),
-				i = 0;
-			for (; i < this.length; i++) {
-				if (ArrayPrototype.indexOf.call(arguments, this[i]) < 0) {
-					array.push(this[i]);
+	without: function() {
+		var args = arguments,
+			array = new this._$C_(),
+			i = 0,
+			j;
+
+	skip:
+		for (; i < this.length; i++) {
+			for (j = 0; j < args.length; j++) {
+				if (this[i] === args[j]) {
+					continue skip;
 				}
 			}
-			return array;
+			array.push(this[i]);
 		}
-		: function() {
-			var array = new this._$C_(),
-				i = 0,
-				j;
-			skip:
-			for (; i < this.length; i++) {
-				for (j = 0; j < arguments.length; j++) {
-					if (this[i] === arguments[j]) {
-						continue skip;
-					}
-				}
-				array.push(this[i]);
-			}
-			return array;
-		}
+
+		return array;
+	}
 };
 
 //Define the properties on Array.prototype
