@@ -1921,15 +1921,13 @@ Firebolt.getScript = function(url, success) {
 Firebolt.globalEval = function(code) {
 	var indirect = eval;
 
-	code = code.trim();
-
-	if (code) {
+	if (code = code.trim()) {
 		//If the code begins with a strict mode pragma, execute code by injecting a script tag into the document.
 		if (code.lastIndexOf('use strict', 1) === 1) {
-			createElement('script').prop('text', code).appendTo(document.head).remove();
+			createElement('script').text(code).appendTo(document.head).remove();
 		}
 		else {
-			//Otherwise, avoid the DOM node creation, insertion and removal by using an inderect global eval
+			//Otherwise, avoid the DOM node creation, insertion, and removal by using an indirect global eval
 			indirect(code);
 		}
 	}
@@ -2013,50 +2011,44 @@ Firebolt.noConflict = function() {
  * @returns {String} The serialized string representation of the array or object.
  */
 Firebolt.param = function(obj, traditional) {
-	return traditional ? serializeTraditional(obj) : serializeRecursive(obj);
+	return serialize(obj, 0, traditional);
 };
 
-/* Inspired by: http://stackoverflow.com/questions/1714786/querystring-encoding-of-a-javascript-object */
-function serializeRecursive(obj, prefix) {
-	var str = '',
+function serialize(obj, prefix, traditional) {
+	var queryString = '',
 		key,
 		value,
 		cur;
+
 	for (key in obj) {
 		value = obj[key];
-		if (!isEmptyObject(value)) {
-			cur = prefix ? prefix + '[' + key + ']' : key;
-			str += (str ? '&' : '')
-				+ (typeofObject(value) ? serializeRecursive(value, cur)
-											: encodeURIComponent(cur) + '=' + encodeURIComponent(value));
-		}
-	}
-	return str;
-}
 
-function serializeTraditional(obj) {
-	var qs = '',
-		key,
-		value,
-		i;
-	for (key in obj) {
-		//Add the key
-		qs += (qs ? '&' : '') + encodeURIComponent(key);
+		if (traditional) {
+			//Add the key
+			queryString += (queryString ? '&' : '') + encodeURIComponent(key);
 
-		//Add the value
-		value = obj[key];
-		if (isArray(value)) {
-			for (i = 0; i < value.length; i++) {
-				//Add key again for multiple array values
-				qs += (i ? '&' + encodeURIComponent(key) : '') + '=' + encodeURIComponent(value[i]);
+			//Add the value
+			if (isArray(value)) {
+				for (cur = 0; cur < value.length; cur++) {
+					//Add key again for multiple array values
+					queryString += (cur ? '&' + encodeURIComponent(key) : '') + '=' + encodeURIComponent(value[cur]);
+				}
+			}
+			else {
+				queryString += '=' + encodeURIComponent(value);
 			}
 		}
 		else {
-			qs += '=' + encodeURIComponent(value);
+			/* Inspired by: http://stackoverflow.com/questions/1714786/querystring-encoding-of-a-javascript-object */
+			if (!isEmptyObject(value) || typeofString(value)) {
+				cur = prefix ? prefix + '[' + key + ']' : key;
+				queryString += (queryString ? '&' : '') + (typeofObject(value) ? serialize(value, cur)
+																			   : encodeURIComponent(cur) + '=' + encodeURIComponent(value));
+			}
 		}
 	}
 
-	return qs;
+	return queryString;
 }
 
 /**
@@ -3055,7 +3047,7 @@ HTMLElementPrototype.serialize = function() {
 
 	//Check if the value is a string because <select> elements may return an array of selected options
 	return typeofString(value) ? encodeURIComponent(name) + '=' + encodeURIComponent(value)
-							   : serializeRecursive( HTMLElementPrototype.prop.call({}, name, value) );
+							   : serialize( HTMLElementPrototype.prop.call({}, name, value) );
 };
 
 /* For form elements, return the serialization of its form controls */
