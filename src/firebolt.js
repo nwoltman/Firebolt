@@ -781,10 +781,10 @@ var
 	previousElementSibling = 'previousElementSibling',
 
 	/* Pre-built RegExps */
-	rgxTableLevel1 = /<t(?:he|b|f)|<c(?:ap|ol)/i, //Matches <thead>, <tbody>, <tfoot>, <caption>, <col>, <colgroup>
-	rgxTableLevel3 = /<t(?:d|h)\b/, //Matches <td>, <th>
-	rgxGetOrHead = /GET|HEAD/, //Determines if a request is a GET or HEAD request
-	rgxDomain = /\/?\/\/(?:\w+\.)?(.*?)(?:\/|$)/,
+	rgxTableLevel1 = /<t(?:he|b|f)|<c(?:ap|ol)/i, // Matches <thead>, <tbody>, <tfoot>, <caption>, <col>, <colgroup>
+	rgxTableLevel3 = /<t(?:d|h)\b/,               // Matches <td>, <th>
+	rgxDataType = /\b(?:xml|json)\b|script\b/,    // Matches an AJAX data type in Content-Type header
+	rgxDomain = /\/?\/\/(?:\w+\.)?(.*?)(?:\/|$)/, // Extracts the domain from a URL
 	rgxDifferentNL = /^(?:af|ap|be|conc|ea|ins|prep|pu|rep|toggleC)|wrap|remove(?:Class)?$/, //Determines if the function is different for NodeLists
 	rgxNotId = /[ .,>:[+~\t-\f]/,    //Matches other characters that cannot be in an id selector
 	rgxNotClass = /[ #,>:[+~\t-\f]/, //Matches other characters that cannot be in a class selector
@@ -812,9 +812,8 @@ var
 			xml: 'application/xml, text/xml'
 		},
 		async: true,
-		contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
 		headers: {'X-Requested-With': 'XMLHttpRequest'},
-		isLocal: /^(?:file|.*-extension|widget):\/\//.test(location.href),
+		isLocal: /^(?:file|.*-extension|widget):/.test(location.href),
 		jsonp: 'callback',
 		jsonpCallback: function() {
 			var callback = oldCallbacks.pop() || Firebolt.expando + "_" + (timestamp++);
@@ -1440,7 +1439,7 @@ Firebolt._GET = function() {
  * @summary Perform an asynchronous HTTP (Ajax) request.
  * 
  * @description
- * For documentation, see {@link http://api.jquery.com/jQuery.ajax/|jQuery.ajax()}.  
+ * For documentation, see {@link http://api.jquery.com/jQuery.ajax/ | jQuery.ajax()}.  
  * However, Firebolt AJAX requests differ from jQuery's in the following ways:
  * 
  * + Instead of passing a "jqXHR" to callbacks, the native XMLHttpRequest object is passed.
@@ -1479,19 +1478,20 @@ Firebolt.ajax = function(url, settings) {
 		beforeSend = settings.beforeSend,
 		complete = settings.complete || [],
 		completes = typeof complete == 'function' ? [complete] : complete,
+		contentType = settings.contentType,
 		context = settings.context || xhr,
 		dataType = settings.dataType,
 		dataTypeJSONP = dataType == 'jsonp',
 		error = settings.error,
 		errors = typeof error == 'function' ? [error] : error,
-		crossDomain = settings.crossDomain,
+		crossDomain = settings.crossDomain || url.contains('//') && url.indexOf( (location.href.match(rgxDomain) || [])[1] ) < 0,
 		ifModified = settings.ifModified,
 		lastModifiedValue = ifModified && lastModifiedValues[url],
 		success = settings.success,
 		successes = typeof success == 'function' ? [success] : success,
 		timeout = settings.timeout,
 		type = settings.type.toUpperCase(),
-		isGetOrHead = rgxGetOrHead.test(type),
+		isGetOrHead = type == 'GET' || type == 'HEAD',
 		data = settings.data,
 		textStatus,
 		i;
@@ -1547,12 +1547,6 @@ Firebolt.ajax = function(url, settings) {
 				successes[i].call(context, data, textStatus, xhr);
 			}
 		}
-	}
-
-	//Cross domain checking
-	if (!crossDomain && url.contains('//')) {
-		var domainMatch = location.href.match(rgxDomain) || [];
-		crossDomain = url.indexOf(domainMatch[1]) < 0;
 	}
 
 	if (data) {
@@ -1702,17 +1696,8 @@ Firebolt.ajax = function(url, settings) {
 					if (textStatus != 'nocontent') {
 						//If the data type has not been set, try to figure it out
 						if (!dataType) {
-							var contentType = xhr.getResponseHeader('Content-Type');
-							if (contentType) {
-								if (contentType.contains('/xml')) {
-									dataType = 'xml';
-								}
-								else if (contentType.contains('/json')) {
-									dataType = 'json';
-								}
-								else if (contentType.contains('script')) {
-									dataType = 'script';
-								}
+							if ( dataType = rgxDataType.exec(xhr.getResponseHeader('Content-Type')) ) {
+								dataType = dataType[0];
 							}
 						}
 
@@ -1757,9 +1742,9 @@ Firebolt.ajax = function(url, settings) {
 		//Open the request
 		xhr.open(type, url, async, settings.username, settings.password);
 
-		//Set the content type header if the user has changed it from the default or there is data to submit
-		if (settings.contentType != ajaxSettings.contentType || data) {
-			headers['Content-Type'] = settings.contentType;
+		//Set the content type header if there is data to submit or the user has specifed a particular content type
+		if (data || contentType) {
+			headers['Content-Type'] = contentType || 'application/x-www-form-urlencoded; charset=UTF-8';
 		}
 
 		//If the data type has been set, set the accept header
@@ -5831,7 +5816,7 @@ definePrototypeExtensionsOn(StringPrototype);
 
 //#region ============ Browser Compatibility and Speed Boosters ==============
 
-var isOldIE = createElement('div').html('<!--[if IE]><i></i><![endif]-->').$TAG('i').length,
+var isOldIE = Firebolt._$IE9_ = createElement('div').html('<!--[if IE]><i></i><![endif]-->').$TAG('i').length,
 	noMultiParamClassListFuncs = (function() {
 		var elem = createElement('div');
 		if (elem.classList) {
