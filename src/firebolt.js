@@ -433,19 +433,6 @@ function getNextOrPrevFunc(dirElementSibling, forNode) {
  * 
  * @param {Function} inserter(newNode, refNode) - The function that performs the insertion.
  */
-function getNodePutOrWithFunction(inserter) {
-	return function() {
-		inserter(createFragment(arguments), this);
-
-		return this;
-	};
-}
-
-/* 
- * Returns the function body for NodeCollection#[afterPut, appendWith, beforePut, prependWith, replaceWith]
- * 
- * @param {Function} inserter(newNode, refNode) - The function that performs the insertion.
- */
 function getNodeCollectionPutOrWithFunction(inserter) {
 	return function() {
 		var len = this.length,
@@ -465,8 +452,17 @@ function getNodeCollectionPutOrWithFunction(inserter) {
 	};
 }
 
+/* Returns the function body for NodeCollection#[appendTo, putAfter, putBefore, prependTo, replaceAll] */
+function getNodeCollectionPutToOrReplaceAllFunction(funcName) {
+	return function(target) {
+		(typeofString(target) ? Firebolt(target) : target)[funcName](this);
+
+		return this;
+	}
+}
+
 /* 
- * Returns the function body for Node#[putAfter, putBefore, prependTo, replaceAll]
+ * Returns the function body for Node#[appendTo, putAfter, putBefore, prependTo, replaceAll]
  * 
  * @param {Function} inserter(newNode, refNode) - The function that performs the insertion.
  */
@@ -493,6 +489,19 @@ function getNodeInsertingFunction(inserter) {
 }
 
 /* 
+ * Returns the function body for NodeCollection#[afterPut, appendWith, beforePut, prependWith, replaceWith]
+ * 
+ * @param {Function} inserter(newNode, refNode) - The function that performs the insertion.
+ */
+function getNodePutOrWithFunction(inserter) {
+	return function() {
+		inserter(createFragment(arguments), this);
+
+		return this;
+	};
+}
+
+/* 
  * Returns a function used by Node#closest and Node#[nextUntil, prevUntil, parentsUntil] via getGetDirElementsFunc.
  */
 function getNodeMatchingFunction(matcher) {
@@ -508,15 +517,6 @@ function getNodeMatchingFunction(matcher) {
 			: function(node) {
 				return node === matcher;
 			};
-}
-
-/* Returns the function body for NodeCollection#[appendTo, putAfter, putBefore, prependTo, replaceAll] */
-function getPutToOrAllFunction(funcName) {
-	return function(target) {
-		(typeofString(target) ? Firebolt(target) : target)[funcName](this);
-
-		return this;
-	}
 }
 
 /* Returns the element's computed style object and uses caching to speed up future lookups. */
@@ -4324,7 +4324,7 @@ NodeCollectionPrototype.animate = callOnEachElement(HTMLElementPrototype.animate
  * @param {String|ParentNode|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes to which each node will be appended.
  * @throws {HierarchyRequestError} The target(s) must implement the {@link ParentNode} interface.
  */
-NodeCollectionPrototype.appendTo = getPutToOrAllFunction('appendWith');
+NodeCollectionPrototype.appendTo = getNodeCollectionPutToOrReplaceAllFunction('appendWith');
 
 /**
  * Alias of {@link NodeCollection#appendWith} provided for similarity with jQuery.
@@ -4876,7 +4876,7 @@ NodeCollectionPrototype.prependWith = NodeCollectionPrototype.prepend = getNodeC
  * @param {String|ParentNode|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes to which each node will be prepended.
  * @throws {HierarchyRequestError} The target(s) must implement the {@link ParentNode} interface.
  */
-NodeCollectionPrototype.prependTo = getPutToOrAllFunction('prependWith');
+NodeCollectionPrototype.prependTo = getNodeCollectionPutToOrReplaceAllFunction('prependWith');
 
 /**
  * Get the each node's immediately preceeding sibling element. If a selector is provided, it retrieves the previous sibling only if it matches that selector.
@@ -4939,7 +4939,7 @@ NodeCollectionPrototype.prop = getFirstSetEachElement(HTMLElementPrototype.prop,
  * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes after which each node will be inserted.
  * @throws {TypeError} The target node(s) must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
  */
-NodeCollectionPrototype.putAfter = NodeCollectionPrototype.insertAfter = getPutToOrAllFunction('afterPut');
+NodeCollectionPrototype.putAfter = NodeCollectionPrototype.insertAfter = getNodeCollectionPutToOrReplaceAllFunction('afterPut');
 
 /**
  * Inserts each node in this collection directly before the specified target(s).
@@ -4948,7 +4948,7 @@ NodeCollectionPrototype.putAfter = NodeCollectionPrototype.insertAfter = getPutT
  * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes before which each node will be inserted.
  * @throws {TypeError} The target node(s) must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
  */
-NodeCollectionPrototype.putBefore = NodeCollectionPrototype.insertBefore = getPutToOrAllFunction('beforePut');
+NodeCollectionPrototype.putBefore = NodeCollectionPrototype.insertBefore = getNodeCollectionPutToOrReplaceAllFunction('beforePut');
 
 /**
  * Removes nodes in the collection from the DOM tree.
@@ -5014,7 +5014,7 @@ NodeCollectionPrototype.removeProp = callOnEachElement(HTMLElementPrototype.remo
  * by the nodes in this collection.
  * @throws {TypeError} The target node(s) must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
  */
-NodeCollectionPrototype.replaceAll = getPutToOrAllFunction('replaceWith');
+NodeCollectionPrototype.replaceAll = getNodeCollectionPutToOrReplaceAllFunction('replaceWith');
 
 /**
  * Replace each node in the collection with some other content.
