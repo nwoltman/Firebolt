@@ -897,16 +897,15 @@ prototypeExtensions = {
 	 * Returns a copy of the array with all "empty" items (as defined by {@linkcode Firebolt.isEmpty}) removed.
 	 * 
 	 * @function Array.prototype.clean
-	 * @param {Boolean} [allowEmptyStrings=false] - Set this to `true` to keep zero-length strings in the array.
 	 * @returns {Array} A clean copy of the array.
 	 * @see Firebolt.isEmpty
 	 */
-	clean: function(allowEmptyStrings) {
-		var cleaned = [],
+	clean: function() {
+		var cleaned = new this._$C_(),
 			i = 0;
 
 		for (; i < this.length; i++) {
-			if (!Firebolt.isEmpty(this[i], allowEmptyStrings)) {
+			if (!Firebolt.isEmpty(this[i])) {
 				cleaned.push(this[i]);
 			}
 		}
@@ -2054,12 +2053,11 @@ Firebolt.hasData = function(object) {
  * + a zero-length string (unless the `allowEmptyString` parameter is set to a truthy value)
  * 
  * @param {*} value - The value to be tested.
- * @param {Boolean} [allowEmptyString=false] - Set this to true to regard zero-length strings as not empty.
  * @returns {Boolean}
  * @memberOf Firebolt
  */
-Firebolt.isEmpty = function(value, allowEmptyString) {
-	return value == null || typeofString(value) && !allowEmptyString && !value || typeofObject(value) && isEmptyObject(value);
+Firebolt.isEmpty = function(value) {
+	return value == null || typeofString(value) && !value || typeofObject(value) && (isArray(value) ? value.length === 0 : isEmptyObject(value));
 };
 
 /**
@@ -4186,7 +4184,7 @@ prototypeExtensions.clone = function(withDataAndEvents, deepWithDataAndEvents) {
  * @class NodeCollection
  * @mixes Array
  * @classdesc
- * A mutable collection of DOM nodes. It subclasses the native {@link Array} class (but take note that the `.clone()`, `.clean()`,
+ * A mutable collection of DOM nodes. It subclasses the native {@link Array} class (but take note that the `.clone()`,
  * `.remove()`, and `.filter()` functions have been overridden), and has all of the main DOM-manipulating functions.
  * `NodeCollection` can also be reference by its shorter alias: `NC`.
  * 
@@ -4415,17 +4413,6 @@ NodeCollectionPrototype.beforePut = NodeCollectionPrototype.before = getNodeColl
  * @returns {NodeCollection} The set of children, sorted in document order.
  */
 NodeCollectionPrototype.children = getGetDirElementsFunc(HTMLElementPrototype.childElements, sortDocOrder);
-
-/**
- * Returns a clone of the collection with all non-elements removed.
- * 
- * @returns {NodeCollection} A reference to the new collection.
- */
-NodeCollectionPrototype.clean = function() {
-	return this.filter(function(node) {
-		return node.nodeType === 1;
-	});
-}
 
 /**
  * Clicks each element in the collection.
@@ -5402,7 +5389,7 @@ NodeCollectionPrototype.wrapInner = function(wrappingElement) {
  * 
  * @class NodeList
  * @see NodeCollection
- * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/NodeList|NodeList - Web API Interfaces | MDN}
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/NodeList | NodeList - Web API Interfaces | MDN}
  */
 
 /* Give NodeLists and HTMLCollections many of the same prototype functions as NodeCollections */
@@ -5453,9 +5440,6 @@ NodeListPrototype.namedItem = NodeCollectionPrototype.namedItem = function(name)
  * @returns {NodeCollection}
  */
 //This function was added to the NodeList prototype in the loop above (because NodeCollection actually has this function too)
-
-/* HTMLCollections are always clean (since they can only contain HTMLElements) */
-HTMLCollectionPrototype.clean =
 
 /* NodeLists/HTMLCollections always contain unique elements */
 NodeListPrototype.uniq = HTMLCollectionPrototype.uniq =
@@ -5747,9 +5731,8 @@ if (!document.children) {
 	[Document[prototype], DocumentFragment[prototype]].forEach(function(proto) {
 		defineProperty(proto, 'children', {
 			get: function() {
-				//This method is faster in IE and slower in WebKit-based browsers, but it takes less code
-				//and calling children on Documents and DocumentFragments is rare so it's not a big deal.
-				//Also not using NodeCollection#clean() because that function is sort of on probation.
+				// This method is faster in IE and slower in WebKit-based browsers, but it takes less code and
+				// accessing `children` on Documents and DocumentFragments is rare so it's not a big deal.
 				return ncFilter.call(this.childNodes, function(node) {
 					return node.nodeType === 1;
 				});
