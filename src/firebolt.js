@@ -434,16 +434,24 @@ function getNextOrPrevFunc(dirElementSibling, forNode) {
  * @param {Function} inserter(newNode, refNode) - The function that performs the insertion.
  */
 function getNodeCollectionPutOrWithFunction(inserter) {
-	return function() {
+	return function(nc, addClones) {
+		//Determine if this function was called by a function created with `getNodeCollectionPutToOrReplaceAllFunction()`
+		addClones = addClones === 0;
+
 		var len = this.length,
 			fragment,
+			clone,
 			i;
 
 		//Only create the DocumentFragment and do insertions if this NodeCollection isn't empty
 		if (len) {
-			fragment = createFragment(arguments);
+			fragment = createFragment(addClones ? [nc] : arguments);
 			for (i = 1; i < len; i++) {
-				inserter(fragment.cloneNode(true), this[i]);
+				clone = fragment.cloneNode(true);
+				if (addClones) {
+					NodeCollectionPrototype.push.apply(nc, clone.childNodes);
+				}
+				inserter(clone, this[i]);
 			}
 			inserter(fragment, this[0]); //The first node always gets the original fragment
 		}
@@ -454,10 +462,19 @@ function getNodeCollectionPutOrWithFunction(inserter) {
 
 /* Returns the function body for NodeCollection#[appendTo, putAfter, putBefore, prependTo, replaceAll] */
 function getNodeCollectionPutToOrReplaceAllFunction(funcName) {
-	return function(target) {
-		(typeofString(target) ? Firebolt(target) : target)[funcName](this);
+	var NodeInserter = NodePrototype[funcName];
 
-		return this;
+	return function(target) {
+		var copy = this.toNC();
+
+		if (typeofString(target)) {
+			Firebolt(target)[funcName](copy, 0); //Pass in 0 to tell the function to add clones to the copy
+		}
+		else {
+			NodeInserter.call(target, copy);
+		}
+
+		return copy;
 	}
 }
 
