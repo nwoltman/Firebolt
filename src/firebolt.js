@@ -13,6 +13,13 @@
 //#region =========================== Private ================================
 
 /*
+ * Function for appending a node to a reference node.
+ */
+function append(newNode, refNode) {
+	refNode.appendChild(newNode);
+}
+
+/*
  * Calls the passed in function on each item in the enumerable.
  * 
  * @param {Function} fn - The function to call on each item.
@@ -422,26 +429,63 @@ function getNextOrPrevFunc(dirElementSibling, forNode) {
 }
 
 /* 
+ * Returns the function body for NodeCollection#[afterPut, appendWith, beforePut, prependWith, replaceWith]
+ * 
+ * @param {Function} inserter(newNode, refNode) - The function that performs the insertion.
+ */
+function getNodePutOrWithFunction(inserter) {
+	return function() {
+		inserter(createFragment(arguments), this);
+
+		return this;
+	};
+}
+
+/* 
+ * Returns the function body for NodeCollection#[afterPut, appendWith, beforePut, prependWith, replaceWith]
+ * 
+ * @param {Function} inserter(newNode, refNode) - The function that performs the insertion.
+ */
+function getNodeCollectionPutOrWithFunction(inserter) {
+	return function() {
+		var len = this.length,
+			fragment,
+			i;
+
+		//Only create the DocumentFragment and do insertions if this NodeCollection isn't empty
+		if (len) {
+			fragment = createFragment(arguments);
+			for (i = 1; i < len; i++) {
+				inserter(fragment.cloneNode(true), this[i]);
+			}
+			inserter(fragment, this[0]); //The first node always gets the original fragment
+		}
+
+		return this;
+	};
+}
+
+/* 
  * Returns the function body for Node#[putAfter, putBefore, prependTo, replaceAll]
  * 
- * @param {Function} insertingCallback(newNode, refNode) - The callback that performs the insertion.
+ * @param {Function} inserter(newNode, refNode) - The function that performs the insertion.
  */
-function getNodeInsertingFunction(insertingCallback) {
+function getNodeInsertingFunction(inserter) {
 	return function(target) {
 		if (typeofString(target)) {
 			target = Firebolt(target);
 		}
 		else if (isNode(target)) {
-			insertingCallback(this, target);
+			inserter(this, target);
 			return this;
 		}
 
 		var i = target.length;
 		if (i--) {
 			for (; i > 0; i--) {
-				insertingCallback(this.cloneNode(true), target[i]);
+				inserter(this.cloneNode(true), target[i]);
 			}
-			insertingCallback(this, target[0]);
+			inserter(this, target[0]);
 		}
 
 		return this;
@@ -466,7 +510,7 @@ function getNodeMatchingFunction(matcher) {
 			};
 }
 
-/* Returns the function body for NodeCollection#[putAfter, putBefore, appendTo, prependTo, replaceAll] */
+/* Returns the function body for NodeCollection#[appendTo, putAfter, putBefore, prependTo, replaceAll] */
 function getPutToOrAllFunction(funcName) {
 	return function(target) {
 		(typeofString(target) ? Firebolt(target) : target)[funcName](this);
@@ -3340,11 +3384,7 @@ HTMLSelectElementPrototype.val = function(value) {
  * @throws {TypeError|NoModificationAllowedError} The subject node must have a
  * {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
  */
-NodePrototype.afterPut = function() {
-	insertAfter(createFragment(arguments), this);
-
-	return this;
-};
+NodePrototype.afterPut = getNodePutOrWithFunction(insertAfter);
 
 /**
  * Appends this node to the end of the target element(s).
@@ -3353,25 +3393,7 @@ NodePrototype.afterPut = function() {
  * @param {String|ParentNode|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes to which this node will be appended.
  * @throws {HierarchyRequestError} The target(s) must implement the {@link ParentNode} interface.
  */
-NodePrototype.appendTo = function(target) {
-	if (typeofString(target)) {
-		target = Firebolt(target);
-	}
-	else if (isNode(target)) {
-		return target.appendChild(this);
-	}
-
-	var i = 1,
-		len = target.length;
-	if (len) {
-		target[0].appendChild(this);
-		for (; i < len; i++) {
-			target[0].appendChild(this.cloneNode(true));
-		}
-	}
-
-	return this;
-};
+NodePrototype.appendTo = getNodeInsertingFunction(append);
 
 /**
  * Appends content to the end of the node.
@@ -3380,11 +3402,7 @@ NodePrototype.appendTo = function(target) {
  * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
  * @throws {HierarchyRequestError} This node must implement the {@link ParentNode} interface.
  */
-NodePrototype.appendWith = function() {
-	this.appendChild(createFragment(arguments));
-
-	return this;
-};
+NodePrototype.appendWith = getNodePutOrWithFunction(append);
 
 /**
  * Inserts content before the node.
@@ -3394,11 +3412,7 @@ NodePrototype.appendWith = function() {
  * @throws {TypeError|NoModificationAllowedError} The subject node must have a
  * {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
  */
-NodePrototype.beforePut = function() {
-	insertBefore(createFragment(arguments), this);
-
-	return this;
-};
+NodePrototype.beforePut = getNodePutOrWithFunction(insertBefore);
 
 /**
  * Gets the node's child elements, optionally filtered by a selector.
@@ -3882,11 +3896,7 @@ NodePrototype.parentsUntil = getGetDirElementsFunc('parentElement', 0);
  * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
  * @throws {HierarchyRequestError} This node must implement the {@link ParentNode} interface.
  */
-NodePrototype.prependWith = function() {
-	prepend(createFragment(arguments), this);
-
-	return this;
-};
+NodePrototype.prependWith = getNodePutOrWithFunction(prepend);
 
 /**
  * Prepends this node to the beginning of the target element(s).
@@ -3961,11 +3971,7 @@ NodePrototype.replaceAll = getNodeInsertingFunction(replaceWith);
  * @param {...(String|Node|NodeCollection)} content - A specific node, a collection of nodes, or some HTML to replace the subject node.
  * @throws {TypeError} The subject node must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
  */
-NodePrototype.replaceWith = function() {
-	replaceWith(createFragment(arguments), this);
-
-	return this;
-};
+NodePrototype.replaceWith = getNodePutOrWithFunction(replaceWith);
 
 /**
  * Removes this node from the DOM.
@@ -4280,25 +4286,9 @@ NodeCollectionPrototype.addClass = callOnEachElement(HTMLElementPrototype.addCla
  * @function NodeCollection.prototype.afterPut
  * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
  * @throws {TypeError|NoModificationAllowedError} The subject collection of nodes must only contain nodes that have a
- * {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
+ * {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode | ParentNode}.
  */
-NodeCollectionPrototype.afterPut = NodeCollectionPrototype.after = function() {
-	var len = this.length,
-		firstNode = this[0];
-	if (len > 1) {
-		var fragment = createFragment(arguments),
-			i = 1;
-		for (; i < len; i++) {
-			insertAfter(fragment.cloneNode(true), this[i]);
-		}
-		insertAfter(fragment, firstNode);
-	}
-	else if (len) { //This collection only has one node
-		firstNode.afterPut.apply(firstNode, arguments);
-	}
-
-	return this;
-};
+NodeCollectionPrototype.afterPut = NodeCollectionPrototype.after = getNodeCollectionPutOrWithFunction(insertAfter);
 
 /**
  * @summary Performs a custom animation of a set of CSS properties.
@@ -4351,25 +4341,9 @@ NodeCollectionPrototype.appendTo = getPutToOrAllFunction('appendWith');
  * 
  * @function NodeCollection.prototype.appendWith
  * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
- * @throws {HierarchyRequestError} The nodes in the collection must implement the {@link ParentNoded} interface.
+ * @throws {HierarchyRequestError} The nodes in the collection must implement the {@link ParentNode} interface.
  */
-NodeCollectionPrototype.appendWith = NodeCollectionPrototype.append = function() {
-	var len = this.length,
-		firstNode = this[0];
-	if (len > 1) {
-		var fragment = createFragment(arguments),
-			i = 1;
-		for (; i < len; i++) {
-			this[i].appendChild(fragment.cloneNode(true));
-		}
-		firstNode.appendChild(fragment);
-	}
-	else if (len) { //Only one element to append to
-		firstNode.appendWith.apply(firstNode, arguments);
-	}
-
-	return this;
-}
+NodeCollectionPrototype.appendWith = NodeCollectionPrototype.append = getNodeCollectionPutOrWithFunction(append);
 
 /**
  * Gets the value of the specified attribute of the first element in the collection.
@@ -4413,23 +4387,7 @@ NodeCollectionPrototype.attr = getFirstSetEachElement(HTMLElementPrototype.attr,
  * @throws {TypeError|NoModificationAllowedError} The subject collection of nodes must only contain nodes that have a
  * {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
  */
-NodeCollectionPrototype.beforePut = NodeCollectionPrototype.before = function() {
-	var len = this.length,
-		firstNode = this[0];
-	if (len > 1) {
-		var fragment = createFragment(arguments),
-			i = 1;
-		for (; i < len; i++) {
-			insertBefore(fragment.cloneNode(true), this[i]);
-		}
-		insertBefore(fragment, firstNode);
-	}
-	else if (len) { //This collection only has one node
-		firstNode.beforePut.apply(firstNode, arguments);
-	}
-
-	return this;
-}
+NodeCollectionPrototype.beforePut = NodeCollectionPrototype.before = getNodeCollectionPutOrWithFunction(insertBefore);
 
 /**
  * Gets the child elements of each element in the collection, optionally filtered by a selector.
@@ -4909,23 +4867,7 @@ NodeCollectionPrototype.parentsUntil = getGetDirElementsFunc(HTMLElementPrototyp
  * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
  * @throws {HierarchyRequestError} The nodes in the collection must implement the {@link ParentNoded} interface.
  */
-NodeCollectionPrototype.prependWith = NodeCollectionPrototype.prepend = function() {
-	var len = this.length,
-		firstNode = this[0];
-	if (len > 1) {
-		var fragment = createFragment(arguments),
-			i = 1;
-		for (; i < len; i++) {
-			prepend(fragment.cloneNode(true), this[i]);
-		}
-		prepend(fragment, firstNode);
-	}
-	else if (len) { //Only one element to append to
-		firstNode.prependWith.apply(firstNode, arguments);
-	}
-
-	return this;
-};
+NodeCollectionPrototype.prependWith = NodeCollectionPrototype.prepend = getNodeCollectionPutOrWithFunction(prepend);
 
 /**
  * Prepends each node in this collection to the beginning of the specified target(s).
@@ -5082,23 +5024,7 @@ NodeCollectionPrototype.replaceAll = getPutToOrAllFunction('replaceWith');
  * @throws {TypeError|NoModificationAllowedError} The subject collection of nodes must only contain nodes that have a
  * {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
  */
-NodeCollectionPrototype.replaceWith = function() {
-	var len = this.length,
-		firstNode = this[0];
-	if (len > 1) {
-		var fragment = createFragment(arguments),
-			i = 1;
-		for (; i < len; i++) {
-			replaceWith(fragment.cloneNode(true), this[i]);
-		}
-		replaceWith(fragment, firstNode);
-	}
-	else if (len) { //This collection only has one node
-		firstNode.replaceWith.apply(firstNode, arguments);
-	}
-
-	return this;
-};
+NodeCollectionPrototype.replaceWith = getNodeCollectionPutOrWithFunction(replaceWith);
 
 /**
  * Encode a set of form elements or form control elements as a string for submission in an HTTP request.  
