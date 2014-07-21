@@ -449,7 +449,7 @@ function getNodeCollectionPutOrWithFunction(inserter) {
 			for (i = 1; i < len; i++) {
 				clone = fragment.cloneNode(true);
 				if (addClones) {
-					NodeCollectionPrototype.push.apply(nc, clone.childNodes);
+					array_push.apply(nc, clone.childNodes);
 				}
 				inserter(clone, this[i]);
 			}
@@ -832,6 +832,7 @@ var
 
 	//Helpers
 	isArray = Array.isArray,
+	array_push = ArrayPrototype.push,
 	array_slice = ArrayPrototype.slice,
 	array_remove, //Will get set to Array.prototype.remove
 	defineProperty = Object.defineProperty,
@@ -4474,7 +4475,7 @@ NodeCollectionPrototype.contents = function() {
 		i = 0;
 
 	for (; i < this.length; i++) {
-		NodeCollectionPrototype.push.apply(nc, this[i].childNodes);
+		array_push.apply(nc, this[i].childNodes);
 	}
 
 	return nc;
