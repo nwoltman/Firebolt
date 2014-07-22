@@ -3554,7 +3554,7 @@ function removeSelectorHandler(selectorHandlers, selector, handler) {
 	if (handlers) {
 		if (handler) {
 			for (var i = 0; i < handlers.length; i++) {
-				if (handlers[i].fn === handler) {
+				if (handlers[i].f === handler) {
 					handlers.splice(i--, 1); //Use i-- so that i has the same value when the loop completes and i++ happens
 				}
 			}
@@ -3651,15 +3651,15 @@ NodePrototype.off = function(events, selector, handler) {
 };
 
 /* Slightly alter the Event#stopPropagation() method for more convenient use in Node#on() */
-EventPrototype._stopPropagation = EventPrototype.stopPropagation;
+EventPrototype._$SP_ = EventPrototype.stopPropagation;
 EventPrototype.stopPropagation = function() {
-	this._stopPropagation();
+	this._$SP_();
 	this.propagationStopped = true;
 };
 
 /* This is the function that will be invoked for each event type when a handler is set with Node.prototype.on() */
 function nodeEventHandler(eventObject, extraParameters) {
-	var _this = this, //Improves minification
+	var _this = this,
 		target = eventObject.target,
 		eType = eventObject.type,
 		selectorHandlers = _this._$E_[eType],
@@ -3668,14 +3668,32 @@ function nodeEventHandler(eventObject, extraParameters) {
 		numSelectors = selectors.length,
 		i = 0,
 		j = 0,
-		k,
 		selector,
 		path,
-		pathElement,
-		handlers,
-		handler,
+		element,
 		result;
 
+	/*
+	 * @param {{f: function, d: *, o: boolean}} handlerObject - The object containing the handler data that was set in `.on()`.
+	 */
+	function callHandlerOnElement(handlerObject) {
+		eventObject.data = handlerObject.d; //Set data in the event object before calling the handler
+
+		result = handlerObject.f.call(element, eventObject, extraParameters); //Call the handler on the element and store the result
+
+		if (result === false) {
+			eventObject.stopPropagation();
+			eventObject.preventDefault();
+		}
+
+		//Remove the handler if it should only occur once
+		if (handlerObject.o) {
+			_this.off(eType, selector, handlerObject.f);
+			handlerObject.o = 0; //Make the "one" specifier falsy so this if statement won't try to remove it again
+		}
+	}
+
+	//If the extra parameters are not defined (by `.triggerHandler()`), perhaps they were defined by `.trigger()`
 	if (isUndefined(extraParameters)) {
 		extraParameters = eventObject._$P_;
 	}
@@ -3698,61 +3716,23 @@ function nodeEventHandler(eventObject, extraParameters) {
 
 		//Call the handlers for each selector on each element in the path or until propagation is stopped
 		for (; i < path.length && !eventObject.propagationStopped; i++) {
-			pathElement = path[i];
+			element = path[i];
 
 			for (j = 0; j < numSelectors; j++) {
 				//Only call handlers if the element matches the current selector
-				if (pathElement.matches(selector = selectors[j])) {
-					handlers = selectorHandlersCopy[selector];
-
-					for (k = 0; k < handlers.length; k++) {
-						handler = handlers[k];
-
-						eventObject.data = handler.d; //Set data in the event object
-
-						//Call the function on the current element (along with any extra parameters)
-						result = handler.fn.call(pathElement, eventObject, extraParameters);
-
-						//Stop propagation and call preventDefault() if the handler returned `false`
-						if (result === false) {
-							eventObject.stopPropagation();
-							eventObject.preventDefault();
-						}
-
-						//Remove the handler if it should only occur once
-						if (handler.o) {
-							_this.off(eType, selector, handler.fn);
-							handler.o = 0; //Make the handler's "one" value falsy so this part doesn't try to remove it again
-						}
-					} //End handlers looop
+				if (element.matches(selector = selectors[j])) {
+					//Call each handler on the path element
+					selectorHandlersCopy[selector].forEach(callHandlerOnElement);
 				}
-			} //End selectors loop
-		} //End path loop
-	} //End delegated events section
-
-	//If propagation has not been stopped, call the non-delegated handlers (if there are any)
-	if (!eventObject.propagationStopped && (handlers = selectorHandlers[''])) {
-		handlers = handlers.clone(); //Use a clone so it won't be altered if `off` is ever called
-
-		for (k = 0; k < handlers.length; k++) {
-			handler = handlers[k];
-
-			eventObject.data = handler.d; //Set data in the event object
-
-			//Call the function on the current element (along with any extra parameters)
-			result = handler.fn.call(_this, eventObject, extraParameters);
-
-			//Stop propagation and call preventDefault() if the handler returned `false`
-			if (result === false) {
-				eventObject.stopPropagation();
-				eventObject.preventDefault();
-			}
-
-			//Remove the handler if it should only occur once
-			if (handler.o) {
-				_this.off(eType, handler.fn);
 			}
 		}
+	}
+
+	//If propagation has not been stopped, call the non-delegated handlers (if there are any)
+	if (!eventObject.propagationStopped && (i = selectorHandlers[selector = ''])) { //Use the `i` variable to hold the non-delegated handlers
+		//Call each handler on the current element
+		element = _this;
+		i.clone().forEach(callHandlerOnElement); //Use a clone so it won't be altered if `off` is ever called
 	}
 
 	return result;
@@ -3837,7 +3817,7 @@ NodePrototype.on = function(events, selector, data, handler, one) { //one is for
 				savedHandlers = savedHandlers[selector] || (savedHandlers[selector] = []);
 
 				//Add the user-input handler and data to the array of handlers
-				savedHandlers.push({fn: handler, d: data, o: one});
+				savedHandlers.push({f: handler, d: data, o: one});
 			}
 		}
 	}
