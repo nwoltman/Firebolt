@@ -960,8 +960,7 @@ prototypeExtensions = {
 	 * @returns {Array}
 	 */
 	diff: function() {
-		var arrays = arguments,
-			difference = new this._$C_(),
+		var difference = new this._$C_(),
 			i = 0,
 			j,
 			k,
@@ -972,8 +971,8 @@ prototypeExtensions = {
 		for (; i < this.length; i++) {
 			item = this[i];
 
-			for (j = 0; j < arrays.length; j++) {
-				array = arrays[j];
+			for (j = 0; j < arguments.length; j++) {
+				array = arguments[j];
 
 				for (k = 0; k < array.length; k++) {
 					if (item === array[k]) {
@@ -1083,21 +1082,19 @@ prototypeExtensions = {
 	 * @returns {Array} A reference to the array (so it's chainable).
 	 */
 	remove: array_remove = function() {
-		var args = arguments,
-			_this = this,
-			i = 0,
+		var i = 0,
 			rindex;
 
-		for (; i < args.length; i++) {
-			while ((rindex = _this.indexOf(args[i])) >= 0) {
-				_this.splice(rindex, 1);
-				if (!_this.length) {
-					return _this; //Exit early since there is nothing left to remove
+		for (; i < arguments.length; i++) {
+			while ((rindex = this.indexOf(arguments[i])) >= 0) {
+				this.splice(rindex, 1);
+				if (!this.length) {
+					return this; //Exit early since there is nothing left to remove
 				}
 			}
 		}
 
-		return _this;
+		return this;
 	},
 
 	/**
@@ -1111,14 +1108,13 @@ prototypeExtensions = {
 	 * @returns {Array} An array that is the union of this array and the input array.
 	 */
 	union: function() {
-		var args = arguments,
-			union = this.uniq(),
+		var union = this.uniq(),
 			i = 0,
 			j,
 			array;
 
-		for (; i < args.length; i++) {
-			array = args[i];
+		for (; i < arguments.length; i++) {
+			array = arguments[i];
 			for (j = 0; j < array.length; j++) {
 				if (union.indexOf(array[j]) < 0) {
 					union.push(array[j]);
@@ -1174,15 +1170,14 @@ prototypeExtensions = {
 	 * @returns {Array}
 	 */
 	without: function() {
-		var args = arguments,
-			array = new this._$C_(),
+		var array = new this._$C_(),
 			i = 0,
 			j;
 
 	skip:
 		for (; i < this.length; i++) {
-			for (j = 0; j < args.length; j++) {
-				if (this[i] === args[j]) {
+			for (j = 0; j < arguments.length; j++) {
+				if (this[i] === arguments[j]) {
 					continue skip;
 				}
 			}
@@ -2987,12 +2982,10 @@ HTMLElementPrototype.hasClass = function(className) {
  * @function HTMLElement.prototype.hide
  */
 HTMLElementPrototype.hide = function() {
-	var _this = this;
+	this._$DS_ = this.style.display; // Save current display style
+	this.style.display = 'none';     // Hide the element by setting its display style to "none"
 
-	_this._$DS_ = _this.style.display; //Save currently display style
-	_this.style.display = 'none';       //Hide the element by setting its display style to "none"
-
-	return _this;
+	return this;
 };
 
 /**
@@ -3799,8 +3792,7 @@ function nodeEventHandler(eventObject, extraParameters) {
  * @see {@link http://api.jquery.com/on/#on-events-selector-data|.on() | jQuery API Documentation}
  */
 NodePrototype.on = function(events, selector, data, handler, one) { //one is for internal use
-	var _this = this, //Improves minification
-		eventHandlers = _this._$E_ || (_this._$E_ = {}),
+	var eventHandlers = this._$E_ || (this._$E_ = {}),
 		selectorIsString = typeofString(selector),
 		savedHandlers,
 		eventType,
@@ -3838,7 +3830,7 @@ NodePrototype.on = function(events, selector, data, handler, one) { //one is for
 				//If the object for the event doesn't exist, create it and add Firebolt's event function as a listener
 				if (!savedHandlers) {
 					savedHandlers = eventHandlers[eventType] = {}
-					_this.addEventListener(eventType, nodeEventHandler);
+					this.addEventListener(eventType, nodeEventHandler);
 				}
 
 				//Get the array of handlers for the selector or create it if it doesn't exist
@@ -3852,11 +3844,11 @@ NodePrototype.on = function(events, selector, data, handler, one) { //one is for
 	else {
 		//Call this function for each event and handler in the object
 		for (i in events) {
-			_this.on(i, selector, data, events[i], one);
+			this.on(i, selector, data, events[i], one);
 		}
 	}
 
-	return _this;
+	return this;
 };
 
 /**
