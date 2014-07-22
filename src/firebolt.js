@@ -304,6 +304,16 @@ function getAjaxErrorStatus(xhr) {
 	return xhr.readyState ? xhr.statusText.replace(xhr.status + ' ', '') : '';
 }
 
+/*
+ * Returns a function that basically does this: `document.querySelectorAll.call(document, selector)`
+ * @param {function} fn - The function to be called on the document.
+ */
+function getElementSelectionFunction(fn) {
+	return function(selector) {
+		return fn.call(document, selector);
+	};
+}
+
 /** 
  * Returns a function that calls the passed in function on each element in a NodeCollection unless the callback
  * returns true, in which case the result of calling the function on the first element is returned.
@@ -802,6 +812,7 @@ var
 	usesWebkit = 'webkitAppearance' in document.documentElement.style,
 	usesGecko = window.mozInnerScreenX != null,
 	isIOS = /^iP/.test(navigator.platform), // iPhone, iPad, iPod
+	useNormalSelectionFunction = window.chrome || usesGecko,
 
 	/*
 	 * Determines if an item is a Node.
@@ -837,6 +848,31 @@ var
 	array_remove, //Will get set to Array.prototype.remove
 	defineProperty = Object.defineProperty,
 	keys = Object.keys,
+
+	getElementById = window.$$ = window.$ID =
+		useNormalSelectionFunction ? function(id) {
+			return document.getElementById(id);
+		} : getElementSelectionFunction(document.getElementById),
+
+	getElementsByClassName = window.$CLS =
+		useNormalSelectionFunction ? function(className) {
+			return document.getElementsByClassName(className);
+		} : getElementSelectionFunction(document.getElementsByClassName),
+
+	getElementsByTagName = window.$TAG =
+		useNormalSelectionFunction ? function(tagName) {
+			return document.getElementsByTagName(tagName);
+		} : getElementSelectionFunction(document.getElementsByTagName),
+
+	querySelector = window.$QS =
+		useNormalSelectionFunction ? function(selector) {
+			return document.querySelector(selector);
+		} : getElementSelectionFunction(document.querySelector),
+
+	querySelectorAll = window.$QSA =
+		useNormalSelectionFunction ? function(selector) {
+			return document.querySelector(selector);
+		} : getElementSelectionFunction(document.querySelectorAll),
 
 	//Property strings
 	nextElementSibling = 'nextElementSibling',
@@ -1462,25 +1498,25 @@ function Firebolt(selector, context) {
 
 	if (selector[0] === '.') { //Check for a single class name
 		if (!rgxNotClass.test(selector)) {
-			return document.getElementsByClassName(selector.slice(1).replace(rgxAllDots, ' '));
+			return getElementsByClassName(selector.slice(1).replace(rgxAllDots, ' '));
 		}
 	}
 	else if (selector[0] === '#') { //Check for a single ID
 		if (!rgxNotId.test(selector)) {
 			context = new NodeCollection(); //Use the unused context argument to be the NodeCollection
-			if (selector = document.getElementById(selector.slice(1))) { //Reuse the selector argument to be the retrieved element
+			if (selector = getElementById(selector.slice(1))) { //Reuse the selector argument to be the retrieved element
 				context.push(selector);
 			}
 			return context;
 		}
 	}
 	else if (!rgxNotTag.test(selector)) { //Check for a single tag name
-		return document.getElementsByTagName(selector);
+		return getElementsByTagName(selector);
 	}
 	else if (isHtml(selector)) { //Check if the string is an HTML string
 		return htmlToNodes(selector, 1); //Pass in 1 to tell the htmlToNodes function to detach the nodes from their creation container
 	}
-	return document.querySelectorAll(selector);
+	return querySelectorAll(selector);
 }
 
 /**
@@ -2368,9 +2404,6 @@ Firebolt._GET(); // Just call the function to update the global $_GET object
  * @param {String} id - A case-sensitive string representing the unique ID of the element being sought.
  * @returns {?Element} The element with the specified ID or `null` if there is no such element in the document.
  */
-window.$$ = window.$ID = function(id) {
-	return document.getElementById(id);
-};
 
 /**
  * Returns the first element within the document that matches the specified CSS selector or the element created from the input HTML string.  
@@ -2399,22 +2432,22 @@ window.$1 = function(selector, context) {
 
 	if (selector[0] === '.') { //Check for a single class name
 		if (!rgxNotClass.test(selector)) {
-			return document.getElementsByClassName(selector.slice(1).replace(rgxAllDots, ' '))[0];
+			return getElementsByClassName(selector.slice(1).replace(rgxAllDots, ' '))[0];
 		}
 	}
 	else if (selector[0] === '#') { //Check for a single id
 		if (!rgxNotId.test(selector)) {
-			return document.getElementById(selector.slice(1));
+			return getElementById(selector.slice(1));
 		}
 	}
 	else if (!rgxNotTag.test(selector)) { //Check for a single tag name
-		return document.getElementsByTagName(selector)[0];
+		return getElementsByTagName(selector)[0];
 	}
 	else if (isHtml(selector)) { //Check if the string is an HTML string
 		return htmlToNodes(selector, 1, 1); //Pass in the second 1 to tell the htmlToNodes function to return only one node
 	}
 	//else
-	return document.querySelector(selector);
+	return querySelector(selector);
 };
 
 /**
@@ -2425,9 +2458,6 @@ window.$1 = function(selector, context) {
  * @param {String} className
  * @returns {HTMLCollection|NodeList} A list of elements with the specified class name.
  */
-window.$CLS = function(className) {
-	return document.getElementsByClassName(className);
-};
 
 /**
  * Returns the first element within the document with the specified ID. Can also be called by the alias `$$()`.  
@@ -2459,9 +2489,6 @@ window.$NAME = function(name) {
  * @param {String} tagName
  * @returns {HTMLCollection|NodeList} A collection of elements with the specified tag name.
  */
-window.$TAG = function(tagName) {
-	return document.getElementsByTagName(tagName);
-};
 
 /**
  * Returns the first element within the document that matches the specified CSS selector.  
@@ -2471,9 +2498,6 @@ window.$TAG = function(tagName) {
  * @param {String} selector
  * @returns {?Element}
  */
-window.$QS = function(selector) {
-	return document.querySelector(selector);
-};
 
 /**
  * Returns all elements within the document that match the specified CSS selector.  
@@ -2483,9 +2507,6 @@ window.$QS = function(selector) {
  * @param {String} selector
  * @returns {?Element}
  */
-window.$QSA = function(selector) {
-	return document.querySelectorAll(selector);
-};
 
 //#endregion Globals
 
