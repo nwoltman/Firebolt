@@ -553,8 +553,8 @@ function getStyleObject(element) {
 
 /*
  * Returns a convenience function for setting and clearing timeouts and intervals.
- * @see Function.prototype.delay
- * @see Function.prototype.every
+ * @see Function#delay
+ * @see Function#every
  */
 function getTimingFunction(setTiming, clearTiming) {
 	return function(delay, args, thisArg) {
@@ -762,7 +762,7 @@ function replaceWith(newNode, refNode) {
 }
 
 /*
- * Simply returns `false`. For use in Node.prototype.on/off
+ * Simply returns `false`. For use in Node#on/off
  */
 function returnFalse() {
 	return false;
@@ -933,7 +933,7 @@ prototypeExtensions = {
 	/**
 	 * Returns a copy of the array with all "empty" items (as defined by {@linkcode Firebolt.isEmpty}) removed.
 	 * 
-	 * @function Array.prototype.clean
+	 * @function Array#clean
 	 * @returns {Array} A clean copy of the array.
 	 * @see Firebolt.isEmpty
 	 */
@@ -953,7 +953,7 @@ prototypeExtensions = {
 	/**
 	 * Removes all elements from the array.
 	 * 
-	 * @function Array.prototype.clear
+	 * @function Array#clear
 	 */
 	clear: function() {
 		this.length = 0;
@@ -962,7 +962,7 @@ prototypeExtensions = {
 	/**
 	 * Returns a duplicate of the array.
 	 * 
-	 * @function Array.prototype.clone
+	 * @function Array#clone
 	 * @returns {Array} A shallow copy of the array.
 	 */
 	clone: function() {
@@ -980,7 +980,7 @@ prototypeExtensions = {
 	/**
 	 * Determines if the input item is in the array.
 	 * 
-	 * @function Array.prototype.contains
+	 * @function Array#contains
 	 * @returns {Boolean} `true` if the item is in the array; else `false`.
 	 */
 	contains: function(e) {
@@ -992,7 +992,7 @@ prototypeExtensions = {
 	 * 
 	 * __Note:__ The input arrays can be array-like objects (like a function's `arguments` object).
 	 * 
-	 * @function Array.prototype.diff
+	 * @function Array#diff
 	 * @param {...Array} arrays - One or more array-like objects.
 	 * @returns {Array}
 	 */
@@ -1034,7 +1034,7 @@ prototypeExtensions = {
 	 * The difference between this function and `Array#every()` is that only returning `false` in the callback will
 	 * cancel the iteration (instead of any falsy value) and the array is returned instead of a boolean.
 	 * 
-	 * @function Array.prototype.each
+	 * @function Array#each
 	 * @param {function(*, Number, Array)} callback(value,index,array) - The function that will be executed on each item.
 	 * @returns {Array} this
 	 */
@@ -1047,7 +1047,7 @@ prototypeExtensions = {
 	 * 
 	 * __Note:__ The order of elements in the arrays DOES matter. The elements must be found in the same order for the arrays to be considered equal.
 	 * 
-	 * @function Array.prototype.equals
+	 * @function Array#equals
 	 * @param {Array|Enumerable} array - Array or other enumerable object that has a `length` property.
 	 * @returns {Boolean} `true` if the arrays are equal; else `false`.
 	 */
@@ -1080,7 +1080,7 @@ prototypeExtensions = {
 	 * array.get(-2); // 2
 	 * array.get(5);  // undefined
 	 * 
-	 * @function Array.prototype.get
+	 * @function Array#get
 	 * @param {Number} index - A zero-based integer indicating which item to retrieve.
 	 * @returns {*} The item at the specified index.
 	 */
@@ -1094,7 +1094,7 @@ prototypeExtensions = {
 	 * @example
 	 * [1, 2, 3].intersect([2, 3, 4]); // -> [2, 3]
 	 * 
-	 * @function Array.prototype.intersect
+	 * @function Array#intersect
 	 * @param {Array|Enumerable} array - Array or other enumerable object that has a `length` property.
 	 * @returns {Array} An array that is the intersection of this array and the input array.
 	 */
@@ -1114,7 +1114,7 @@ prototypeExtensions = {
 	/**
 	 * Removes all occurrences of the passed in items from the array if they exist in the array.
 	 * 
-	 * @function Array.prototype.remove
+	 * @function Array#remove
 	 * @param {...*} items - Items to remove from the array.
 	 * @returns {Array} A reference to the array (so it's chainable).
 	 */
@@ -1140,7 +1140,7 @@ prototypeExtensions = {
 	 * @example
 	 * [1, 2, 3].union([2, 3, 4, 5]); // -> [1, 2, 3, 4, 5]
 	 * 
-	 * @function Array.prototype.union
+	 * @function Array#union
 	 * @param {...Array} array - One or more arrays or array-like objects.
 	 * @returns {Array} An array that is the union of this array and the input array.
 	 */
@@ -1173,7 +1173,7 @@ prototypeExtensions = {
 	 * [1, 2, 2, 3, 4, 4].uniq();     // -> [1, 2, 3, 4]
 	 * [1, 2, 2, 3, 4, 4].uniq(true); // -> [1, 2, 3, 4] (but faster than on the previous line)
 	 * 
-	 * @function Array.prototype.uniq
+	 * @function Array#uniq
 	 * @param {Boolean} [isSorted=false] - If the input array's contents are sorted and this is set to `true`,
 	 * a faster algorithm will be used to create the unique array.
 	 * @returns {Array}
@@ -1202,7 +1202,7 @@ prototypeExtensions = {
 	 * @example
 	 * [1, 2, 3, 4, 5, 6].without(3, 4, 6); // -> [1, 2, 5]
 	 * 
-	 * @function Array.prototype.without
+	 * @function Array#without
 	 * @param {...*} items - One or more items to leave out of the returned array.
 	 * @returns {Array}
 	 */
@@ -1244,7 +1244,7 @@ definePrototypeExtensionsOn(ArrayPrototype);
  * Returns a list of the elements within the element with the specified class name.  
  * Alias of `Element.getElementsByClassName()`.
  * 
- * @function Element.prototype.$CLS
+ * @function Element#$CLS
  * @param {String} className
  * @returns {HTMLCollection|NodeList} A collection of elements with the specified class name.
  */
@@ -1254,7 +1254,7 @@ ElementPrototype.$CLS = ElementPrototype.getElementsByClassName;
  * Returns a list of the elements within the element with the specified tag name.  
  * Alias of `Element.getElementsByTagName()`.
  * 
- * @function Element.prototype.$TAG
+ * @function Element#$TAG
  * @param {String} tagName
  * @returns {HTMLCollection|NodeList} A collection of elements with the specified tag name.
  */
@@ -1264,7 +1264,7 @@ ElementPrototype.$TAG = ElementPrototype.getElementsByTagName;
  * Returns the first element within the element that matches the specified CSS selector.  
  * Alias of `Element.querySelector()`.
  * 
- * @function Element.prototype.$QS
+ * @function Element#$QS
  * @param {String} selector
  * @returns {?Element}
  */
@@ -1274,7 +1274,7 @@ ElementPrototype.$QS = ElementPrototype.querySelector;
  * Returns a list of the elements within the element that match the specifed CSS selector.  
  * Alias of `Element.querySelectorAll()`.
  * 
- * @function Element.prototype.$QSA
+ * @function Element#$QSA
  * @param {String} selector
  * @returns {NodeList} A list of selected elements.
  */
@@ -1283,21 +1283,21 @@ ElementPrototype.$QSA = ElementPrototype.querySelectorAll;
 /**
  * Gets the value of the element's specified attribute.
  * 
- * @function Element.prototype.attr
+ * @function Element#attr
  * @param {String} attribute - The name of the attribute who's value you want to get.
  * @returns {String} The value of the attribute.
  */
 /**
  * Sets the element's specified attribute.
  * 
- * @function Element.prototype.attr
+ * @function Element#attr
  * @param {String} attribute - The name of the attribute who's value should be set.
  * @param {String} value - The value to set the specified attribute to.
  */
 /**
  * Sets the specified attributes of the element.
  * 
- * @function Element.prototype.attr
+ * @function Element#attr
  * @param {Object} attributes - An object of attribute-value pairs to set.
  */
 ElementPrototype.attr = function(attrib, value) {
@@ -1321,27 +1321,27 @@ ElementPrototype.attr = function(attrib, value) {
 /**
  * Gets the element's stored data object.
  * 
- * @function Element.prototype.data
+ * @function Element#data
  * @returns {Object} The element's stored data object.
  */
 /**
  * Get the value at the named data store for the element as set by .data(key, value) or by an HTML5 data-* attribute.
  * 
- * @function Element.prototype.data
+ * @function Element#data
  * @param {String} key - The name of the stored data.
  * @returns {*} The value of the stored data.
  */
 /**
  * Stores arbitrary data associated with the element.
  * 
- * @function Element.prototype.data
+ * @function Element#data
  * @param {String} key - A string naming the data to set.
  * @param {*} value - Any arbitrary data to store.
  */
 /**
  * Stores arbitrary data associated with the element.
  * 
- * @function Element.prototype.data
+ * @function Element#data
  * @param {Object} obj - An object of key-value pairs to add to the element's stored data.
  */
 ElementPrototype.data = function(key, value) {
@@ -1355,7 +1355,7 @@ ElementPrototype.data = function(key, value) {
  * If want to find descendant elements using a CSS selector, you should use the native `element.querySelectorAll()` or the Firebolt alias for
  * that function (`.$QSA()`).
  * 
- * @function Element.prototype.find
+ * @function Element#find
  * @param {String|Element|Element[]} selector - A CSS selector, a collection of elements, or a single element used to match descendant elements against.
  * @returns {NodeList|NodeCollection}
  */
@@ -1371,7 +1371,7 @@ ElementPrototype.find = function(selector) {
 /**
  * Determines if the element matches the specified CSS selector.
  * 
- * @function Element.prototype.matches
+ * @function Element#matches
  * @param {String} selector - A CSS selector string.
  * @returns {Boolean} `true` if the element matches the selector; else `false`.
  */
@@ -1380,21 +1380,21 @@ ElementPrototype.matches = ElementPrototype.matches || ElementPrototype.webkitMa
 /**
  * Gets the value of the element's specified property.
  * 
- * @function Element.prototype.prop
+ * @function Element#prop
  * @param {String} property - The name of the property who's value you want to get.
  * @returns {?} The value of the property being retrieved.
  */
 /**
  * Sets the specified property of the element.
  * 
- * @function Element.prototype.prop
+ * @function Element#prop
  * @param {String} property - The name of the property to be set.
  * @param {*} value - The value to set the property to.
  */
 /**
  * Sets the specified properties of the element.
  * 
- * @function Element.prototype.prop
+ * @function Element#prop
  * @param {Object} properties - An object of property-value pairs to set.
  */
 ElementPrototype.prop = function(prop, value) {
@@ -1414,7 +1414,7 @@ ElementPrototype.prop = function(prop, value) {
 /**
  * Removes the specified attribute from the element.
  * 
- * @function Element.prototype.removeAttr
+ * @function Element#removeAttr
  * @param {String} attribute - The name of the attribute to remove.
  */
 ElementPrototype.removeAttr = function(attribute) {
@@ -1427,14 +1427,14 @@ ElementPrototype.removeAttr = function(attribute) {
  * Removes a previously stored piece of Firebolt data.  
  * When called without any arguments, all data is removed.
  * 
- * @function Element.prototype.removeData
+ * @function Element#removeData
  * @param {String} [name] - The name of the data to remove.
  */
 /**
  * Removes previously stored Firebolt data.  
  * When called without any arguments, all data is removed.
  * 
- * @function Element.prototype.removeData
+ * @function Element#removeData
  * @param {Array|String} [list] - An array or space-separated string naming the pieces of data to remove.
  */
 ElementPrototype.removeData = function(input) {
@@ -1444,7 +1444,7 @@ ElementPrototype.removeData = function(input) {
 /**
  * Removes the specified property from the element.
  * 
- * @function Element.prototype.removeProp
+ * @function Element#removeProp
  * @param {String} propertyName - The name of the property to remove.
  */
 ElementPrototype.removeProp = function(propertyName) {
@@ -2328,7 +2328,7 @@ Firebolt.makeArray = function(array, index) {
  * //----- Before 2 seconds ellapses -----
  * callbackObject.cancel(); // Prevents the alert function from being called
  * 
- * @function Function.prototype.delay
+ * @function Function#delay
  * @param {Number} delay - The number of milliseconds to wait before calling the functions.
  * @param {Array} [args] - An array containing the arguments the function will be called with.
  * @param {Object} [thisArg=returned callback object] - An object you want `this` to refer to inside the function.
@@ -2359,7 +2359,7 @@ defineProperty(FunctionPrototype, 'delay', {
  * //----- Later -----
  * callbackObject.clear();  // Stops the logging calls
  * 
- * @function Function.prototype.every
+ * @function Function#every
  * @param {Number} delay - The number of milliseconds to wait between function calls.
  * @param {Array} [args] - An array containing the arguments the function will be called with.
  * @param {Object} [thisArg=returned callback object] - An object you want `this` to refer to inside the function.
@@ -2555,7 +2555,7 @@ window.$NAME = function(name) {
  * element.addClass('one two').removeClass('three');    // Correct syntax
  * ```
  * 
- * @function HTMLElement.prototype.addClass
+ * @function HTMLElement#addClass
  * @param {String} className - One or more space-separated classes to be added to the element's class attribute.
  * @throws {TypeError} The input `value` must be string. __Note:__ This error will not be thrown if `value` is not a string and
  * the element does not have a className value at the time of invocation.
@@ -2619,7 +2619,7 @@ HTMLElementPrototype.afterPut = function() {
  * 
  * __Note:__ In IE 9, the easing for all animations will be linear.
  * 
- * @function HTMLElement.prototype.animate
+ * @function HTMLElement#animate
  * @param {Object} properties - An object of CSS properties and values that the animation will move toward.
  * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
  * @param {String} [easing="swing"] - A string indicating which easing function to use for the transition. The string can be any
@@ -2816,26 +2816,26 @@ HTMLElementPrototype.beforePut = function() {
 /**
  * Gets the element's computed style object.
  * 
- * @function HTMLElement.prototype.css
+ * @function HTMLElement#css
  * @returns {Object.<String, String>} The element's computed style object.
  */
 /**
  * Gets the value of the specified style property.
  * 
- * @function HTMLElement.prototype.css
+ * @function HTMLElement#css
  * @param {String} propertyName - The name of the style property who's value you want to retrieve.
  * @returns {String} The value of the specifed style property.
  */
 /**
  * Explicitly sets the element's inline CSS style, replacing any current inline style properties.
  * 
- * @function HTMLElement.prototype.css
+ * @function HTMLElement#css
  * @param {String} cssText - A CSS style string. To clear the element's inline style, pass in an empty string.
  */
 /**
  * Gets an object of property-value pairs for the input array of CSS properties.
  * 
- * @function HTMLElement.prototype.css
+ * @function HTMLElement#css
  * @param {String[]} propertyNames - An array of one or more CSS properties.
  * @returns {Object.<String, String>} An object of property-value pairs where the values are the computed style values of the input properties.
  */
@@ -2846,7 +2846,7 @@ HTMLElementPrototype.beforePut = function() {
  * to it prior to setting the CSS value. This helps keep the library small and fast and will force your code to be more obvious
  * as to how it is changing the element's style (which is a good thing).
  * 
- * @function HTMLElement.prototype.css
+ * @function HTMLElement#css
  * @param {String} propertyName - The name of the style property to set.
  * @param {?String|Number} value - A value to set for the specified property.
  */
@@ -2856,7 +2856,7 @@ HTMLElementPrototype.beforePut = function() {
  * __Note:__ Just like the previous function, if a value in the object is a number, it will not be converted to a
  * string with `'px'` appended to it to it prior to setting the CSS value.
  * 
- * @function HTMLElement.prototype.css
+ * @function HTMLElement#css
  * @param {Object.<String, String|Number>} properties - An object of CSS property-values.
  */
 HTMLElementPrototype.css = function(prop, value) {
@@ -2937,7 +2937,7 @@ HTMLElementPrototype.css = function(prop, value) {
  * // HTML (after)
  * // <div id="mydiv"></div>
  * 
- * @function HTMLElement.prototype.empty
+ * @function HTMLElement#empty
  */
 HTMLElementPrototype.empty = function() {
 	while (this.firstChild) {
@@ -2950,7 +2950,7 @@ HTMLElementPrototype.empty = function() {
 /**
  * Displays the element by fading it to opaque.
  * 
- * @function HTMLElement.prototype.fadeIn
+ * @function HTMLElement#fadeIn
  * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
  * @param {String} [easing="swing"] - A string indicating which easing function to use for the transition. The string can be any
  * [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp) or "swing".
@@ -2964,7 +2964,7 @@ HTMLElementPrototype.fadeIn = function(duration, easing, complete) {
 /**
  * Hides the element by fading it to transparent.
  * 
- * @function HTMLElement.prototype.fadeOut
+ * @function HTMLElement#fadeOut
  * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
  * @param {String} [easing="swing"] - A string indicating which easing function to use for the transition. The string can be any
  * [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp) or "swing".
@@ -2978,7 +2978,7 @@ HTMLElementPrototype.fadeOut = function(duration, easing, complete) {
 /**
  * Displays or hides the element by animating its opacity.
  * 
- * @function HTMLElement.prototype.fadeToggle
+ * @function HTMLElement#fadeToggle
  * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
  * @param {String} [easing="swing"] - A string indicating which easing function to use for the transition. The string can be any
  * [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp) or "swing".
@@ -2992,7 +2992,7 @@ HTMLElementPrototype.fadeToggle = function(duration, easing, complete) {
 /**
  * Immediately completes the element's currently running animation.
  * 
- * @function HTMLElement.prototype.finish
+ * @function HTMLElement#finish
  */
 // ReSharper disable once UnusedParameter
 HTMLElementPrototype.finish = function(animCallbackObj) { //The unused argument to prevents the need for a `var` declaration (saves space)
@@ -3006,7 +3006,7 @@ HTMLElementPrototype.finish = function(animCallbackObj) { //The unused argument 
 /**
  * Determines if the element's class list has the specified class name.
  * 
- * @function HTMLElement.prototype.hasClass
+ * @function HTMLElement#hasClass
  * @param {String} className - A string containing a single class name.
  * @returns {Boolean} `true` if the class name is in the element's class list; else `false`.
  */
@@ -3017,7 +3017,7 @@ HTMLElementPrototype.hasClass = function(className) {
 /**
  * Hides the element by setting its display style to 'none'.
  * 
- * @function HTMLElement.prototype.hide
+ * @function HTMLElement#hide
  */
 HTMLElementPrototype.hide = function() {
 	this._$DS_ = this.style.display; // Save current display style
@@ -3029,7 +3029,7 @@ HTMLElementPrototype.hide = function() {
 /**
  * Gets the element's inner HTML.
  * 
- * @function HTMLElement.prototype.html
+ * @function HTMLElement#html
  * @returns {String} The element's inner HTML.
  */
 /**
@@ -3039,7 +3039,7 @@ HTMLElementPrototype.hide = function() {
  * (or should not) contain any actual HTML, the `Node#text()` function should be used instead as it will be faster and also
  * prevent unwanted HTML from being injected into the page.
  * 
- * @function HTMLElement.prototype.html
+ * @function HTMLElement#html
  * @param {String} innerHTML - An HTML string.
  */
 HTMLElementPrototype.html = function(innerHTML) {
@@ -3054,7 +3054,7 @@ HTMLElementPrototype.html = function(innerHTML) {
 /**
  * Gets the element's current coordinates relative to the document.
  * 
- * @function HTMLElement.prototype.offset
+ * @function HTMLElement#offset
  * @returns {{top: Number, left: Number}} An object containing the coordinates detailing the element's distance from the top and left of the document.
  * @example
  * // HTML
@@ -3067,7 +3067,7 @@ HTMLElementPrototype.html = function(innerHTML) {
 /**
  * Sets the element's coordinates relative to the document.
  * 
- * @function HTMLElement.prototype.offset
+ * @function HTMLElement#offset
  * @param {{top: Number, left: Number}} coordinates - An object containing the properties `top` and `left`,
  * which are numbers indicating the new top and left coordinates for the element.
  */
@@ -3135,7 +3135,7 @@ HTMLElementPrototype.prependWith = function() {
  * element.addClass('one two').removeClass('three');    // Correct syntax
  * ```
  * 
- * @function HTMLElement.prototype.removeClass
+ * @function HTMLElement#removeClass
  * @param {String} [className] - One or more space-separated classes to be removed from the element's class attribute.
  */
 HTMLElementPrototype.removeClass = function(value) {
@@ -3156,7 +3156,7 @@ HTMLElementPrototype.removeClass = function(value) {
  * using {@linkcode Firebolt.param|Firebolt.param()} with the `traditional` parameter set to `false`, so its
  * array value will be preserved in the encoded string.
  * 
- * @function HTMLElement.prototype.serialize
+ * @function HTMLElement#serialize
  * @returns {String} A URL-encoded string of the form element's value or an empty string if the element is
  * not a [successful control](http://www.w3.org/TR/html401/interact/forms.html#h-17.13.2).
  * @this HTMLFormElement|HTMLInputElement|HTMLSelectElement|HTMLTextAreaElement
@@ -3189,7 +3189,7 @@ HTMLFormElement[prototype].serialize = function() {
  * __Note:__ If the element's default display style is 'none' (such as is the case with `<script>` elements), it will not be shown.
  * Also, this method will not show an element if its `visibility` is set to 'hidden' or its `opacity` is `0`.
  * 
- * @function HTMLElement.prototype.show
+ * @function HTMLElement#show
  */
 HTMLElementPrototype.show = function() {
 	var inlineStyle = this.style;
@@ -3212,7 +3212,7 @@ HTMLElementPrototype.show = function() {
 /**
  * Displays the element with a sliding motion.
  * 
- * @function HTMLElement.prototype.slideDown
+ * @function HTMLElement#slideDown
  * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
  * @param {String} [easing="swing"] - A string indicating which easing function to use for the transition. The string can be any
  * [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp) or "swing".
@@ -3226,7 +3226,7 @@ HTMLElementPrototype.slideDown = function(duration, easing, complete) {
 /**
  * Displays or hides the element with a sliding motion.
  * 
- * @function HTMLElement.prototype.slideToggle
+ * @function HTMLElement#slideToggle
  * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
  * @param {String} [easing="swing"] - A string indicating which easing function to use for the transition. The string can be any
  * [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp) or "swing".
@@ -3246,7 +3246,7 @@ HTMLElementPrototype.slideToggle = function(duration, easing, complete) {
 /**
  * Hides the element with a sliding motion.
  * 
- * @function HTMLElement.prototype.slideUp
+ * @function HTMLElement#slideUp
  * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
  * @param {String} [easing="swing"] - A string indicating which easing function to use for the transition. The string can be any
  * [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp) or "swing".
@@ -3267,7 +3267,7 @@ HTMLElementPrototype.slideUp = function(duration, easing, complete) {
  * 
  * If `jumptToEnd` is `true`, this is equivalent to calling `HTMLElement#finish()`.
  * 
- * @function HTMLElement.prototype.stop
+ * @function HTMLElement#stop
  * @param {Boolean} [jumpToEnd=false] - A Boolean indicating whether to complete the current animation immediately.
  */
 HTMLElementPrototype.stop = function(arg) {
@@ -3289,7 +3289,7 @@ HTMLElementPrototype.stop = function(arg) {
 /**
  * Shows the element if it is hidden or hides it if it is currently showing.
  * 
- * @function HTMLElement.prototype.toggle
+ * @function HTMLElement#toggle
  * @param {Boolean} [showOrHide] - A Boolean indicating whether to show or hide the element (`true` => show, `false` => hide).
  * @see HTMLElement#hide
  * @see HTMLElement#show
@@ -3315,7 +3315,7 @@ HTMLElementPrototype.toggle = function(showOrHide) {
  * element.toggleClass('one two');    // Correct syntax
  * ```
  * 
- * @function HTMLElement.prototype.toggleClass
+ * @function HTMLElement#toggleClass
  * @param {String} [className] - One or more space-separated classes to be toggled. If left empty, the element's current class is toggled.
  * @param {Boolean} [addOrRemove] - A Boolean indicating whether to add or remove the class (`true` => add, `false` => remove).
  */
@@ -3371,13 +3371,13 @@ HTMLElementPrototype.toggleClass = function(value, addOrRemove) {
  * Retrieves the element's current value. If the element is a `<select>` element, `null` is returned if none of its options
  * are selected and an array of selected options is returned if the element's `multiple` attribute is present.
  * 
- * @function HTMLElement.prototype.val
+ * @function HTMLElement#val
  * @returns {String|Array|null} The element's value.
  */
 /**
  * Sets the element's value.
  * 
- * @function HTMLElement.prototype.val
+ * @function HTMLElement#val
  * @param {String} value - The value to give to the element.
  */
 /**
@@ -3386,7 +3386,7 @@ HTMLElementPrototype.toggleClass = function(value, addOrRemove) {
  * If the element is a `<select>` element, all of its options with a value matching one in the input array of values will be selected
  * and all others deselected. If the select element does not allow multiple selection, only the first matching element is selected.
  * 
- * @function HTMLElement.prototype.val
+ * @function HTMLElement#val
  * @param {String[]} values - The array of values used to determine if the element (or its options) should be checked (or selected).
  */
 HTMLElementPrototype.val = function(value) {
@@ -3455,7 +3455,7 @@ HTMLSelectElementPrototype.val = function(value) {
 /**
  * Inserts content after the node.
  * 
- * @function Node.prototype.afterPut
+ * @function Node#afterPut
  * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
  * @throws {TypeError|NoModificationAllowedError} The subject node must have a
  * {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
@@ -3465,7 +3465,7 @@ NodePrototype.afterPut = getNodePutOrWithFunction(insertAfter);
 /**
  * Appends this node to the end of the target element(s).
  * 
- * @function Node.prototype.appendTo
+ * @function Node#appendTo
  * @param {String|ParentNode|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes to which this node will be appended.
  * @throws {HierarchyRequestError} The target(s) must implement the {@link ParentNode} interface.
  */
@@ -3474,7 +3474,7 @@ NodePrototype.appendTo = getNodeInsertingFunction(append);
 /**
  * Appends content to the end of the node.
  * 
- * @function Node.prototype.appendWith
+ * @function Node#appendWith
  * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
  * @throws {HierarchyRequestError} This node must implement the {@link ParentNode} interface.
  */
@@ -3483,7 +3483,7 @@ NodePrototype.appendWith = getNodePutOrWithFunction(append);
 /**
  * Inserts content before the node.
  * 
- * @function Node.prototype.beforePut
+ * @function Node#beforePut
  * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
  * @throws {TypeError|NoModificationAllowedError} The subject node must have a
  * {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
@@ -3493,7 +3493,7 @@ NodePrototype.beforePut = getNodePutOrWithFunction(insertBefore);
 /**
  * Gets the node's child elements, optionally filtered by a selector.
  * 
- * @function Node.prototype.childElements
+ * @function Node#childElements
  * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
  * @returns {NodeCollection}
  */
@@ -3519,7 +3519,7 @@ NodePrototype.childElements = function(selector) {
 /**
  * Create a clone of the node.
  * 
- * @function Node.prototype.clone
+ * @function Node#clone
  * @param {Boolean} [withDataAndEvents=false] - A boolean indicating if the node's data and events should be copied over to the clone.
  * @param {Boolean} [deepWithDataAndEvents=value of withDataAndEvents] - If `false`, data and events for the descendants of the cloned node will
  * not be copied over. If cloning with data and events and you know the descendants do not have any data or events that should be copied, using
@@ -3545,7 +3545,7 @@ NodePrototype.clone = function(withDataAndEvents, deepWithDataAndEvents) {
  * youself using [`Element#querySelectorAll()`](https://developer.mozilla.org/en-US/docs/Web/API/Element.querySelectorAll) or Firebolt's
  * alias `Element#$QSA()`.
  * 
- * @function Node.prototype.closest
+ * @function Node#closest
  * @param {String|Element|Node[]} selector - A CSS selector, a node, or a collection of nodes used to match the node and its parents against.
  * @returns {?Node} - The first node that matches the selector.
  */
@@ -3573,7 +3573,7 @@ NodePrototype.closest = function(selector) {
  * __Protip:__ If you don't need the child nodes in a NodeCollection, you should access them using the native
  * `childNodes` property (which is a {@link NodeList}).
  * 
- * @function Node.prototype.contents
+ * @function Node#contents
  * @returns {NodeCollection}
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.childNodes | Node.childNodes - Web API Interfaces | MDN}
  */
@@ -3584,7 +3584,7 @@ NodePrototype.contents = function() {
 /**
  * Get the node's immediately following sibling element. If a selector is provided, it retrieves the next sibling only if it matches that selector.
  * 
- * @function Node.prototype.next
+ * @function Node#next
  * @param {String} [selector] - A CSS selector to match the next sibling against.
  * @returns {?Element}
  */
@@ -3593,7 +3593,7 @@ NodePrototype.next = getNextOrPrevFunc(nextElementSibling, 1);
 /**
  * Gets all following siblings of the node, optionally filtered by a selector.
  * 
- * @function Node.prototype.nextAll
+ * @function Node#nextAll
  * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
  * @returns {NodeCollection} The set of following sibling elements in order beginning with the closest sibling.
  */
@@ -3603,7 +3603,7 @@ NodePrototype.nextAll = getGetDirElementsFunc(nextElementSibling);
  * Gets the node's following siblings, up to but not including the element matched by the selector, DOM node,
  * or node in a collection.
  * 
- * @function Node.prototype.nextUntil
+ * @function Node#nextUntil
  * @param {String|Element|Node[]} [selector] - A CSS selector, an element, or a collection of nodes used to indicate
  * where to stop matching following sibling elements.
  * @param {String} [filter] - A CSS selector used to filter the returned set of elements.
@@ -3612,7 +3612,7 @@ NodePrototype.nextAll = getGetDirElementsFunc(nextElementSibling);
 NodePrototype.nextUntil = getGetDirElementsFunc(nextElementSibling, 0);
 
 /* 
- * Used by Node.prototype.off
+ * Used by Node#off
  * Removes the passed in handler from the array of handlers or removes all handlers if handler is undefined.
  * Deletes the array of handlers if it is empty after handlers have been removed.
  */
@@ -3640,7 +3640,7 @@ function removeSelectorHandler(selectorHandlers, selector, handler) {
 /**
  * Removes one or more event handlers set by `.on()` or `.one()`.
  * 
- * @function Node.prototype.off
+ * @function Node#off
  * @param {String} events - One or more space-separated event types, such as "click" or "click keypress".
  * @param {String} [selector] - A selector which should match the one originally passed to `.on()` when attaching event handlers.
  * @param {Function} [handler] - A handler function previously attached for the event(s), or the special value `false` (see `Node#on()`).
@@ -3649,7 +3649,7 @@ function removeSelectorHandler(selectorHandlers, selector, handler) {
 /**
  * Removes one or more event handlers set by `.on()` or `.one()`.
  * 
- * @function Node.prototype.off
+ * @function Node#off
  * @param {Object} events - An object where the string keys represent one or more space-separated event types and the values represent
  * handler functions previously attached for the event(s).
  * @param {String} [selector] - A selector which should match the one originally passed to `.on()` when attaching event handlers.
@@ -3658,7 +3658,7 @@ function removeSelectorHandler(selectorHandlers, selector, handler) {
 /**
  * Removes all event handlers set by `.on()` or `.one()`.
  * 
- * @function Node.prototype.off
+ * @function Node#off
  * @see {@link http://api.jquery.com/off/#off|.off() | jQuery API Documentation}
  */
 NodePrototype.off = function(events, selector, handler) {
@@ -3724,7 +3724,7 @@ EventPrototype.stopPropagation = function() {
 	this.propagationStopped = true;
 };
 
-/* This is the function that will be invoked for each event type when a handler is set with Node.prototype.on() */
+/* This is the function that will be invoked for each event type when a handler is set with Node#on() */
 function nodeEventHandler(eventObject, extraParameters) {
 	var _this = this,
 		target = eventObject.target,
@@ -3813,7 +3813,7 @@ function nodeEventHandler(eventObject, extraParameters) {
  * 2. The native [Event](https://developer.mozilla.org/en-US/docs/Web/API/Event) object is passed to the handler (with an added
  * `data` property, and if propagation is stopped, there will be a `propagationStopped` property set to `true`).
  * 
- * @function Node.prototype.on
+ * @function Node#on
  * @param {String} events - One or more space-separated event types, such as "click" or "click keypress".
  * @param {String} [selector] - A selector string to filter the descendants of the selected elements that trigger the event.
  * If the selector is `null` or omitted, the event is always triggered when it reaches the selected element.
@@ -3830,7 +3830,7 @@ function nodeEventHandler(eventObject, extraParameters) {
  * 2. The native [Event](https://developer.mozilla.org/en-US/docs/Web/API/Event) object is passed to the handler (with an added
  * `data` property, and if propagation is stopped, there will be a `propagationStopped` property set to `true`).
  * 
- * @function Node.prototype.on
+ * @function Node#on
  * @param {Object} events - An object where the string keys represent one or more space-separated event types and the values represent
  * handler functions to be called for the event(s).
  * @param {String} [selector] - A selector string to filter the descendants of the selected elements that trigger the event.
@@ -3902,7 +3902,7 @@ NodePrototype.on = function(events, selector, data, handler, one) { //one is for
  * Attaches a handler to an event for the node. The handler is executed at most once per event type.  
  * Exactly the same as `Node#on()` except the event handler is removed after it executes for the first time.
  * 
- * @function Node.prototype.one
+ * @function Node#one
  * @param {String} events
  * @param {String} [selector]
  * @param {*} [data]
@@ -3913,7 +3913,7 @@ NodePrototype.on = function(events, selector, data, handler, one) { //one is for
  * Attaches a handler to an event for the node. The handler is executed at most once per event type.  
  * Exactly the same as `Node#on()` except the event handler is removed after it executes for the first time.
  * 
- * @function Node.prototype.one
+ * @function Node#one
  * @param {Object} events
  * @param {String} [selector]
  * @param {*} [data]
@@ -3926,7 +3926,7 @@ NodePrototype.one = function(events, selector, data, handler) {
 /**
  * Gets the node's ancestors, optionally filtered by a selector.
  * 
- * @function Node.prototype.parents
+ * @function Node#parents
  * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
  * @returns {NodeCollection} - The set of the node's ancestors, ordered from the immediate parent on up.
  */
@@ -3936,7 +3936,7 @@ NodePrototype.parents = getGetDirElementsFunc('parentElement');
  * Gets the node's ancestors, up to but not including the element matched by the selector, DOM node,
  * or node in a collection.
  * 
- * @function Node.prototype.parentsUntil
+ * @function Node#parentsUntil
  * @param {String|Element|Node[]} [selector] - A CSS selector, an element, or a collection of nodes used to indicate
  * where to stop matching ancestor elements.
  * @param {String} [filter] - A CSS selector used to filter the returned set of elements.
@@ -3947,7 +3947,7 @@ NodePrototype.parentsUntil = getGetDirElementsFunc('parentElement', 0);
 /**
  * Prepends content to the beginning of the node.
  * 
- * @function Node.prototype.prependWith
+ * @function Node#prependWith
  * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
  * @throws {HierarchyRequestError} This node must implement the {@link ParentNode} interface.
  */
@@ -3956,7 +3956,7 @@ NodePrototype.prependWith = getNodePutOrWithFunction(prepend);
 /**
  * Prepends this node to the beginning of the target element(s).
  * 
- * @function Node.prototype.prependTo
+ * @function Node#prependTo
  * @param {String|ParentNode|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes to which this node will be prepended.
  * @throws {HierarchyRequestError} The target(s) must implement the {@link ParentNode} interface.
  */
@@ -3965,7 +3965,7 @@ NodePrototype.prependTo = getNodeInsertingFunction(prepend);
 /**
  * Get the node's immediately preceeding sibling element. If a selector is provided, it retrieves the previous sibling only if it matches that selector.
  * 
- * @function Node.prototype.prev
+ * @function Node#prev
  * @param {String} [selector] - A CSS selector to match the previous sibling against.
  * @returns {?Element}
  */
@@ -3974,7 +3974,7 @@ NodePrototype.prev = getNextOrPrevFunc(previousElementSibling, 1);
 /**
  * Gets all preceeding siblings of the node, optionally filtered by a selector.
  * 
- * @function Node.prototype.prevAll
+ * @function Node#prevAll
  * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
  * @returns {NodeCollection} The set of preceeding sibling elements in order beginning with the closest sibling.
  */
@@ -3984,7 +3984,7 @@ NodePrototype.prevAll = getGetDirElementsFunc(previousElementSibling);
  * Gets the node's preceeding siblings, up to but not including the element matched by the selector, DOM node,
  * or node in a collection.
  * 
- * @function Node.prototype.prevUntil
+ * @function Node#prevUntil
  * @param {String|Element|Node[]} [selector] - A CSS selector, an element, or a collection of nodes used to indicate
  * where to stop matching preceeding sibling elements.
  * @param {String} [filter] - A CSS selector used to filter the returned set of elements.
@@ -3995,7 +3995,7 @@ NodePrototype.prevUntil = getGetDirElementsFunc(previousElementSibling, 0);
 /**
  * Inserts this node directly after the specified target(s).
  * 
- * @function Node.prototype.putAfter
+ * @function Node#putAfter
  * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes after which this node will be inserted.
  * @throws {TypeError} The target node(s) must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
  */
@@ -4004,7 +4004,7 @@ NodePrototype.putAfter = getNodeInsertingFunction(insertAfter);
 /**
  * Inserts this node directly before the specified target(s).
  * 
- * @function Node.prototype.putBefore
+ * @function Node#putBefore
  * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes after which this node will be inserted.
  * @throws {TypeError} The target node(s) must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
  */
@@ -4013,7 +4013,7 @@ NodePrototype.putBefore = getNodeInsertingFunction(insertBefore);
 /**
  * Replace the target with this node.
  * 
- * @function Node.prototype.replaceAll
+ * @function Node#replaceAll
  * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes to be replaced by this node.
  * @throws {TypeError} The target node(s) must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
  */
@@ -4022,7 +4022,7 @@ NodePrototype.replaceAll = getNodeInsertingFunction(replaceWith);
 /**
  * Replace the node with some other content.
  * 
- * @function Node.prototype.replaceWith
+ * @function Node#replaceWith
  * @param {...(String|Node|NodeCollection)} content - A specific node, a collection of nodes, or some HTML to replace the subject node.
  * @throws {TypeError} The subject node must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
  */
@@ -4031,7 +4031,7 @@ NodePrototype.replaceWith = getNodePutOrWithFunction(replaceWith);
 /**
  * Removes this node from the DOM.
  * 
- * @function Node.prototype.remove
+ * @function Node#remove
  * @returns void (undefined)
  */
 NodePrototype.remove = function() {
@@ -4043,7 +4043,7 @@ NodePrototype.remove = function() {
 /**
  * Gets the node's siblings, optionally filtered by a selector.
  * 
- * @function Node.prototype.siblings
+ * @function Node#siblings
  * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
  * @returns {NodeCollection} - The set of the node's ancestors, ordered from the immediate parent on up.
  * @throws {TypeError} The subject node must have a
@@ -4060,7 +4060,7 @@ NodePrototype.siblings = function(selector) {
  * of this function due to browsers continuing to implement a deprecated API on the HTMLBodyElement prototype. Please use the native
  * `textContent` property to get and set the text content of `<body>` elements instead of attempting to use this function.
  * 
- * @function Node.prototype.text
+ * @function Node#text
  * @returns {String} The node's text content.
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.textContent|Node.textContent - Web API Interfaces | MDN}
  */
@@ -4071,7 +4071,7 @@ NodePrototype.siblings = function(selector) {
  * of this function due to browsers continuing to implement a deprecated API on the HTMLBodyElement prototype. Please use the native
  * `textContent` property to get and set the text content of `<body>` elements instead of attempting to use this function.
  * 
- * @function Node.prototype.text
+ * @function Node#text
  * @param {String|*} text - The text or content that will be converted to a string to be set as the node's text content.
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.textContent|Node.textContent - Web API Interfaces | MDN}
  */
@@ -4088,14 +4088,14 @@ NodePrototype.text = function(text) {
 /**
  * Triggers a real DOM event on the node for the given event type.
  * 
- * @function Node.prototype.trigger
+ * @function Node#trigger
  * @param {String} eventType - A string containing a JavaScript event type, such as "click" or "submit".
  * @param {*} extraParameters - Additional parameters that will be passed as the second argument to the triggered event handler(s).
  */
 /**
  * Uses the input Event object to trigger the specified event on the node.
  * 
- * @function Node.prototype.trigger
+ * @function Node#trigger
  * @param {Event} event - An {@link https://developer.mozilla.org/en-US/docs/Web/API/Event | Event} object.
  * @param {*} extraParameters - Additional parameters that will be passed as the second argument to the triggered event handler(s).
  */
@@ -4123,7 +4123,7 @@ NodePrototype.trigger = function(event, extraParameters) {
  * + Instead of returning the node, `.triggerHandler()` returns whatever value was returned by the last handler it caused to be executed.
  *   If no handlers are triggered, it returns `undefined`.
  * 
- * @function Node.prototype.triggerHandler
+ * @function Node#triggerHandler
  * @param {String} eventType - A string containing a JavaScript event type, such as "click" or "submit".
  * @param {*} extraParameters - Additional parameters that will be passed as the second argument to the triggered event handler(s).
  */
@@ -4134,7 +4134,7 @@ NodePrototype.triggerHandler = function(event, extraParameters) {
 /**
  * Remove the node's parent from the DOM, leaving the node in its place.
  * 
- * @function Node.prototype.unwrap
+ * @function Node#unwrap
  * @throws {TypeError} The subject node must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode},
  * which in turn must also have a ParentNode.
  */
@@ -4147,7 +4147,7 @@ NodePrototype.unwrap = function() {
 /**
  * Wrap an HTML structure around the node.
  * 
- * @function Node.prototype.wrap
+ * @function Node#wrap
  * @param {String|Element|Element[]} wrappingElement - CSS selector&mdash;to select wrapping element(s)&mdash;, HTML string&mdash;to
  * create wrapping element(s)&mdash;, element, or collection of elements used to specify the structure to wrap around the node.
  * @throws {TypeError} The subject node must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
@@ -4163,7 +4163,7 @@ NodePrototype.wrap = function(wrappingElement) {
 /**
  * Wrap an HTML structure around the content of the node.
  * 
- * @function Node.prototype.wrapInner
+ * @function Node#wrapInner
  * @param {String|Element|Element[]} wrappingElement - CSS selector&mdash;to select wrapping element(s)&mdash;, HTML string&mdash;to
  * create wrapping element(s)&mdash;, element, or collection of elements used to specify the structure to wrap the node's contents.
  * @throws {HierarchyRequestError} The node must implement the {@link ParentNode} interface.
@@ -4198,7 +4198,7 @@ prototypeExtensions.toNC = prototypeExtensions.clone;
  * __Protip:__ If you want a shallow copy of the collection, use `.toNC()` (even thought that's a NodeList function,
  * NodeCollections also have it in their prototype).
  * 
- * @function NodeCollection.prototype.clone
+ * @function NodeCollection#clone
  * @param {Boolean} [withDataAndEvents=false] - A boolean indicating if each node's data and events should be copied over to its clone.
  * @param {Boolean} [deepWithDataAndEvents=value of withDataAndEvents] - If `false`, data and events for the descendants of the cloned nodes will
  * not be copied over. If cloning with data and events and you know the descendants do not have any data or events that should be copied, using
@@ -4270,14 +4270,14 @@ NodeCollectionPrototype._$C_ = NodeCollection;
  * from different documents or ones not in any document, the sort order is undefined (but elements in the collection that are
  * in the same document will still be in document order).
  * 
- * @function NodeCollection.prototype.add
+ * @function NodeCollection#add
  * @param {String} selector - A CSS selector to use to find elements to add to the collection.
  * @returns {NodeCollection} The result of unioning the queried elements with the current collection.
  */
 /**
  * Adds the newly created elements to a copy of the existing collection and returns the result.
  * 
- * @function NodeCollection.prototype.add
+ * @function NodeCollection#add
  * @param {String} html - An HTML fragment to add to the collection.
  * @returns {NodeCollection} The result adding the elements created with the HTML to current collection.
  */
@@ -4285,7 +4285,7 @@ NodeCollectionPrototype._$C_ = NodeCollection;
  * Adds the element to a copy of the existing collection (if it is not already in the collection)
  * and returns the result.
  * 
- * @function NodeCollection.prototype.add
+ * @function NodeCollection#add
  * @param {Element|Node} element - A DOM Element or Node.
  * @returns {NodeCollection} The result of adding the element to the current collection.
  */
@@ -4298,7 +4298,7 @@ NodeCollectionPrototype._$C_ = NodeCollection;
  * from different documents or ones not in any document, the sort order is undefined (but elements in the collection that are
  * in the same document will still be in document order).
  * 
- * @function NodeCollection.prototype.add
+ * @function NodeCollection#add
  * @param {NodeCollection|NodeList|HTMLCollection|Node[]} elements
  * @returns {NodeCollection} The result of adding the input elements to the current collection.
  */
@@ -4320,7 +4320,7 @@ NodeCollectionPrototype.add = function(input) {
 /**
  * Adds the input class name to all elements in the collection.
  * 
- * @function NodeCollection.prototype.addClass
+ * @function NodeCollection#addClass
  * @param {String} className - The class to be added to each element in the collection.
  */
 NodeCollectionPrototype.addClass = callOnEachElement(HTMLElementPrototype.addClass);
@@ -4332,13 +4332,13 @@ NodeCollectionPrototype.addClass = callOnEachElement(HTMLElementPrototype.addCla
  * a native function called `after` for the {@link http://dom.spec.whatwg.org/#interface-childnode|ChildNode Interface} that
  * does not function in the same way as `.afterPut()`.
  * 
- * @function NodeCollection.prototype.after
+ * @function NodeCollection#after
  * @see NodeCollection#afterPut
  */
 /**
  * Inserts content after each node in the collection.
  * 
- * @function NodeCollection.prototype.afterPut
+ * @function NodeCollection#afterPut
  * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
  * @throws {TypeError|NoModificationAllowedError} The subject collection of nodes must only contain nodes that have a
  * {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode | ParentNode}.
@@ -4361,7 +4361,7 @@ NodeCollectionPrototype.afterPut = NodeCollectionPrototype.after = getNodeCollec
  * For more `easing` options, use Firebolt's [easing extension](https://github.com/FireboltJS/firebolt-extensions/tree/master/easing)
  * (or just grab some functions from it and use them as the `easing` parameter).
  * 
- * @function NodeCollection.prototype.animate
+ * @function NodeCollection#animate
  * @param {Object} properties - An object of CSS properties and values that the animation will move toward.
  * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
  * @param {String} [easing="swing"] - A string indicating which easing function to use for the transition. The string can be any
@@ -4375,7 +4375,7 @@ NodeCollectionPrototype.animate = callOnEachElement(HTMLElementPrototype.animate
 /**
  * Appends each node in this collection to the end of the specified target(s).
  * 
- * @function NodeCollection.prototype.appendTo
+ * @function NodeCollection#appendTo
  * @param {String|ParentNode|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes to which each node will be appended.
  * @throws {HierarchyRequestError} The target(s) must implement the {@link ParentNode} interface.
  */
@@ -4388,13 +4388,13 @@ NodeCollectionPrototype.appendTo = getNodeCollectionPutToOrReplaceAllFunction('a
  * a native function called `append` for the {@link http://dom.spec.whatwg.org/#interface-parentnode|ParentNode Interface} that
  * does not function in the same way as `.appendWith()`.
  * 
- * @function NodeCollection.prototype.append
+ * @function NodeCollection#append
  * @see NodeCollection#appendWith
  */
 /**
  * Appends content to the end of each element in the collection.
  * 
- * @function NodeCollection.prototype.appendWith
+ * @function NodeCollection#appendWith
  * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
  * @throws {HierarchyRequestError} The nodes in the collection must implement the {@link ParentNode} interface.
  */
@@ -4403,21 +4403,21 @@ NodeCollectionPrototype.appendWith = NodeCollectionPrototype.append = getNodeCol
 /**
  * Gets the value of the specified attribute of the first element in the collection.
  * 
- * @function NodeCollection.prototype.attr
+ * @function NodeCollection#attr
  * @param {String} attribute - The name of the attribute who's value you want to get.
  * @returns {String} The value of the attribute.
  */
 /**
  * Sets the specified attribute for each element in the collection.
  * 
- * @function NodeCollection.prototype.attr
+ * @function NodeCollection#attr
  * @param {String} attribute - The name of the attribute who's value should be set.
  * @param {String} value - The value to set the specified attribute to.
  */
 /**
  * Sets attributes for each element in the collection.
  * 
- * @function NodeCollection.prototype.attr
+ * @function NodeCollection#attr
  * @param {Object} attributes - An object of attribute-value pairs to set.
  */
 NodeCollectionPrototype.attr = getFirstSetEachElement(HTMLElementPrototype.attr, function(numArgs) {
@@ -4431,13 +4431,13 @@ NodeCollectionPrototype.attr = getFirstSetEachElement(HTMLElementPrototype.attr,
  * a native function called `before` for the {@link http://dom.spec.whatwg.org/#interface-childnode|ChildNode Interface} that
  * does not function in the same way as `.beforePut()`.
  * 
- * @function NodeCollection.prototype.before
+ * @function NodeCollection#before
  * @see NodeCollection#beforePut
  */
 /**
  * Inserts content before each node in the collection.
  * 
- * @function NodeCollection.prototype.beforePut
+ * @function NodeCollection#beforePut
  * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
  * @throws {TypeError|NoModificationAllowedError} The subject collection of nodes must only contain nodes that have a
  * {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
@@ -4447,7 +4447,7 @@ NodeCollectionPrototype.beforePut = NodeCollectionPrototype.before = getNodeColl
 /**
  * Gets the child elements of each element in the collection, optionally filtered by a selector.
  * 
- * @function NodeCollection.prototype.children
+ * @function NodeCollection#children
  * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
  * @returns {NodeCollection} The set of children, sorted in document order.
  */
@@ -4456,7 +4456,7 @@ NodeCollectionPrototype.children = getGetDirElementsFunc(HTMLElementPrototype.ch
 /**
  * Clicks each element in the collection.
  * 
- * @function NodeCollection.prototype.click
+ * @function NodeCollection#click
  */
 NodeCollectionPrototype.click = callOnEachElement(HTMLElementPrototype.click);
 
@@ -4470,7 +4470,7 @@ NodeCollectionPrototype.click = callOnEachElement(HTMLElementPrototype.click);
  * youself using [`Element#querySelectorAll()`](https://developer.mozilla.org/en-US/docs/Web/API/Element.querySelectorAll) or Firebolt's
  * alias `Element#$QSA()`.
  * 
- * @function NodeCollection.prototype.closest
+ * @function NodeCollection#closest
  * @param {String|Element|Node[]} selector - A CSS selector, a node, or a collection of nodes used to match the node and its parents against.
  * @returns {Node[]} - A collection of "closest" nodes.
  */
@@ -4493,7 +4493,7 @@ NodeCollectionPrototype.closest = function(selector) {
  * 
  * @description If `this` collection contains duplicates, the returned collection will contain duplicates.
  * 
- * @function NodeCollection.prototype.contents
+ * @function NodeCollection#contents
  * @returns {NodeCollection} The collection of all the child nodes of the elements in the collection.
  */
 NodeCollectionPrototype.contents = function() {
@@ -4510,26 +4510,26 @@ NodeCollectionPrototype.contents = function() {
 /**
  * Gets the computed style object of the first element in the collection.
  * 
- * @function NodeCollection.prototype.css
+ * @function NodeCollection#css
  * @returns {Object.<String, String>} The element's computed style object.
  */
 /**
  * Gets the value of the specified style property of the first element in the collection.
  * 
- * @function NodeCollection.prototype.css
+ * @function NodeCollection#css
  * @param {String} propertyName - The name of the style property who's value you want to retrieve.
  * @returns {String} The value of the specifed style property.
  */
 /**
  * Explicitly sets each elements' inline CSS style, replacing any current inline style properties.
  * 
- * @function NodeCollection.prototype.css
+ * @function NodeCollection#css
  * @param {String} cssText - A CSS style string. To clear each element's inline style, pass in an empty string.
  */
 /**
  * Gets an object of property-value pairs for the input array of CSS properties for the first element in the collection.
  * 
- * @function NodeCollection.prototype.css
+ * @function NodeCollection#css
  * @param {String[]} propertyNames - An array of one or more CSS properties.
  * @returns {Object.<String, String>} An object of property-value pairs where the values are the computed style values of the input properties.
  */
@@ -4540,7 +4540,7 @@ NodeCollectionPrototype.contents = function() {
  * to it prior to setting the CSS value. This helps keep the library small and fast and will force your code to be more obvious
  * as to how it is changing the element's style (which is a good thing).
  * 
- * @function NodeCollection.prototype.css
+ * @function NodeCollection#css
  * @param {String} propertyName - The name of the style property to set.
  * @param {String|Number} value - A value to set for the specified property.
  */
@@ -4550,7 +4550,7 @@ NodeCollectionPrototype.contents = function() {
  * __Note:__ Just like the previous function, if a value in the object is a number, it will not be converted to a
  * string with `'px'` appended to it to it prior to setting the CSS value.
  * 
- * @function NodeCollection.prototype.css
+ * @function NodeCollection#css
  * @param {Object.<String, String|Number>} properties - An object of CSS property-values.
  */
 NodeCollectionPrototype.css = getFirstSetEachElement(HTMLElementPrototype.css, function(numArgs, firstArg) {
@@ -4560,27 +4560,27 @@ NodeCollectionPrototype.css = getFirstSetEachElement(HTMLElementPrototype.css, f
 /**
  * Gets the first element's stored data object.
  * 
- * @function NodeCollection.prototype.data
+ * @function NodeCollection#data
  * @returns {Object} The element's stored data object.
  */
 /**
  * Get the value at the named data store for the first element as set by .data(key, value) or by an HTML5 data-* attribute.
  * 
- * @function NodeCollection.prototype.data
+ * @function NodeCollection#data
  * @param {String} key - The name of the stored data.
  * @returns {*} The value of the stored data.
  */
 /**
  * Stores arbitrary data associated with each element in the collection.
  * 
- * @function NodeCollection.prototype.data
+ * @function NodeCollection#data
  * @param {String} key - A string naming the data to set.
  * @param {*} value - Any arbitrary data to store.
  */
 /**
  * Stores arbitrary data associated with each element in the collection
  * 
- * @function NodeCollection.prototype.data
+ * @function NodeCollection#data
  * @param {Object} obj - An object of key-value pairs to add to each element's stored data.
  */
 NodeCollectionPrototype.data = getFirstSetEachElement(ElementPrototype.data, function(numArgs, firstArg) {
@@ -4590,14 +4590,14 @@ NodeCollectionPrototype.data = getFirstSetEachElement(ElementPrototype.data, fun
 /**
  * Removes all child nodes from each element in the list.
  * 
- * @function NodeCollection.prototype.empty
+ * @function NodeCollection#empty
  */
 NodeCollectionPrototype.empty = callOnEachElement(HTMLElementPrototype.empty);
 
 /**
  * Displays each element in the collection by fading it to opaque.
  * 
- * @function NodeCollection.prototype.fadeIn
+ * @function NodeCollection#fadeIn
  * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
  * @param {String} [easing="swing"] - A string indicating which easing function to use for the transition. The string can be any
  * [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp) or "swing".
@@ -4609,7 +4609,7 @@ NodeCollectionPrototype.fadeIn = callOnEachElement(HTMLElementPrototype.fadeIn);
 /**
  * Hides each element in the collection by fading it to transparent.
  * 
- * @function NodeCollection.prototype.fadeOut
+ * @function NodeCollection#fadeOut
  * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
  * @param {String} [easing="swing"] - A string indicating which easing function to use for the transition. The string can be any
  * [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp) or "swing".
@@ -4621,7 +4621,7 @@ NodeCollectionPrototype.fadeOut = callOnEachElement(HTMLElementPrototype.fadeOut
 /**
  * Displays or hides each element in the collection by animating its opacity.
  * 
- * @function NodeCollection.prototype.fadeToggle
+ * @function NodeCollection#fadeToggle
  * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
  * @param {String} [easing="swing"] - A string indicating which easing function to use for the transition. The string can be any
  * [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp) or "swing".
@@ -4634,7 +4634,7 @@ NodeCollectionPrototype.fadeToggle = callOnEachElement(HTMLElementPrototype.fade
  * Creates a new NodeCollection containing only the elements that match the provided selector.
  * (If you want to filter against another set of elements, use the {@linkcode Array#intersect|intersect} function.)
  * 
- * @function NodeCollection.prototype.filter
+ * @function NodeCollection#filter
  * @param {String} selector - CSS selector string to match the current collection of elements against.
  * @returns {NodeCollection}
  */
@@ -4642,10 +4642,10 @@ NodeCollectionPrototype.fadeToggle = callOnEachElement(HTMLElementPrototype.fade
  * Creates a new NodeCollection with all elements that pass the test implemented by the provided function.
  * (If you want to filter against another set of elements, use the {@linkcode Array#intersect|intersect} function.)
  * 
- * @function NodeCollection.prototype.filter
+ * @function NodeCollection#filter
  * @param {Function} function(value, index, collection) - A function used as a test for each element in the collection.
  * @returns {NodeCollection}
- * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter | Array.prototype.filter() - JavaScript | MDN}
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter | Array#filter() - JavaScript | MDN}
  */
 NodeCollectionPrototype.filter = function(selector) {
 	return ncFilter.call(this, 
@@ -4658,7 +4658,7 @@ NodeCollectionPrototype.filter = function(selector) {
 /**
  * Gets the descendants of each element in the collection, filtered by a selector, collection of elements, or a single element.
  * 
- * @function NodeCollection.prototype.find
+ * @function NodeCollection#find
  * @param {String|Element|Element[]} selector - A CSS selector, a collection of elements, or a single element used to match descendant elements against.
  * @returns {NodeList|NodeCollection}
  */
@@ -4667,14 +4667,14 @@ NodeCollectionPrototype.find = getGetDirElementsFunc(ElementPrototype.find, sort
 /**
  * Immediately completes the currently running animation for each element in the collection.
  * 
- * @function NodeCollection.prototype.finish
+ * @function NodeCollection#finish
  */
 NodeCollectionPrototype.finish = callOnEachElement(HTMLElementPrototype.finish);
 
 /**
  * Hides each element in the collection.
  * 
- * @function NodeCollection.prototype.hide
+ * @function NodeCollection#hide
  * @see HTMLElement#hide
  */
 NodeCollectionPrototype.hide = callOnEachElement(HTMLElementPrototype.hide);
@@ -4682,13 +4682,13 @@ NodeCollectionPrototype.hide = callOnEachElement(HTMLElementPrototype.hide);
 /**
  * Gets the inner HTML of the first element in the list.
  * 
- * @function NodeCollection.prototype.html
+ * @function NodeCollection#html
  * @returns {String} The element's inner HTML.
  */
 /**
  * Sets the inner HTML of each element in the list.
  * 
- * @function NodeCollection.prototype.html
+ * @function NodeCollection#html
  * @param {String} innerHTML - An HTML string.
  */
 NodeCollectionPrototype.html = getFirstSetEachElement(HTMLElementPrototype.html, function(numArgs) {
@@ -4698,7 +4698,7 @@ NodeCollectionPrototype.html = getFirstSetEachElement(HTMLElementPrototype.html,
 /**
  * Returns the `index`th item in the collection. If `index` is greater than or equal to the number of nodes in the list, this returns `null`.
  * 
- * @function NodeCollection.prototype.item
+ * @function NodeCollection#item
  * @param {Number} index
  * @returns {?Node}
  * @see http://www.w3.org/TR/DOM-Level-3-Core/core.html#ID-844377136
@@ -4710,21 +4710,21 @@ NodeCollectionPrototype.item = function(index) {
 /**
  * Alias of {@link NodeCollection#putAfter} provided for similarity with jQuery.
  * 
- * @function NodeCollection.prototype.insertAfter
+ * @function NodeCollection#insertAfter
  * @see NodeCollection#putAfter
  */
 
 /**
  * Alias of {@link NodeCollection#putBefore} provided for similarity with jQuery.
  * 
- * @function NodeCollection.prototype.insertBefore
+ * @function NodeCollection#insertBefore
  * @see NodeCollection#putBefore
  */
 
 /**
  * Get the each node's immediately following sibling element. If a selector is provided, it retrieves the next sibling only if it matches that selector.
  * 
- * @function NodeCollection.prototype.next
+ * @function NodeCollection#next
  * @param {String} [selector] - A CSS selector to match the next sibling against.
  * @returns {NodeCollection} The collection of sibling elements.
  */
@@ -4733,7 +4733,7 @@ NodeCollectionPrototype.next = getNextOrPrevFunc(nextElementSibling);
 /**
  * Gets all following siblings of each node in the collection, optionally filtered by a selector.
  * 
- * @function NodeCollection.prototype.nextAll
+ * @function NodeCollection#nextAll
  * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
  * @returns {NodeCollection} The set of following sibling elements in order beginning with the closest sibling.
  */
@@ -4743,7 +4743,7 @@ NodeCollectionPrototype.nextAll = getGetDirElementsFunc(HTMLElementPrototype.nex
  * Gets the following siblings of each node in the collection, up to but not including the elements matched by the selector,
  * DOM node, or node in a collection.
  * 
- * @function NodeCollection.prototype.nextUntil
+ * @function NodeCollection#nextUntil
  * @param {String|Element|Node[]} [selector] - A CSS selector, an element, or a collection of nodes used to indicate
  * where to stop matching following sibling elements.
  * @param {String} [filter] - A CSS selector used to filter the returned set of elements.
@@ -4754,7 +4754,7 @@ NodeCollectionPrototype.nextUntil = getGetDirElementsFunc(HTMLElementPrototype.n
 /**
  * Removes one or more event handlers set by `.on()` or `.one()`.
  * 
- * @function NodeCollection.prototype.off
+ * @function NodeCollection#off
  * @param {String} events - One or more space-separated event types, such as "click" or "click keypress".
  * @param {String} [selector] - A selector which should match the one originally passed to `.on()` when attaching event handlers.
  * @param {Function} [handler] - A handler function previously attached for the event(s), or the special value `false` (see `NodeCollection#on()`).
@@ -4763,7 +4763,7 @@ NodeCollectionPrototype.nextUntil = getGetDirElementsFunc(HTMLElementPrototype.n
 /**
  * Removes one or more event handlers set by `.on()` or `.one()`.
  * 
- * @function NodeCollection.prototype.off
+ * @function NodeCollection#off
  * @param {Object} events - An object where the string keys represent one or more space-separated event types and the values represent
  * handler functions previously attached for the event(s).
  * @param {String} [selector] - A selector which should match the one originally passed to `.on()` when attaching event handlers.
@@ -4772,7 +4772,7 @@ NodeCollectionPrototype.nextUntil = getGetDirElementsFunc(HTMLElementPrototype.n
 /**
  * Removes all event handlers set by `.on()` or `.one()`.
  * 
- * @function NodeCollection.prototype.off
+ * @function NodeCollection#off
  * @see {@link http://api.jquery.com/off/#off|.off() | jQuery API Documentation}
  */
 NodeCollectionPrototype.off = callOnEach(NodePrototype.off);
@@ -4780,14 +4780,14 @@ NodeCollectionPrototype.off = callOnEach(NodePrototype.off);
 /**
  * Gets the current coordinates of the first element in the collection relative to the document.
  * 
- * @function NodeCollection.prototype.offset
+ * @function NodeCollection#offset
  * @returns {{top: Number, left: Number}} An object containing the coordinates detailing the element's distance from the top and left of the document.
  * @see HTMLElement#offset
  */
 /**
  * Sets the each element's coordinates relative to the document.
  * 
- * @function NodeCollection.prototype.offset
+ * @function NodeCollection#offset
  * @param {{top: Number, left: Number}} coordinates - An object containing the properties `top` and `left`,
  * which are numbers indicating the new top and left coordinates to set for each element.
  */
@@ -4803,7 +4803,7 @@ NodeCollectionPrototype.offset = getFirstSetEachElement(HTMLElementPrototype.off
  * 2. The native [Event](https://developer.mozilla.org/en-US/docs/Web/API/Event) object is passed to the handler (with an added
  * `data` property, and if propagation is stopped, there will be a `propagationStopped` property set to `true`).
  * 
- * @function NodeCollection.prototype.on
+ * @function NodeCollection#on
  * @param {String} events - One or more space-separated event types, such as "click" or "click keypress".
  * @param {String} [selector] - A selector string to filter the descendants of the selected elements that trigger the event.
  * If the selector is `null` or omitted, the event is always triggered when it reaches the selected element.
@@ -4820,7 +4820,7 @@ NodeCollectionPrototype.offset = getFirstSetEachElement(HTMLElementPrototype.off
  * 2. The native [Event](https://developer.mozilla.org/en-US/docs/Web/API/Event) object is passed to the handler (with an added
  * `data` property, and if propagation is stopped, there will be a `propagationStopped` property set to `true`).
  * 
- * @function NodeCollection.prototype.on
+ * @function NodeCollection#on
  * @param {Object} events - An object where the string keys represent one or more space-separated event types and the values represent
  * handler functions to be called for the event(s).
  * @param {String} [selector] - A selector string to filter the descendants of the selected elements that trigger the event.
@@ -4834,7 +4834,7 @@ NodeCollectionPrototype.on = callOnEach(NodePrototype.on);
  * Attaches a handler to an event for each node in the collection. The handler is executed at most once per node, per event type.  
  * Exactly the same as `NodeCollection#on()` except the event handler is removed after it executes for the first time.
  * 
- * @function NodeCollection.prototype.one
+ * @function NodeCollection#one
  * @param {String} events
  * @param {String} [selector]
  * @param {*} [data]
@@ -4845,7 +4845,7 @@ NodeCollectionPrototype.on = callOnEach(NodePrototype.on);
  * Attaches a handler to an event for each node in the collection. The handler is executed at most once per node, per event type.  
  * Exactly the same as `NodeCollection#on()` except the event handler is removed after it executes for the first time.
  * 
- * @function NodeCollection.prototype.one
+ * @function NodeCollection#one
  * @param {Object} events
  * @param {String} [selector]
  * @param {*} [data]
@@ -4856,7 +4856,7 @@ NodeCollectionPrototype.one = callOnEach(NodePrototype.one);
 /**
  * Gets the parent of each node in the collection, optionally filtered by a selector.
  * 
- * @function NodeCollection.prototype.parent
+ * @function NodeCollection#parent
  * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
  * @returns {NodeCollection} - The set of parents. Unlike the `.parents()` function, this set may include Document and DocumentFragment nodes.
  */
@@ -4876,7 +4876,7 @@ NodeCollectionPrototype.parent = function(selector) {
 /**
  * Gets the ancestors of each node in the collection, optionally filtered by a selector.
  * 
- * @function NodeCollection.prototype.parents
+ * @function NodeCollection#parents
  * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
  * @returns {NodeCollection} - The set of ancestors, sorted in reverse document order.
  */
@@ -4886,7 +4886,7 @@ NodeCollectionPrototype.parents = getGetDirElementsFunc(HTMLElementPrototype.par
  * Gets the ancestors of each node in the collection, up to but not including the elements matched by the selector,
  * DOM node, or node in a collection.
  * 
- * @function NodeCollection.prototype.parentsUntil
+ * @function NodeCollection#parentsUntil
  * @param {String|Element|Node[]} [selector] - A CSS selector, an element, or a collection of nodes used to indicate
  * where to stop matching ancestor elements.
  * @param {String} [filter] - A CSS selector used to filter the returned set of elements.
@@ -4901,13 +4901,13 @@ NodeCollectionPrototype.parentsUntil = getGetDirElementsFunc(HTMLElementPrototyp
  * a native function called `prepend` for the {@link http://dom.spec.whatwg.org/#interface-parentnode|ParentNode Interface} that
  * does not function in the same way as `.prependWith()`.
  * 
- * @function NodeCollection.prototype.prepend
+ * @function NodeCollection#prepend
  * @see NodeCollection#prependWith
  */
 /**
  * Prepends content to the beginning of each element in the collection.
  * 
- * @function NodeCollection.prototype.prependWith
+ * @function NodeCollection#prependWith
  * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
  * @throws {HierarchyRequestError} The nodes in the collection must implement the {@link ParentNoded} interface.
  */
@@ -4916,7 +4916,7 @@ NodeCollectionPrototype.prependWith = NodeCollectionPrototype.prepend = getNodeC
 /**
  * Prepends each node in this collection to the beginning of the specified target(s).
  * 
- * @function NodeCollection.prototype.prependTo
+ * @function NodeCollection#prependTo
  * @param {String|ParentNode|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes to which each node will be prepended.
  * @throws {HierarchyRequestError} The target(s) must implement the {@link ParentNode} interface.
  */
@@ -4925,7 +4925,7 @@ NodeCollectionPrototype.prependTo = getNodeCollectionPutToOrReplaceAllFunction('
 /**
  * Get the each node's immediately preceeding sibling element. If a selector is provided, it retrieves the previous sibling only if it matches that selector.
  * 
- * @function NodeCollection.prototype.prev
+ * @function NodeCollection#prev
  * @param {String} [selector] - A CSS selector to match the previous sibling against.
  * @returns {NodeCollection} The collection of sibling elements.
  */
@@ -4934,7 +4934,7 @@ NodeCollectionPrototype.prev = getNextOrPrevFunc(previousElementSibling);
 /**
  * Gets all preceeding siblings of each node in the collection, optionally filtered by a selector.
  * 
- * @function NodeCollection.prototype.prevAll
+ * @function NodeCollection#prevAll
  * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
  * @returns {NodeCollection} The set of preceeding sibling elements in order beginning with the closest sibling.
  */
@@ -4944,7 +4944,7 @@ NodeCollectionPrototype.prevAll = getGetDirElementsFunc(HTMLElementPrototype.pre
  * Gets the preceeding siblings of each node in the collection, up to but not including the elements matched by the selector,
  * DOM node, or node in a collection.
  * 
- * @function NodeCollection.prototype.prevUntil
+ * @function NodeCollection#prevUntil
  * @param {String|Element|Node[]} [selector] - A CSS selector, an element, or a collection of nodes used to indicate
  * where to stop matching preceeding sibling elements.
  * @param {String} [filter] - A CSS selector used to filter the returned set of elements.
@@ -4955,21 +4955,21 @@ NodeCollectionPrototype.prevUntil = getGetDirElementsFunc(HTMLElementPrototype.p
 /**
  * Gets the value of the specified property of the first element in the list.
  * 
- * @function NodeCollection.prototype.prop
+ * @function NodeCollection#prop
  * @param {String} property - The name of the property who's value you want to get.
  * @returns {?} The value of the property being retrieved.
  */
 /**
  * Sets the specified property for each element in the list.
  * 
- * @function NodeCollection.prototype.prop
+ * @function NodeCollection#prop
  * @param {String} property - The name of the property to be set.
  * @param {*} value - The value to set the property to.
  */
 /**
  * Sets the specified properties of each element in the list.
  * 
- * @function NodeCollection.prototype.prop
+ * @function NodeCollection#prop
  * @param {Object} properties - An object of property-value pairs to set.
  */
 NodeCollectionPrototype.prop = getFirstSetEachElement(HTMLElementPrototype.prop, function(numArgs, firstArg) {
@@ -4979,7 +4979,7 @@ NodeCollectionPrototype.prop = getFirstSetEachElement(HTMLElementPrototype.prop,
 /**
  * Inserts each node in this collection directly after the specified target(s).
  * 
- * @function NodeCollection.prototype.putAfter
+ * @function NodeCollection#putAfter
  * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes after which each node will be inserted.
  * @throws {TypeError} The target node(s) must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
  */
@@ -4988,7 +4988,7 @@ NodeCollectionPrototype.putAfter = NodeCollectionPrototype.insertAfter = getNode
 /**
  * Inserts each node in this collection directly before the specified target(s).
  * 
- * @function NodeCollection.prototype.insertBefore
+ * @function NodeCollection#insertBefore
  * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes before which each node will be inserted.
  * @throws {TypeError} The target node(s) must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
  */
@@ -4997,7 +4997,7 @@ NodeCollectionPrototype.putBefore = NodeCollectionPrototype.insertBefore = getNo
 /**
  * Removes nodes in the collection from the DOM tree.
  * 
- * @function NodeCollection.prototype.remove
+ * @function NodeCollection#remove
  * @param {String} [selector] - A selector that filters the set of elements to be removed.
  */
 NodeCollectionPrototype.remove = function(selector) {
@@ -5013,7 +5013,7 @@ NodeCollectionPrototype.remove = function(selector) {
 /**
  * Removes the specified attribute from each element in the list.
  * 
- * @function NodeCollection.prototype.removeAttr
+ * @function NodeCollection#removeAttr
  * @param {String} attribute - The name of the attribute to be removed.
  */
 NodeCollectionPrototype.removeAttr = callOnEachElement(HTMLElementPrototype.removeAttr);
@@ -5021,7 +5021,7 @@ NodeCollectionPrototype.removeAttr = callOnEachElement(HTMLElementPrototype.remo
 /**
  * Removes the input class name from all elements in the list.
  * 
- * @function NodeCollection.prototype.removeClass
+ * @function NodeCollection#removeClass
  * @param {String} className - The class to be removed from each element in the collection.
  */
 NodeCollectionPrototype.removeClass = callOnEachElement(HTMLElementPrototype.removeClass);
@@ -5030,14 +5030,14 @@ NodeCollectionPrototype.removeClass = callOnEachElement(HTMLElementPrototype.rem
  * Removes a previously stored piece of Firebolt data from each element.  
  * When called without any arguments, all data is removed.
  * 
- * @function NodeCollection.prototype.removeData
+ * @function NodeCollection#removeData
  * @param {String} [name] - The name of the data to remove.
  */
 /**
  * Removes previously stored Firebolt data from each element.  
  * When called without any arguments, all data is removed.
  * 
- * @function NodeCollection.prototype.removeData
+ * @function NodeCollection#removeData
  * @param {Array|String} [list] - An array or space-separated string naming the pieces of data to remove.
  */
 NodeCollectionPrototype.removeData = callOnEachElement(HTMLElementPrototype.removeData);
@@ -5045,7 +5045,7 @@ NodeCollectionPrototype.removeData = callOnEachElement(HTMLElementPrototype.remo
 /**
  * Removes the specified property from each element in the list.
  * 
- * @function NodeCollection.prototype.removeProp
+ * @function NodeCollection#removeProp
  * @param {String} property - The name of the property to remove.
  */
 NodeCollectionPrototype.removeProp = callOnEachElement(HTMLElementPrototype.removeProp);
@@ -5053,7 +5053,7 @@ NodeCollectionPrototype.removeProp = callOnEachElement(HTMLElementPrototype.remo
 /**
  * Replace the target with the nodes in this collection.
  * 
- * @function NodeCollection.prototype.replaceAll
+ * @function NodeCollection#replaceAll
  * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes to be replaced
  * by the nodes in this collection.
  * @throws {TypeError} The target node(s) must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
@@ -5063,7 +5063,7 @@ NodeCollectionPrototype.replaceAll = getNodeCollectionPutToOrReplaceAllFunction(
 /**
  * Replace each node in the collection with some other content.
  * 
- * @function NodeCollection.prototype.replaceWith
+ * @function NodeCollection#replaceWith
  * @param {...(String|Node|NodeCollection)} content - A specific node, a collection of nodes, or some HTML to replace each node in the collection.
  * @throws {TypeError|NoModificationAllowedError} The subject collection of nodes must only contain nodes that have a
  * {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
@@ -5079,7 +5079,7 @@ NodeCollectionPrototype.replaceWith = getNodeCollectionPutOrWithFunction(replace
  * __Protip:__ The best way to serialize a single form is to select the form element and  call `.serialize()`
  * directly on it (see {@link HTMLElement#serialize}).
  * 
- * @function NodeCollection.prototype.serialize
+ * @function NodeCollection#serialize
  * @returns {String} A URL-encoded string of the elements' serialized values or an empty string if no element could be successfully serialized.
  * @throws {TypeError} Each element in the collection must be an HTMLElement.
  * @see HTMLElement#serialize
@@ -5102,7 +5102,7 @@ NodeCollectionPrototype.serialize = function() {
 /**
  * Shows each element in the collection. For specifics, see {@link HTMLElement#show}.
  * 
- * @function NodeCollection.prototype.show
+ * @function NodeCollection#show
  * @see HTMLElement#show
  */
 NodeCollectionPrototype.show = callOnEachElement(HTMLElementPrototype.show);
@@ -5110,7 +5110,7 @@ NodeCollectionPrototype.show = callOnEachElement(HTMLElementPrototype.show);
 /**
  * Gets the sibling elements of each node in the collection, optionally filtered by a selector.
  * 
- * @function NodeCollection.prototype.siblings
+ * @function NodeCollection#siblings
  * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
  * @returns {NodeCollection} The set of siblings, sorted in document order.
  * @throws {TypeError} The target node(s) must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
@@ -5120,7 +5120,7 @@ NodeCollectionPrototype.siblings = getGetDirElementsFunc(HTMLElementPrototype.si
 /**
  * Displays each element in the collection with a sliding motion.
  * 
- * @function NodeCollection.prototype.slideDown
+ * @function NodeCollection#slideDown
  * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
  * @param {String} [easing="swing"] - A string indicating which easing function to use for the transition. The string can be any
  * [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp) or "swing".
@@ -5132,7 +5132,7 @@ NodeCollectionPrototype.slideDown = callOnEachElement(HTMLElementPrototype.slide
 /**
  * Displays or hides each element in the collection with a sliding motion.
  * 
- * @function NodeCollection.prototype.slideToggle
+ * @function NodeCollection#slideToggle
  * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
  * @param {String} [easing="swing"] - A string indicating which easing function to use for the transition. The string can be any
  * [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp) or "swing".
@@ -5144,7 +5144,7 @@ NodeCollectionPrototype.slideToggle = callOnEachElement(HTMLElementPrototype.sli
 /**
  * Hides each element in the collection with a sliding motion.
  * 
- * @function NodeCollection.prototype.slideUp
+ * @function NodeCollection#slideUp
  * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
  * @param {String} [easing="swing"] - A string indicating which easing function to use for the transition. The string can be any
  * [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp) or "swing".
@@ -5163,7 +5163,7 @@ NodeCollectionPrototype.slideUp = callOnEachElement(HTMLElementPrototype.slideUp
  * 
  * If `jumptToEnd` is `true`, this is equivalent to calling `NodeCollection#finish()`.
  * 
- * @function NodeCollection.prototype.stop
+ * @function NodeCollection#stop
  * @param {Boolean} [jumpToEnd=false] - A Boolean indicating whether to complete the current animation immediately.
  */
 NodeCollectionPrototype.stop = callOnEachElement(HTMLElementPrototype.stop);
@@ -5171,13 +5171,13 @@ NodeCollectionPrototype.stop = callOnEachElement(HTMLElementPrototype.stop);
 /**
  * Gets the combined text contents of each node in the list.
  * 
- * @function NodeCollection.prototype.text
+ * @function NodeCollection#text
  * @returns {String} The node's text content.
  */
 /**
  * Sets the text content of each node in the list.
  * 
- * @function NodeCollection.prototype.text
+ * @function NodeCollection#text
  * @param {String|*} text - The text or content that will be converted to a string to be set as each nodes' text content.
  */
 NodeCollectionPrototype.text = function(text) {
@@ -5201,7 +5201,7 @@ NodeCollectionPrototype.text = function(text) {
 /**
  * Shows each element in the collection if it is hidden or hides it if it is currently showing.
  * 
- * @function NodeCollection.prototype.toggle
+ * @function NodeCollection#toggle
  * @param {Boolean} [showOrHide] - A Boolean indicating whether to show or hide the elements (`true` => show, `false` => hide).
  * @see HTMLElement#hide
  * @see HTMLElement#show
@@ -5211,7 +5211,7 @@ NodeCollectionPrototype.toggle = callOnEachElement(HTMLElementPrototype.toggle);
 /**
  * Toggles the input class name for all elements in the list.
  * 
- * @function NodeCollection.prototype.toggleClass
+ * @function NodeCollection#toggleClass
  * @param {String} className - The class to be toggled for each element in the collection.
  * @param {Boolean} [addOrRemove] - A Boolean indicating whether to add or remove the class (`true` => add, `false` => remove).
  */
@@ -5220,14 +5220,14 @@ NodeCollectionPrototype.toggleClass = callOnEachElement(HTMLElementPrototype.tog
 /**
  * Triggers a real DOM event on each node in the collection for the given event type.
  * 
- * @function NodeCollection.prototype.trigger
+ * @function NodeCollection#trigger
  * @param {String} eventType - A string containing a JavaScript event type, such as "click" or "submit".
  * @param {*} extraParameters - Additional parameters that will be passed as the second argument to the triggered event handler(s).
  */
 /**
  * Uses the input Event object to trigger the specified event on each node in the collection.
  * 
- * @function NodeCollection.prototype.trigger
+ * @function NodeCollection#trigger
  * @param {Event} event - An {@link https://developer.mozilla.org/en-US/docs/Web/API/Event | Event} object.
  * @param {*} extraParameters - Additional parameters that will be passed as the second argument to the triggered event handler(s).
  */
@@ -5246,7 +5246,7 @@ NodeCollectionPrototype.trigger = callOnEach(NodePrototype.trigger);
  * + Instead of returning the node, `.triggerHandler()` returns whatever value was returned by the last handler it caused to be executed.
  *   If no handlers are triggered, it returns `undefined`.
  * 
- * @function NodeCollection.prototype.triggerHandler
+ * @function NodeCollection#triggerHandler
  * @param {String} eventType - A string containing a JavaScript event type, such as "click" or "submit".
  * @param {*} extraParameters - Additional parameters that will be passed as the second argument to the triggered event handler(s).
  */
@@ -5257,7 +5257,7 @@ NodeCollectionPrototype.triggerHandler = function(eventType, extraParameters) {
 /**
  * Remove the each node's parent from the DOM, leaving the node in its place.
  * 
- * @function NodeCollection.prototype.unwrap
+ * @function NodeCollection#unwrap
  * @throws {TypeError} Each node must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode},
  * which in turn must also have a ParentNode.
  */
@@ -5279,13 +5279,13 @@ NodeCollectionPrototype.unwrap = function() {
  * Retrieves the current value of the first element in the collection. If the element is a `<select>` element, `null` is returned if
  * none of its options are selected and an array of selected options is returned if the element's `multiple` attribute is present.
  * 
- * @function NodeCollection.prototype.val
+ * @function NodeCollection#val
  * @returns {String|Array|null} The first element's value.
  */
 /**
  * Sets the value of each element in the collection.
  * 
- * @function NodeCollection.prototype.val
+ * @function NodeCollection#val
  * @param {String} value - The value to give to each element.
  */
 /**
@@ -5294,7 +5294,7 @@ NodeCollectionPrototype.unwrap = function() {
  * If an element is a `<select>` element, all of its options with a value matching one in the input array of values will be selected
  * and all others deselected. If the select element does not allow multiple selection, only the first matching element is selected.
  * 
- * @function NodeCollection.prototype.val
+ * @function NodeCollection#val
  * @param {String[]} values - The array of values used to determine if each element (or its options) should be checked (or selected).
  */
 NodeCollectionPrototype.val = function(value) {
@@ -5314,7 +5314,7 @@ NodeCollectionPrototype.val = function(value) {
 /**
  * Wrap an HTML structure around each node in the collection.
  * 
- * @function NodeCollection.prototype.wrap
+ * @function NodeCollection#wrap
  * @param {String|Element|Element[]) wrappingElement - CSS selector&mdash;to select wrapping element(s)&mdash;, HTML string&mdash;to
  * create wrapping element(s)&mdash;, element, or collection of elements used to specify the wrapping structure.
  * @throws {TypeError} The target node(s) must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
@@ -5332,7 +5332,7 @@ NodeCollectionPrototype.wrap = function(wrappingElement) {
 /**
  * Wrap an HTML structure around the contents of each node in the collection.
  * 
- * @function NodeCollection.prototype.wrapInner
+ * @function NodeCollection#wrapInner
  * @param {String|Element|Element[]) wrappingElement - CSS selector&mdash;to select wrapping element(s)&mdash;, HTML string&mdash;to
  * create wrapping element(s)&mdash;, element, or collection of elements used to specify the wrapping structure.
  * @throws {HierarchyRequestError} The target node(s) must implement the {@link ParentNode} interface.
@@ -5471,7 +5471,7 @@ Object.getOwnPropertyNames(NodeCollectionPrototype)
 /**
  * Returns the specific node whose ID or, as a fallback, name matches the string specified by `name`.
  * 
- * @function NodeCollection.prototype.namedItem
+ * @function NodeCollection#namedItem
  * @param {String} name
  * @returns {?Element}
  */
@@ -5490,7 +5490,7 @@ NodeListPrototype.namedItem = NodeCollectionPrototype.namedItem = function(name)
 /**
  * Returns the NodeCollection equivalent of the NodeList.
  * 
- * @function NodeList.prototype.toNC
+ * @function NodeList#toNC
  * @returns {NodeCollection}
  */
 //This function was added to the NodeList prototype in the loop above (because NodeCollection actually has this function too)
@@ -5516,7 +5516,7 @@ NodeCollectionPrototype.toNC;
  * Returns a string representation of the number padded with leading 0s so that the string's length is at least equal to length.
  * Takes an optional radix argument which specifies the base to use for conversion.
  * 
- * @function Number.prototype.toPaddedString
+ * @function Number#toPaddedString
  * @param {Number} length - The minimum length for the resulting string.
  * @param {Number} [radix=10] - Defines which base to use for representing the numeric value. Must be an integer between 2 and 36.
  * @example
@@ -5550,7 +5550,7 @@ prototypeExtensions = {
 	/**
 	 * Appends query string parameters to a URL.
 	 *
-	 * @function String.prototype.appendParams
+	 * @function String#appendParams
 	 * @param {String} params - Query string parameters.
 	 * @returns {String} A reference to the string (chainable).
 	 * @example
@@ -5568,7 +5568,7 @@ prototypeExtensions = {
 	 * @example
 	 * '<img src="//somesite.com" />'.escapeHTML();  // -> '&lt;img src="//somesite.com" /&gt;'
 	 * 
-	 * @function String.prototype.escapeHTML
+	 * @function String#escapeHTML
 	 * @returns {String} The HTML-escaped text.
 	 */
 	escapeHTML: function() {
@@ -5578,7 +5578,7 @@ prototypeExtensions = {
 	/**
 	 * Returns the string split into an array of substrings (tokens) that were separated by white-space.
 	 *
-	 * @function String.prototype.tokenize
+	 * @function String#tokenize
 	 * @returns {String[]} An array of tokens.
 	 * @example
 	 * var str = "The boy who lived.";
@@ -5594,7 +5594,7 @@ prototypeExtensions = {
 	 * @example
 	 * '&lt;img src="//somesite.com" /&gt;'.unescapeHTML();  // -> '<img src="//somesite.com" />'
 	 * 
-	 * @function String.prototype.unescapeHTML
+	 * @function String#unescapeHTML
 	 * @returns {String} The HTML-unescaped text.
 	 */
 	unescapeHTML: function() {
@@ -5609,7 +5609,7 @@ if (!StringPrototype.contains) {
 	/**
 	 * Determines whether the passed in string is in the current string.
 	 *
-	 * @function String.prototype.contains
+	 * @function String#contains
 	 * @param {String} searchString - The string to be searched for.
 	 * @param {Number} [position=0] - The position in this string at which to begin the search.
 	 * @returns {Boolean} `true` if this string contains the search string; else `false`.
@@ -5627,7 +5627,7 @@ if (!StringPrototype.endsWith) {
 	/**
 	 * Determines if a string ends with the characters of another string.
 	 *
-	 * @function String.prototype.endsWith
+	 * @function String#endsWith
 	 * @param {String} searchString - The characters to be searched for at the end of this string.
 	 * @param {Number} [position=this.length] - Search within this string as if this string were only this long;
 	 * clamped within the range established by this string's length.
@@ -5650,7 +5650,7 @@ if (!StringPrototype.repeat) {
 	/**
 	 * Copies the current string a given number of times and returns the new string.
 	 *
-	 * @function String.prototype.repeat
+	 * @function String#repeat
 	 * @param {Number} count - An integer between 0 and +∞ : [0, +∞).
 	 * @returns {String}
 	 * @throws {RangeError} The repeat count must be positive and less than infinity.
@@ -5677,7 +5677,7 @@ if (!StringPrototype.startsWith) {
 	/**
 	 * Determines whether a string starts with the characters of another string.
 	 *
-	 * @function String.prototype.startsWith
+	 * @function String#startsWith
 	 * @param {String} searchString - The characters to be searched for at the start of this string.
 	 * @param {Number} [position=0] - The position in this string at which to begin searching for `searchString`.
 	 * @returns {Boolean} `true` if this string starts with the search string; else `false`.
