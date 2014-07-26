@@ -2460,6 +2460,7 @@ window.$1 = function(selector, context) {
  * Alias of `document.getElementsByClassName()`.
  * 
  * @global
+ * @function $CLS
  * @param {String} className
  * @returns {HTMLCollection|NodeList} A list of elements with the specified class name.
  */
@@ -2487,19 +2488,11 @@ window.$NAME = function(name) {
 };
 
 /**
- * Returns a list of the elements within the document with the specified tag name.  
- * Alias of `document.getElementsByTagName()`.
- * 
- * @global
- * @param {String} tagName
- * @returns {HTMLCollection|NodeList} A collection of elements with the specified tag name.
- */
-
-/**
  * Returns the first element within the document that matches the specified CSS selector.  
  * Alias of `document.querySelector()`.
  * 
  * @global
+ * @function $QS
  * @param {String} selector
  * @returns {?Element}
  */
@@ -2509,8 +2502,19 @@ window.$NAME = function(name) {
  * Alias of `document.querySelectorAll()`.
  * 
  * @global
+ * @function $QSA
  * @param {String} selector
  * @returns {?Element}
+ */
+
+/**
+ * Returns a list of the elements within the document with the specified tag name.  
+ * Alias of `document.getElementsByTagName()`.
+ * 
+ * @global
+ * @function $TAG
+ * @param {String} tagName
+ * @returns {HTMLCollection|NodeList} A collection of elements with the specified tag name.
  */
 
 //#endregion Globals
