@@ -558,19 +558,18 @@ function getStyleObject(element) {
  */
 function getTimingFunction(setTiming, clearTiming) {
 	return function(delay, args, thisArg) {
-		thisArg = thisArg || !isArray(args) && args || window;
-
 		var
 			fn = this,
 
 			callback = function() {
-				callbackObject.hasExecuted = true;
 				fn.apply(thisArg, args);
+				callbackObject.hasExecuted = true;
 			},
 
 			clearRef = setTiming(callback, delay),
 
 			callbackObject = {
+				callback: fn,
 				hasExecuted: false,
 				execute: function(cancel) {
 					if (cancel !== false) {
@@ -582,6 +581,8 @@ function getTimingFunction(setTiming, clearTiming) {
 					clearTiming(clearRef);
 				}
 			};
+
+		thisArg = thisArg || !isArray(args) && args || callbackObject;
 
 		return callbackObject;
 	};
@@ -2311,28 +2312,30 @@ Firebolt.makeArray = function(array, index) {
 /**
  * @class Function
  * @classdesc The JavaScript Function object.
- * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function|Function - JavaScript | MDN}
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function | Function - JavaScript | MDN}
  */
 
 /**
  * Delays a function call for the specified number of milliseconds.
  * 
  * @example <caption>Call a function at a later time:</caption>
- * window.alert.delay(2000, ['alert!']);  // Waits 2 seconds, then opens an alert that says "alert!"
+ * window.alert.delay(2000, ['alert!']); // Waits 2 seconds, then opens an alert that says "alert!"
  * 
  * @example <caption>Set a timeout for a function but cancel it before it can be called:</caption>
- * var ref = window.alert.delay(2000, ['alert!']);  // Sets the alert to be called in 2 seconds and saves a reference to the returned object
+ * var callbackObject = window.alert.delay(2000, ['alert!']); // Sets the alert to be called in 2 seconds and saves a reference to the returned object
+ * callbackObject.callback === window.alert; // -> true (just to show what this variable in the callback object is set to)
  * 
  * //----- Before 2 seconds ellapses -----
- * ref.cancel();  // Prevents the alert function from being called
+ * callbackObject.cancel(); // Prevents the alert function from being called
  * 
  * @function Function.prototype.delay
  * @param {Number} delay - The number of milliseconds to wait before calling the functions.
  * @param {Array} [args] - An array containing the arguments the function will be called with.
- * @param {*} [thisArg=window] - An object you want `this` to refer to inside the function.
- * If `thisArg` is an Array, `args` must be present (but may be `null`).
+ * @param {Object} [thisArg=returned callback object] - An object you want `this` to refer to inside the function.
+ * Defaults to the object returned by this function. If `thisArg` is an Array, `args` must be present (but may be `null`).
  * @returns {Object} An object with the following properties:
- * + `hasExecuted` - A boolean, initialized to `false`, that is set to `true` when the delayed function executes.
+ * + `callback` - The function this method was called upon.
+ * + `hasExecuted` - A Boolean, initialized to `false`, that is set to `true` when the delayed function executes.
  * + `execute` - A function that, when called, will execute the function immediately and cancel the timeout so it is not called again by the browser.
  * To prevent the timeout from being cancelled, call this function with the parameter `false`.
  * + `cancel` - A function that, when called, will cancel the timeout to prevent the function from being executed (if it hasn't been already).
@@ -2350,18 +2353,20 @@ defineProperty(FunctionPrototype, 'delay', {
  *     console.log('stuff');
  * }
  * 
- * var ref = logStuff.every(2000);  // Waits 2 seconds, then logs "stuff" to the console and continues to do so every 2 seconds
+ * var callbackObject = logStuff.every(2000); // Waits 2 seconds, then logs "stuff" to the console and continues to do so every 2 seconds
+ * callbackObject.callback === logstuff;      // -> true (just to show what this variable in the callback object is set to)
  * 
  * //----- Later -----
- * ref.clear();  // Stops the logging calls
+ * callbackObject.clear();  // Stops the logging calls
  * 
  * @function Function.prototype.every
  * @param {Number} delay - The number of milliseconds to wait between function calls.
  * @param {Array} [args] - An array containing the arguments the function will be called with.
- * @param {*} [thisArg=window] - An object you want `this` to refer to inside the function.
- * If `thisArg` is an Array, `args` must be present (but may be `null`).
+ * @param {Object} [thisArg=returned callback object] - An object you want `this` to refer to inside the function.
+ * Defaults to the object returned by this function. If `thisArg` is an Array, `args` must be present (but may be `null`).
  * @returns {Object} An object with the following properties:
- * + `hasExecuted` - A boolean, inialized to `false`, that is set to `true` each time the function executes.
+ * + `callback` - The function this method was called upon.
+ * + `hasExecuted` - A Boolean, inialized to `false`, that is set to `true` each time the function executes.
  * + `execute` - A function that, when called, will execute the function immediately and cancel the interval so the function will stop being called.
  * To prevent the interval from being cancelled, call this function with the parameter `false`.
  * + `cancel` - A function that, when called, will cancel the interval so the function will stop being called.
@@ -2717,7 +2722,13 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 
 		// Delay a function that cleans up the animation and calls the complete callback after the transition is done
 		// and save a reference to the callback object on the element
-		_this._$A_ = (function() {
+		_this._$A_ = (function(stoppedEarly) {
+			if (stoppedEarly) {
+				//Get the current values of the CSS properties being animated
+				properties = _this.css(propertyNames);
+			}
+
+
 			if (isOldIE) {
 				//End the interval and set all the final CSS values
 				easing.cancel();
@@ -2736,12 +2747,18 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 				inlineStyle.overflow = overflowToRestore;
 			}
 
-			if (hideOnComplete) {
-				_this.hide();
+			if (stoppedEarly) {
+				//Set all the current CSS property values
+				_this.css(properties);
 			}
+			else {
+				if (hideOnComplete) {
+					_this.hide();
+				}
 
-			if (complete) {
-				complete.call(_this); //Call the complete function in the context of the element
+				if (complete) {
+					complete.call(_this); //Call the complete function in the context of the element
+				}
 			}
 
 			//Delete the callback object (helps indicate the animation has completed)
@@ -2978,9 +2995,9 @@ HTMLElementPrototype.fadeToggle = function(duration, easing, complete) {
  * @function HTMLElement.prototype.finish
  */
 // ReSharper disable once UnusedParameter
-HTMLElementPrototype.finish = function(animFinishCallback) { //The unused argument to prevents the need for a `var` declaration (saves space)
-	if (animFinishCallback = this._$A_) {
-		animFinishCallback.execute();
+HTMLElementPrototype.finish = function(animCallbackObj) { //The unused argument to prevents the need for a `var` declaration (saves space)
+	if (animCallbackObj = this._$A_) {
+		animCallbackObj.execute();
 	}
 
 	return this;
@@ -3238,6 +3255,35 @@ HTMLElementPrototype.slideToggle = function(duration, easing, complete) {
  */
 HTMLElementPrototype.slideUp = function(duration, easing, complete) {
 	return isComputedDisplayNone(this) ? this : this.slideToggle(duration, easing, complete);
+};
+
+/**
+ * @summary Stops the animation currently running on the element.
+ * 
+ * @description
+ * When `.stop()` is called on an element, the currently-running animation (if any) is immediately stopped.
+ * If, for instance, an element is being hidden with `.slideUp()` when `.stop()` is called, the element will
+ * now still be displayed, but will be a fraction of its previous height. Callback functions are not called.
+ * 
+ * If `jumptToEnd` is `true`, this is equivalent to calling `HTMLElement#finish()`.
+ * 
+ * @function HTMLElement.prototype.stop
+ * @param {Boolean} [jumpToEnd=false] - A Boolean indicating whether to complete the current animation immediately.
+ */
+HTMLElementPrototype.stop = function(arg) {
+	//`arg` is the `jumpToEnd` argument
+	if (arg) {
+		return this.finish();
+	}
+
+	//`arg` gets set to the animation completion callback object (if it exists)
+	arg = this._$A_;
+	if (arg && !arg.hasExecuted) {
+		arg.callback(1); // Call the completion object, passing in `1` to tell it that it finished early
+		arg.cancel();    // Cancel the delayed timeout
+	}
+
+	return this;
 };
 
 /**
@@ -5106,6 +5152,21 @@ NodeCollectionPrototype.slideToggle = callOnEachElement(HTMLElementPrototype.sli
  * refer to the element that was animated.
  */
 NodeCollectionPrototype.slideUp = callOnEachElement(HTMLElementPrototype.slideUp);
+
+/**
+ * @summary Stops the animation currently running on each element in the collection.
+ * 
+ * @description
+ * When `.stop()` is called on an element, the currently-running animation (if any) is immediately stopped.
+ * If, for instance, an element is being hidden with `.slideUp()` when `.stop()` is called, the element will
+ * now still be displayed, but will be a fraction of its previous height. Callback functions are not called.
+ * 
+ * If `jumptToEnd` is `true`, this is equivalent to calling `NodeCollection#finish()`.
+ * 
+ * @function NodeCollection.prototype.stop
+ * @param {Boolean} [jumpToEnd=false] - A Boolean indicating whether to complete the current animation immediately.
+ */
+NodeCollectionPrototype.stop = callOnEachElement(HTMLElementPrototype.stop);
 
 /**
  * Gets the combined text contents of each node in the list.
