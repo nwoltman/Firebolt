@@ -5586,7 +5586,7 @@ prototypeExtensions = {
 	 * @returns {String[]} An array of tokens.
 	 * @example
 	 * var str = "The boy who lived.";
-	 * str.tokenize();  // returns ["The", "boy", "who", "lived."]
+	 * str.tokenize(); // -> ["The", "boy", "who", "lived."]
 	 */
 	tokenize: function() {
 		return this.match(rgxNonWhitespace) || [];

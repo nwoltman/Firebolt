@@ -8,6 +8,27 @@
 
 module('String.prototype');
 
+test('appendParams', function() {
+	var url = 'www.fireboltjs.com';
+
+	url = url.appendParams('p1=a');
+	equal(url, 'www.fireboltjs.com?p1=a', 'Correctly appends parameters to a url that has no query string.');
+
+	equal(url.appendParams('p2=b'), 'www.fireboltjs.com?p1=a&p2=b', 'Correctly appends parameters to a url that already has a query string.');
+});
+
+test('contains', function() {
+	var str = 'Winter is coming.';
+
+	strictEqual(str.contains(' is '), true, 'Reports that a substring is in the string.');
+	strictEqual(str.contains('Wint'), true, 'Reports that the beginning of the string is in the string.');
+	strictEqual(str.contains(' coming.'), true, 'Reports that the end of the string is in the string.');
+	strictEqual(str.contains(str), true, 'Reports that the string contains itself');
+
+	strictEqual(str.contains('Summer is'), false, 'Reports that a non-substring is not in the string.');
+	strictEqual(str.contains(' is ', 7), false, 'Reports that a substring is not in the string if the `position` parameter is a large enough value.');
+});
+
 test('endsWith', function() {
 	var str = 'Who am I, Gamling?';
 
@@ -74,6 +95,13 @@ test('startsWith', function() {
 	//False
 	strictEqual(str.startsWith('Who are'), false); // 3
 	strictEqual(str.startsWith('am I'), false);    // 4
+});
+
+test('tokenize', function() {
+	deepEqual('The boy who lived.'.tokenize(), ['The', 'boy', 'who', 'lived.'], 'Tokenizes a simple string.');
+	deepEqual('class1\nclass2\t class3 '.tokenize(), ['class1', 'class2', 'class3'], 'Tokenizes an ill-formated class name string.');
+	deepEqual(''.tokenize(), [], 'Returns an empty array when tokenizing an empty string.');
+	deepEqual('\n   \t\r'.tokenize(), [], 'Returns an empty array when tokenizing a string made up of only whitespace.');
 });
 
 test('unescapeHTML', function() {
