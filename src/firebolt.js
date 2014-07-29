@@ -1089,22 +1089,33 @@ prototypeExtensions = {
 	},
 
 	/**
-	 * Returns an array containing every item that is in both this array and the input array.
+	 * Performs a set intersection on this array and the input array(s).
 	 * 
 	 * @example
 	 * [1, 2, 3].intersect([2, 3, 4]); // -> [2, 3]
+	 * [1, 2, 3].intersect([101, 2, 50, 1], [2, 1]); // -> [1, 2]
 	 * 
 	 * @function Array#intersect
-	 * @param {Array|Enumerable} array - Array or other enumerable object that has a `length` property.
-	 * @returns {Array} An array that is the intersection of this array and the input array.
+	 * @param {...(Array|Enumerable)} *arrays - One or more arrays or array-like objects.
+	 * @returns {Array} An array that is the intersection of this array and the input array(s).
 	 */
-	intersect: function(array) {
+	intersect: function() {
 		var intersection = new this._$C_(),
-			i = 0;
+			i = 0,
+			j,
+			item;
 
-		for (; i < array.length; i++) {
-			if (this.contains(array[i]) && intersection.indexOf(array[i]) < 0) {
-				intersection.push(array[i]);
+		next: for (; i < this.length; i++) {
+			//The current item can only be added if it is not already in the intersection
+			if (intersection.indexOf(item = this[i]) < 0) {
+				//If the item is not in every input array, continue to the next item without adding the current one
+				for (j = 0; j < arguments.length; j++) {
+					if (ArrayPrototype.indexOf.call(arguments[j], item) < 0) {
+						continue next;
+					}
+				}
+
+				intersection.push(item);
 			}
 		}
 
