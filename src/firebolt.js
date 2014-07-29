@@ -1036,10 +1036,11 @@ prototypeExtensions = {
 	 * 
 	 * @function Array#each
 	 * @param {function(*, Number, Array)} callback(value,index,array) - The function that will be executed on each item.
+	 * @param {Object} [thisArg=value] - Value to use as `this` when executing `callback`. Defaults to the `value` parameter of `callback`.
 	 * @returns {Array} this
 	 */
-	each: function(callback) {
-		return Firebolt.each(this, callback, 1);
+	each: function(callback, thisArg) {
+		return Firebolt.each(this, callback, thisArg, 1);
 	},
 
 	/**
@@ -1914,6 +1915,7 @@ Firebolt.data = function(object, key, value, isElement) {
  * @function Firebolt.each
  * @param {Array} array - The array or array-like object to iterate over.
  * @param {function(*, Number, Array)} callback(value,index,array) - The function that will be executed on each item.
+ * @param {Object} [thisArg=value] - Value to use as `this` when executing `callback`. Defaults to the `value` parameter of `callback`.
  * @param {Boolean} [isArrayLike] - A hint you can give to Firebolt to tell it to use this version of the function so
  * it can skip checking the object's type.
  * @returns {Array} The input array.
@@ -1927,19 +1929,22 @@ Firebolt.data = function(object, key, value, isElement) {
  * @function Firebolt.each
  * @param {Object} object - The object to iterate over.
  * @param {function(*, String, Object)} callback(value,key,object) - The function that will be executed on each item.
+ * @param {Object} [thisArg=value] - Value to use as `this` when executing `callback`. Defaults to the `value` parameter of `callback`.
  * @returns {Object} The input object.
  */
-Firebolt.each = function(obj, callback, isArrayLike) {
+Firebolt.each = function(obj, callback, thisArg, isArrayLike) {
 	var len = obj.length,
 		i = 0;
+
 	if (isArrayLike || typeof len == 'number' && typeof obj != 'function' && obj.toString() != '[object Window]') {
-		while (i < len && callback(obj[i], i++, obj) !== false);
+		while (i < len && callback.call(thisArg || obj[i], obj[i], i++, obj) !== false);
 	}
 	else {
 		for (i in obj) {
-			if (callback(obj[i], i, obj) === false) break;
+			if (callback.call(thisArg || obj[i], obj[i], i, obj) === false) break;
 		}
 	}
+
 	return obj;
 };
 
