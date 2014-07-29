@@ -1,7 +1,7 @@
 {
   "name": "Firebolt",
   "description": "A fast and lightweight JavaScript library for modern browsers.",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "main": "src/firebolt.js",
   "author": "Nathan Woltman <nwoltman@outlook.com>",
   "homepage": "http://fireboltjs.com",
@@ -18,8 +18,8 @@
     "browser"
   ],
   "bugs": {
-    "url" : "https://github.com/FireboltJS/Firebolt/issues",
-    "email" : "info@fireboltjs.com"
+    "url": "https://github.com/FireboltJS/Firebolt/issues",
+    "email": "info@fireboltjs.com"
   },
   "licenses": [{
     "type": "MIT",
