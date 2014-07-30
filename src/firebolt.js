@@ -872,7 +872,7 @@ var
 
 	querySelectorAll = window.$QSA =
 		useNormalSelectionFunction ? function(selector) {
-			return document.querySelector(selector);
+			return document.querySelectorAll(selector);
 		} : getElementSelectionFunction(document.querySelectorAll),
 
 	//Property strings
