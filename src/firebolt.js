@@ -1476,14 +1476,26 @@ ElementPrototype.removeProp = function(propertyName) {
  */
 
 /**
- * The global Firebolt function (can also be referenced by the synonyms `FB` and `$`).  
+ * @summary
+ * The global Firebolt function (can also be referenced by the synonyms <code>FB</code> and <code>$</code>).
+ * 
+ * @description
  * Returns a list of the elements either found in the DOM that match the passed in CSS selector or created by passing an HTML string.
  * 
  * __Note:__ Unlike jQuery, only a document may be passed as the `context` variable. This is because there is a simple,
  * native method for selecting elements with an element as the root for the selection. The method is `element.querySelectorAll()`. If
- * the element was created in the same document as Firebolt was loaded, it will have an alias for `.querySelectorAll()` &mdash;
- * {@linkcode Element#$QSA|.$QSA()}. If you want to write really performant and concise code, use some of
- * {@link Element}'s other native functions as well.
+ * the element was created in the same document as Firebolt was loaded in, it will have an alias for `.querySelectorAll()` &mdash;
+ * {@linkcode Element#$QSA|.$QSA()}. If you want to write really performant and concise code, you may want to use some of
+ * {@link Element}'s other native functions, depending on what you want to select.
+ * 
+ * __ProTip:__ When creating a single element, it's a better idea to use the {@linkcode Firebolt.elem} function since it maps
+ * directly to the native `document.createElement()` function (making it much faster) and gives you the option to pass in an
+ * object of attributes to be set on the newly created element.
+ * 
+ * @example
+ * $('button.btn-success'); // Returns all button elements with the class "btn-success"
+ * $('str <p>content</p>'); // Creates a set of nodes and returns it as a NodeList (in this case ["str ", <p>content</p>])
+ * $.elem('div');           // Calls Firebolt's method to create a new div element 
  * 
  * @global
  * @variation 2
@@ -1492,11 +1504,6 @@ ElementPrototype.removeProp = function(propertyName) {
  * @param {Document} [context] - A DOM Document to serve as the context when selecting or creating elements.
  * @returns {NodeList|HTMLCollection|NodeCollection} A NodeList/HTMLCollection of selected elements or a NodeCollection of newly created elements.
  * @throws {SyntaxError} When an invalid CSS selector is passed as the string.
- * 
- * @example
- * $('button.btn-success'); // Returns all button elements with the class "btn-success"
- * $('str <p>content</p>'); // Creates a set of nodes and returns it as a NodeList (in this case ["str ", <p>content</p>])
- * $.elem('div');           // Calls Firebolt's method to create a new div element 
  */
 function Firebolt(selector, context) {
 	if (context) {
