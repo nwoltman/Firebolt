@@ -134,8 +134,7 @@ function createElement(tagName, attributes) {
  * Takes a string indicating an event type and returns an Event object that bubbles and is cancelable.
  * @param {String} eventType - The name of the type of event (such as "click").
  */
-// ReSharper disable once UnusedParameter
-function createEventObject(eventType, event) {
+function createEventObject(eventType, event) { // Declaring `event` in the parameters to save a var declaration
 	if (Event.length) {
 		event = new Event(eventType, {
 			bubbles: true,
@@ -246,7 +245,7 @@ function extend(target) {
 
 	if (numArgs > 1) {
 		if (target === true) { //`target` was actually the `deep` variable; extend recursively
-			return extendDeep.apply(0, array_slice.call(arguments, 1));
+			return extendDeep.apply(0, ArrayPrototype.slice.call(arguments, 1));
 		}
 		if (!target) { //`target` was actually the `deep` variable, but was false
 			target = arguments[i++];
@@ -475,7 +474,7 @@ function getNodeCollectionPutToOrReplaceAllFunction(funcName) {
 	var NodeInserter = NodePrototype[funcName];
 
 	return function(target) {
-		var copy = this.toNC();
+		var copy = ncFrom(this);
 
 		if (typeofString(target)) {
 			Firebolt(target)[funcName](copy, 0); //Pass in 0 to tell the function to add clones to the copy
@@ -769,6 +768,33 @@ function returnFalse() {
 }
 
 /*
+ * Takes in an Array constructor and creates a partial ES6 shim for the `.from()` function,
+ * setting it on the constructor if it does not already exist, then returns that function.
+ * 
+ * @param {function} - The Array or NodeCollection constructor function.
+ * @returns {function} - The created `from` function.
+ */
+function setAndGetArrayFromFunction(constructor) {
+	function from(arrayLike) {
+		var len = arrayLike.length,
+			array = new constructor(len),
+			i = 0;
+
+		for (; i < len; i++) {
+			array[i] = arrayLike[i];
+		}
+
+		return array;
+	}
+
+	if (!constructor.from) {
+		constructor.from = from;
+	}
+
+	return from;
+}
+
+/*
  * If the element is hidden, it is shown and the element is returned.
  * If the element is not hidden, 0 is returned.
  */
@@ -844,8 +870,8 @@ var
 
 	//Helpers
 	isArray = Array.isArray,
+	arrayFrom = setAndGetArrayFromFunction(Array),
 	array_push = ArrayPrototype.push,
-	array_slice = ArrayPrototype.slice,
 	array_remove, //Will get set to Array.prototype.remove
 	defineProperty = Object.defineProperty,
 	keys = Object.keys,
@@ -926,6 +952,22 @@ var
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array | Array - JavaScript | MDN}
  */
 
+/**
+ * @summary Creates a new Array instance from an array-like object.
+ * 
+ * @description
+ * This is a partial shim for the ES6-defined {@linkcode https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/from | Array.from()}
+ * function that only accepts array-like objects and does not support the optional `mapFn` or `thisArg` arguments.
+ * 
+ * Firebolt will not alter `Array.from` if it is already implemented by the browser. Furthermore, since Firebolt implements a subset
+ * if the ES6-defined functionality, code that works with Firebolt's shim will also work when browsers natively implement
+ * `Array.from`, so your code will be future-proof.
+ * 
+ * @function Array.from
+ * @param {Object} arrayLike - An array-like object to convert to an array.
+ * @returns {Array}
+ */
+
 prototypeExtensions = {
 	/* Private reference to the Array constructor */
 	_$C_: Array,
@@ -966,15 +1008,7 @@ prototypeExtensions = {
 	 * @returns {Array} A shallow copy of the array.
 	 */
 	clone: function() {
-		var len = this.length,
-			clone = new this._$C_(len),
-			i = 0;
-
-		for (; i < len; i++) {
-			clone[i] = this[i];
-		}
-
-		return clone;
+		return arrayFrom(this);
 	},
 
 	/**
@@ -2309,24 +2343,6 @@ Firebolt.text = function(text) {
 	return document.createTextNode(text);
 };
 
-/**
- * Converts an array-like object (such as a function's `arguments` object) to a true {@link Array}.
- * 
- * @example
- * function tester() {
- *     console.log( $.makeArray(arguments) );
- *     console.log( $.makeArray(arguments, 1) );
- * }
- * tester(1, 2, 3);  // logs "[1, 2, 3]" and "[2, 3]"
- * 
- * @param {Object} obj - Any object to turn into a native array.
- * @param {Number} [startIndex=0] - An index in the input object at which to start creating the new array from.
- * @returns {Array}
- */
-Firebolt.makeArray = function(array, index) {
-	return array_slice.call(array, index);
-};
-
 //#endregion Firebolt
 
 
@@ -3021,8 +3037,7 @@ HTMLElementPrototype.fadeToggle = function(duration, easing, complete) {
  * 
  * @function HTMLElement#finish
  */
-// ReSharper disable once UnusedParameter
-HTMLElementPrototype.finish = function(animCallbackObj) { //The unused argument to prevents the need for a `var` declaration (saves space)
+HTMLElementPrototype.finish = function(animCallbackObj) { //The unused argument prevents the need for a `var` declaration (saves space)
 	if (animCallbackObj = this._$A_) {
 		animCallbackObj.execute();
 	}
@@ -3530,7 +3545,7 @@ NodePrototype.childElements = function(selector) {
 	var children = this.children || [];
 
 	if (!selector) {
-		return children.toNC();
+		return ncFrom(children);
 	}
 
 	var nc = new NodeCollection(),
@@ -3605,7 +3620,7 @@ NodePrototype.closest = function(selector) {
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.childNodes | Node.childNodes - Web API Interfaces | MDN}
  */
 NodePrototype.contents = function() {
-	return this.childNodes.toNC();
+	return ncFrom(this.childNodes);
 };
 
 /**
@@ -4216,14 +4231,11 @@ NodePrototype.wrapInner = function(wrappingElement) {
 
 //#region ======================== NodeCollection ============================
 
-//Save the clone function to toNC to be a way to make shallow copies of the NodeCollection/NodeList/HTMLCollection
-prototypeExtensions.toNC = prototypeExtensions.clone;
-
 /**
  * Create a deep copy of the collection of nodes.
  * 
- * __ProTip:__ If you want a shallow copy of the collection, use `.toNC()` (even thought that's a NodeList function,
- * NodeCollections also have it in their prototype).
+ * __ProTip:__ If you want a shallow copy of the collection, use `.toNC()` (even thought that's mainly a NodeList function,
+ * NodeCollections also have it in their prototype) or pass the collection into `NodeCollection.from()`.
  * 
  * @function NodeCollection#clone
  * @param {Boolean} [withDataAndEvents=false] - A boolean indicating if each node's data and events should be copied over to its clone.
@@ -4279,10 +4291,13 @@ var
 	//Extend NodeCollection's prototype with the Array functions
 	NodeCollectionPrototype = extend(NodeCollection[prototype], prototypeExtensions),
 
+	//Set and get the NodeCollection.from function (gets the custom function and not the native one even if it exists)
+	ncFrom = setAndGetArrayFromFunction(NodeCollection),
+
 	//Save a reference to the original filter function for use later on
 	ncFilter = NodeCollectionPrototype.filter;
 
-iframe.remove(); //Remove the iframe that was made to subclass Array
+iframe.remove(); //Remove the iframe that was used to subclass Array
 
 /* Set the private constructor (which will be inherited by NodeList and HTMLCollection) */
 NodeCollectionPrototype._$C_ = NodeCollection;
@@ -4333,7 +4348,7 @@ NodeCollectionPrototype.add = function(input) {
 	var newCollection;
 	if (input.nodeType) {
 		if (this.contains(input)) { //This collection already contains the input node
-			return this.toNC(); //Return a shallow clone of the current collection
+			return ncFrom(this); //Return a shallow clone of the current collection
 		}
 		newCollection = this.concat(input);
 	}
@@ -5245,6 +5260,17 @@ NodeCollectionPrototype.toggle = callOnEachElement(HTMLElementPrototype.toggle);
 NodeCollectionPrototype.toggleClass = callOnEachElement(HTMLElementPrototype.toggleClass);
 
 /**
+ * Returns a shallow copy of the NodeCollection.  
+ * This is mainly just so it can be inherited by {@link NodeList}, but can also be used like {@linkcode Array#clone}.
+ * 
+ * @function NodeCollection#toNC
+ * @returns {NodeCollection}
+ */
+NodeCollectionPrototype.toNC = function() {
+	return ncFrom(this);
+};
+
+/**
  * Triggers a real DOM event on each node in the collection for the given event type.
  * 
  * @function NodeCollection#trigger
@@ -5487,7 +5513,7 @@ Object.getOwnPropertyNames(NodeCollectionPrototype)
 	).forEach(function(methodName) {
 		if (rgxDifferentNL.test(methodName)) { //Convert to a NodeCollection first
 			HTMLCollectionPrototype[methodName] = NodeListPrototype[methodName] = function() {
-				return NodeCollectionPrototype[methodName].apply(this.toNC(), arguments);
+				return NodeCollectionPrototype[methodName].apply(ncFrom(this), arguments);
 			}
 		}
 		else if (!NodeListPrototype[methodName]) {
@@ -5520,13 +5546,13 @@ NodeListPrototype.namedItem = NodeCollectionPrototype.namedItem = function(name)
  * @function NodeList#toNC
  * @returns {NodeCollection}
  */
-//This function was added to the NodeList prototype in the loop above (because NodeCollection actually has this function too)
+// This function was added to the NodeList prototype in the loop above (because NodeCollection has this function too)
 
-/* NodeLists/HTMLCollections always contain unique elements */
-NodeListPrototype.uniq = HTMLCollectionPrototype.uniq =
-
-/* All of the above functions are equivalent to calling NodeCollection#toNC() on the NodeList/HTMLCollection */
-NodeCollectionPrototype.toNC;
+/*
+ * NodeLists/HTMLCollections always contain unique elements, so theses are equivalent to calling
+ * NodeCollection#toNC() on the NodeList/HTMLCollection.
+ */
+NodeListPrototype.uniq = HTMLCollectionPrototype.uniq = NodeCollectionPrototype.toNC;
 
 //#endregion NodeList
 
