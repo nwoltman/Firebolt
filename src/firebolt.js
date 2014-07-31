@@ -1363,7 +1363,7 @@ ElementPrototype.data = function(key, value) {
 /**
  * Gets the descendants of the element, filtered by a selector, collection of elements, or a single element.
  * 
- * __Protip:__ Since this method has multiple input types, type-checking is performed on the input to determine how the result will be calculated.
+ * __ProTip:__ Since this method has multiple input types, type-checking is performed on the input to determine how the result will be calculated.
  * If want to find descendant elements using a CSS selector, you should use the native `element.querySelectorAll()` or the Firebolt alias for
  * that function (`.$QSA()`).
  * 
@@ -3062,7 +3062,7 @@ HTMLElementPrototype.hide = function() {
 /**
  * Sets the element's inner HTML.
  * 
- * __Protip:__ Quite often, this function is used to set the text contents of elements. However, if the text being set does not
+ * __ProTip:__ Quite often, this function is used to set the text contents of elements. However, if the text being set does not
  * (or should not) contain any actual HTML, the `Node#text()` function should be used instead as it will be faster and also
  * prevent unwanted HTML from being injected into the page.
  * 
@@ -3597,7 +3597,7 @@ NodePrototype.closest = function(selector) {
 /**
  * Gets the child nodes of the element as a {@link NodeCollection}.
  * 
- * __Protip:__ If you don't need the child nodes in a NodeCollection, you should access them using the native
+ * __ProTip:__ If you don't need the child nodes in a NodeCollection, you should access them using the native
  * `childNodes` property (which is a {@link NodeList}).
  * 
  * @function Node#contents
@@ -4222,7 +4222,7 @@ prototypeExtensions.toNC = prototypeExtensions.clone;
 /**
  * Create a deep copy of the collection of nodes.
  * 
- * __Protip:__ If you want a shallow copy of the collection, use `.toNC()` (even thought that's a NodeList function,
+ * __ProTip:__ If you want a shallow copy of the collection, use `.toNC()` (even thought that's a NodeList function,
  * NodeCollections also have it in their prototype).
  * 
  * @function NodeCollection#clone
@@ -5103,7 +5103,7 @@ NodeCollectionPrototype.replaceWith = getNodeCollectionPutOrWithFunction(replace
  * have their values added to the serialized string. All button elements (including file input buttons)
  * are also ignored.
  * 
- * __Protip:__ The best way to serialize a single form is to select the form element and  call `.serialize()`
+ * __ProTip:__ The best way to serialize a single form is to select the form element and  call `.serialize()`
  * directly on it (see {@link HTMLElement#serialize}).
  * 
  * @function NodeCollection#serialize
