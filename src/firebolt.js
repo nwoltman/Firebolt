@@ -1,6 +1,6 @@
 ﻿/*!
  * Firebolt core file
- * @version 0.8.1
+ * @version 0.8.2
  * @author Nathan Woltman
  * @copyright 2014 Nathan Woltman
  * @license MIT https://github.com/FireboltJS/Firebolt/blob/master/LICENSE.txt
