@@ -5,6 +5,7 @@
 (function() {
 	var modules = [
 		'Array',
+		'Firebolt',
 		'NodeList',
 		'String'
 	];

@@ -615,7 +615,7 @@ function getWrappingInnerElement(wrapper) {
  * Takes an HTML string and returns a NodeList created by the HTML.
  * NOTE: Prototype functions added by Firebolt cannot be used in this function in case the context was changed in the Firebolt function
  */
-function htmlToNodes(html, single) {
+function htmlToNodes(html, detachNodes, single) {
 	var elem, specialElementData;
 
 	//If the HTML is just a single element without attributes, using document.createElement is much faster
@@ -646,7 +646,9 @@ function htmlToNodes(html, single) {
 		return elem.removeChild(elem.firstChild);
 	}
 
-	return elem.childNodes;
+	html = elem.childNodes;
+
+	return detachNodes ? ncFrom(html).remove() : html;
 }
 
 /*
@@ -678,46 +680,6 @@ function isEmptyObject(object) {
 		return false;
 	}
 	return true;
-}
-
-/*
- * Specifically for the Firebolt selector.
- * Determines if the input is actually an HTML string instead of a CSS selector.
- * 
- * Rationale:
- * 
- * The string can only be considered HTML if it contains the tag open character: '<'.
- * Normally, this character should never appear in a CSS selector, however it is possible
- * for an element to have an attribute with a value that contains the '<' character.
- * Here's an example:
- * 
- * <div data-notcool="<tag>"></div>
- * 
- * Hence, this element should be able to be selected with the following CSS selector:
- * 
- * [data-notcool="<tag>"]
- * 
- * So for the string to truly be HTML, not only must it contain the '<' character, but
- * the first instance of that character must also be found in the string before any
- * instance of the '[' character.
- * 
- * The reason the '[' character is not searched for if the index of the '<' character is
- * less that 4 is because the smallest possible CSS selector that contains '<' is this:
- * 
- * [d="<"]
- * 
- * This also means that if '<' is found in the string, we only need to start searching for
- * a '[' beginning at the index 4 less than the index the fist '<' was found at. 
- * 
- * @param {String} str
- * @returns 1 if the string is deemed to be an HTML string; else 0.
- */
-function isHtml(str) {
-	var idxTag = str.indexOf('<');
-	if (idxTag >= 0 && (idxTag < 4 || str.lastIndexOf('[', idxTag - 4) < 0)) {
-		return 1;
-	}
-	return 0;
 }
 
 /*
@@ -1520,26 +1482,31 @@ ElementPrototype.removeProp = function(propertyName) {
  * @description
  * Returns a list of the elements either found in the DOM that match the passed in CSS selector or created by passing an HTML string.
  * 
- * __Note:__ Unlike jQuery, only a document may be passed as the `context` variable. This is because there is a simple,
+ * __Note #1:__ Unlike jQuery, only a document may be passed as the `context` variable. This is because there is a simple,
  * native method for selecting elements with an element as the root for the selection. The method is `element.querySelectorAll()`. If
  * the element was created in the same document as Firebolt was loaded in, it will have an alias for `.querySelectorAll()` &mdash;
  * {@linkcode Element#$QSA|.$QSA()}. If you want to write really performant and concise code, you may want to use some of
  * {@link Element}'s other native functions, depending on what you want to select.
  * 
- * __ProTip:__ When creating a single element, it's a better idea to use the {@linkcode Firebolt.elem} function since it maps
- * directly to the native `document.createElement()` function (making it much faster) and gives you the option to pass in an
- * object of attributes to be set on the newly created element.
+ * __Note #2:__ This function will only consider the input string an HTML string if the first character of the
+ * string is the opening tag character (`<`). If you want to parse an HTML string that does not begin with an
+ * element, use {@linkcode Firebolt.parseHTML|$.parseHTML()});
+ * 
+ * __ProTip:__ When creating a single element, it's a better idea to use the {@linkcode Firebolt.elem|$.elem()} function since
+ * it maps directly to the native `document.createElement()` function (making it much faster) and gives you the option to pass
+ * in an object of attributes to be set on the newly created element.
  * 
  * @example
- * $('button.btn-success'); // Returns all button elements with the class "btn-success"
- * $('str <p>content</p>'); // Creates a set of nodes and returns it as a NodeList (in this case ["str ", <p>content</p>])
+ * Firebolt('div, span');   // Returns a NodeList of all div and span elements
+ * $('button.btn-success'); // Returns a NodeList of all button elements with the class "btn-success"
+ * $('<p>content</p><br>'); // Creates a set of nodes and returns it as a NodeCollection (in this case [<p>content</p>, <br>])
  * $.elem('div');           // Calls Firebolt's method to create a new div element 
  * 
  * @global
  * @variation 2
  * @function Firebolt
  * @param {String} string - A CSS selector string or an HTML string.
- * @param {Document} [context] - A DOM Document to serve as the context when selecting or creating elements.
+ * @param {Document} [context=document] - A DOM Document to serve as the context when selecting or creating elements.
  * @returns {NodeList|HTMLCollection|NodeCollection} A NodeList/HTMLCollection of selected elements or a NodeCollection of newly created elements.
  * @throws {SyntaxError} When an invalid CSS selector is passed as the string.
  */
@@ -1571,9 +1538,10 @@ function Firebolt(selector, context) {
 	else if (!rgxNotTag.test(selector)) { //Check for a single tag name
 		return getElementsByTagName(selector);
 	}
-	else if (isHtml(selector)) { //Check if the string is an HTML string
-		return htmlToNodes(selector).remove(); //Must detach the nodes from their creation container
+	else if (selector[0] === '<') { //Check if the string is an HTML string
+		return htmlToNodes(selector, 1); //Pass in 1 to tell the function to detach the nodes from their creation container
 	}
+	//else
 	return querySelectorAll(selector);
 }
 
@@ -2243,6 +2211,31 @@ function serialize(obj, prefix, traditional) {
 }
 
 /**
+ * Parses a string into an array of DOM nodes.
+ * 
+ * __Note:__ `<script>` elements created with this function will not have their code executed.
+ * If you desire this functionality, create a `<script>` with {@linkcode Firebolt.elem}, set
+ * its `textContent` property to the script string you want to execute, then add the element
+ * to the `document`.
+ * 
+ * @function Firebolt.parseHTML
+ * @param {String} html - HTML string to be parsed.
+ * @param {Document} [context=document] - A DOM Document to serve as the context in which the nodes will be created.
+ * @returns {NodeCollection} The collection of created nodes.
+ */
+Firebolt.parseHTML = function(html, context) {
+	document = context || document; // Set the context for creating nodes
+
+	html = htmlToNodes(html, 1); // Parse the HTML, passing in 1 to tell the function to detach the nodes from their creation container
+
+	if (context) { // If the context was changed, restore it
+		document = window.document;
+	}
+
+	return html;
+};
+
+/**
  * Load data from the server using a HTTP POST request.
  * 
  * @param {String} url - A string containing the URL to which the request will be sent.
@@ -2491,8 +2484,8 @@ window.$1 = function(selector, context) {
 	else if (!rgxNotTag.test(selector)) { //Check for a single tag name
 		return getElementsByTagName(selector)[0];
 	}
-	else if (isHtml(selector)) { //Check if the string is an HTML string
-		return htmlToNodes(selector, 1); //Pass in 1 to tell the htmlToNodes function to return only one node
+	else if (selector[0] === '<') { //Check if the string is an HTML string
+		return htmlToNodes(selector, 1, 1); //Pass in the second 1 to tell the htmlToNodes function to return only one node
 	}
 	//else
 	return querySelector(selector);
