@@ -592,10 +592,6 @@ function getTimingFunction(setTiming, clearTiming) {
  */
 function getWrappingElement(input) {
 	if (typeofString(input)) {
-		if (input[0] === '<') { //HTML
-			return htmlToNodes(input)[0];
-		}
-		//CSS selector
 		input = $1(input);
 	}
 	else if (!input.nodeType) { //Element[]
@@ -619,8 +615,8 @@ function getWrappingInnerElement(wrapper) {
  * Takes an HTML string and returns a NodeList created by the HTML.
  * NOTE: Prototype functions added by Firebolt cannot be used in this function in case the context was changed in the Firebolt function
  */
-function htmlToNodes(html, detachNodes, single) {
-	var elem, childs;
+function htmlToNodes(html, single) {
+	var elem, specialElementData;
 
 	//If the HTML is just a single element without attributes, using document.createElement is much faster
 	if (rgxSingleTag.test(html)) {
@@ -631,24 +627,17 @@ function htmlToNodes(html, detachNodes, single) {
 		return single ? elem : new NodeCollection(elem);
 	}
 
-	//Speedy for most HTML; just create a <body> and set its HTML
+	//Parse the HTML, taking care to handle special elements
 	elem = createElement('body');
-	elem.innerHTML = html;
-	childs = elem.firstChild;
-
-	//If no elements were created, it might be because browsers won't create certain elements in a body tag
-	if (!childs || html[0] === '<' && childs.nodeType !== 1) {
-		//The following supports only the creation of table elements
-		if (rgxTableLevel1.test(html)) {
-			elem = createElement('table');
-		}
-		else if (html.contains('<tr')) {
-			elem = createElement('tbody');
-		}
-		else if (rgxTableLevel3.test(html)) {
-			elem = createElement('tr');
-		}
-
+	specialElementData = rgxFirstTag.exec(html);
+	if (specialElementData && (specialElementData = specialElementsMap[specialElementData[0]])) {
+			elem.innerHTML = specialElementData[1] + html + specialElementData[2];
+			specialElementData = specialElementData[0];
+			while (specialElementData--) {
+				elem = elem.firstChild;
+			}
+	}
+	else {
 		elem.innerHTML = html;
 	}
 
@@ -657,9 +646,7 @@ function htmlToNodes(html, detachNodes, single) {
 		return elem.removeChild(elem.firstChild);
 	}
 
-	childs = elem.childNodes;
-
-	return detachNodes ? childs.remove() : childs;
+	return elem.childNodes;
 }
 
 /*
@@ -906,14 +893,13 @@ var
 	previousElementSibling = 'previousElementSibling',
 
 	/* Pre-built RegExps */
-	rgxTableLevel1 = /<t(?:he|b|f)|<c(?:ap|ol)/i, // Matches <thead>, <tbody>, <tfoot>, <caption>, <col>, <colgroup>
-	rgxTableLevel3 = /<t(?:d|h)\b/,               // Matches <td>, <th>
 	rgxDataType = /\b(?:xml|json)\b|script\b/,    // Matches an AJAX data type in Content-Type header
 	rgxDifferentNL = /^(?:af|ap|be|conc|ea|ins|prep|pu|rep|toggleC)|wrap|remove(?:Class)?$/, //Determines if the function is different for NodeLists
 	rgxNotId = /[ .,>:[+~\t-\f]/,    //Matches other characters that cannot be in an id selector
 	rgxNotClass = /[ #,>:[+~\t-\f]/, //Matches other characters that cannot be in a class selector
 	rgxAllDots = /\./g,
 	rgxNotTag = /[^A-Za-z]/,
+	rgxFirstTag = /<\w+/, //Matches the first tag in an HTML string
 	rgxSingleTag = /^<[A-Za-z]+\/?>$/, //Matches a single HTML tag such as "<div/>"
 	rgxNonWhitespace = /\S+/g,
 	rgxSpaceChars = /[ \t-\f]+/, //From W3C http://www.w3.org/TR/html5/single-page.html#space-character
@@ -921,6 +907,24 @@ var
 	rgxCheckableElement = /checkbox|radio/,     //Matches checkbox or radio input element types
 	rgxCamelizables = usesGecko ? /-+([a-z])/g : /^-+|-+([a-z])/g, //Matches dashed parts of CSS property names
 	rgxNoParse = /^\d+\D/, //Matches strings that look like numbers but have non-digit characters
+
+	/* Needed for parsing HTML */
+	optData = [1, '<select multiple>', '</select>'],
+	tableData = [1, '<table>', '</table>'],
+	cellData = [3, '<table><tbody><tr>', '</tr></tbody></table>'],
+	specialElementsMap = {
+		'<option': optData,
+		'<optgroup': optData,
+		'<thead': tableData,
+		'<tbody': tableData,
+		'<tfoot': tableData,
+		'<colgroup': tableData,
+		'<caption': tableData,
+		'<tr': [2, '<table><tbody>', '</tbody></table>'],
+		'<col': [2, '<table><colgroup>', '</colgroup></table>'],
+		'<td': cellData,
+		'<th': cellData
+	},
 
 	/* AJAX */
 	timestamp = Date.now(),
@@ -1568,7 +1572,7 @@ function Firebolt(selector, context) {
 		return getElementsByTagName(selector);
 	}
 	else if (isHtml(selector)) { //Check if the string is an HTML string
-		return htmlToNodes(selector, 1); //Pass in 1 to tell the htmlToNodes function to detach the nodes from their creation container
+		return htmlToNodes(selector).remove(); //Must detach the nodes from their creation container
 	}
 	return querySelectorAll(selector);
 }
@@ -2488,7 +2492,7 @@ window.$1 = function(selector, context) {
 		return getElementsByTagName(selector)[0];
 	}
 	else if (isHtml(selector)) { //Check if the string is an HTML string
-		return htmlToNodes(selector, 1, 1); //Pass in the second 1 to tell the htmlToNodes function to return only one node
+		return htmlToNodes(selector, 1); //Pass in 1 to tell the htmlToNodes function to return only one node
 	}
 	//else
 	return querySelector(selector);
