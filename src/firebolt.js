@@ -2175,12 +2175,14 @@ Firebolt.param = function(obj, traditional) {
 
 function serialize(obj, prefix, traditional) {
 	var queryString = '',
+		valueIsFunction,
 		key,
 		value,
 		cur;
 
 	for (key in obj) {
 		value = obj[key];
+		valueIsFunction = typeof value == 'function';
 
 		if (traditional) {
 			//Add the key
@@ -2194,15 +2196,17 @@ function serialize(obj, prefix, traditional) {
 				}
 			}
 			else {
-				queryString += '=' + encodeURIComponent(value);
+				//If the value is a function, call it in the context of its owning object
+				queryString += '=' + encodeURIComponent(valueIsFunction ? value.call(obj) : value);
 			}
 		}
 		else {
 			/* Inspired by: http://stackoverflow.com/questions/1714786/querystring-encoding-of-a-javascript-object */
-			if (!isEmptyObject(value) || typeofString(value)) {
+			if (valueIsFunction || !isEmptyObject(value) || typeofString(value)) {
 				cur = prefix ? prefix + '[' + key + ']' : key;
-				queryString += (queryString ? '&' : '') + (typeofObject(value) ? serialize(value, cur)
-																			   : encodeURIComponent(cur) + '=' + encodeURIComponent(value));
+				queryString += (queryString ? '&' : '')
+					+ (typeofObject(value) ? serialize(value, cur)
+										   : encodeURIComponent(cur) + '=' + encodeURIComponent(valueIsFunction ? value.call(obj) : value));
 			}
 		}
 	}
