@@ -4488,6 +4488,13 @@ NodeCollectionPrototype.attr = getFirstSetEachElement(HTMLElementPrototype.attr,
 NodeCollectionPrototype.beforePut = NodeCollectionPrototype.before = getNodeCollectionPutOrWithFunction(insertBefore);
 
 /**
+ * Calls {@linkcode https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement.blur | HTMLElement#blur()} on each element in the collection.
+ * 
+ * @function NodeCollection#blur
+ */
+NodeCollectionPrototype.blur = callOnEachElement(HTMLElementPrototype.blur);
+
+/**
  * Gets the child elements of each element in the collection, optionally filtered by a selector.
  * 
  * @function NodeCollection#children
@@ -4497,7 +4504,7 @@ NodeCollectionPrototype.beforePut = NodeCollectionPrototype.before = getNodeColl
 NodeCollectionPrototype.children = getGetDirElementsFunc(HTMLElementPrototype.childElements, sortDocOrder);
 
 /**
- * Clicks each element in the collection.
+ * Calls {@linkcode https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement.click | HTMLElement#click()} on each element in the collection.
  * 
  * @function NodeCollection#click
  */
@@ -4713,6 +4720,13 @@ NodeCollectionPrototype.find = getGetDirElementsFunc(ElementPrototype.find, sort
  * @function NodeCollection#finish
  */
 NodeCollectionPrototype.finish = callOnEachElement(HTMLElementPrototype.finish);
+
+/**
+ * Calls {@linkcode https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement.focus | HTMLElement#focus()} on each element in the collection.
+ * 
+ * @function NodeCollection#focus
+ */
+NodeCollectionPrototype.focus = callOnEachElement(HTMLElementPrototype.focus);
 
 /**
  * Hides each element in the collection.
