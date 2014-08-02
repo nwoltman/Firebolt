@@ -38,25 +38,6 @@ function callOnEach(fn) {
 }
 
 /*
- * Calls the passed in function on each element in a NodeCollection.
- * 
- * @param {Function} fn - The function to call on each element.
- * @returns {NodeCollection|NodeList|HTMLCollection} A reference to the NodeCollection.
- */
-function callOnEachElement(fn) {
-	return function() {
-		var len = this.length,
-			i = 0;
-		for (; i < len; i++) {
-			if (this[i].nodeType === 1) {
-				fn.apply(this[i], arguments);
-			}
-		}
-		return this;
-	};
-}
-
-/*
  * Converts a string separated by dashes to its camelCase equivalent.
  * Used to translate CSS property names to their DOM style-object property names.
  * 
@@ -4303,6 +4284,23 @@ iframe.remove(); //Remove the iframe that was used to subclass Array
 /* Set the private constructor (which will be inherited by NodeList and HTMLCollection) */
 NodeCollectionPrototype._$C_ = NodeCollection;
 
+/* Add a bunch of functions by calling the HTMLElement version on each element in the collection */
+('addClass animate blur click empty fadeIn fadeOut fadeToggle '
++ 'finish focus hide removeAttr removeClass removeData removeProp '
++ 'show slideDown slideToggle slideUp stop toggle toggleClass').split(' ').forEach(function(fnName) {
+	var fn = HTMLElementPrototype[fnName];
+	NodeCollectionPrototype[fnName] = function() {
+		var len = this.length,
+			i = 0;
+		for (; i < len; i++) {
+			if (this[i].nodeType === 1) {
+				fn.apply(this[i], arguments);
+			}
+		}
+		return this;
+	};
+});
+
 /**
  * Adds the queried elements to a copy of the existing collection (if they are not already in the collection)
  * and returns the result.
@@ -4366,7 +4364,6 @@ NodeCollectionPrototype.add = function(input) {
  * @function NodeCollection#addClass
  * @param {String} className - The class to be added to each element in the collection.
  */
-NodeCollectionPrototype.addClass = callOnEachElement(HTMLElementPrototype.addClass);
 
 /**
  * Alias of {@link NodeCollection#afterPut} provided for similarity with jQuery.
@@ -4413,7 +4410,6 @@ NodeCollectionPrototype.afterPut = NodeCollectionPrototype.after = getNodeCollec
  * refer to the element that was animated.
  * @see {@link http://api.jquery.com/animate/ | .animate() | jQuery API Documentation}
  */
-NodeCollectionPrototype.animate = callOnEachElement(HTMLElementPrototype.animate);
 
 /**
  * Appends each node in this collection to the end of the specified target(s).
@@ -4492,7 +4488,6 @@ NodeCollectionPrototype.beforePut = NodeCollectionPrototype.before = getNodeColl
  * 
  * @function NodeCollection#blur
  */
-NodeCollectionPrototype.blur = callOnEachElement(HTMLElementPrototype.blur);
 
 /**
  * Gets the child elements of each element in the collection, optionally filtered by a selector.
@@ -4508,7 +4503,6 @@ NodeCollectionPrototype.children = getGetDirElementsFunc(HTMLElementPrototype.ch
  * 
  * @function NodeCollection#click
  */
-NodeCollectionPrototype.click = callOnEachElement(HTMLElementPrototype.click);
 
 /**
  * @summary For each node in the collection, gets the first node that matches the selector by testing the node itself
@@ -4642,7 +4636,6 @@ NodeCollectionPrototype.data = getFirstSetEachElement(ElementPrototype.data, fun
  * 
  * @function NodeCollection#empty
  */
-NodeCollectionPrototype.empty = callOnEachElement(HTMLElementPrototype.empty);
 
 /**
  * Displays each element in the collection by fading it to opaque.
@@ -4654,7 +4647,6 @@ NodeCollectionPrototype.empty = callOnEachElement(HTMLElementPrototype.empty);
  * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
  * refer to the element that was animated.
  */
-NodeCollectionPrototype.fadeIn = callOnEachElement(HTMLElementPrototype.fadeIn);
 
 /**
  * Hides each element in the collection by fading it to transparent.
@@ -4666,7 +4658,6 @@ NodeCollectionPrototype.fadeIn = callOnEachElement(HTMLElementPrototype.fadeIn);
  * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
  * refer to the element that was animated.
  */
-NodeCollectionPrototype.fadeOut = callOnEachElement(HTMLElementPrototype.fadeOut);
 
 /**
  * Displays or hides each element in the collection by animating its opacity.
@@ -4678,7 +4669,6 @@ NodeCollectionPrototype.fadeOut = callOnEachElement(HTMLElementPrototype.fadeOut
  * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
  * refer to the element that was animated.
  */
-NodeCollectionPrototype.fadeToggle = callOnEachElement(HTMLElementPrototype.fadeToggle);
 
 /**
  * Creates a new NodeCollection containing only the elements that match the provided selector.
@@ -4719,14 +4709,12 @@ NodeCollectionPrototype.find = getGetDirElementsFunc(ElementPrototype.find, sort
  * 
  * @function NodeCollection#finish
  */
-NodeCollectionPrototype.finish = callOnEachElement(HTMLElementPrototype.finish);
 
 /**
  * Calls {@linkcode https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement.focus | HTMLElement#focus()} on each element in the collection.
  * 
  * @function NodeCollection#focus
  */
-NodeCollectionPrototype.focus = callOnEachElement(HTMLElementPrototype.focus);
 
 /**
  * Hides each element in the collection.
@@ -4734,7 +4722,6 @@ NodeCollectionPrototype.focus = callOnEachElement(HTMLElementPrototype.focus);
  * @function NodeCollection#hide
  * @see HTMLElement#hide
  */
-NodeCollectionPrototype.hide = callOnEachElement(HTMLElementPrototype.hide);
 
 /**
  * Gets the inner HTML of the first element in the list.
@@ -5073,7 +5060,6 @@ NodeCollectionPrototype.remove = function(selector) {
  * @function NodeCollection#removeAttr
  * @param {String} attribute - The name of the attribute to be removed.
  */
-NodeCollectionPrototype.removeAttr = callOnEachElement(HTMLElementPrototype.removeAttr);
 
 /**
  * Removes the input class name from all elements in the list.
@@ -5081,7 +5067,6 @@ NodeCollectionPrototype.removeAttr = callOnEachElement(HTMLElementPrototype.remo
  * @function NodeCollection#removeClass
  * @param {String} className - The class to be removed from each element in the collection.
  */
-NodeCollectionPrototype.removeClass = callOnEachElement(HTMLElementPrototype.removeClass);
 
 /**
  * Removes a previously stored piece of Firebolt data from each element.  
@@ -5097,7 +5082,6 @@ NodeCollectionPrototype.removeClass = callOnEachElement(HTMLElementPrototype.rem
  * @function NodeCollection#removeData
  * @param {Array|String} [list] - An array or space-separated string naming the pieces of data to remove.
  */
-NodeCollectionPrototype.removeData = callOnEachElement(HTMLElementPrototype.removeData);
 
 /**
  * Removes the specified property from each element in the list.
@@ -5105,7 +5089,6 @@ NodeCollectionPrototype.removeData = callOnEachElement(HTMLElementPrototype.remo
  * @function NodeCollection#removeProp
  * @param {String} property - The name of the property to remove.
  */
-NodeCollectionPrototype.removeProp = callOnEachElement(HTMLElementPrototype.removeProp);
 
 /**
  * Replace the target with the nodes in this collection.
@@ -5162,7 +5145,6 @@ NodeCollectionPrototype.serialize = function() {
  * @function NodeCollection#show
  * @see HTMLElement#show
  */
-NodeCollectionPrototype.show = callOnEachElement(HTMLElementPrototype.show);
 
 /**
  * Gets the sibling elements of each node in the collection, optionally filtered by a selector.
@@ -5184,7 +5166,6 @@ NodeCollectionPrototype.siblings = getGetDirElementsFunc(HTMLElementPrototype.si
  * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
  * refer to the element that was animated.
  */
-NodeCollectionPrototype.slideDown = callOnEachElement(HTMLElementPrototype.slideDown);
 
 /**
  * Displays or hides each element in the collection with a sliding motion.
@@ -5196,7 +5177,6 @@ NodeCollectionPrototype.slideDown = callOnEachElement(HTMLElementPrototype.slide
  * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
  * refer to the element that was animated.
  */
-NodeCollectionPrototype.slideToggle = callOnEachElement(HTMLElementPrototype.slideToggle);
 
 /**
  * Hides each element in the collection with a sliding motion.
@@ -5208,7 +5188,6 @@ NodeCollectionPrototype.slideToggle = callOnEachElement(HTMLElementPrototype.sli
  * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
  * refer to the element that was animated.
  */
-NodeCollectionPrototype.slideUp = callOnEachElement(HTMLElementPrototype.slideUp);
 
 /**
  * @summary Stops the animation currently running on each element in the collection.
@@ -5223,7 +5202,6 @@ NodeCollectionPrototype.slideUp = callOnEachElement(HTMLElementPrototype.slideUp
  * @function NodeCollection#stop
  * @param {Boolean} [jumpToEnd=false] - A Boolean indicating whether to complete the current animation immediately.
  */
-NodeCollectionPrototype.stop = callOnEachElement(HTMLElementPrototype.stop);
 
 /**
  * Gets the combined text contents of each node in the list.
@@ -5263,7 +5241,6 @@ NodeCollectionPrototype.text = function(text) {
  * @see HTMLElement#hide
  * @see HTMLElement#show
  */
-NodeCollectionPrototype.toggle = callOnEachElement(HTMLElementPrototype.toggle);
 
 /**
  * Toggles the input class name for all elements in the list.
@@ -5272,7 +5249,6 @@ NodeCollectionPrototype.toggle = callOnEachElement(HTMLElementPrototype.toggle);
  * @param {String} className - The class to be toggled for each element in the collection.
  * @param {Boolean} [addOrRemove] - A Boolean indicating whether to add or remove the class (`true` => add, `false` => remove).
  */
-NodeCollectionPrototype.toggleClass = callOnEachElement(HTMLElementPrototype.toggleClass);
 
 /**
  * Returns a shallow copy of the NodeCollection.  
