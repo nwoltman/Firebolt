@@ -252,24 +252,25 @@ function extend(target) {
  * @see Firebolt.extend
  */
 function extendDeep(target) {
-	var numArgs = arguments.length,
-		i = 1,
+	var i = 1,
 		arg,
 		key,
 		val,
-		tval;
+		curval;
 
-	//Extend the target object, extending recursively if the new value is a plain object
-	for (; i < numArgs; i++) {
+	// Extend the target object, extending recursively if the new value is a plain object or array
+	for (; i < arguments.length; i++) {
 		arg = arguments[i];
+
 		for (key in arg) {
-			tval = target[key];
+			curval = target[key];
 			val = arg[key];
-			if (tval !== val) {
-				if (isPlainObject(val)) {
-					val = extendDeep(isPlainObject(tval) ? tval : {}, val);
-				}
-				target[key] = val;
+
+			// If the values are not already the same, set the new value on the target
+			if (curval !== val) {
+				target[key] = isArray(val) ? extendDeep(isArray(curval) ? curval : [], val)     // Deep-extend arrays
+					: isPlainObject(val) ? extendDeep(isPlainObject(curval) ? curval : {}, val) // Deep-extend plain objects
+					: val; // Else just copy the value into the target
 			}
 		}
 	}
