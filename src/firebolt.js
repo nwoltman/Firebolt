@@ -2092,15 +2092,15 @@ Firebolt.hasData = function(object) {
  * + `null`
  * + `undefined`
  * + a zero-length array
- * + an empty object (as defined by {@linkcode Firebolt.isEmptyObject})
- * + a zero-length string (unless the `allowEmptyString` parameter is set to a truthy value)
+ * + a zero-length string
+ * + an empty object (if the `typeof` operator returns `"object"` and {@linkcode Firebolt.isEmptyObject} returns `true`)
  * 
+ * @function Firebolt.isEmpty
  * @param {*} value - The value to be tested.
- * @returns {Boolean}
- * @memberOf Firebolt
+ * @returns {Boolean} - `true` if the object is deemed empty, `false` otherwise.
  */
 Firebolt.isEmpty = function(value) {
-	return value == null || typeofString(value) && !value || typeofObject(value) && (isArray(value) ? value.length === 0 : isEmptyObject(value));
+	return value == null || (isArray(value) ? !value.length : typeofObject(value) ? isEmptyObject(value) : typeofString(value) && !value);
 };
 
 /**
