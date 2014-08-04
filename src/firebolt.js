@@ -2327,7 +2327,7 @@ Firebolt.removeData = function(object, list, isElement) {
  * @returns {TextNode}
  */
 Firebolt.text = function(text) {
-	return document.createTextNode(text);
+	return document.createTextNode(isUndefined(text) ? '' : text);
 };
 
 //#endregion Firebolt
@@ -2591,20 +2591,24 @@ window.$NAME = function(name) {
  * the element does not have a className value at the time of invocation.
  */
 HTMLElementPrototype.addClass = function(value) {
-	//Only need to determine which classes should be added if this element's className has a value
-	if (this.className) {
-		var newClasses = value.split(' '),
-			i = 0;
-		value = this.className; //Reuse the value argument to build the new class name
-		for (; i < newClasses.length; i++) {
-			if (!this.hasClass(newClasses[i])) {
-				value += ' ' + newClasses[i];
+	if (value) {
+		//Only need to determine which classes should be added if this element's className has a value
+		if (this.className) {
+			var newClasses = value.split(' '),
+				i = 0;
+
+			value = this.className; //Reuse the value argument to build the new class name
+
+			for (; i < newClasses.length; i++) {
+				if (!this.hasClass(newClasses[i])) {
+					value += ' ' + newClasses[i];
+				}
 			}
 		}
-	}
 
-	//Set the new value
-	this.className = value;
+		//Set the new value
+		this.className = value;
+	}
 
 	return this;
 };
