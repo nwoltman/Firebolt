@@ -770,7 +770,6 @@ var
 	usesWebkit = 'webkitAppearance' in document.documentElement.style,
 	usesGecko = window.mozInnerScreenX != null,
 	isIOS = /^iP/.test(navigator.platform), // iPhone, iPad, iPod
-	useNormalSelectionFunction = window.chrome || usesGecko,
 
 	/*
 	 * Determines if an item is a Node.
@@ -784,10 +783,12 @@ var
 			return obj && obj.nodeType;
 		},
 
-	/*
-	 * Local variables that are compressed when this file is minified.
-	 */
+	//Property strings
+	nextElementSibling = 'nextElementSibling',
+	previousElementSibling = 'previousElementSibling',
 	prototype = 'prototype',
+
+	//Prototype references
 	ArrayPrototype = Array[prototype],
 	ElementPrototype = Element[prototype],
 	EventPrototype = Event[prototype],
@@ -806,6 +807,9 @@ var
 	array_remove, //Will get set to Array.prototype.remove
 	defineProperty = Object.defineProperty,
 	keys = Object.keys,
+
+	//Local + global selector funtions
+	useNormalSelectionFunction = window.chrome || usesGecko,
 
 	getElementById = window.$$ = window.$ID =
 		useNormalSelectionFunction ? function(id) {
@@ -831,10 +835,6 @@ var
 		useNormalSelectionFunction ? function(selector) {
 			return document.querySelectorAll(selector);
 		} : getElementSelectionFunction(document.querySelectorAll),
-
-	//Property strings
-	nextElementSibling = 'nextElementSibling',
-	previousElementSibling = 'previousElementSibling',
 
 	/* Pre-built RegExps */
 	rgxDataType = /\b(?:xml|json)\b|script\b/,    // Matches an AJAX data type in Content-Type header
@@ -885,8 +885,12 @@ var
 
 	/* Misc */
 	_$ = window.$, //Save the `$` variable in case something else is currently using it
+	documentHead = document.head, //The document's <head> element
 	iframe = createElement('iframe'), //Used for subclassing Array and determining default CSS values
-	any, //Arbitrary variable that may be used for whatever -- keep no references so this can be garbage collected
+	any = iframe.style, //Arbitrary variable that may be used for whatever -- keep no references so this can be garbage collected
+
+	/* Feature detection */
+	noCssTransitionSupport = isUndefined(any.transition) && isUndefined(any.webkitTransition),
 
 //#endregion Private
 
@@ -1662,7 +1666,7 @@ Firebolt.ajax = function(url, settings) {
 				error(xhr, textStatus = 'error', ex.type);
 				complete(xhr, textStatus);
 			}
-		}).prop(isOldIE ? 'defer' : 'async', async);
+		}).prop(isUndefined(script.async) ? 'defer' : 'async', async);
 
 		if (beforeSend && beforeSend(xhr, settings) === false) {
 			//If the beforeSend function returned false, do not send the request
@@ -1679,7 +1683,7 @@ Firebolt.ajax = function(url, settings) {
 		}
 
 		//Append the script to the head of the document to load it
-		document.head.appendChild(script);
+		documentHead.appendChild(script);
 	}
 	else { //Set up a true XHR
 		//Override the requested MIME type in the XHR if there is one specified in the settings
@@ -2066,7 +2070,7 @@ Firebolt.globalEval = function(code) {
 	if (code = code.trim()) {
 		//If the code begins with a strict mode pragma, execute code by injecting a script tag into the document.
 		if (code.lastIndexOf('use strict', 1) === 1) {
-			createElement('script').text(code).appendTo(document.head).remove();
+			createElement('script').text(code).appendTo(documentHead).remove();
 		}
 		else {
 			//Otherwise, avoid the DOM node creation, insertion, and removal by using an indirect global eval
@@ -2678,7 +2682,7 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 		currentStyle = getStyleObject(_this),
 		isDisplayNone = isComputedDisplayNone(_this),
 		originalInlineTransition = inlineStyle.transition || inlineStyle.webkitTransition,
-		ie9ChangeByProps = {},
+		cssIncrementProps = {},
 		overflowToRestore,
 		cssTextToRestore,
 		hideOnComplete,
@@ -2719,10 +2723,10 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 			properties[prop] = val; //Set the value in the object of properties in case it changed
 		}
 
-		if (isOldIE) {
+		if (noCssTransitionSupport) {
 			// The amount of linear change per frame = (newValue - currentValue) * framePeriod / duration
 			// Where: framePeriod = 25 ms (for 40 Hz) and currentValue = cssMath(currentValue + 0)
-			ie9ChangeByProps[camelProp] = (parseFloat(val) - parseFloat(cssMath(parseFloat(currentStyle[camelProp]), 0, (val + '').replace(/.*\d/, ''), _this, camelProp))) * 25 / duration;
+			cssIncrementProps[camelProp] = (parseFloat(val) - parseFloat(cssMath(parseFloat(currentStyle[camelProp]), 0, (val + '').replace(/.*\d/, ''), _this, camelProp))) * 25 / duration;
 		}
 	}
 
@@ -2734,11 +2738,11 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 
 	//Set the new values to transition to as soon as possible
 	setTimeout(function() {
-		if (isOldIE) {
+		if (noCssTransitionSupport) {
 			//Set an interval to increment the CSS properties by their respective amounts each frame period
 			easing = (function() {
-				for (prop in ie9ChangeByProps) {
-					inlineStyle[prop] = parseFloat(inlineStyle[prop]) + ie9ChangeByProps[prop] + inlineStyle[prop].replace(/.*\d/, '');
+				for (prop in cssIncrementProps) {
+					inlineStyle[prop] = parseFloat(inlineStyle[prop]) + cssIncrementProps[prop] + inlineStyle[prop].replace(/.*\d/, '');
 				}
 			}).every(25);
 		}
@@ -2755,7 +2759,7 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 			}
 
 
-			if (isOldIE) {
+			if (noCssTransitionSupport) {
 				//End the interval and set all the final CSS values
 				easing.cancel();
 				_this.css(properties);
@@ -3226,7 +3230,7 @@ HTMLElementPrototype.show = function() {
 	if (isComputedDisplayNone(this)) {
 		//Add an element of the same type as this element to the iframe's body to figure out what the default display value should be
 		inlineStyle.display = getComputedStyle(
-			document.head.appendChild(iframe).contentDocument.body.appendChild(iframe.contentDocument.createElement(this.tagName))
+			documentHead.appendChild(iframe).contentDocument.body.appendChild(iframe.contentDocument.createElement(this.tagName))
 		).display;
 		iframe.remove(); //Remove the iframe from the document (this also deletes its contents)
 	}
@@ -4269,7 +4273,7 @@ prototypeExtensions.clone = function(withDataAndEvents, deepWithDataAndEvents) {
  */
 var
 	//<iframe> Array subclassing
-	NodeCollection = window.NodeCollection = window.NC = document.head.appendChild(iframe).contentWindow.Array,
+	NodeCollection = window.NodeCollection = window.NC = documentHead.appendChild(iframe).contentWindow.Array,
 
 	//Extend NodeCollection's prototype with the Array functions
 	NodeCollectionPrototype = extend(NodeCollection[prototype], prototypeExtensions),
@@ -5745,26 +5749,19 @@ definePrototypeExtensionsOn(StringPrototype);
 
 //#region ============ Browser Compatibility and Speed Boosters ==============
 
-var isOldIE = Firebolt._$IE9_ = createElement('div').html('<!--[if IE]><i></i><![endif]-->').$TAG('i').length,
-	noMultiParamClassListFuncs = (function() {
-		var elem = createElement('div');
-		if (elem.classList) {
-			elem.classList.add('one', 'two');
-		}
-		return elem.className.length !== 7;
-	})(),
-	textNode = Firebolt.text(' ');
-
-if (isOldIE) { //IE9 compatibility
-
+if (iframe.classList) {
+	iframe.classList.add('a', 'b');
+}
+else {
+	//Define a compatible `hasClass()` function for browsers that don't support the `classList` property
 	HTMLElementPrototype.hasClass = function(className) {
 		return new RegExp('(?:^|\\s)' + className + '(?:\\s|$)').test(this.className);
 	};
-
 }
 
-/* Browser (definitely IE) compatibility and speed boost for removeClass() */
-if (noMultiParamClassListFuncs || (usesWebkit && !isIOS)) {
+//Browser (definitely IE) compatibility and speed boost for removeClass()
+if (iframe.className.length !== 3 || (usesWebkit && !isIOS)) {
+
 	HTMLElementPrototype.removeClass = function(value) {
 		if (isUndefined(value)) {
 			this.className = ''; //Remove all classes
@@ -5787,57 +5784,56 @@ if (noMultiParamClassListFuncs || (usesWebkit && !isIOS)) {
 
 		return this;
 	};
+
+}
+
+//Fix the `nextElementSibling` and `previousElementSibling` properties for ChildNodes in browsers than only support them on Elements
+if (isUndefined(Firebolt.text()[nextElementSibling])) {
+
+	[CharacterData[prototype], DocumentType[prototype]].forEach(function(proto) {
+		defineProperty(proto, nextElementSibling, {
+			get: function() {
+				var sibling = this;
+				while ((sibling = sibling.nextSibling) && sibling.nodeType !== 1);
+				return sibling;
+			}
+		});
+		defineProperty(proto, previousElementSibling, {
+			get: function() {
+				var sibling = this;
+				while ((sibling = sibling.previousSibling) && sibling.nodeType !== 1);
+				return sibling;
+			}
+		});
+	});
+
 }
 
 //Fix the parentElement property for Nodes in browsers than only support it on Element
-if (isUndefined(textNode.parentElement)) {
+if (isUndefined(document.parentElement)) {
+
 	defineProperty(NodePrototype, 'parentElement', {
 		get: function() {
 			var parent = this.parentNode;
 			return parent && parent.nodeType === 1 ? parent : null;
 		}
 	});
-}
 
-//Fix the nextElementSibling property for Nodes in browsers than only support it on Element
-if (isUndefined(textNode[nextElementSibling])) {
-	defineProperty(NodePrototype, nextElementSibling, {
-		get: function() {
-			var sibling = this;
-			while (sibling = sibling.nextSibling) {
-				if (sibling.nodeType === 1) break;
-			}
-			return sibling;
-		}
-	});
-}
-
-//Fix the previousElementSibling property for Nodes in browsers than only support it on Element
-if (isUndefined(textNode[previousElementSibling])) {
-	defineProperty(NodePrototype, previousElementSibling, {
-		get: function() {
-			var sibling = this;
-			while (sibling = sibling.previousSibling) {
-				if (sibling.nodeType === 1) break;
-			}
-			return sibling;
-		}
-	});
 }
 
 //Fix the children property for Document and DocumentFragment in browsers than only support it on Element
 if (!document.children) {
-	[Document[prototype], DocumentFragment[prototype]].forEach(function(proto) {
-		defineProperty(proto, 'children', {
+
+	[Document, DocumentFragment].forEach(function(docInterface) {
+		defineProperty(docInterface[prototype], 'children', {
 			get: function() {
-				// This method is faster in IE and slower in WebKit-based browsers, but it takes less code and
-				// accessing `children` on Documents and DocumentFragments is rare so it's not a big deal.
 				return ncFilter.call(this.childNodes, function(node) {
 					return node.nodeType === 1;
 				});
 			}
 		});
 	});
+
 }
 
 //#endregion Browser Compatibility and Speed Boosters
