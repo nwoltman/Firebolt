@@ -365,11 +365,22 @@ function getGetDirElementsFunc(direction, sorter) {
 		? function(until, filter) {
 			var nc = new NodeCollection(),
 				node = this,
-				stop = getNodeMatchingFunction(until);
+				stop = typeofString(until) // Until match by CSS selector
+					? function() {
+						return node.matches(until);
+					}
+					: until && until.length // Until Node[] contains the current node
+						? function() {
+							return until.contains(node);
+						}
+						// Until nodes are equal (or if `until.length === 0`, this will always return false)
+						: function() {
+							return node === until;
+						};
 
 			// Traverse all nodes in the direction and add them (or if there is a selector the ones that match it) to the NodeCollection
 			// until the `stop()` function returns `true`
-			while ((node = node[direction]) && !stop(node)) {
+			while ((node = node[direction]) && !stop()) {
 				if (!filter || node.matches(filter)) {
 					nc.push(node);
 				}
@@ -507,24 +518,6 @@ function getNodePutOrWithFunction(inserter) {
 
 		return this;
 	};
-}
-
-/* 
- * Returns a function used by Node#closest and Node#[nextUntil, prevUntil, parentsUntil] via getGetDirElementsFunc.
- */
-function getNodeMatchingFunction(matcher) {
-	return typeofString(matcher) //Match by CSS selector
-		? function(node) {
-			return node.matches(matcher);
-		}
-		: matcher && matcher.length //Match by Node[]
-			? function(node) {
-				return matcher.contains(node);
-			}
-			//Match by Node (or if `matcher.length === 0`, this will always return false)
-			: function(node) {
-				return node === matcher;
-			};
 }
 
 /* Returns the element's computed style object and uses caching to speed up future lookups. */
@@ -3580,22 +3573,31 @@ NodePrototype.clone = function(withDataAndEvents, deepWithDataAndEvents) {
  * alias `Element#$QSA()`.
  * 
  * @function Node#closest
- * @param {String|Element|Node[]} selector - A CSS selector, a node, or a collection of nodes used to match the node and its parents against.
+ * @param {String|Node|Node[]} selector - A CSS selector, a node, or a collection of nodes used to match the node and its parents against.
  * @returns {?Node} - The first node that matches the selector.
  */
 NodePrototype.closest = function(selector) {
-	var node = this,
-		isClosest = getNodeMatchingFunction(selector);
+	var node = this;
 
-	// If the selector is a string (meaning the isClosest function matches by CSS selector) and `this` doesn't have
-	// the Element#matches function, it is not an element so skip to its parent
-	if (typeofString(selector) && !node.matches) {
-		node = node.parentElement;
+	if (selector.nodeType) {
+		// If the selector is a node and is an ancestor of this node, it is the closest
+		return selector.contains(node) ? selector : null;
 	}
 
-	//Search the node's parent elements until the first match (when isClosest returns `true`) or there are no more parents
-	while (node && !isClosest(node)) {
-		node = node.parentElement;
+	if (typeofString(selector)) {
+		// If the node does not have the `matches()` function, it is not an element so skip to its parent element
+		node = node.matches ? node : node.parentElement;
+
+		// Search the node's parent elements until one matches the selector or there are no more parents
+		while (node && !node.matches(selector)) {
+			node = node.parentElement;
+		}
+	}
+	else {
+		// Search the node's parent nodes until one is found in the collection or there are no more parents
+		while (node && selector.indexOf(node) < 0) {
+			node = node.parentNode;
+		}
 	}
 
 	return node;
@@ -4525,7 +4527,7 @@ NodeCollectionPrototype.children = getGetDirElementsFunc(HTMLElementPrototype.ch
  * alias `Element#$QSA()`.
  * 
  * @function NodeCollection#closest
- * @param {String|Element|Node[]} selector - A CSS selector, a node, or a collection of nodes used to match the node and its parents against.
+ * @param {String|Node|Node[]} selector - A CSS selector, a node, or a collection of nodes used to match the node and its parents against.
  * @returns {Node[]} - A collection of "closest" nodes.
  */
 NodeCollectionPrototype.closest = function(selector) {
@@ -4534,7 +4536,7 @@ NodeCollectionPrototype.closest = function(selector) {
 		node;
 
 	for (; i < this.length; i++) {
-		if (node = this[i].closest(selector)) {
+		if ((node = this[i].closest(selector)) && nc.indexOf(node) < 0) {
 			nc.push(node);
 		}
 	}
