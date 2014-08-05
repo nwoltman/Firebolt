@@ -2161,14 +2161,19 @@ Firebolt.param = function(obj, traditional) {
 
 function serialize(obj, prefix, traditional) {
 	var queryString = '',
-		valueIsFunction,
+		valueIsObject,
 		key,
 		value,
 		cur;
 
 	for (key in obj) {
 		value = obj[key];
-		valueIsFunction = typeof value == 'function';
+		if (typeof value == 'function') {
+			value = value();
+		}
+		if (value == null) {
+			value = '';
+		}
 
 		if (traditional) {
 			//Add the key
@@ -2182,18 +2187,14 @@ function serialize(obj, prefix, traditional) {
 				}
 			}
 			else {
-				//If the value is a function, call it in the context of its owning object
-				queryString += '=' + encodeURIComponent(valueIsFunction ? value.call(obj) : value);
+				queryString += '=' + encodeURIComponent(value);
 			}
 		}
-		else {
+		else if (!(valueIsObject = typeofObject(value)) || !isEmptyObject(value)) {
 			/* Inspired by: http://stackoverflow.com/questions/1714786/querystring-encoding-of-a-javascript-object */
-			if (valueIsFunction || !isEmptyObject(value) || typeofString(value)) {
-				cur = prefix ? prefix + '[' + key + ']' : key;
-				queryString += (queryString ? '&' : '')
-					+ (typeofObject(value) ? serialize(value, cur)
-										   : encodeURIComponent(cur) + '=' + encodeURIComponent(valueIsFunction ? value.call(obj) : value));
-			}
+			cur = prefix ? prefix + '[' + key + ']' : key;
+			queryString += (queryString ? '&' : '') + (valueIsObject ? serialize(value, cur)
+																	 : encodeURIComponent(cur) + '=' + encodeURIComponent(value));
 		}
 	}
 
