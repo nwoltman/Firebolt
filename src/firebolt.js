@@ -5504,16 +5504,8 @@ NodeCollectionPrototype.wrapInner = function(wrappingElement) {
 
 /* Give NodeLists and HTMLCollections many of the same prototype functions as NodeCollections */
 Object.getOwnPropertyNames(NodeCollectionPrototype)
-	.remove( //These properties should not be added to the NodeList prototype
-		'clear',
-		'length',
-		'pop',
-		'push',
-		'reverse',
-		'shift',
-		'splice',
-		'unshift'
-	).forEach(function(methodName) {
+	.diff('clear length pop push reverse shift splice unshift'.split(' ')) //These properties should not be added to the NodeList prototype
+	.forEach(function(methodName) {
 		if (rgxDifferentNL.test(methodName)) { //Convert to a NodeCollection first
 			HTMLCollectionPrototype[methodName] = NodeListPrototype[methodName] = function() {
 				return NodeCollectionPrototype[methodName].apply(ncFrom(this), arguments);
