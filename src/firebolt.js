@@ -1659,7 +1659,14 @@ Firebolt.ajax = function(url, settings) {
 				error(xhr, textStatus = 'error', ex.type);
 				complete(xhr, textStatus);
 			}
-		}).prop(isUndefined(script.async) ? 'defer' : 'async', async);
+		});
+
+		if (isUndefined(script.async)) {
+			script.defer = async;
+		}
+		else {
+			script.async = async;
+		}
 
 		if (beforeSend && beforeSend(xhr, settings) === false) {
 			//If the beforeSend function returned false, do not send the request
