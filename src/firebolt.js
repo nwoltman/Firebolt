@@ -183,13 +183,13 @@ function createFragment(content) {
  */
 function cssMath(curVal, changeVal, type, element, property) {
 	if (type == 'em') {
-		curVal /= parseFloat(getStyleObject(element).fontSize);
+		curVal /= parseFloat(getComputedStyle(element).fontSize);
 	}
 	else if (type == 'pt') {
 		curVal *= .75; //Close enough (who uses pt anyway?)
 	}
 	else if (type == '%') {
-		curVal *= 100 / parseFloat(getStyleObject(element.parentNode)[property]);
+		curVal *= 100 / parseFloat(getComputedStyle(element.parentNode)[property]);
 	}
 
 	curVal += changeVal; //Add the change value (which may be negative)
@@ -520,11 +520,6 @@ function getNodePutOrWithFunction(inserter) {
 	};
 }
 
-/* Returns the element's computed style object and uses caching to speed up future lookups. */
-function getStyleObject(element) {
-	return element._$CSO_ || (element._$CSO_ = getComputedStyle(element));
-}
-
 /*
  * Returns a convenience function for setting and clearing timeouts and intervals.
  * @see Function#delay
@@ -644,7 +639,7 @@ function insertBefore(newNode, refNode) {
  * Used by some "effects" functions to determine if the element's computed display style is "none" 
  */
 function isComputedDisplayNone(element) {
-	return getStyleObject(element).display == 'none';
+	return getComputedStyle(element).display == 'none';
 }
 
 /*
@@ -2683,8 +2678,8 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 		i = 0,
 		propertyNames = keys(properties),
 		inlineStyle = _this.style,
-		currentStyle = getStyleObject(_this),
-		isDisplayNone = isComputedDisplayNone(_this),
+		currentStyle = getComputedStyle(_this),
+		isDisplayNone = currentStyle.display == 'none',
 		originalInlineTransition = inlineStyle.transition || inlineStyle.webkitTransition,
 		cssIncrementProps = {},
 		overflowToRestore,
@@ -2729,7 +2724,7 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 
 		if (noCssTransitionSupport) {
 			// The amount of linear change per frame = (newValue - currentValue) * framePeriod / duration
-			// Where: framePeriod = 25 ms (for 40 Hz) and currentValue = cssMath(currentValue + 0)
+			// Where: framePeriod = 25 ms (for 40 fps) and currentValue = cssMath(currentValue + 0)
 			cssIncrementProps[camelProp] = (parseFloat(val) - parseFloat(cssMath(parseFloat(currentStyle[camelProp]), 0, (val + '').replace(/.*\d/, ''), _this, camelProp))) * 25 / duration;
 		}
 	}
@@ -2895,6 +2890,7 @@ HTMLElementPrototype.beforePut = function() {
  */
 HTMLElementPrototype.css = function(prop, value) {
 	var _this = this, //Improves minification
+		computedStyle,
 		mustHide,
 		retVal;
 
@@ -2911,7 +2907,7 @@ HTMLElementPrototype.css = function(prop, value) {
 				mustHide = showIfHidden(_this);
 
 				//Get the specified property
-				retVal = getStyleObject(_this)[camelize(prop)];
+				retVal = getComputedStyle(_this)[camelize(prop)];
 
 				if (mustHide) {
 					_this.hide(); //Hide the element since it was shown temporarily to obtain style value
@@ -2935,8 +2931,9 @@ HTMLElementPrototype.css = function(prop, value) {
 
 			//Build an object with the values specified by the input array of properties
 			retVal = {};
+			computedStyle = getComputedStyle(_this);
 			for (value = 0; value < prop.length; value++) { //Reuse the value argument in place of a new var
-				retVal[prop[value]] = _this._$CSO_[camelize(prop[value])]; //The cached computed style object property must exist at this point
+				retVal[prop[value]] = computedStyle[camelize(prop[value])];
 			}
 
 			if (mustHide) {
