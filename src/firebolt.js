@@ -875,6 +875,7 @@ var
 	/* Animations */
 	ANIMATION_DEFAULT_DURATION = 400,
 	ANIMATION_DEFAULT_EASING = 'swing',
+	TOGGLE = 'toggle',
 
 	/* Misc */
 	_$ = window.$, //Save the `$` variable in case something else is currently using it
@@ -2645,9 +2646,7 @@ HTMLElementPrototype.afterPut = function() {
  * 
  * Unlike jQuery, an object that specifies different easing types for different properties is not supported.
  * (Should it be supported? [Tell me why](https://github.com/FireboltJS/Firebolt/issues).)
- * 
- * However, relative properties (indicated with `+=` or `-=`) and the `toggle` indicator are supported (although only
- * the `"t"` is needed for toggling since Firebolt only looks at the first character to check if it is a "t").
+ * However, relative properties (indicated with `+=` or `-=`) and the `toggle` indicator are supported.
  * 
  * For more `easing` options, use Firebolt's [easing extension](https://github.com/FireboltJS/firebolt-extensions/tree/master/easing)
  * (or just grab some functions from it and use them as the `easing` parameter).
@@ -2706,7 +2705,7 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 		}
 
 		if (typeofString(val = properties[prop])) {
-			if (val[0] === 't') { //"toggle"
+			if (val == TOGGLE) {
 				if (isDisplayNone) {
 					if (isUndefined(cssTextToRestore)) {
 						_this.show();
@@ -3021,7 +3020,7 @@ HTMLElementPrototype.fadeOut = function(duration, easing, complete) {
  * refer to the element that was animated.
  */
 HTMLElementPrototype.fadeToggle = function(duration, easing, complete) {
-	return this.animate({opacity: 't'}, duration, easing, complete);
+	return this.animate({opacity: TOGGLE}, duration, easing, complete);
 };
 
 /**
@@ -3269,11 +3268,11 @@ HTMLElementPrototype.slideDown = function(duration, easing, complete) {
  */
 HTMLElementPrototype.slideToggle = function(duration, easing, complete) {
 	return this.animate({
-		height: 't',
-		marginTop: 't',
-		marginBottom: 't',
-		paddingTop: 't',
-		paddingBottom: 't'
+		height: TOGGLE,
+		marginTop: TOGGLE,
+		marginBottom: TOGGLE,
+		paddingTop: TOGGLE,
+		paddingBottom: TOGGLE
 	}, duration, easing, complete);
 };
 
@@ -4413,9 +4412,7 @@ NodeCollectionPrototype.afterPut = NodeCollectionPrototype.after = getNodeCollec
  * 
  * Unlike jQuery, an object that specifies different easing types for different properties is not supported.
  * (Should it be supported? [Tell me why](https://github.com/FireboltJS/Firebolt/issues).)
- * 
- * However, relative properties (indicated with `+=` or `-=`) and the `toggle` indicator are supported (although only
- * the `"t"` is needed for toggling since Firebolt only looks at the first character to check if it is a "t").
+ * However, relative properties (indicated with `+=` or `-=`) and the `toggle` indicator are supported.
  * 
  * For more `easing` options, use Firebolt's [easing extension](https://github.com/FireboltJS/firebolt-extensions/tree/master/easing)
  * (or just grab some functions from it and use them as the `easing` parameter).
