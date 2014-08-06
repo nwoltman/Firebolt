@@ -636,10 +636,12 @@ function insertBefore(newNode, refNode) {
 }
 
 /*
- * Used by some "effects" functions to determine if the element's computed display style is "none" 
+ * Used to determine if the element's computed display style is "none".
+ * To save time from getting the element's computed style object, a style object may be passed as the second parameter
+ * (useful in places where the computed style object has already been retrieved).
  */
-function isComputedDisplayNone(element) {
-	return getComputedStyle(element).display == 'none';
+function isDisplayNone(element, styleObject) {
+	return (styleObject || getComputedStyle(element)).display == 'none';
 }
 
 /*
@@ -711,14 +713,6 @@ function setAndGetArrayFromFunction(constructor) {
 	}
 
 	return from;
-}
-
-/*
- * If the element is hidden, it is shown and the element is returned.
- * If the element is not hidden, 0 is returned.
- */
-function showIfHidden(element) {
-	return isComputedDisplayNone(element) ? element.show() : 0;
 }
 
 function sortDocOrder(a, b) {
@@ -2679,7 +2673,7 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 		propertyNames = keys(properties),
 		inlineStyle = _this.style,
 		currentStyle = getComputedStyle(_this),
-		isDisplayNone = currentStyle.display == 'none',
+		isCurrentDisplayNone = isDisplayNone(0, currentStyle),
 		originalInlineTransition = inlineStyle.transition || inlineStyle.webkitTransition,
 		cssIncrementProps = {},
 		overflowToRestore,
@@ -2701,7 +2695,7 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 
 		if (typeofString(val = properties[prop])) {
 			if (val == TOGGLE) {
-				if (isDisplayNone) {
+				if (isCurrentDisplayNone) {
 					if (isUndefined(cssTextToRestore)) {
 						_this.show();
 						cssTextToRestore = inlineStyle.cssText;
@@ -2843,12 +2837,6 @@ HTMLElementPrototype.beforePut = function() {
 };
 
 /**
- * Gets the element's computed style object.
- * 
- * @function HTMLElement#css
- * @returns {Object.<String, String>} The element's computed style object.
- */
-/**
  * Gets the value of the specified style property.
  * 
  * @function HTMLElement#css
@@ -2856,16 +2844,10 @@ HTMLElementPrototype.beforePut = function() {
  * @returns {String} The value of the specifed style property.
  */
 /**
- * Explicitly sets the element's inline CSS style, replacing any current inline style properties.
- * 
- * @function HTMLElement#css
- * @param {String} cssText - A CSS style string. To clear the element's inline style, pass in an empty string.
- */
-/**
  * Gets an object of property-value pairs for the input array of CSS properties.
  * 
  * @function HTMLElement#css
- * @param {String[]} propertyNames - An array of one or more CSS properties.
+ * @param {String[]} propertyNames - An array of one or more CSS property names.
  * @returns {Object.<String, String>} An object of property-value pairs where the values are the computed style values of the input properties.
  */
 /**
@@ -2894,59 +2876,41 @@ HTMLElementPrototype.css = function(prop, value) {
 		mustHide,
 		retVal;
 
-	if (isUndefined(prop)) {
-		// Use the window.getComputedStyle function and not the custom one that caches the style object
-		// just in case exposing the cached object could introduce the possibility of memory leaks
-		return getComputedStyle(_this);
-	}
-
-	if (typeofString(prop)) {
-		if (isUndefined(value)) {
-			if (prop && prop.indexOf(':') < 0) {
-				//In case the element has display style "none"
-				mustHide = showIfHidden(_this);
-
-				//Get the specified property
-				retVal = getComputedStyle(_this)[camelize(prop)];
-
-				if (mustHide) {
-					_this.hide(); //Hide the element since it was shown temporarily to obtain style value
-				}
-
-				return retVal;
-			}
-
-			//Set the element's inline CSS style text
-			_this.style.cssText = prop;
-		}
-		else {
-			//Set the specified property
-			_this.style[camelize(prop)] = value;
-		}
-	}
-	else {
-		if (isArray(prop)) {
-			//In case the element has display style "none"
-			mustHide = showIfHidden(_this);
-
-			//Build an object with the values specified by the input array of properties
-			retVal = {};
+	if (isUndefined(value)) {
+		// Temporarily use `retVal` to keep track if the input is an array (it will get set to the correct return value when needed)
+		if ((retVal = isArray(prop)) || typeofString(prop)) {
 			computedStyle = getComputedStyle(_this);
-			for (value = 0; value < prop.length; value++) { //Reuse the value argument in place of a new var
-				retVal[prop[value]] = computedStyle[camelize(prop[value])];
+
+			// If the element is not visible, it should be shown before reading its CSS values
+			mustHide = isDisplayNone(0, computedStyle) && _this.show();
+
+			if (retVal) { // isArray
+				// Build an object with the values specified by the input array of properties
+				retVal = {};
+				for (value = 0; value < prop.length; value++) { // Reuse the value argument instead of a new var
+					retVal[prop[value]] = computedStyle[camelize(prop[value])];
+				}
+			}
+			else {
+				// Get the specified property
+				retVal = computedStyle[camelize(prop)];
 			}
 
 			if (mustHide) {
-				_this.hide(); //Hide the element since it was shown temporarily to obtain style values
+				_this.hide(); // Hide the element since it was shown temporarily to obtain style value(s)
 			}
 
 			return retVal;
 		}
 
-		//Set all specifed properties
-		for (value in prop) { //Reuse the value argument in place of a new var
+		// Set all specifed properties
+		for (value in prop) { // Reuse the value argument instead of a new var
 			_this.style[camelize(value)] = prop[value];
 		}
+	}
+	else {
+		// Set the specified property
+		_this.style[camelize(prop)] = value;
 	}
 
 	return _this;
@@ -2989,7 +2953,7 @@ HTMLElementPrototype.empty = function() {
  * refer to the element that was animated.
  */
 HTMLElementPrototype.fadeIn = function(duration, easing, complete) {
-	return isComputedDisplayNone(this) ? this.fadeToggle(duration, easing, complete) : this;
+	return isDisplayNone(this) ? this.fadeToggle(duration, easing, complete) : this;
 };
 
 /**
@@ -3003,7 +2967,7 @@ HTMLElementPrototype.fadeIn = function(duration, easing, complete) {
  * refer to the element that was animated.
  */
 HTMLElementPrototype.fadeOut = function(duration, easing, complete) {
-	return isComputedDisplayNone(this) ? this : this.fadeToggle(duration, easing, complete);
+	return isDisplayNone(this) ? this : this.fadeToggle(duration, easing, complete);
 };
 
 /**
@@ -3224,11 +3188,11 @@ HTMLFormElement[prototype].serialize = function() {
 HTMLElementPrototype.show = function() {
 	var inlineStyle = this.style;
 
-	if (inlineStyle.display == 'none') {
+	if (isDisplayNone(0, inlineStyle)) {
 		inlineStyle.display = this._$DS_ || ''; //Use the saved display style or clear the display style
 	}
 
-	if (isComputedDisplayNone(this)) {
+	if (isDisplayNone(this)) {
 		//Add an element of the same type as this element to the iframe's body to figure out what the default display value should be
 		inlineStyle.display = getComputedStyle(
 			documentHead.appendChild(iframe).contentDocument.body.appendChild(iframe.contentDocument.createElement(this.tagName))
@@ -3250,7 +3214,7 @@ HTMLElementPrototype.show = function() {
  * refer to the element that was animated.
  */
 HTMLElementPrototype.slideDown = function(duration, easing, complete) {
-	return isComputedDisplayNone(this) ? this.slideToggle(duration, easing, complete) : this;
+	return isDisplayNone(this) ? this.slideToggle(duration, easing, complete) : this;
 };
 
 /**
@@ -3284,7 +3248,7 @@ HTMLElementPrototype.slideToggle = function(duration, easing, complete) {
  * refer to the element that was animated.
  */
 HTMLElementPrototype.slideUp = function(duration, easing, complete) {
-	return isComputedDisplayNone(this) ? this : this.slideToggle(duration, easing, complete);
+	return isDisplayNone(this) ? this : this.slideToggle(duration, easing, complete);
 };
 
 /**
@@ -3331,7 +3295,7 @@ HTMLElementPrototype.toggle = function(showOrHide) {
 	else if (showOrHide === false) {
 		return this.hide();
 	}
-	return isComputedDisplayNone(this) ? this.show() : this.hide();
+	return isDisplayNone(this) ? this.show() : this.hide();
 };
 
 /**
@@ -4565,12 +4529,6 @@ NodeCollectionPrototype.contents = function() {
 };
 
 /**
- * Gets the computed style object of the first element in the collection.
- * 
- * @function NodeCollection#css
- * @returns {Object.<String, String>} The element's computed style object.
- */
-/**
  * Gets the value of the specified style property of the first element in the collection.
  * 
  * @function NodeCollection#css
@@ -4578,16 +4536,10 @@ NodeCollectionPrototype.contents = function() {
  * @returns {String} The value of the specifed style property.
  */
 /**
- * Explicitly sets each elements' inline CSS style, replacing any current inline style properties.
- * 
- * @function NodeCollection#css
- * @param {String} cssText - A CSS style string. To clear each element's inline style, pass in an empty string.
- */
-/**
  * Gets an object of property-value pairs for the input array of CSS properties for the first element in the collection.
  * 
  * @function NodeCollection#css
- * @param {String[]} propertyNames - An array of one or more CSS properties.
+ * @param {String[]} propertyNames - An array of one or more CSS property names.
  * @returns {Object.<String, String>} An object of property-value pairs where the values are the computed style values of the input properties.
  */
 /**
@@ -4611,7 +4563,7 @@ NodeCollectionPrototype.contents = function() {
  * @param {Object.<String, String|Number>} properties - An object of CSS property-values.
  */
 NodeCollectionPrototype.css = getFirstSetEachElement(HTMLElementPrototype.css, function(numArgs, firstArg) {
-	return !numArgs || numArgs < 2 && firstArg && (typeofString(firstArg) && !firstArg.contains(':') || isArray(firstArg));
+	return isArray(firstArg) || numArgs < 2 && typeofString(firstArg);
 });
 
 /**
