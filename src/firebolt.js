@@ -6,7 +6,7 @@
  * @license MIT https://github.com/FireboltJS/Firebolt/blob/master/LICENSE.txt
  */
 
-(function(window, document, Array, Object, decodeURIComponent, encodeURIComponent, getComputedStyle, parseFloat, setTimeout, clearTimeout) {
+(function(window, document, Array, Object, decodeURIComponent, encodeURIComponent, getComputedStyle, parseFloat, setTimeout, clearTimeout, undefined) {
 
 "use strict";
 
@@ -38,26 +38,7 @@ function callOnEach(fn) {
 }
 
 /*
- * Converts a string separated by dashes to its camelCase equivalent.
- * Used to translate CSS property names to their DOM style-object property names.
- * 
- * Note: Gecko browsers require style-object property names to start with an upper-case letter
- * if the CSS name starts with a dash (i.e. `-moz-binding` would need to be converted to `MozBinding`).
- * Because of this, strings starting with a dash will be capitalized in Gecko browsers and left to start
- * with a lower-case letter in all other browsers.
- * 
- * @example
- * camelize('background-color');    // -> 'backgroundColor'
- * camelize('-moz-box-orient');     // -> 'MozBoxOrient'
- * camelize('-ms-perspective');     // -> 'msPerspective'
- * camelize('-webkit-user-select'); // -> 'webkitUserSelect'
- */
-function camelize(str) {
-	return str.replace(rgxCamelizables, camelizer);
-}
-
-/*
- * Pre-defined so that an anonymous function does not need to be created each time camelize() is called.
+ * Pre-defined so that an anonymous function does not need to be created each time sanitizeCssPropName() is called.
  */
 function camelizer(match, p1) {
 	return p1 ? p1.toUpperCase() : '';
@@ -688,6 +669,19 @@ function returnFalse() {
 	return false;
 }
 
+function sanitizeCssPropName(name) {
+	// Camelize the property name, and check if it exists on the saved iframe's style object
+	if (isUndefined(iframe.style[name = name.replace(rgxCamelizables, camelizer)])) {
+		// The input property name is not supported, so make the vendor name and check if that one is supported
+		var vendorName = cssVendorPrefix + name[0].toUpperCase() + name.slice(1);
+		if (iframe.style[vendorName] != undefined) {
+			name = vendorName;
+		}
+	}
+
+	return name;
+}
+
 /*
  * Takes in an Array constructor and creates a partial ES6 shim for the `.from()` function,
  * setting it on the constructor if it does not already exist, then returns that function.
@@ -749,9 +743,10 @@ function typeofString(value) {
 
 var
 	/* Browser/Engine detection */
-	usesWebkit = 'webkitAppearance' in document.documentElement.style,
-	usesGecko = window.mozInnerScreenX != null,
+	isIE = document.documentMode,
 	isIOS = /^iP/.test(navigator.platform), // iPhone, iPad, iPod
+	usesWebkit = isIOS || window.webkitURL,
+	usesGecko = window.mozInnerScreenX != undefined,
 
 	/*
 	 * Determines if an item is a Node.
@@ -831,7 +826,7 @@ var
 	rgxSpaceChars = /[ \t-\f]+/, //From W3C http://www.w3.org/TR/html5/single-page.html#space-character
 	rgxFormButton = /button|file|reset|submit/, //Matches input element types that are buttons
 	rgxCheckableElement = /checkbox|radio/,     //Matches checkbox or radio input element types
-	rgxCamelizables = usesGecko ? /-+([a-z])/g : /^-+|-+([a-z])/g, //Matches dashed parts of CSS property names
+	rgxCamelizables = isIE ? /^-+|-+([a-z])/g : /-+([a-z])/g, //Matches dashed parts of CSS property names
 	rgxNoParse = /^\d+\D/, //Matches strings that look like numbers but have non-digit characters
 
 	/* Needed for parsing HTML */
@@ -872,8 +867,13 @@ var
 	iframe = createElement('iframe'), //Used for subclassing Array and determining default CSS values
 	any = iframe.style, //Arbitrary variable that may be used for whatever -- keep no references so this can be garbage collected
 
-	/* Feature detection */
-	noCssTransitionSupport = isUndefined(any.transition) && isUndefined(any.webkitTransition),
+	/* CSS */
+	cssVendorPrefix = usesWebkit ? 'webkit'
+					: usesGecko ? 'Moz'
+					: isIE ? 'ms'
+					: 'O',
+	cssTransitionKey = sanitizeCssPropName('transition'),
+	noCssTransitionSupport =  isUndefined(any[cssTransitionKey]),
 
 //#endregion Private
 
@@ -1620,7 +1620,7 @@ Firebolt.ajax = function(url, settings) {
 		//If the request is a GET or HEAD, append the data string to the URL
 		if (isGetOrHead) {
 			url = url.appendParams(data);
-			data = null; //Clear the data so it is not sent later on
+			data = undefined; //Clear the data so it is not sent later on
 		}
 	}
 
@@ -2094,7 +2094,7 @@ Firebolt.hasData = function(object) {
  * @returns {Boolean} - `true` if the object is deemed empty, `false` otherwise.
  */
 Firebolt.isEmpty = function(value) {
-	return value == null || (isArray(value) ? !value.length : typeofObject(value) ? isEmptyObject(value) : typeofString(value) && !value);
+	return value == undefined || (isArray(value) ? !value.length : typeofObject(value) ? isEmptyObject(value) : typeofString(value) && !value);
 };
 
 /**
@@ -2161,7 +2161,7 @@ function serialize(obj, prefix, traditional) {
 		if (typeof value == 'function') {
 			value = value();
 		}
-		if (value == null) {
+		if (value == undefined) {
 			value = '';
 		}
 
@@ -2674,18 +2674,18 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 		inlineStyle = _this.style,
 		currentStyle = getComputedStyle(_this),
 		isCurrentDisplayNone = isDisplayNone(0, currentStyle),
-		originalInlineTransition = inlineStyle.transition || inlineStyle.webkitTransition,
+		originalInlineTransition = inlineStyle[cssTransitionKey],
 		cssIncrementProps = {},
 		overflowToRestore,
 		cssTextToRestore,
 		hideOnComplete,
-		camelProp,
+		sanitaryProp,
 		prop,
 		val;
 
 	//Parse properties
 	for (; i < propertyNames.length; i++) {
-		camelProp = camelize(prop = propertyNames[i]);
+		sanitaryProp = sanitizeCssPropName(prop = propertyNames[i]);
 
 		//Should set overflow to "hidden" when animating height or width properties
 		if ((prop == 'height' || prop == 'width') && isUndefined(overflowToRestore)) {
@@ -2700,8 +2700,8 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 						_this.show();
 						cssTextToRestore = inlineStyle.cssText;
 					}
-					val = currentStyle[camelProp];
-					inlineStyle[camelProp] = 0;
+					val = currentStyle[sanitaryProp];
+					inlineStyle[sanitaryProp] = 0;
 				}
 				else {
 					val = 0;
@@ -2710,7 +2710,7 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 				}
 			}
 			else if (val[1] === '=') { //"+=value" or "-=value"
-				val = cssMath(parseFloat(currentStyle[camelProp]), parseFloat(val.replace('=', '')), val.replace(/.*\d/, ''), _this, camelProp);
+				val = cssMath(parseFloat(currentStyle[sanitaryProp]), parseFloat(val.replace('=', '')), val.replace(/.*\d/, ''), _this, sanitaryProp);
 			}
 
 			properties[prop] = val; //Set the value in the object of properties in case it changed
@@ -2719,7 +2719,7 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 		if (noCssTransitionSupport) {
 			// The amount of linear change per frame = (newValue - currentValue) * framePeriod / duration
 			// Where: framePeriod = 25 ms (for 40 fps) and currentValue = cssMath(currentValue + 0)
-			cssIncrementProps[camelProp] = (parseFloat(val) - parseFloat(cssMath(parseFloat(currentStyle[camelProp]), 0, (val + '').replace(/.*\d/, ''), _this, camelProp))) * 25 / duration;
+			cssIncrementProps[sanitaryProp] = (parseFloat(val) - parseFloat(cssMath(parseFloat(currentStyle[sanitaryProp]), 0, (val + '').replace(/.*\d/, ''), _this, sanitaryProp))) * 25 / duration;
 		}
 	}
 
@@ -2727,7 +2727,7 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 	_this.css(_this.css(propertyNames));
 
 	//Set the CSS transition style
-	inlineStyle.transition = inlineStyle.webkitTransition = 'all ' + duration + 'ms ' + (Firebolt.easing[easing] || easing);
+	inlineStyle[cssTransitionKey] = 'all ' + duration + 'ms ' + (Firebolt.easing[easing] || easing);
 
 	//Set the new values to transition to as soon as possible
 	setTimeout(function() {
@@ -2760,7 +2760,7 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 
 			if (isUndefined(cssTextToRestore)) {
 				//Give the element back its original inline transition style
-				inlineStyle.transition = inlineStyle.webkitTransition = originalInlineTransition;
+				inlineStyle[cssTransitionKey] = originalInlineTransition;
 			}
 			else {
 				inlineStyle.cssText = cssTextToRestore;
@@ -2888,16 +2888,16 @@ HTMLElementPrototype.css = function(prop, value) {
 				// Build an object with the values specified by the input array of properties
 				retVal = {};
 				for (value = 0; value < prop.length; value++) { // Reuse the value argument instead of a new var
-					retVal[prop[value]] = computedStyle[camelize(prop[value])];
+					retVal[prop[value]] = computedStyle[sanitizeCssPropName(prop[value])];
 				}
 			}
 			else {
 				// Get the specified property
-				retVal = computedStyle[camelize(prop)];
+				retVal = computedStyle[sanitizeCssPropName(prop)];
 			}
 
 			if (mustHide) {
-				_this.hide(); // Hide the element since it was shown temporarily to obtain style value(s)
+				_this.hide(); // Hide the element since it was shown temporarily to obtain style values
 			}
 
 			return retVal;
@@ -2905,12 +2905,12 @@ HTMLElementPrototype.css = function(prop, value) {
 
 		// Set all specifed properties
 		for (value in prop) { // Reuse the value argument instead of a new var
-			_this.style[camelize(value)] = prop[value];
+			_this.style[sanitizeCssPropName(value)] = prop[value];
 		}
 	}
 	else {
 		// Set the specified property
-		_this.style[camelize(prop)] = value;
+		_this.style[sanitizeCssPropName(prop)] = value;
 	}
 
 	return _this;
@@ -3162,7 +3162,7 @@ HTMLElementPrototype.serialize = function() {
 
 	if (!name                                                 // Doesn't have a name
 		|| this.disabled                                      // Is disabled
-		|| value == null                                      // Is a <select> element and has no value or is not a form control
+		|| value == undefined                                 // Is a <select> element and has no value or is not a form control
 		|| rgxFormButton.test(type)                           // Is a form button (button|file|reset|submit)
 		|| rgxCheckableElement.test(type) && !this.checked) { // Is a checkbox or radio button and is not checked
 		return '';
@@ -3683,7 +3683,7 @@ NodePrototype.off = function(events, selector, handler) {
 			//If events was passed in, remove those events, else remove all events
 			events = events ? events.split(' ') : keys(eventHandlers);
 
-			if (!isUndefined(selector) && !typeofString(selector)) {
+			if (selector !== undefined && !typeofString(selector)) {
 				//The handler was in the selector argument and there is no real selector argument
 				handler = selector;
 				selector = 0;
