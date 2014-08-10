@@ -59,6 +59,17 @@ test('contains', function() {
 	ok(!array.contains(1), 'Correctly reports that an item not in the array is not in the array.');
 });
 
+test('diff', function() {
+	var array = [1, 2, 3, 4, 5];
+
+	deepEqual(array.diff(), array, 'Returns a clone when called with no parameters.');
+	deepEqual(array.diff([5, 2, 10]), [1, 3, 4], 'Correctly performs a set difference when given one array as input.');
+	deepEqual(array.diff([5, 2], [1, 4]), [3], 'Correctly performs a set difference when given multiple arrays as input.');
+	deepEqual((function() {
+		return array.diff(arguments);
+	})(1, 2, 5), [3, 4], 'Correctly performs a set difference when given an array-like object as input.');
+});
+
 test('get', function() {
 	var array = ['a', 'b', 'c'];
 

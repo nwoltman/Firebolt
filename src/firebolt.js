@@ -961,6 +961,9 @@ prototypeExtensions = {
 	 * 
 	 * __Note:__ The input arrays can be array-like objects (like a function's `arguments` object).
 	 * 
+	 * @example
+	 * [1, 2, 3, 4, 5].diff([5, 2, 10]); // -> [1, 3, 4]
+	 * 
 	 * @function Array#diff
 	 * @param {...Array} arrays - One or more array-like objects.
 	 * @returns {Array}
