@@ -1020,22 +1020,29 @@ prototypeExtensions = {
 	 * 
 	 * __Note:__ The order of elements in the arrays DOES matter. The elements must be found in the same order for the arrays to be considered equal.
 	 * 
+	 * @example
+	 * var array = [1, 2, 3];
+	 * 
+	 * array.equals(array);     // -> true
+	 * array.equals([1, 2, 3]); // -> true
+	 * array.equals([3, 2, 1]); // -> false
+	 * 
 	 * @function Array#equals
-	 * @param {Array|Enumerable} array - Array or other enumerable object that has a `length` property.
-	 * @returns {Boolean} `true` if the arrays are equal; else `false`.
+	 * @param {Array} array - Array or array-like object.
+	 * @returns {Boolean} `true` if the arrays are equal, `false` otherwise.
+	 * @throws {TypeError} Throws an error if the input value is `null` or `undefined`.
 	 */
 	equals: function(array) {
-		if (this === array) { //Easy check
-			return true;
-		}
-
-		if (this.length !== array.length) {
-			return false;
-		}
-
-		for (var i = 0; i < array.length; i++) {
-			if (this[i] !== array[i]) {
+		// Only need to check contents if the input array is not the same as this array
+		if (this !== array) {
+			if (this.length !== array.length) {
 				return false;
+			}
+
+			for (var i = 0; i < array.length; i++) {
+				if (this[i] !== array[i]) {
+					return false;
+				}
 			}
 		}
 
