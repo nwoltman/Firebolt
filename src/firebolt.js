@@ -959,13 +959,11 @@ prototypeExtensions = {
 	/**
 	 * Returns a new array with all of the values of this array that are not in any of the input arrays (performs a set difference).
 	 * 
-	 * __Note:__ The input arrays can be array-like objects (like a function's `arguments` object).
-	 * 
 	 * @example
 	 * [1, 2, 3, 4, 5].diff([5, 2, 10]); // -> [1, 3, 4]
 	 * 
 	 * @function Array#diff
-	 * @param {...Array} arrays - One or more array-like objects.
+	 * @param {...Array} *arrays - A variable number of arrays or array-like objects.
 	 * @returns {Array}
 	 */
 	diff: function() {
@@ -976,8 +974,7 @@ prototypeExtensions = {
 			item,
 			array;
 
-	skip:
-		for (; i < this.length; i++) {
+		next: for (; i < this.length; i++) {
 			item = this[i];
 
 			for (j = 0; j < arguments.length; j++) {
@@ -985,7 +982,7 @@ prototypeExtensions = {
 
 				for (k = 0; k < array.length; k++) {
 					if (item === array[k]) {
-						continue skip;
+						continue next;
 					}
 				}
 			}
@@ -1076,7 +1073,7 @@ prototypeExtensions = {
 	 * [1, 2, 3].intersect([101, 2, 50, 1], [2, 1]); // -> [1, 2]
 	 * 
 	 * @function Array#intersect
-	 * @param {...(Array|Enumerable)} *arrays - One or more arrays or array-like objects.
+	 * @param {...Array} *arrays - A variable number of arrays or array-like objects.
 	 * @returns {Array} An array that is the intersection of this array and the input array(s).
 	 */
 	intersect: function() {
@@ -1126,14 +1123,14 @@ prototypeExtensions = {
 	},
 
 	/**
-	 * Returns an array containing every distinct item that is in either this array or the input array.
+	 * Returns an array containing every distinct item that is in either this array or the input array(s).
 	 * 
 	 * @example
 	 * [1, 2, 3].union([2, 3, 4, 5]); // -> [1, 2, 3, 4, 5]
 	 * 
 	 * @function Array#union
-	 * @param {...Array} array - One or more arrays or array-like objects.
-	 * @returns {Array} An array that is the union of this array and the input array.
+	 * @param {...Array} *arrays - A variable number of arrays or array-like objects.
+	 * @returns {Array} An array that is the union of this array and the input array(s).
 	 */
 	union: function() {
 		var union = this.uniq(),
@@ -1191,10 +1188,10 @@ prototypeExtensions = {
 	 * Returns a copy of the current array without any elements from the input parameters.
 	 * 
 	 * @example
-	 * [1, 2, 3, 4, 5, 6].without(3, 4, 6); // -> [1, 2, 5]
+	 * [1, 2, 3, 4].without(2, 4); // -> [1, 3]
 	 * 
 	 * @function Array#without
-	 * @param {...*} items - One or more items to leave out of the returned array.
+	 * @param {...*} items - Items to leave out of the returned array.
 	 * @returns {Array}
 	 */
 	without: function() {
@@ -1202,11 +1199,10 @@ prototypeExtensions = {
 			i = 0,
 			j;
 
-	skip:
-		for (; i < this.length; i++) {
+		next: for (; i < this.length; i++) {
 			for (j = 0; j < arguments.length; j++) {
 				if (this[i] === arguments[j]) {
-					continue skip;
+					continue next;
 				}
 			}
 			array.push(this[i]);
