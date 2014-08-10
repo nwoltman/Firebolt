@@ -4199,31 +4199,6 @@ NodePrototype.wrapInner = function(wrappingElement) {
 //#region ======================== NodeCollection ============================
 
 /**
- * Create a deep copy of the collection of nodes.
- * 
- * __ProTip:__ If you want a shallow copy of the collection, use `.toNC()` (even thought that's mainly a NodeList function,
- * NodeCollections also have it in their prototype) or pass the collection into `NodeCollection.from()`.
- * 
- * @function NodeCollection#clone
- * @param {Boolean} [withDataAndEvents=false] - A boolean indicating if each node's data and events should be copied over to its clone.
- * @param {Boolean} [deepWithDataAndEvents=value of withDataAndEvents] - If `false`, data and events for the descendants of the cloned nodes will
- * not be copied over. If cloning with data and events and you know the descendants do not have any data or events that should be copied, using
- * this variable (by setting it to `false`) will improve performance.
- * @returns {NodeCollection}
- */
-prototypeExtensions.clone = function(withDataAndEvents, deepWithDataAndEvents) {
-	var len = this.length,
-		clone = new NodeCollection(len),
-		i = 0;
-
-	for (; i < len; i++) {
-		clone[i] = this[i].clone(withDataAndEvents, deepWithDataAndEvents);
-	}
-
-	return clone;
-};
-
-/**
  * Same constructor as {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array | Array}.
  * 
  * @class NodeCollection
@@ -4486,6 +4461,31 @@ NodeCollectionPrototype.children = getGetDirElementsFunc(HTMLElementPrototype.ch
  * 
  * @function NodeCollection#click
  */
+
+/**
+ * Create a deep copy of the collection of nodes.
+ * 
+ * __ProTip:__ If you want a shallow copy of the collection, use `.toNC()` (even thought that's mainly a NodeList function,
+ * NodeCollections also have it in their prototype) or pass the collection into `NodeCollection.from()`.
+ * 
+ * @function NodeCollection#clone
+ * @param {Boolean} [withDataAndEvents=false] - A boolean indicating if each node's data and events should be copied over to its clone.
+ * @param {Boolean} [deepWithDataAndEvents=value of withDataAndEvents] - If `false`, data and events for the descendants of the cloned nodes will
+ * not be copied over. If cloning with data and events and you know the descendants do not have any data or events that should be copied, using
+ * this variable (by setting it to `false`) will improve performance.
+ * @returns {NodeCollection}
+ */
+NodeCollectionPrototype.clone = function(withDataAndEvents, deepWithDataAndEvents) {
+	var len = this.length,
+		clone = new NodeCollection(len),
+		i = 0;
+
+	for (; i < len; i++) {
+		clone[i] = this[i].clone(withDataAndEvents, deepWithDataAndEvents);
+	}
+
+	return clone;
+};
 
 /**
  * @summary For each node in the collection, gets the first node that matches the selector by testing the node itself
