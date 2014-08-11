@@ -1338,9 +1338,20 @@ ElementPrototype.data = function(key, value) {
 /**
  * Gets the descendants of the element, filtered by a selector, collection of elements, or a single element.
  * 
- * __ProTip:__ Since this method has multiple input types, type-checking is performed on the input to determine how the result will be calculated.
- * If want to find descendant elements using a CSS selector, you should use the native `element.querySelectorAll()` or the Firebolt alias for
- * that function (`.$QSA()`).
+ * __Note:__ The main difference between when this function is called with a CSS selector string and `Element#querySelectorAll()`
+ * (or Firebolt's short form `Element#$QSA()`) is that in this function, the selector is evaluated with the current element as
+ * the root of the selection (as opposed to the document). This can be seen in the example below.
+ * 
+ * @example <caption>Comparing Element#querySelectorAll() and Element#find()</caption>
+ * /// HTML
+ * // <div id="test">
+ * //   <b>Hello</b>
+ * // </div>
+ * 
+ * var testDiv = $$('test');
+ * testDiv.querySelectorAll('div b'); // -> [<b>Hello</b>]
+ * testDiv.find('div b'); // -> []
+ * testDiv.find('b');     // -> [<b>Hello</b>]
  * 
  * @function Element#find
  * @param {String|Element|Element[]} selector - A CSS selector, a collection of elements, or a single element used to match descendant elements against.
@@ -1348,11 +1359,23 @@ ElementPrototype.data = function(key, value) {
  */
 ElementPrototype.find = function(selector) {
 	if (typeofString(selector)) {
-		return this.$QSA(selector);
+		// Perform a rooted QSA (staight out of Secrets of the JavaScript Ninja, page 348)
+		var origID = this.id,
+			tempID = this.id = 'root' + (timestamp++);
+
+		try {
+			return this.querySelectorAll('#' + tempID + ' ' + selector);
+		}
+		catch (e) {
+			throw e;
+		}
+		finally {
+			this.id = origID;
+		}
 	}
 
 	//Return the intersection of all of the element's descendants with the elements in the input collection or single element (in an array)
-	return this.$QSA('*').intersect(selector.nodeType ? [selector] : selector);
+	return this.querySelectorAll('*').intersect(selector.nodeType ? [selector] : selector);
 };
 
 /**
