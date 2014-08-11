@@ -3586,8 +3586,10 @@ NodePrototype.closest = function(selector) {
  * @returns {NodeCollection}
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.childNodes | Node.childNodes - Web API Interfaces | MDN}
  */
-NodePrototype.contents = function() {
-	return ncFrom(this.childNodes);
+NodePrototype.contents = function(justChildNodes) { // Parameter for internal use; used by NodeCollection#contents
+	var iframeContent = this.contentDocument,
+		childNodes = this.childNodes;
+	return iframeContent ? new NodeCollection(iframeContent) : justChildNodes ? childNodes : ncFrom(childNodes);
 };
 
 /**
@@ -4528,7 +4530,9 @@ NodeCollectionPrototype.contents = function() {
 		i = 0;
 
 	for (; i < this.length; i++) {
-		array_push.apply(nc, this[i].childNodes);
+		// Call Node#contents on the current node, passing in a truthy value so it doesn't
+		// bother making a NodeCollection out of the childNodes before returning
+		array_push.apply(nc, NodePrototype.contents.call(this[i], 1));
 	}
 
 	return nc;
