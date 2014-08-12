@@ -1102,20 +1102,23 @@ prototypeExtensions = {
 	/**
 	 * Removes all occurrences of the passed in items from the array if they exist in the array.
 	 * 
+	 * @example
+	 * var array = [1, 2, 3, 3, 4, 3, 5];
+	 * array.remove(1);    // -> [2, 3, 3, 4, 3, 5]
+	 * array.remove(3);    // -> [2, 4, 5]
+	 * array.remove(2, 5); // -> [4]
+	 * 
 	 * @function Array#remove
 	 * @param {...*} items - Items to remove from the array.
 	 * @returns {Array} A reference to the array (so it's chainable).
 	 */
 	remove: array_remove = function() {
 		var i = 0,
-			rindex;
+			remIndex;
 
 		for (; i < arguments.length; i++) {
-			while ((rindex = this.indexOf(arguments[i])) >= 0) {
-				this.splice(rindex, 1);
-				if (!this.length) {
-					return this; //Exit early since there is nothing left to remove
-				}
+			while ((remIndex = this.indexOf(arguments[i])) >= 0) {
+				this.splice(remIndex, 1);
 			}
 		}
 

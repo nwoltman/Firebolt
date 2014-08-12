@@ -119,3 +119,17 @@ test('intersect', function() {
 		return array.intersect(arguments);
 	})(5, 2, 1), [1, 2], 'Correctly performs a set intersection when given an array-like object as input.');
 });
+
+test('remove', function() {
+	var array = [1, 2, 3, 3, 4, 3];
+
+	var retArray = array.remove(2);
+	strictEqual(array, retArray, 'Returns the array.');
+	deepEqual(array, [1, 3, 3, 4, 3], 'Can remove a single item from the array.');
+
+	deepEqual(array.remove(3), [1, 4], 'Removes all instances of the input value.');
+
+	deepEqual(array.remove(2), [1, 4], 'Removes nothing if the specified value is not in the array.');
+
+	deepEqual(array.remove(1, 4), [], 'Removes all instances of each input value.');
+});
