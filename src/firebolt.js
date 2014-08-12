@@ -1363,11 +1363,14 @@ ElementPrototype.data = function(key, value) {
 ElementPrototype.find = function(selector) {
 	if (typeofString(selector)) {
 		// Perform a rooted QSA (staight out of Secrets of the JavaScript Ninja, page 348)
-		var origID = this.id,
-			tempID = this.id = 'root' + (timestamp++);
+		var origID = this.id;
 
 		try {
-			return this.querySelectorAll('#' + tempID + ' ' + selector);
+			return this.querySelectorAll(
+				// Must make this check for when this function is used by NodeCollection#find()
+				this.nodeType === 1 ? '#' + (this.id = 'root' + (timestamp++)) + ' ' + selector
+									: selector
+			);
 		}
 		catch (e) {
 			throw e;
@@ -4702,6 +4705,7 @@ NodeCollectionPrototype.filter = function(selector) {
  * @function NodeCollection#find
  * @param {String|Element|Element[]} selector - A CSS selector, a collection of elements, or a single element used to match descendant elements against.
  * @returns {NodeList|NodeCollection}
+ * @throws {TypeError} This error is thrown when the collection contains elements that do not have a `querySelectorAll()` function.
  */
 NodeCollectionPrototype.find = getGetDirElementsFunc(ElementPrototype.find, sortDocOrder);
 
