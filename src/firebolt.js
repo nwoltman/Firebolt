@@ -1158,7 +1158,7 @@ prototypeExtensions = {
 	 * 
 	 * @example
 	 * // Unsorted
-	 * [4, 2, 3, 2, 1, 4].uniq();     // -> [1, 2, 3, 4]
+	 * [4, 2, 3, 2, 1, 4].uniq();     // -> [4, 2, 3, 1]
 	 * 
 	 * // Sorted
 	 * [1, 2, 2, 3, 4, 4].uniq();     // -> [1, 2, 3, 4]
@@ -1170,21 +1170,21 @@ prototypeExtensions = {
 	 * @returns {Array}
 	 */
 	uniq: function(isSorted) {
-		var uniq = new this._$C_(),
+		var unique = new this._$C_(),
 			i = 0;
 
 		for (; i < this.length; i++) {
 			if (isSorted) {
 				if (this[i] !== this[i + 1]) {
-					uniq.push(this[i]);
+					unique.push(this[i]);
 				}
 			}
-			else if (uniq.indexOf(this[i]) < 0) {
-				uniq.push(this[i]);
+			else if (unique.indexOf(this[i]) < 0) {
+				unique.push(this[i]);
 			}
 		}
 
-		return uniq;
+		return unique;
 	},
 
 	/**

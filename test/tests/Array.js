@@ -133,3 +133,30 @@ test('remove', function() {
 
 	deepEqual(array.remove(1, 4), [], 'Removes all instances of each input value.');
 });
+
+test('union', function() {
+	var array = [1, 2, 3];
+
+	deepEqual(array.union(), array, 'Returns a clone when called with no parameters.');
+
+	deepEqual(array.union([2, 3, 4, 5]), [1, 2, 3, 4, 5],
+		'Correctly performs a set union when given one array as input.');
+
+	deepEqual(array.union([3, 4], [50, 9]), [1, 2, 3, 4, 50, 9],
+		'Correctly performs a set union when given multiple arrays as input.');
+
+	deepEqual((function() {
+		return array.union(arguments);
+	})(2, 3, 4, 5), [1, 2, 3, 4, 5], 'Correctly performs a set union when given an array-like object as input.');
+});
+
+test('uniq', function() {
+	deepEqual([1, 2, 3, 0].uniq(), [1, 2, 3, 0], 'Returns a clone when called on an array that already contains unique elements.');
+
+	deepEqual([4, 2, 3, 2, 1, 4].uniq(), [4, 2, 3, 1], 'Returns a unique set when called on an unsorted array with duplicates.');
+
+	deepEqual([1, 2, 2, 3, 4, 4].uniq(), [1, 2, 3, 4], 'Returns a unique set when called on a sorted array with duplicates.');
+
+	deepEqual([1, 2, 2, 3, 4, 4].uniq(true), [1, 2, 3, 4],
+		'Returns a unique set when called on a sorted array with duplicates and the `isSorted` parameter is `true`.');
+});
