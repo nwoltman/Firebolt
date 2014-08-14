@@ -12,21 +12,30 @@ test('appendParams', function() {
 	var url = 'www.fireboltjs.com';
 
 	url = url.appendParams('p1=a');
-	equal(url, 'www.fireboltjs.com?p1=a', 'Correctly appends parameters to a url that has no query string.');
+	equal(url, 'www.fireboltjs.com?p1=a',
+		'Correctly appends parameters to a url that has no query string.');
 
-	equal(url.appendParams('p2=b'), 'www.fireboltjs.com?p1=a&p2=b', 'Correctly appends parameters to a url that already has a query string.');
+	equal(url.appendParams('p2=b'), 'www.fireboltjs.com?p1=a&p2=b',
+		'Correctly appends parameters to a url that already has a query string.');
 });
 
 test('contains', function() {
 	var str = 'Winter is coming.';
 
+	// True
 	strictEqual(str.contains(' is '), true, 'Reports that a substring is in the string.');
+
 	strictEqual(str.contains('Wint'), true, 'Reports that the beginning of the string is in the string.');
+
 	strictEqual(str.contains(' coming.'), true, 'Reports that the end of the string is in the string.');
+
 	strictEqual(str.contains(str), true, 'Reports that the string contains itself');
 
+	// False
 	strictEqual(str.contains('Summer is'), false, 'Reports that a non-substring is not in the string.');
-	strictEqual(str.contains(' is ', 7), false, 'Reports that a substring is not in the string if the `position` parameter is a large enough value.');
+
+	strictEqual(str.contains(' is ', 7), false,
+		'Reports that a substring is not in the string if the `position` parameter is a large enough value.');
 });
 
 test('endsWith', function() {
@@ -58,31 +67,27 @@ test('escapeHTML', function() {
 });
 
 test('repeat', function() {
-	expect(7);
-
 	var str = 'abc';
 
 	//Test return value
 	strictEqual(str.repeat(), '', 'Returns an empty string when no input is given.');
+
 	strictEqual(str.repeat(0), '', 'Returns an empty string when given 0 as input.');
+
 	strictEqual(str.repeat(1), str, 'Returns the original string when given 1 as input.');
+
 	strictEqual(str.repeat(3), 'abcabcabc', 'Correctly repeats the string the specified number of times.');
+
 	strictEqual(str.repeat(2.5), 'abcabc', 'Rounds down the input number before repeating the string.');
 
 	//Test for throwing errors
-	try {
+	throws(function() {
 		str.repeat(-1);
-	}
-	catch (e) {
-		ok(true, 'Thows an error when given a negative number as input.');
-	}
+	}, RangeError, 'Thows a RangeError when given a negative number as input.');
 
-	try {
+	throws(function() {
 		str.repeat(1/0);
-	}
-	catch (e) {
-		ok(true, 'Thows an error when given infinity as input.');
-	}
+	}, RangeError, 'Thows a RangeError when given infinity as input.');
 });
 
 test('startsWith', function() {
@@ -99,8 +104,11 @@ test('startsWith', function() {
 
 test('tokenize', function() {
 	deepEqual('The boy who lived.'.tokenize(), ['The', 'boy', 'who', 'lived.'], 'Tokenizes a simple string.');
+
 	deepEqual('class1\nclass2\t class3 '.tokenize(), ['class1', 'class2', 'class3'], 'Tokenizes an ill-formated class name string.');
+
 	deepEqual(''.tokenize(), [], 'Returns an empty array when tokenizing an empty string.');
+
 	deepEqual('\n   \t\r'.tokenize(), [], 'Returns an empty array when tokenizing a string made up of only whitespace.');
 });
 
