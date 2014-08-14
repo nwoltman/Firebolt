@@ -873,7 +873,10 @@ var
 					: isIE ? 'ms'
 					: 'O',
 	cssTransitionKey = sanitizeCssPropName('transition'),
-	noCssTransitionSupport =  isUndefined(any[cssTransitionKey]),
+	noCssTransitionSupport = isUndefined(any[cssTransitionKey]),
+
+	/* Events */
+	transitionendEventName = cssTransitionKey + (cssTransitionKey[0] === 'w' ? 'End' : 'end'),
 
 //#endregion Private
 
@@ -2710,13 +2713,19 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 		currentStyle = getComputedStyle(_this),
 		isCurrentDisplayNone = isDisplayNone(0, currentStyle),
 		originalInlineTransition = inlineStyle[cssTransitionKey],
-		cssIncrementProps = {},
+		framesLeft,
+		cssIncrementProps,
 		overflowToRestore,
 		cssTextToRestore,
 		hideOnComplete,
 		sanitaryProp,
 		prop,
 		val;
+
+	if (noCssTransitionSupport) {
+		framesLeft = parseInt(duration / 25); // Total animation frames = duration / frame period
+		cssIncrementProps = {};
+	}
 
 	//Parse properties
 	for (; i < propertyNames.length; i++) {
@@ -2752,9 +2761,9 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 		}
 
 		if (noCssTransitionSupport) {
-			// The amount of linear change per frame = (newValue - currentValue) * framePeriod / duration
-			// Where: framePeriod = 25 ms (for 40 fps) and currentValue = cssMath(currentValue + 0)
-			cssIncrementProps[sanitaryProp] = (parseFloat(val) - parseFloat(cssMath(parseFloat(currentStyle[sanitaryProp]), 0, (val + '').replace(/.*\d/, ''), _this, sanitaryProp))) * 25 / duration;
+			// The amount of linear change per frame = total change amount / num frames = (newValue - currentValue) * framesLeft
+			// Where: currentValue = cssMath(currentValue + 0)
+			cssIncrementProps[sanitaryProp] = (parseFloat(val) - parseFloat(cssMath(parseFloat(currentStyle[sanitaryProp]), 0, (val + '').replace(/.*\d/, ''), _this, sanitaryProp))) / framesLeft;
 		}
 	}
 
@@ -2767,43 +2776,51 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 	//Set the new values to transition to as soon as possible
 	setTimeout(function() {
 		if (noCssTransitionSupport) {
-			//Set an interval to increment the CSS properties by their respective amounts each frame period
-			easing = (function() {
+			//Increment the CSS properties by their respective amounts each frame period until all frames have been rendered
+			(function renderFrame() {
 				for (prop in cssIncrementProps) {
 					inlineStyle[prop] = parseFloat(inlineStyle[prop]) + cssIncrementProps[prop] + inlineStyle[prop].replace(/.*\d/, '');
 				}
-			}).every(25);
+
+				if (--framesLeft) {
+					easing = setTimeout(renderFrame, 25);
+				}
+				else {
+					_this.trigger(transitionendEventName);
+				}
+			})();
 		}
 		else {
 			_this.css(properties); //Setting the CSS values starts the transition
 		}
 
-		// Delay a function that cleans up the animation and calls the complete callback after the transition is done
-		// and save a reference to the callback object on the element
-		_this._$A_ = (function(stoppedEarly) {
+		// Set an event that cleans up the animation and calls the complete callback after the transition is done
+		_this.one(transitionendEventName, function(eObj, stoppedEarly) {
 			if (stoppedEarly) {
 				//Get the current values of the CSS properties being animated
 				properties = _this.css(propertyNames);
 			}
 
-
 			if (noCssTransitionSupport) {
-				//End the interval and set all the final CSS values
-				easing.cancel();
+				//End the frame rendering and set all the final CSS values
+				clearTimeout(easing);
 				_this.css(properties);
 			}
 
-			if (isUndefined(cssTextToRestore)) {
-				//Give the element back its original inline transition style
-				inlineStyle[cssTransitionKey] = originalInlineTransition;
-			}
-			else {
+			if (typeofString(cssTextToRestore)) {
 				inlineStyle.cssText = cssTextToRestore;
 			}
 
 			if (typeofString(overflowToRestore)) {
 				inlineStyle.overflow = overflowToRestore;
 			}
+
+			// This fixes a bug where Firefox will continue the animation after the transition style is cleared
+			// Force the animation to stop now by setting the transtition style to 'none' and then return the original style later
+			inlineStyle[cssTransitionKey] = 'none';
+			setTimeout(function() {
+				inlineStyle[cssTransitionKey] = originalInlineTransition;
+			}, 0);
 
 			if (stoppedEarly) {
 				//Set all the current CSS property values
@@ -2818,10 +2835,7 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 					complete.call(_this); //Call the complete function in the context of the element
 				}
 			}
-
-			//Delete the callback object (helps indicate the animation has completed)
-			delete _this._$A_;
-		}).delay(duration);
+		});
 	}, 0);
 
 	return _this;
@@ -3024,12 +3038,8 @@ HTMLElementPrototype.fadeToggle = function(duration, easing, complete) {
  * 
  * @function HTMLElement#finish
  */
-HTMLElementPrototype.finish = function(animCallbackObj) { //The unused argument prevents the need for a `var` declaration (saves space)
-	if (animCallbackObj = this._$A_) {
-		animCallbackObj.execute();
-	}
-
-	return this;
+HTMLElementPrototype.finish = function() {
+	return this.trigger(transitionendEventName);
 };
 
 /**
@@ -3299,20 +3309,8 @@ HTMLElementPrototype.slideUp = function(duration, easing, complete) {
  * @function HTMLElement#stop
  * @param {Boolean} [jumpToEnd=false] - A Boolean indicating whether to complete the current animation immediately.
  */
-HTMLElementPrototype.stop = function(arg) {
-	//`arg` is the `jumpToEnd` argument
-	if (arg) {
-		return this.finish();
-	}
-
-	//`arg` gets set to the animation completion callback object (if it exists)
-	arg = this._$A_;
-	if (arg && !arg.hasExecuted) {
-		arg.callback(1); // Call the completion object, passing in `1` to tell it that it finished early
-		arg.cancel();    // Cancel the delayed timeout
-	}
-
-	return this;
+HTMLElementPrototype.stop = function(jumpToEnd) {
+	return jumpToEnd ? this.finish() : this.triggerHandler(transitionendEventName, 1),this;
 };
 
 /**
@@ -3751,6 +3749,11 @@ NodePrototype.off = function(events, selector, handler) {
 					}
 				}
 			}
+
+			// If there are no handlers left for any events, delete the event handler store
+			if (isEmptyObject(eventHandlers)) {
+				delete this._$E_;
+			}
 		}
 	}
 
@@ -4168,7 +4171,8 @@ NodePrototype.trigger = function(event, extraParameters) {
  * @param {*} extraParameters - Additional parameters that will be passed as the second argument to the triggered event handler(s).
  */
 NodePrototype.triggerHandler = function(event, extraParameters) {
-	return nodeEventHandler.call(this, createEventObject(event), extraParameters);
+	// Only trigger handlers if there are event handlers saved to the node
+	return this._$E_ && nodeEventHandler.call(this, createEventObject(event), extraParameters);
 };
 
 /**
