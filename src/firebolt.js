@@ -1237,41 +1237,41 @@ definePrototypeExtensionsOn(ArrayPrototype);
  * Returns a list of the elements within the element with the specified class name.  
  * Alias of `Element.getElementsByClassName()`.
  * 
- * @function Element#$CLS
+ * @function Element#CLS
  * @param {String} className
  * @returns {HTMLCollection|NodeList} A collection of elements with the specified class name.
  */
-ElementPrototype.$CLS = ElementPrototype.getElementsByClassName;
+ElementPrototype.CLS = ElementPrototype.getElementsByClassName;
 
 /**
  * Returns a list of the elements within the element with the specified tag name.  
  * Alias of `Element.getElementsByTagName()`.
  * 
- * @function Element#$TAG
+ * @function Element#TAG
  * @param {String} tagName
  * @returns {HTMLCollection|NodeList} A collection of elements with the specified tag name.
  */
-ElementPrototype.$TAG = ElementPrototype.getElementsByTagName;
+ElementPrototype.TAG = ElementPrototype.getElementsByTagName;
 
 /**
  * Returns the first element within the element that matches the specified CSS selector.  
  * Alias of `Element.querySelector()`.
  * 
- * @function Element#$QS
+ * @function Element#QS
  * @param {String} selector
  * @returns {?Element}
  */
-ElementPrototype.$QS = ElementPrototype.querySelector;
+ElementPrototype.QS = ElementPrototype.querySelector;
 
 /**
  * Returns a list of the elements within the element that match the specifed CSS selector.  
  * Alias of `Element.querySelectorAll()`.
  * 
- * @function Element#$QSA
+ * @function Element#QSA
  * @param {String} selector
  * @returns {NodeList} A list of selected elements.
  */
-ElementPrototype.$QSA = ElementPrototype.querySelectorAll;
+ElementPrototype.QSA = ElementPrototype.querySelectorAll;
 
 /**
  * Gets the value of the element's specified attribute.
@@ -1345,7 +1345,7 @@ ElementPrototype.data = function(key, value) {
  * Gets the descendants of the element, filtered by a selector, collection of elements, or a single element.
  * 
  * __Note:__ The main difference between when this function is called with a CSS selector string and `Element#querySelectorAll()`
- * (or Firebolt's short form `Element#$QSA()`) is that in this function, the selector is evaluated with the current element as
+ * (or Firebolt's short form `Element#QSA()`) is that in this function, the selector is evaluated with the current element as
  * the root of the selection (as opposed to the document). This can be seen in the example below.
  * 
  * @example <caption>Comparing Element#querySelectorAll() and Element#find()</caption>
@@ -1492,7 +1492,7 @@ ElementPrototype.removeProp = function(propertyName) {
  * __Note #1:__ Unlike jQuery, only a document may be passed as the `context` variable. This is because there is a simple,
  * native method for selecting elements with an element as the root for the selection. The method is `element.querySelectorAll()`. If
  * the element was created in the same document as Firebolt was loaded in, it will have an alias for `.querySelectorAll()` &mdash;
- * {@linkcode Element#$QSA|.$QSA()}. If you want to write really performant and concise code, you may want to use some of
+ * {@linkcode Element#QSA|.QSA()}. If you want to write really performant and concise code, you may want to use some of
  * {@link Element}'s other native functions, depending on what you want to select.
  * 
  * __Note #2:__ This function will only consider the input string an HTML string if the first character of the
@@ -3569,8 +3569,7 @@ NodePrototype.clone = function(withDataAndEvents, deepWithDataAndEvents) {
  * @description
  * __Note:__ Unlike jQuery, there is no version of this function where you can provide a "context" element, whose children that match
  * the input CSS selector will be searched for a match. This is because it is very easy to get the matching children of an element
- * youself using [`Element#querySelectorAll()`](https://developer.mozilla.org/en-US/docs/Web/API/Element.querySelectorAll) or Firebolt's
- * alias `Element#$QSA()`.
+ * youself using {@linkcode Element#QSA|Element#QSA()} or {@linkcode Element#find|Element#find()}.
  * 
  * @function Node#closest
  * @param {String|Node|Node[]} selector - A CSS selector, a node, or a collection of nodes used to match the node and its parents against.
@@ -4530,7 +4529,7 @@ NodeCollectionPrototype.clone = function(withDataAndEvents, deepWithDataAndEvent
  * __Note:__ Unlike jQuery, there is no version of this function where you can provide a "context" element, whose children that match
  * the input CSS selector will be searched for a match. This is because it is very easy to get the matching children of an element
  * youself using [`Element#querySelectorAll()`](https://developer.mozilla.org/en-US/docs/Web/API/Element.querySelectorAll) or Firebolt's
- * alias `Element#$QSA()`.
+ * alias `Element#QSA()`.
  * 
  * @function NodeCollection#closest
  * @param {String|Node|Node[]} selector - A CSS selector, a node, or a collection of nodes used to match the node and its parents against.
