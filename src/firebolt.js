@@ -1111,7 +1111,7 @@ prototypeExtensions = {
 	 * array.remove(2, 5); // -> [4]
 	 * 
 	 * @function Array#remove
-	 * @param {...*} items - Items to remove from the array.
+	 * @param {...*} *items - Items to remove from the array.
 	 * @returns {Array} A reference to the array (so it's chainable).
 	 */
 	remove: function() {
@@ -1196,7 +1196,7 @@ prototypeExtensions = {
 	 * [1, 2, 3, 4].without(2, 4); // -> [1, 3]
 	 * 
 	 * @function Array#without
-	 * @param {...*} items - Items to leave out of the returned array.
+	 * @param {...*} *items - Items to leave out of the returned array.
 	 * @returns {Array}
 	 */
 	without: function() {
@@ -1487,11 +1487,9 @@ ElementPrototype.removeProp = function(propertyName) {
  * @description
  * Returns a list of the elements either found in the DOM that match the passed in CSS selector or created by passing an HTML string.
  * 
- * __Note #1:__ Unlike jQuery, only a document may be passed as the `context` variable. This is because there is a simple,
- * native method for selecting elements with an element as the root for the selection. The method is `element.querySelectorAll()`. If
- * the element was created in the same document as Firebolt was loaded in, it will have an alias for `.querySelectorAll()` &mdash;
- * {@linkcode Element#QSA|.QSA()}. If you want to write really performant and concise code, you may want to use some of
- * {@link Element}'s other native functions, depending on what you want to select.
+ * __Note #1:__ Unlike jQuery, only a document may be passed as the `context` variable. This is because there are several ways to
+ * select elements with an element as the root for the selection. Check out the {@link Element} interface and look at functions
+ * like {@linkcode Element#find|.find()}, {@linkcode Element#QSA|.QSA()}, {@linkcode Element#TAG|.TAG()}, etc.
  * 
  * __Note #2:__ This function will only consider the input string an HTML string if the first character of the
  * string is the opening tag character (`<`). If you want to parse an HTML string that does not begin with an
@@ -4072,7 +4070,7 @@ NodePrototype.replaceWith = getNodePutOrWithFunction(replaceWith);
  * Removes this node from the DOM.
  * 
  * @function Node#remove
- * @returns void (undefined)
+ * @returns void (`undefined`)
  */
 NodePrototype.remove = function() {
 	if (this.parentNode) {
