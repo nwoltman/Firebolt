@@ -781,7 +781,6 @@ var
 	isArray = Array.isArray,
 	arrayFrom = setAndGetArrayFromFunction(Array),
 	array_push = ArrayPrototype.push,
-	array_remove, //Will get set to Array.prototype.remove
 	defineProperty = Object.defineProperty,
 	keys = Object.keys,
 
@@ -1115,7 +1114,7 @@ prototypeExtensions = {
 	 * @param {...*} items - Items to remove from the array.
 	 * @returns {Array} A reference to the array (so it's chainable).
 	 */
-	remove: array_remove = function() {
+	remove: function() {
 		var i = 0,
 			remIndex;
 
@@ -1367,10 +1366,9 @@ ElementPrototype.find = function(selector) {
 	if (typeofString(selector)) {
 		// Perform a rooted QSA (staight out of Secrets of the JavaScript Ninja, page 348)
 		var origID = this.id;
-
 		try {
 			return this.querySelectorAll(
-				// Must make this check for when this function is used by NodeCollection#find()
+				// Must make this check for when this function is used by NodeCollection#find() because `this` may be a Document or DocumentFragment
 				this.nodeType === 1 ? '#' + (this.id = 'root' + (timestamp++)) + ' ' + selector
 									: selector
 			);
@@ -1384,7 +1382,7 @@ ElementPrototype.find = function(selector) {
 	}
 
 	//Return the intersection of all of the element's descendants with the elements in the input collection or single element (in an array)
-	return this.querySelectorAll('*').intersect(selector.nodeType ? [selector] : selector);
+	return NodeCollectionPrototype.intersect.call(this.querySelectorAll('*'), selector.nodeType ? [selector] : selector);
 };
 
 /**
@@ -4089,10 +4087,10 @@ NodePrototype.remove = function() {
  * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
  * @returns {NodeCollection} - The set of the node's ancestors, ordered from the immediate parent on up.
  * @throws {TypeError} The subject node must have a
- * {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
+ * {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode | ParentNode}.
  */
 NodePrototype.siblings = function(selector) {
-	return array_remove.call(this.parentNode.childElements(selector), this);
+	return NodePrototype.childElements.call(this.parentNode, selector).remove(this);
 };
 
 /**
