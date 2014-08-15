@@ -73,6 +73,24 @@ test('diff', function() {
 	})(1, 2, 5), [3, 4], 'Correctly performs a set difference when given an array-like object as input.');
 });
 
+test('each', function() {
+	var array = [],
+		callback = function() {},
+		thisArg;
+
+	Firebolt.each = function(_obj, _callback, _thisArg, _isArrayLike) {
+		strictEqual(_obj, array);
+		strictEqual(_callback, callback);
+		strictEqual(_thisArg, thisArg);
+		strictEqual(_isArrayLike, 1);
+	}
+
+	array.each(callback);
+
+	thisArg = 'this';
+	array.each(callback, thisArg);
+});
+
 test('equals', function() {
 	var array = [1, 2, 3];
 
@@ -159,4 +177,18 @@ test('uniq', function() {
 
 	deepEqual([1, 2, 2, 3, 4, 4].uniq(true), [1, 2, 3, 4],
 		'Returns a unique set when called on a sorted array with duplicates and the `isSorted` parameter is `true`.');
+});
+
+test('without', function() {
+	var array = [1, 2, 3, 3, 4, 3];
+
+	var retArray = array.without(2);
+	ok(array != retArray, 'Returns a new array.');
+	deepEqual(retArray, [1, 3, 3, 4, 3], 'Can return a new array without a single specified item.');
+
+	deepEqual(array.without(), array, 'Returns a clone when called with no parameters.');
+
+	deepEqual(array.without(3), [1, 2, 4], 'Can return a new array minus all instances of the input value.');
+
+	deepEqual(array.without(1, 4, 3), [2], 'Returns a new array minus all instances of each input value.');
 });
