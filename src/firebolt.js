@@ -2718,6 +2718,9 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 		prop,
 		val;
 
+	// Force the transition style to be 'none' in case the element already has a transition style
+	inlineStyle[cssTransitionKey] = 'none';
+
 	if (noCssTransitionSupport) {
 		framesLeft = parseInt(duration / 25); // Total animation frames = duration / frame period
 		cssIncrementProps = {};
@@ -2768,71 +2771,70 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 
 	//Set the CSS transition style
 	inlineStyle[cssTransitionKey] = 'all ' + duration + 'ms ' + (Firebolt.easing[easing] || easing);
+	_this.offsetWidth; // Trigger reflow
 
-	//Set the new values to transition to as soon as possible
-	setTimeout(function() {
-		if (noCssTransitionSupport) {
-			//Increment the CSS properties by their respective amounts each frame period until all frames have been rendered
-			(function renderFrame() {
-				for (prop in cssIncrementProps) {
-					inlineStyle[prop] = parseFloat(inlineStyle[prop]) + cssIncrementProps[prop] + inlineStyle[prop].replace(/.*\d/, '');
-				}
-
-				if (--framesLeft) {
-					easing = setTimeout(renderFrame, 25);
-				}
-				else {
-					_this.trigger(transitionendEventName);
-				}
-			})();
-		}
-		else {
-			_this.css(properties); //Setting the CSS values starts the transition
-		}
-
-		// Set an event that cleans up the animation and calls the complete callback after the transition is done
-		_this.one(transitionendEventName, function(eObj, stoppedEarly) {
-			if (stoppedEarly) {
-				//Get the current values of the CSS properties being animated
-				properties = _this.css(propertyNames);
+	// Start the transition
+	if (noCssTransitionSupport) {
+		//Increment the CSS properties by their respective amounts each frame period until all frames have been rendered
+		(function renderFrame() {
+			for (prop in cssIncrementProps) {
+				inlineStyle[prop] = parseFloat(inlineStyle[prop]) + cssIncrementProps[prop] + inlineStyle[prop].replace(/.*\d/, '');
 			}
 
-			if (noCssTransitionSupport) {
-				//End the frame rendering and set all the final CSS values
-				clearTimeout(easing);
-				_this.css(properties);
-			}
-
-			if (typeofString(cssTextToRestore)) {
-				inlineStyle.cssText = cssTextToRestore;
-			}
-
-			if (typeofString(overflowToRestore)) {
-				inlineStyle.overflow = overflowToRestore;
-			}
-
-			// This fixes a bug where Firefox will continue the animation after the transition style is cleared
-			// Force the animation to stop now by setting the transtition style to 'none' and then return the original style later
-			inlineStyle[cssTransitionKey] = 'none';
-			setTimeout(function() {
-				inlineStyle[cssTransitionKey] = originalInlineTransition;
-			}, 0);
-
-			if (stoppedEarly) {
-				//Set all the current CSS property values
-				_this.css(properties);
+			if (--framesLeft) {
+				easing = setTimeout(renderFrame, 25);
 			}
 			else {
-				if (hideOnComplete) {
-					_this.hide();
-				}
-
-				if (complete) {
-					complete.call(_this); //Call the complete function in the context of the element
-				}
+				_this.trigger(transitionendEventName);
 			}
-		});
-	}, 0);
+		})();
+	}
+	else {
+		_this.css(properties); // Setting the CSS values starts the transition
+	}
+
+	// Set an event that cleans up the animation and calls the complete callback after the transition is done
+	_this.one(transitionendEventName, function(eObj, stoppedEarly) {
+		if (stoppedEarly) {
+			//Get the current values of the CSS properties being animated
+			properties = _this.css(propertyNames);
+		}
+
+		if (noCssTransitionSupport) {
+			//End the frame rendering and set all the final CSS values
+			clearTimeout(easing);
+			_this.css(properties);
+		}
+
+		// Force the animation to stop now by setting the transition style to 'none'
+		inlineStyle[cssTransitionKey] = 'none';
+		_this.offsetWidth; // Trigger reflow
+
+		if (typeofString(cssTextToRestore)) {
+			inlineStyle.cssText = cssTextToRestore;
+		}
+		else {
+			inlineStyle[cssTransitionKey] = originalInlineTransition;
+		}
+
+		if (typeofString(overflowToRestore)) {
+			inlineStyle.overflow = overflowToRestore;
+		}
+
+		if (stoppedEarly) {
+			//Set all the current CSS property values
+			_this.css(properties);
+		}
+		else {
+			if (hideOnComplete) {
+				_this.hide();
+			}
+
+			if (complete) {
+				complete.call(_this); //Call the complete function in the context of the element
+			}
+		}
+	});
 
 	return _this;
 };
