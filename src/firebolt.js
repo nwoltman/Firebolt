@@ -4183,7 +4183,7 @@ NodePrototype.triggerHandler = function(event, extraParameters) {
  * which in turn must also have a ParentNode.
  */
 NodePrototype.unwrap = function() {
-	this.parentNode.replaceWith(this);
+	replaceWith(this, this.parentNode);
 
 	return this;
 };
@@ -4198,7 +4198,8 @@ NodePrototype.unwrap = function() {
  */
 NodePrototype.wrap = function(wrappingElement) {
 	if (wrappingElement = getWrappingElement(wrappingElement)) {
-		getWrappingInnerElement(wrappingElement).appendChild(this.replaceWith(wrappingElement));
+		replaceWith(wrappingElement, this);
+		getWrappingInnerElement(wrappingElement).appendChild(this);
 	}
 
 	return this;
