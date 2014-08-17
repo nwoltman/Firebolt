@@ -9,3 +9,25 @@ Firebolt is a high performance JavaScript library packed into a very small file 
     <img src="http://fireboltjs.com/img/firebolt.jpg" />
   </a>
 </p>
+
+
+## Getting Started
+
+### Setup
+
+Just clone the repo and you're all set!
+
+### Running Unit Tests
+
+Simply open `Firebolt/test/index.html` in a browser to run unit tests.
+
+### Contributing
+
+Simply make your changes and submit a pull request :smiley:
+
+If you plan on making any major changes, [open an issue](https://github.com/FireboltJS/Firebolt/issues) or contact [me](https://github.com/woollybogger) directly to discuss the changes you would like to make.
+
+
+## Questions?
+
+If you have any questions, please feel free to contact [Firebolt's creator](https://github.com/woollybogger).
