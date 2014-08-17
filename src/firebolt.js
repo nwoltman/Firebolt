@@ -827,6 +827,7 @@ var
 	rgxCheckableElement = /checkbox|radio/,     //Matches checkbox or radio input element types
 	rgxCamelizables = isIE ? /^-+|-+([a-z])/g : /-+([a-z])/g, //Matches dashed parts of CSS property names
 	rgxNoParse = /^\d+\D/, //Matches strings that look like numbers but have non-digit characters
+	rgxUpToUnits = /.*\d/, //Matches a CSS string value up to the units (i.e. matches up to the last number before 'px' or '%')
 
 	/* Needed for parsing HTML */
 	optData = [1, '<select multiple>', '</select>'],
@@ -2671,6 +2672,8 @@ HTMLElementPrototype.afterPut = function() {
  * (Should it be supported? [Tell me why](https://github.com/FireboltJS/Firebolt/issues).)
  * However, relative properties (indicated with `+=` or `-=`) and the `toggle` indicator are supported.
  * 
+ * Also, Firebolt allows `"auto"` to be a viable target value for CSS properties where that is a valid value.
+ * 
  * For more `easing` options, use Firebolt's [easing extension](https://github.com/FireboltJS/firebolt-extensions/tree/master/easing)
  * (or just grab some functions from it and use them as the `easing` parameter).
  * 
@@ -2708,15 +2711,17 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 		inlineStyle = _this.style,
 		currentStyle = getComputedStyle(_this),
 		isCurrentDisplayNone = isDisplayNone(0, currentStyle),
-		originalInlineTransition = inlineStyle[cssTransitionKey],
-		framesLeft,
+		valsToRestore = {},
 		cssIncrementProps,
-		overflowToRestore,
-		cssTextToRestore,
+		framesLeft,
 		hideOnComplete,
 		sanitaryProp,
 		prop,
-		val;
+		val,
+		temp;
+
+	// The original transition style should be restored after the animation completes
+	valsToRestore[cssTransitionKey] = inlineStyle[cssTransitionKey];
 
 	// Force the transition style to be 'none' in case the element already has a transition style
 	inlineStyle[cssTransitionKey] = 'none';
@@ -2729,40 +2734,46 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 	//Parse properties
 	for (; i < propertyNames.length; i++) {
 		sanitaryProp = sanitizeCssPropName(prop = propertyNames[i]);
+		val = properties[prop];
 
 		//Should set overflow to "hidden" when animating height or width properties
-		if ((prop == 'height' || prop == 'width') && isUndefined(overflowToRestore)) {
-			overflowToRestore = inlineStyle.overflow;
+		if ((prop == 'height' || prop == 'width') && isUndefined(valsToRestore.overflow)) {
+			valsToRestore.overflow = inlineStyle.overflow;
 			inlineStyle.overflow = 'hidden';
 		}
 
-		if (typeofString(val = properties[prop])) {
-			if (val == TOGGLE) {
-				if (isCurrentDisplayNone) {
-					if (isUndefined(cssTextToRestore)) {
-						_this.show();
-						cssTextToRestore = inlineStyle.cssText;
-					}
-					val = currentStyle[sanitaryProp];
-					inlineStyle[sanitaryProp] = 0;
+		if (val == TOGGLE) {
+			if (isCurrentDisplayNone) {
+				if (isDisplayNone(0, currentStyle)) {
+					_this.show();
 				}
-				else {
-					val = 0;
-					cssTextToRestore = isUndefined(cssTextToRestore) ? inlineStyle.cssText : cssTextToRestore;
-					hideOnComplete = 1;
-				}
+				val = currentStyle[sanitaryProp];
+				valsToRestore[sanitaryProp] = inlineStyle[sanitaryProp];
+				inlineStyle[sanitaryProp] = 0;
 			}
-			else if (val[1] === '=') { //"+=value" or "-=value"
-				val = cssMath(parseFloat(currentStyle[sanitaryProp]), parseFloat(val.replace('=', '')), val.replace(/.*\d/, ''), _this, sanitaryProp);
+			else {
+				val = 0;
+				valsToRestore[sanitaryProp] = inlineStyle[sanitaryProp];
+				hideOnComplete = 1;
 			}
-
-			properties[prop] = val; //Set the value in the object of properties in case it changed
 		}
+		else if (val == 'auto') {
+			valsToRestore[sanitaryProp] = val; // Save value to be set on the element at the end of the transition
+			temp = inlineStyle[sanitaryProp];  // Save the current inline value of the property
+			inlineStyle[sanitaryProp] = val;   // Set the style to the input value ('auto')
+			val = _this.css(sanitaryProp);     // Get the computed style that will be used as the target value (use .css in case the element is hidden)
+			inlineStyle[sanitaryProp] = temp;  // Restore the current inline value of the property
+		}
+		else if (val[1] === '=') { // "+=value" or "-=value"
+			val = cssMath(parseFloat(currentStyle[sanitaryProp]), parseFloat(val.replace('=', '')), val.replace(rgxUpToUnits, ''), _this, sanitaryProp);
+		}
+
+		properties[prop] = val; // Set the value back into the object of properties in case it changed
 
 		if (noCssTransitionSupport) {
 			// The amount of linear change per frame = total change amount / num frames = (newValue - currentValue) * framesLeft
 			// Where: currentValue = cssMath(currentValue + 0)
-			cssIncrementProps[sanitaryProp] = (parseFloat(val) - parseFloat(cssMath(parseFloat(currentStyle[sanitaryProp]), 0, (val + '').replace(/.*\d/, ''), _this, sanitaryProp))) / framesLeft;
+			cssIncrementProps[sanitaryProp] = (parseFloat(val) - parseFloat(cssMath(parseFloat(currentStyle[sanitaryProp]), 0, (val + '').replace(rgxUpToUnits, ''), _this, sanitaryProp))) / framesLeft;
 		}
 	}
 
@@ -2778,11 +2789,11 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 		//Increment the CSS properties by their respective amounts each frame period until all frames have been rendered
 		(function renderFrame() {
 			for (prop in cssIncrementProps) {
-				inlineStyle[prop] = parseFloat(inlineStyle[prop]) + cssIncrementProps[prop] + inlineStyle[prop].replace(/.*\d/, '');
+				inlineStyle[prop] = parseFloat(inlineStyle[prop]) + cssIncrementProps[prop] + inlineStyle[prop].replace(rgxUpToUnits, '');
 			}
 
 			if (--framesLeft) {
-				easing = setTimeout(renderFrame, 25);
+				temp = setTimeout(renderFrame, 25);
 			}
 			else {
 				_this.trigger(transitionendEventName);
@@ -2802,7 +2813,7 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 
 		if (noCssTransitionSupport) {
 			//End the frame rendering and set all the final CSS values
-			clearTimeout(easing);
+			clearTimeout(temp);
 			_this.css(properties);
 		}
 
@@ -2810,16 +2821,8 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 		inlineStyle[cssTransitionKey] = 'none';
 		_this.offsetWidth; // Trigger reflow
 
-		if (typeofString(cssTextToRestore)) {
-			inlineStyle.cssText = cssTextToRestore;
-		}
-		else {
-			inlineStyle[cssTransitionKey] = originalInlineTransition;
-		}
-
-		if (typeofString(overflowToRestore)) {
-			inlineStyle.overflow = overflowToRestore;
-		}
+		// Restore any CSS properties that need to be restored
+		_this.css(valsToRestore);
 
 		if (stoppedEarly) {
 			//Set all the current CSS property values
