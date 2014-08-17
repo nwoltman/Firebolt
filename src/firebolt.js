@@ -1496,6 +1496,8 @@ ElementPrototype.removeProp = function(propertyName) {
  * string is the opening tag character (`<`). If you want to parse an HTML string that does not begin with an
  * element, use {@linkcode Firebolt.parseHTML|$.parseHTML()});
  * 
+ * __Note #3:__ Since Firebolt does not use Sizzle as a CSS selector engine, only standard CSS selectors may be used.
+ * 
  * __ProTip:__ When creating a single element, it's a better idea to use the {@linkcode Firebolt.elem|$.elem()} function since
  * it maps directly to the native `document.createElement()` function (making it much faster) and gives you the option to pass
  * in an object of attributes to be set on the newly created element.
