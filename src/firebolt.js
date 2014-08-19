@@ -2092,12 +2092,15 @@ Firebolt.getScript = function(url, success) {
  * @memberOf Firebolt
  */
 Firebolt.globalEval = function(code) {
-	var indirect = eval;
+	var indirect = eval,
+		script;
 
 	if (code = code.trim()) {
 		//If the code begins with a strict mode pragma, execute code by injecting a script tag into the document.
-		if (code.lastIndexOf('use strict', 1) === 1) {
-			createElement('script').text(code).appendTo(documentHead).remove();
+		if (code.slice(1, 11) === 'use strict') {
+			script = createElement('script');
+			script.text = code;
+			documentHead.appendChild(script).remove();
 		}
 		else {
 			//Otherwise, avoid the DOM node creation, insertion, and removal by using an indirect global eval
@@ -4112,13 +4115,18 @@ NodePrototype.siblings = function(selector) {
 /**
  * @summary Sets this node's text content (specifically uses the native JavaScript property `Node.textContent`).
  * 
- * @description __ATTENTION:__ There is a known bug where `<body>` elements will have an empty string as the `text` property instead
+ * @description
+ * __Note #1:__ There is a known bug where `<body>` elements will have an empty string as the `text` property instead
  * of this function due to browsers continuing to implement a deprecated API on the HTMLBodyElement prototype. Please use the native
  * `textContent` property to get and set the text content of `<body>` elements instead of attempting to use this function.
  * 
+ * __Note #2:__ `<script>` elements have a `text` property with the exact same functionality as the `textContent` property
+ * that cannot be overwritten. Please use the native `text` property or the `textContent` property to get and set the text
+ * content of `<script>` elements instead of attempting to use this function.
+ * 
  * @function Node#text
  * @param {String|*} text - The text or content that will be converted to a string to be set as the node's text content.
- * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.textContent|Node.textContent - Web API Interfaces | MDN}
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.textContent | Node.textContent - Web API Interfaces | MDN}
  */
 NodePrototype.text = function(text) {
 	if (isUndefined(text)) {
