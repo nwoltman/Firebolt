@@ -8,6 +8,42 @@
 
 module('Firebolt');
 
+test('ajaxSetup', function() {
+	var ajaxSettings = Firebolt.ajaxSetup(),
+		testObject = {
+			a: [1, 2, 3],
+			b: false,
+			c: 0,
+			d: {
+				inner: 24
+			}
+		};
+
+	Firebolt.ajaxSetup({test: 1});
+	strictEqual(ajaxSettings.test, 1, 'Extends the AJAX settings object.');
+
+	Firebolt.ajaxSetup({test: testObject});
+	deepEqual(ajaxSettings.test, testObject, 'Deep-extends the AJAX settings object.');
+	notEqual(ajaxSettings.test, testObject);
+});
+
+test('elem', function() {
+	var element = Firebolt.elem('div');
+	ok(element.nodeType === 1 && element.nodeName === 'DIV', 'Creates a new Element.');
+
+	element = Firebolt.elem('p', {'class': 'one two', 'data-custom': 'test'});
+	ok(element.className === 'one two' && element.getAttribute('data-custom') === 'test',
+		'Creates a new element with the specified properties');
+});
+
+test('globalEval', function() {
+	Firebolt.globalEval('var globalEvalTest1 = true;');
+	strictEqual(window.globalEvalTest1, true, 'Executes the passed in code in the global context.');
+
+	Firebolt.globalEval('"use strict"; function globalEvalTest2() { return 10; }');
+	strictEqual(window.globalEvalTest2(), 10, 'Executes code with a strict mode pragma in the global context.');
+});
+
 test('parseHTML', function() {
 	var iframe = document.createElement('iframe'),
 		element;
@@ -32,4 +68,9 @@ test('parseHTML', function() {
 
 	document.body.appendChild(Firebolt.parseHTML('<script>window.whoa=9</script>')[0]);
 	ok(window.whoa != 9, 'Created scripts are not evaluated.');
+});
+
+test('text', function() {
+	var text = Firebolt.text('hello');
+	ok(text.nodeType === 3 && text.nodeValue === 'hello', 'Creates a new TextNode.');
 });
