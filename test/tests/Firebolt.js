@@ -80,6 +80,27 @@ test('globalEval', function() {
 	strictEqual(window.globalEvalTest2(), 10, 'Executes code with a strict mode pragma in the global context.');
 });
 
+test('isPlainObject', function func() {
+	// False
+	ok(!Firebolt.isPlainObject(1));
+	ok(!Firebolt.isPlainObject('string'));
+	ok(!Firebolt.isPlainObject(undefined));
+	ok(!Firebolt.isPlainObject(null));
+	ok(!Firebolt.isPlainObject([]));
+	ok(!Firebolt.isPlainObject(true));
+	ok(!Firebolt.isPlainObject(/RegExp/));
+	ok(!Firebolt.isPlainObject(func));
+	ok(!Firebolt.isPlainObject(window));
+	ok(!Firebolt.isPlainObject(document));
+	ok(!Firebolt.isPlainObject(document.body));
+	ok(!Firebolt.isPlainObject(document.createTextNode('text')));
+	ok(!Firebolt.isPlainObject(document.getElementsByTagName('div')));
+	ok(!Firebolt.isPlainObject(document.querySelectorAll('div')));
+
+	// True
+	ok(Firebolt.isPlainObject({}));
+});
+
 test('parseHTML', function() {
 	var iframe = document.createElement('iframe'),
 		element;

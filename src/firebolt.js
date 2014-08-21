@@ -639,7 +639,7 @@ function isEmptyObject(object) {
  * @see Firebolt.isPlainObject
  */
 function isPlainObject(obj) {
-	return typeofObject(obj) && toString.call(obj) == '[object Object]';
+	return typeofObject(obj) && Object.prototype.toString.call(obj) == '[object Object]';
 }
 
 function isUndefined(value) {
