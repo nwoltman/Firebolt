@@ -27,6 +27,42 @@ test('ajaxSetup', function() {
 	notEqual(ajaxSettings.test, testObject);
 });
 
+test('data', function() {
+	var object = {},
+		dataStore = Firebolt.data(object);
+
+	ok(Firebolt.isPlainObject(dataStore) && Firebolt.isEmptyObject(dataStore),
+		'When passed just an object, returns its data store object.');
+
+	ok(Firebolt.isEmptyObject(object), 'Defines the data store at a non-enumerable property on the specifed object');
+
+	strictEqual(Firebolt.data(object, 'a', 1), object, 'Returns the passed in object when setting properties.');
+
+	strictEqual(dataStore.a, 1, 'Can store data properties.');
+
+	Firebolt.data(object, {b: 'b', c: null});
+	deepEqual(dataStore, {a: 1, b: 'b', c: null}, 'Can store multiple properties at once.');
+
+	strictEqual(Firebolt.data(object, 'a'), 1, 'Can retrieve previously set properties.');
+
+	var element = Firebolt.elem('div', {'data-stuff': 23});
+	dataStore = Firebolt.data(element, undefined, undefined, 1);
+
+	strictEqual(dataStore.stuff, 23,
+		'Adds data from custom "data-*" attributes on elements to the data store and parses the data to the correct JavaScript type.');
+
+	strictEqual(Firebolt.data(element, 'stuff', undefined, 1), 23,
+		'Can retrieve data in custom "data-*" attributes on an element as the correct JavaScript type.');
+
+	Firebolt.data(element, 'stuff', ['a', 'b'], 1);
+	deepEqual(dataStore.stuff, ['a', 'b'],
+		'Overwrites data retrieved from custom "data-*" attributes on an element when new data with the same key is set.');
+
+	delete dataStore.stuff;
+	strictEqual(Firebolt.data(element, 'stuff', undefined, 1), 23,
+		'Restores data retrieved from custom "data-*" attributes on an element when other data with the same key is removed.');
+});
+
 test('elem', function() {
 	var element = Firebolt.elem('div');
 	ok(element.nodeType === 1 && element.nodeName === 'DIV', 'Creates a new Element.');

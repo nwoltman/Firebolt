@@ -1841,8 +1841,7 @@ Firebolt.ajaxSetup = function(options) {
  * @returns {Object} The object's stored data object.
  */
 /**
- * Get the value at the named data store for the object as set by {@linkcode Firebolt.data|Firebolt.data(key, value)}
- * or by an HTML5 data-* attribute if the object is an {@link Element}.
+ * Get the value at the named data store for the object as set by {@linkcode Firebolt.data|Firebolt.data(key, value)}.
  * 
  * @function Firebolt.data
  * @param {Object} object - An object. This can be anything that has Object in its prototype chain.
@@ -1873,7 +1872,7 @@ Firebolt.data = function(object, key, value, isElement) {
 		i;
 
 	if (!dataStore) {
-		//Define a non-enumerable object
+		// Define the data store object at a non-enumerable property
 		defineProperty(object, expando, {
 			value: dataStore = {}
 		});
