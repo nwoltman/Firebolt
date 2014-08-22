@@ -110,6 +110,7 @@ test('isPlainObject', function func() {
 	ok(!Firebolt.isPlainObject(undefined));
 	ok(!Firebolt.isPlainObject(null));
 	ok(!Firebolt.isPlainObject([]));
+	ok(!Firebolt.isPlainObject([{}]));
 	ok(!Firebolt.isPlainObject(true));
 	ok(!Firebolt.isPlainObject(/RegExp/));
 	ok(!Firebolt.isPlainObject(func));
