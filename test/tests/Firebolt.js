@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Unit tests for the Firebolt function and namespace
  */
 

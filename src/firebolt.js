@@ -1,4 +1,4 @@
-﻿/*!
+/*!
  * Firebolt core file
  * @version 0.8.3
  * @author Nathan Woltman
