@@ -80,6 +80,29 @@ test('globalEval', function() {
 	strictEqual(window.globalEvalTest2(), 10, 'Executes code with a strict mode pragma in the global context.');
 });
 
+test('hasData', function() {
+	var object = {};
+
+	strictEqual(Firebolt.hasData(object), false,
+		'Correctly reports that an object without Firebolt data does not have data.');
+
+	Firebolt.data(object, 'a', 0);
+	strictEqual(Firebolt.hasData(object), true,
+		'Correctly reports that an object with Firebolt data has data.');
+
+	Firebolt.removeData(object, 'a');
+	strictEqual(Firebolt.hasData(object), false,
+		'Correctly reports that an object that used to have Firebolt data does not have data.');
+
+	object = Firebolt.elem('div', {'data-stuff': 23});
+	strictEqual(Firebolt.hasData(object), false,
+		'Correctly reports that an element that has not had the $.data() function called on it yet does not have data.');
+
+	Firebolt.data(object, undefined, undefined, 1);
+	strictEqual(Firebolt.hasData(object), true,
+		'Correctly reports that an element with data pulled from a "data-*" attribute has data.');
+});
+
 test('isPlainObject', function func() {
 	// False
 	ok(!Firebolt.isPlainObject(1));
