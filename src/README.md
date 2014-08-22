@@ -5,8 +5,8 @@ Firebolt Source Code
 
 I use Visual Studio to develop Firebolt, and unfortunately tabs are just easier to work with for indentation in VS rather than spaces. This makes viewing the code in a browser a little sloppy since most browsers display tabs with a default width of 8 spaces. Luckily, GitHub has a feature that allows you to specify the width of tabs when viewing source code. Using one of the following links will make the code a little bit easier to look at when viewing on GitHub:
 
-+ [tab width: 4 spaces](https://github.com/FireboltJS/Firebolt/blob/master/src/firebolt.js?ts=4) (this is what I use for development)
-+ [tab width: 2 spaces](https://github.com/FireboltJS/Firebolt/blob/master/src/firebolt.js?ts=2)
++ [tab width: 4 spaces](https://github.com/woollybogger/Firebolt/blob/master/src/firebolt.js?ts=4) (this is what I use for development)
++ [tab width: 2 spaces](https://github.com/woollybogger/Firebolt/blob/master/src/firebolt.js?ts=2)
 
 
 ## Code Oddities

@@ -25,7 +25,7 @@ Simply open `Firebolt/test/index.html` in a browser to run unit tests.
 
 Simply make your changes and submit a pull request :smiley:
 
-If you plan on making any major changes, [open an issue](https://github.com/FireboltJS/Firebolt/issues) or contact [me](https://github.com/woollybogger) directly to discuss the changes you would like to make.
+If you plan on making any major changes, [open an issue](https://github.com/woollybogger/Firebolt/issues) or contact [me](https://github.com/woollybogger) directly to discuss the changes you would like to make.
 
 
 ## Questions?

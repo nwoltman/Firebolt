@@ -3,7 +3,7 @@
  * @version 0.8.3
  * @author Nathan Woltman
  * @copyright 2014 Nathan Woltman
- * @license MIT https://github.com/FireboltJS/Firebolt/blob/master/LICENSE.txt
+ * @license MIT https://github.com/woollybogger/Firebolt/blob/master/LICENSE.txt
  */
 
 (function(window, document, Array, Object, decodeURIComponent, encodeURIComponent, getComputedStyle, parseFloat, setTimeout, clearTimeout, undefined) {
@@ -2673,12 +2673,12 @@ HTMLElementPrototype.afterPut = function() {
  * does not append "px" to input numeric values (i.e. 1 != 1px).
  * 
  * Unlike jQuery, an object that specifies different easing types for different properties is not supported.
- * (Should it be supported? [Tell me why](https://github.com/FireboltJS/Firebolt/issues).)
+ * (Should it be supported? [Tell me why](https://github.com/woollybogger/Firebolt/issues).)
  * However, relative properties (indicated with `+=` or `-=`) and the `toggle` indicator are supported.
  * 
  * Also, Firebolt allows `"auto"` to be a viable target value for CSS properties where that is a valid value.
  * 
- * For more `easing` options, use Firebolt's [easing extension](https://github.com/FireboltJS/firebolt-extensions/tree/master/easing)
+ * For more `easing` options, use Firebolt's [easing extension](https://github.com/woollybogger/firebolt-extensions/tree/master/easing)
  * (or just grab some functions from it and use them as the `easing` parameter).
  * 
  * __Note:__ In IE 9, the easing for all animations will be linear.
@@ -4398,10 +4398,10 @@ NodeCollectionPrototype.afterPut = NodeCollectionPrototype.after = getNodeCollec
  * does not append "px" to input numeric values (i.e. 1 != 1px).
  * 
  * Unlike jQuery, an object that specifies different easing types for different properties is not supported.
- * (Should it be supported? [Tell me why](https://github.com/FireboltJS/Firebolt/issues).)
+ * (Should it be supported? [Tell me why](https://github.com/woollybogger/Firebolt/issues).)
  * However, relative properties (indicated with `+=` or `-=`) and the `toggle` indicator are supported.
  * 
- * For more `easing` options, use Firebolt's [easing extension](https://github.com/FireboltJS/firebolt-extensions/tree/master/easing)
+ * For more `easing` options, use Firebolt's [easing extension](https://github.com/woollybogger/firebolt-extensions/tree/master/easing)
  * (or just grab some functions from it and use them as the `easing` parameter).
  * 
  * @function NodeCollection#animate
