@@ -153,5 +153,8 @@ test('parseHTML', function() {
 
 test('text', function() {
 	var text = Firebolt.text('hello');
-	ok(text.nodeType === 3 && text.nodeValue === 'hello', 'Creates a new TextNode.');
+	ok(text.nodeType === 3 && text.nodeValue === 'hello', 'Creates a new TextNode with the specified string value.');
+
+	text = Firebolt.text();
+	ok(text.nodeType === 3 && text.nodeValue === '', 'Creates a new, empty TextNode when called with no parameters.');
 });
