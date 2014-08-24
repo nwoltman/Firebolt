@@ -151,6 +151,32 @@ test('parseHTML', function() {
 	ok(window.whoa != 9, 'Created scripts are not evaluated.');
 });
 
+test('removeData', function() {
+	var object = {},
+		testData = {a: 1, b: 2, c: 3},
+		dataStore = Firebolt.data(object, testData);
+
+	Firebolt.removeData(object, 'a');
+	ok(!('a' in dataStore), 'Removes a single piece of data.');
+
+	Firebolt.data(object, testData);
+	Firebolt.removeData(object, 'a b');
+	ok(!('a' in dataStore) && !('b' in dataStore), 'Removes multiple pieces of data when given a space-separated string.');
+
+	Firebolt.data(object, testData);
+	Firebolt.removeData(object, ['b', 'c']);
+	ok(!('b' in dataStore) && !('c' in dataStore), 'Removes multiple pieces of data when given an array of strings.');
+
+	Firebolt.data(object, testData);
+	Firebolt.removeData(object);
+	ok(Firebolt.isEmptyObject(dataStore), 'Removes all data when called with no specified values.');
+
+	object = Firebolt.elem('div', {'data-test': true});
+	dataStore = Firebolt.data(object, undefined, 1);
+	Firebolt.removeData(object, 'test', 1);
+	ok(!('test' in dataStore), 'Removes a single piece of data that was pulled from a "data-*" attribute.');
+});
+
 test('text', function() {
 	var text = Firebolt.text('hello');
 	ok(text.nodeType === 3 && text.nodeValue === 'hello', 'Creates a new TextNode with the specified string value.');
