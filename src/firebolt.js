@@ -1456,7 +1456,9 @@ ElementPrototype.removeAttr = function(attribute) {
  * @param {Array|String} [list] - An array or space-separated string naming the pieces of data to remove.
  */
 ElementPrototype.removeData = function(input) {
-	return Firebolt.removeData(this, input, 1); //Pass in 1 to tell the generic function the passed in object is an element
+	Firebolt.removeData(this, input, 1); // Pass in 1 to tell the generic function the passed in object is an element
+
+	return this;
 };
 
 /**
@@ -2309,7 +2311,6 @@ Firebolt.ready = function(callback) {
  * @function Firebolt.removeData
  * @param {Object} object - An object. This can be anything that has Object in its prototype chain.
  * @param {String} [name] - The name of the data to remove.
- * @returns {Object} The passed in object.
  */
 /**
  * Removes previously stored Firebolt data from an object.  
@@ -2318,7 +2319,6 @@ Firebolt.ready = function(callback) {
  * @function Firebolt.removeData
  * @param {Object} object - An object. This can be anything that has Object in its prototype chain.
  * @param {Array|String} [list] - An array or space-separated string naming the pieces of data to remove.
- * @returns {Object} The passed in object.
  */
 Firebolt.removeData = function(object, list, isElement) {
 	var dataObject = object[Firebolt.expando],
@@ -2345,8 +2345,6 @@ Firebolt.removeData = function(object, list, isElement) {
 		//Delete the data attributes object from the element
 		delete object._$DA_;
 	}
-
-	return object;
 };
 
 /**
