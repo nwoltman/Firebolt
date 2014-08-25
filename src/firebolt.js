@@ -38,6 +38,13 @@ function callOnEach(fn) {
 }
 
 /*
+ * Returns a camelized version of a string
+ */
+function camelize(str) {
+	return str.replace(rgxCamelizables, camelizer);
+}
+
+/*
  * Pre-defined so that an anonymous function does not need to be created each time sanitizeCssPropName() is called.
  */
 function camelizer(match, p1) {
@@ -671,7 +678,7 @@ function returnFalse() {
 
 function sanitizeCssPropName(name) {
 	// Camelize the property name, and check if it exists on the saved iframe's style object
-	if (isUndefined(iframe.style[name = name.replace(rgxCamelizables, camelizer)])) {
+	if (isUndefined(iframe.style[name = camelize(name)])) {
 		// The input property name is not supported, so make the vendor name and check if that one is supported
 		var vendorName = cssVendorPrefix + name[0].toUpperCase() + name.slice(1);
 		if (iframe.style[vendorName] != undefined) {
@@ -1456,7 +1463,7 @@ ElementPrototype.removeAttr = function(attribute) {
  * @param {Array|String} [list] - An array or space-separated string naming the pieces of data to remove.
  */
 ElementPrototype.removeData = function(input) {
-	Firebolt.removeData(this, input, 1); // Pass in 1 to tell the generic function the passed in object is an element
+	Firebolt.removeData(this, input);
 
 	return this;
 };
@@ -1869,9 +1876,7 @@ Firebolt.ajaxSetup = function(options) {
  */
 Firebolt.data = function(object, key, value, isElement) {
 	var expando = Firebolt.expando,
-		dataStore = object[expando],
-		dataAttributes,
-		i;
+		dataStore = object[expando];
 
 	if (!dataStore) {
 		// Define the data store object at a non-enumerable property
@@ -1882,12 +1887,12 @@ Firebolt.data = function(object, key, value, isElement) {
 		//If the object is an Element, try loading "data-*" attributes
 		if (isElement) {
 			var attributes = object.attributes,
+				dataAttributes = {},
+				i = 0,
 				attrib,
 				val;
 
-			dataAttributes = {};
-
-			for (i = 0; i < attributes.length; i++) {
+			for (; i < attributes.length; i++) {
 				attrib = attributes[i];
 				if (attrib.name.startsWith('data-')) {
 					if (!rgxNoParse.test(val = attrib.value)) {
@@ -1897,8 +1902,9 @@ Firebolt.data = function(object, key, value, isElement) {
 						}
 						catch (e) { }
 					}
-					//Set the value in the data attributes object (remembering to remove the "data-" part from the name)
-					dataAttributes[attrib.name.slice(5)] = val;
+					// Set the value in the data attributes object and data store
+					attrib = camelize(attrib.name.slice(5));
+					dataStore[attrib] = dataAttributes[attrib] = val;
 				}
 			}
 
@@ -1909,25 +1915,23 @@ Firebolt.data = function(object, key, value, isElement) {
 		}
 	}
 
-	if (isElement && (dataAttributes = object._$DA_)) {
-		//Add the data attributes to the data store if it does not already have the key
-		for (i in dataAttributes) {
-			if (isUndefined(dataStore[i])) {
-				dataStore[i] = dataAttributes[i];
-			}
-		}
-	}
-
 	if (isUndefined(value)) {
 		if (typeofObject(key)) {
 			extend(dataStore, key); //Set multiple
 		}
 		else {
-			return isUndefined(key) ? dataStore : dataStore[key]; //Get data object or value
+			if (isUndefined(key)) {
+				return dataStore; // Get the data store object
+			}
+
+			// Else get the data at the specified name
+			return isUndefined(value = dataStore[key = camelize(key)]) && object._$DA_
+				? dataStore[key] = object._$DA_[key] // Save the data-* attribute value to the data store and return it
+				: value;
 		}
 	}
 	else {
-		dataStore[key] = value; //Set value
+		dataStore[camelize(key)] = value; // Set value
 	}
 
 	return object;
@@ -2320,30 +2324,22 @@ Firebolt.ready = function(callback) {
  * @param {Object} object - An object. This can be anything that has Object in its prototype chain.
  * @param {Array|String} [list] - An array or space-separated string naming the pieces of data to remove.
  */
-Firebolt.removeData = function(object, list, isElement) {
-	var dataObject = object[Firebolt.expando],
-		dataAttributes = isElement && object._$DA_,
+Firebolt.removeData = function(object, list) {
+	var dataStore = object[Firebolt.expando],
 		i = 0;
 
-	if (isUndefined(list)) {
-		list = keys(dataObject); //Select all items for removal
-	}
-	else if (typeofString(list)) {
-		list = list.split(' ');
-	}
-
-	for (; i < list.length; i++) {
-		delete dataObject[list[i]];
-
-		if (dataAttributes) {
-			//Try deleting the data attribute in case it was saved to the element
-			delete dataAttributes[list[i]];
+	// First make sure the data store object exists
+	if (dataStore) {
+		if (isUndefined(list)) {
+			list = keys(dataStore); // Select all items for removal
 		}
-	}
+		else if (typeofString(list)) {
+			list = list.split(' ');
+		}
 
-	if (dataAttributes && isEmptyObject(dataAttributes)) {
-		//Delete the data attributes object from the element
-		delete object._$DA_;
+		for (; i < list.length; i++) {
+			delete dataStore[camelize(list[i])];
+		}
 	}
 };
 

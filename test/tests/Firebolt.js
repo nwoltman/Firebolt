@@ -172,8 +172,8 @@ test('removeData', function() {
 	ok(Firebolt.isEmptyObject(dataStore), 'Removes all data when called with no specified values.');
 
 	object = Firebolt.elem('div', {'data-test': true});
-	dataStore = Firebolt.data(object, undefined, 1);
-	Firebolt.removeData(object, 'test', 1);
+	dataStore = Firebolt.data(object, undefined, undefined, 1);
+	Firebolt.removeData(object, 'test');
 	ok(!('test' in dataStore), 'Removes a single piece of data that was pulled from a "data-*" attribute.');
 });
 
