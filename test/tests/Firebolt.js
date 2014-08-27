@@ -59,8 +59,14 @@ test('data', function() {
 		'Overwrites data retrieved from custom "data-*" attributes on an element when new data with the same key is set.');
 
 	delete dataStore.stuff;
+	strictEqual(Firebolt.data(element, undefined, undefined, 1).stuff, undefined,
+		'When retrieving the data store object, it will not have any data at a key that was recently removed.');
+
 	strictEqual(Firebolt.data(element, 'stuff', undefined, 1), 23,
-		'Restores data retrieved from custom "data-*" attributes on an element when other data with the same key is removed.');
+		'Retrieves "data-*" attributes data when it is being retrieved specifically by name and there is currently no data with the same name.');
+
+	strictEqual(Firebolt.data(element, undefined, undefined, 1).stuff, 23,
+		'Adds data retrieved from custom "data-*" attributes to the data store object.');
 });
 
 test('elem', function() {
