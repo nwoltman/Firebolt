@@ -1319,27 +1319,45 @@ ElementPrototype.attr = function(attrib, value) {
 };
 
 /**
- * Gets the element's stored data object.
+ * @summary Gets the element's stored data object.
+ * 
+ * @description
+ * HTML5 data-* attributes are pulled into the stored data object the first time the data property is accessed
+ * and then are no longer accessed or mutated (they are stored in a private Firebolt property).
  * 
  * @function Element#data
  * @returns {Object} The element's stored data object.
  */
 /**
- * Get the value at the named data store for the element as set by .data(key, value) or by an HTML5 data-* attribute.
+ * @summary Get the value at the named data store for the element as set by `.data(key, value)` or by an HTML5 data-* attribute.
+ * 
+ * @description
+ * The HTML5 data-* attributes are pulled into the stored data object the first time the data property is accessed
+ * and then are no longer accessed or mutated (they are stored in a private Firebolt property).
  * 
  * @function Element#data
  * @param {String} key - The name of the stored data.
  * @returns {*} The value of the stored data.
  */
 /**
- * Stores arbitrary data associated with the element.
+ * @summary Stores arbitrary data associated with the element.
+ * 
+ * @description
+ * When setting data properties (either input ones or those pulled from HTML5 data-* attributes), Firebolt will
+ * camelize dashed key names. For example, when pulling a data-* attribute called `data-foo-bar`, Firebolt will
+ * add the data to the element's stored data object with the key `fooBar`.
  * 
  * @function Element#data
  * @param {String} key - A string naming the data to set.
  * @param {*} value - Any arbitrary data to store.
  */
 /**
- * Stores arbitrary data associated with the element.
+ * @summary Stores arbitrary data associated with the element.
+ * 
+ * @description
+ * When setting data properties (either input ones or those pulled from HTML5 data-* attributes), Firebolt will
+ * camelize dashed key names. For example, when pulling a data-* attribute called `data-foo-bar`, Firebolt will
+ * add the data to the element's stored data object with the key `fooBar`.
  * 
  * @function Element#data
  * @param {Object} obj - An object of key-value pairs to add to the element's stored data.
@@ -1845,12 +1863,18 @@ Firebolt.ajaxSetup = function(options) {
 /**
  * Gets the object's stored data object.
  * 
+ * __Regarding HTML5 data-* attributes:__ This method does NOT retrieve the data-* attributes unless the
+ * {@linkcode Element#data|.data()} method has already retrieved them.
+ * 
  * @function Firebolt.data
  * @param {Object} object - An object. This can be anything that has Object in its prototype chain.
  * @returns {Object} The object's stored data object.
  */
 /**
  * Get the value at the named data store for the object as set by {@linkcode Firebolt.data|Firebolt.data(key, value)}.
+ * 
+ * __Regarding HTML5 data-* attributes:__ This method does NOT retrieve the data-* attributes unless the
+ * {@linkcode Element#data|.data()} method has already retrieved them.
  * 
  * @function Firebolt.data
  * @param {Object} object - An object. This can be anything that has Object in its prototype chain.
@@ -1860,6 +1884,9 @@ Firebolt.ajaxSetup = function(options) {
 /**
  * Stores arbitrary data associated with the object.
  * 
+ * __Note:__ When setting data properties, Firebolt will camelize dashed key names. For example, when setting data with the
+ * key `foo-bar`, Firebolt will add the data to the element's stored data object with the key `fooBar`.
+ * 
  * @function Firebolt.data
  * @param {Object} object - An object. This can be anything that has Object in its prototype chain.
  * @param {String} key - A string naming the data to set.
@@ -1868,6 +1895,9 @@ Firebolt.ajaxSetup = function(options) {
  */
 /**
  * Stores arbitrary data associated with the object.
+ * 
+ * __Note:__ When setting data properties, Firebolt will camelize dashed key names. For example, when setting data with the
+ * key `foo-bar`, Firebolt will add the data to the element's stored data object with the key `fooBar`.
  * 
  * @function Firebolt.data
  * @param {Object} object - An object. This can be anything that has Object in its prototype chain.
