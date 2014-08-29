@@ -78,6 +78,35 @@ test('elem', function() {
 		'Creates a new element with the specified properties');
 });
 
+test('frag', function() {
+	var fragment = $.frag(),
+		nodes,
+		node;
+
+	ok(fragment.nodeType === 11 && fragment.firstChild === null,
+		'Creates an empty DocumentFragment when called with no parameters.');
+
+	fragment = $.frag('<div>content</div>');
+	node = fragment.firstChild;
+	ok(fragment.nodeType === 11 && node.nodeName === 'DIV' && node.textContent === 'content',
+		'Creates a DocumentFragment with the specified HTML content.');
+
+	node = $.elem('p', {'class': 'class'});
+	fragment = $.frag(node);
+	ok(fragment.nodeType === 11 && fragment.firstChild === node,
+		'Creates a DocumentFragment and appends an input node to it.');
+
+	nodes = $('<div>one</div> <p>two</p>');
+	fragment = $.frag(nodes);
+	ok(fragment.nodeType === 11 && fragment.childNodes.equals(nodes),
+		'Creates a DocumentFragment and appends the input nodes to it.');
+
+	fragment = $.frag(nodes, node);
+	nodes.push(node);
+	ok(fragment.nodeType === 11 && fragment.childNodes.equals(nodes),
+		'Creates a DocumentFragment and from multiple input parameters.');
+});
+
 test('globalEval', function() {
 	Firebolt.globalEval('var globalEvalTest1 = true;');
 	strictEqual(window.globalEvalTest1, true, 'Executes the passed in code in the global context.');
