@@ -646,7 +646,7 @@ function isEmptyObject(object) {
  * @see Firebolt.isPlainObject
  */
 function isPlainObject(obj) {
-	return typeofObject(obj) && Object.prototype.toString.call(obj) == '[object Object]';
+	return obj && obj.constructor && obj.constructor.toString().trim().slice(9, 16) == 'Object(';
 }
 
 function isUndefined(value) {

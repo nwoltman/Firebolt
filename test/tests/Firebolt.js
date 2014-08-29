@@ -156,6 +156,9 @@ test('isPlainObject', function func() {
 	ok(!Firebolt.isPlainObject(document.getElementsByTagName('div')));
 	ok(!Firebolt.isPlainObject(document.querySelectorAll('div')));
 
+	var CustomObject = function() { };
+	ok(!Firebolt.isPlainObject(new CustomObject()));
+
 	// True
 	ok(Firebolt.isPlainObject({}));
 });
