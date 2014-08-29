@@ -216,6 +216,7 @@ function extend(target) {
 		if (target === true) { //`target` was actually the `deep` variable; extend recursively
 			return extendDeep.apply(0, ArrayPrototype.slice.call(arguments, 1));
 		}
+
 		if (!target) { //`target` was actually the `deep` variable, but was false
 			target = arguments[i++];
 		}
@@ -224,9 +225,12 @@ function extend(target) {
 		for (; i < numArgs; i++) {
 			arg = arguments[i];
 			for (key in arg) {
-				target[key] = arg[key];
+				if (arg[key] !== undefined) {
+					target[key] = arg[key];
+				}
 			}
 		}
+
 		return target;
 	}
 
@@ -254,8 +258,9 @@ function extendDeep(target) {
 			curval = target[key];
 			val = arg[key];
 
-			// If the values are not already the same, set the new value on the target
-			if (curval !== val) {
+			// If the values are not already the same and the new value is not the
+			// target (prevents endless recursion), set the new value on the target
+			if (curval !== val && val !== target) {
 				target[key] = isArray(val) ? extendDeep(isArray(curval) ? curval : [], val)     // Deep-extend arrays
 					: isPlainObject(val) ? extendDeep(isPlainObject(curval) ? curval : {}, val) // Deep-extend plain objects
 					: val; // Else just copy the value into the target
