@@ -2,14 +2,12 @@
  * Firebolt tests loader
  */
 
-(function() {
-	var modules = [
-		'Array',
-		'Firebolt',
-		'NodeList',
-		'String'
-	];
-	modules.forEach(function(module) {
-		$.getScript('tests/' + module + '.js');
-	});
-})();
+// Load the test modules
+[
+	'Array',
+	'Firebolt',
+	'NodeList',
+	'String'
+].forEach(function(module) {
+	$.getScript('tests/' + module + '.js');
+});
