@@ -78,6 +78,135 @@ test('elem', function() {
 		'Creates a new element with the specified properties');
 });
 
+test('extend', function() {
+	expect(31);
+
+	var empty, optionsWithLength, optionsWithDate, myKlass,
+		customObject, optionsWithCustomObject, MyNumber, ret,
+		nullUndef, target, recursive, obj,
+		defaults, defaultsCopy, options1, options1Copy, options2, options2Copy, merged2,
+		settings = {xnumber1: 5, xnumber2: 7, xstring1: 'peter', xstring2: 'pan'},
+		options = {xnumber2: 1, xstring2: 'x', xxx: 'newstring'},
+		optionsCopy = {xnumber2: 1, xstring2: 'x', xxx: 'newstring'},
+		merged = {xnumber1: 5, xnumber2: 1, xstring1: 'peter', xstring2: 'x', xxx: 'newstring'},
+		deep1 = {foo: {bar: true}},
+		deep2 = {foo: {baz: true}, foo2: document},
+		deep2Copy = {foo: {baz: true}, foo2: document},
+		deepmerged = {foo: {bar: true, baz: true}, foo2: document},
+		arr = [1, 2, 3],
+		nestedarray = {arr: arr};
+
+	Firebolt.extend(settings, options);
+	deepEqual(settings, merged, 'Check if extended: settings must be extended');
+	deepEqual(options, optionsCopy, 'Check if not modified: options must not be modified');
+
+	Firebolt.extend(settings, null, options);
+	deepEqual(settings, merged, 'Check if extended: settings must be extended');
+	deepEqual(options, optionsCopy, 'Check if not modified: options must not be modified');
+
+	Firebolt.extend(true, deep1, deep2);
+	deepEqual(deep1.foo, deepmerged.foo, 'Check if foo: settings must be extended');
+	deepEqual(deep2.foo, deep2Copy.foo, 'Check if not deep2: options must not be modified');
+	equal(deep1.foo2, document, 'Make sure that a deep clone was not attempted on the document');
+
+	ok(Firebolt.extend(true, {}, nestedarray).arr !== arr, 'Deep extend of object must clone child array');
+
+	ok(Array.isArray(Firebolt.extend(true, {arr: {}}, nestedarray).arr), 'Cloned array have to be an Array');
+	ok(Firebolt.isPlainObject(Firebolt.extend(true, {arr: arr}, {arr: {}}).arr), 'Cloned object have to be an plain object');
+
+	empty = {};
+	optionsWithLength = {'foo': {'length': -1}};
+	Firebolt.extend(true, empty, optionsWithLength);
+	deepEqual(empty.foo, optionsWithLength.foo, 'The length property must copy correctly');
+
+	empty = {};
+	optionsWithDate = {'foo': {'date': new Date()}};
+	Firebolt.extend(true, empty, optionsWithDate);
+	deepEqual(empty.foo, optionsWithDate.foo, 'Dates copy correctly');
+
+	/** @constructor */
+	myKlass = function() {};
+	customObject = new myKlass();
+	optionsWithCustomObject = {'foo': {'date': customObject}};
+	empty = {};
+	Firebolt.extend(true, empty, optionsWithCustomObject);
+	ok(empty.foo && empty.foo.date === customObject, 'Custom objects copy correctly (no methods)');
+
+	// Makes the class a little more realistic
+	myKlass.prototype = {'someMethod': function() {}};
+	empty = {};
+	Firebolt.extend(true, empty, optionsWithCustomObject);
+	ok(empty.foo && empty.foo.date === customObject, 'Custom objects copy correctly');
+
+	MyNumber = Number;
+
+	ret = Firebolt.extend(true, {foo: 4}, {foo: new MyNumber(5)});
+	ok(parseInt(ret.foo, 10) === 5, 'Wrapped numbers copy correctly');
+
+	nullUndef = Firebolt.extend({}, options, {'xnumber2': null});
+	ok(nullUndef.xnumber2 === null, 'Check to make sure null values are copied');
+
+	nullUndef = Firebolt.extend({}, options, {'xnumber2': undefined});
+	ok(nullUndef.xnumber2 === options.xnumber2, 'Check to make sure undefined values are not copied');
+
+	nullUndef = Firebolt.extend({}, options, {'xnumber0': null});
+	ok(nullUndef.xnumber0 === null, 'Check to make sure null values are inserted');
+
+	target = {};
+	recursive = {foo: target, bar: 5};
+	Firebolt.extend(true, target, recursive);
+	deepEqual(target, {bar: 5}, 'Check to make sure a recursive obj doesn not go never-ending loop by not copying it over');
+
+	ret = Firebolt.extend(true, {foo: []}, {foo: [0]});
+	equal(ret.foo.length, 1, 'Check to make sure a value with coercion `false` copies over when necessary');
+
+	ret = Firebolt.extend(true, {foo: '1,2,3'}, {foo: [1, 2, 3]});
+	ok(typeof ret.foo !== 'string', 'Check to make sure values equal with coercion (but not actually equal) overwrite correctly');
+
+	ret = Firebolt.extend(true, {foo: 'bar'}, {foo: null});
+	ok(typeof ret.foo !== 'undefined', 'Make sure a null value does not crash with deep extend');
+
+	obj = {foo: null};
+	Firebolt.extend(true, obj, {foo: 'notnull'});
+	equal(obj.foo, 'notnull', 'Make sure a null value can be overwritten');
+
+	function func() {}
+	Firebolt.extend(func, {key: 'value'});
+	equal(func.key, 'value', 'Verify a function can be extended');
+
+	defaults = {xnumber1: 5, xnumber2: 7, xstring1: 'peter', xstring2: 'pan'};
+	defaultsCopy = {xnumber1: 5, xnumber2: 7, xstring1: 'peter', xstring2: 'pan'};
+	options1 = {xnumber2: 1, xstring2: 'x'};
+	options1Copy = {xnumber2: 1, xstring2: 'x'};
+	options2 = {xstring2: 'xx', xxx: 'newstringx'};
+	options2Copy = {xstring2: 'xx', xxx: 'newstringx'};
+	merged2 = {xnumber1: 5, xnumber2: 1, xstring1: 'peter', xstring2: 'xx', xxx: 'newstringx'};
+
+	settings = Firebolt.extend({}, defaults, options1, options2);
+	deepEqual(settings, merged2, 'Check if extended: settings must be extended');
+	deepEqual(defaults, defaultsCopy, 'Check if not modified: options1 must not be modified');
+	deepEqual(options1, options1Copy, 'Check if not modified: options1 must not be modified');
+	deepEqual(options2, options2Copy, 'Check if not modified: options2 must not be modified');
+
+	var initial = {
+			array: [1, 2, 3, 4],
+			object: {}
+		},
+		result = Firebolt.extend(true, {}, initial);
+	deepEqual(result, initial, 'The [result] and [initial] have equal shape and values');
+	ok(!Array.isArray(result.object), 'result.object was not paved with an empty array');
+
+	// Extend important prototypes
+	Firebolt.extend({res: result});
+	ok(NodeList.prototype.res === result && HTMLCollection.prototype.res === result && NodeCollection.prototype.res === result,
+		'Extends the prototype of NodeList, HTMLCollection, and NodeCollection when called with only one parameter.');
+
+	// Clean up that last test
+	delete NodeList.prototype.res;
+	delete HTMLCollection.prototype.res;
+	delete NodeCollection.prototype.res;
+});
+
 test('frag', function() {
 	var fragment = $.frag(),
 		nodes,
