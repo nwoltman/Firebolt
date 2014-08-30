@@ -4210,7 +4210,7 @@ NodePrototype.trigger = function(event, extraParameters) {
  */
 NodePrototype.triggerHandler = function(event, extraParameters) {
 	// Only trigger handlers if there are event handlers saved to the node
-	return this._$E_ && nodeEventHandler.call(this, createEventObject(event), extraParameters);
+	return this._$E_ && this._$E_[event] && nodeEventHandler.call(this, createEventObject(event), extraParameters);
 };
 
 /**
