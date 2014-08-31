@@ -2867,7 +2867,11 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 			}
 
 			if (complete) {
-				complete.call(_this); //Call the complete function in the context of the element
+				// Set an immediate timeout so that the complete function is called
+				// after any other transitionend events are dispatched
+				setTimeout(function() {
+					complete.call(_this);
+				}, 0);
 			}
 		}
 	});
