@@ -398,6 +398,26 @@ function getGetDirElementsFunc(direction, sorter) {
 		};
 }
 
+function getHTMLElementAfterPutOrPrependWith(htmlLocation, inserter) {
+	return function() {
+		var i = arguments.length - 1,
+			arg;
+
+		for (; i >= 0; i--) {
+			if (typeofString(arg = arguments[i])) {
+				this.insertAdjacentHTML(htmlLocation, arg);
+			}
+			else {
+				// When arg is a collection of nodes, create a fragment by passing the collection in an array
+				// (that is the form of input createFragment expects since it normally takes a function's arg list)
+				inserter(isNode(arg) ? arg : createFragment([arg]), this);
+			}
+		}
+
+		return this;
+	}
+}
+
 /*
  * Returns a function for Node#next(), Node#prev(), NodeCollection#next(), or NodeCollection#prev().
  * 
@@ -2676,23 +2696,7 @@ HTMLElementPrototype.addClass = function(value) {
  * More performant version of Node#afterPut for HTMLElements.
  * @see Node#afterPut
  */
-HTMLElementPrototype.afterPut = function() {
-	var i = arguments.length - 1,
-		arg;
-
-	for (; i >= 0; i--) {
-		if (typeofString(arg = arguments[i])) {
-			this.insertAdjacentHTML('afterend', arg);
-		}
-		else {
-			//When arg is a collection of nodes, create a fragment by passing the collection in an array
-			//(that is the form of input createFragment expects since it normally takes a function's arg list)
-			insertAfter(isNode(arg) ? arg : createFragment([arg]), this);
-		}
-	}
-
-	return this;
-};
+HTMLElementPrototype.afterPut = getHTMLElementAfterPutOrPrependWith('afterend', insertAfter);
 
 /**
  * @summary Performs a custom animation of a set of CSS properties.
@@ -3192,23 +3196,7 @@ HTMLElementPrototype.offset = function(coordinates) {
  * More performant version of Node#prependWith for HTMLElements.
  * @see Node#prependWith
  */
-HTMLElementPrototype.prependWith = function() {
-	var i = arguments.length - 1,
-		arg;
-
-	for (; i >= 0; i--) {
-		if (typeofString(arg = arguments[i])) {
-			this.insertAdjacentHTML('afterbegin', arg);
-		}
-		else {
-			//When arg is a collection of nodes, create a fragment by passing the collection in an array
-			//(that is the form of input createFragment expects since it normally takes a function's arg list)
-			prepend(isNode(arg) ? arg : createFragment([arg]), this);
-		}
-	}
-
-	return this;
-};
+HTMLElementPrototype.prependWith = getHTMLElementAfterPutOrPrependWith('afterbegin', prepend);
 
 /**
  * @summary Removes the specified class(es) or all classes from the element.
