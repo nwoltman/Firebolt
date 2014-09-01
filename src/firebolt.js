@@ -2838,7 +2838,11 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 	}
 
 	// Set an event that cleans up the animation and calls the complete callback after the transition is done
-	_this.one(transitionendEventName, function(eObj, stoppedEarly) {
+	_this.addEventListener(transitionendEventName, _this._$A_ = function onTransitionEnd(eObj, stoppedEarly) {
+		// Immediately remove the event listener and delete its saved reference
+		_this.removeEventListener(transitionendEventName, onTransitionEnd);
+		delete _this._$A_;
+
 		if (stoppedEarly) {
 			//Get the current values of the CSS properties being animated
 			properties = _this.css(propertyNames);
@@ -3072,12 +3076,17 @@ HTMLElementPrototype.fadeToggle = function(duration, easing, complete) {
 };
 
 /**
- * Immediately completes the element's currently running animation.
+ * @summary Immediately completes the element's currently running animation.
+ * 
+ * @description
+ * Unlike when {@linkcode HTMLElement#stop|HTMLElement#stop()} is called with a truthy `jumpToEnd` parameter, this function
+ * will also trigger a `transitionend` event in addition to immediately finishing the element's running animation. The
+ * event will not be triggered however, if the element is not running an animation.
  * 
  * @function HTMLElement#finish
  */
 HTMLElementPrototype.finish = function() {
-	return this.trigger(transitionendEventName);
+	return this._$A_ ? this.trigger(transitionendEventName) : this;
 };
 
 /**
@@ -3342,13 +3351,18 @@ HTMLElementPrototype.slideUp = function(duration, easing, complete) {
  * If, for instance, an element is being hidden with `.slideUp()` when `.stop()` is called, the element will
  * now still be displayed, but will be a fraction of its previous height. Callback functions are not called.
  * 
- * If `jumptToEnd` is `true`, this is equivalent to calling `HTMLElement#finish()`.
+ * If `jumptToEnd` is `true`, this is equivalent to calling {@linkcode HTMLElement#finish|HTMLElement#finish()},
+ * except the `transitionend` event will not occur.
  * 
  * @function HTMLElement#stop
  * @param {Boolean} [jumpToEnd=false] - A Boolean indicating whether to complete the current animation immediately.
  */
 HTMLElementPrototype.stop = function(jumpToEnd) {
-	return jumpToEnd ? this.finish() : this.triggerHandler(transitionendEventName, 1),this;
+	if (this._$A_) {
+		this._$A_(undefined, !jumpToEnd);
+	}
+
+	return this;
 };
 
 /**
