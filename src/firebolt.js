@@ -742,27 +742,17 @@ function setAndGetArrayFromFunction(constructor) {
 }
 
 function sortDocOrder(a, b) {
-	var pos = a.compareDocumentPosition(b);
-	if (pos & 4) { //Node a should come first
-		pos = -1;
-	}
-	else if (pos & 1) { //Nodes are in different documents
-		pos = 0;
-	}
-	//else node b should come first (pos is already positive)
-	return pos;
+	b = a.compareDocumentPosition(b);
+	return b & 4 ? -1 // Node a should come first
+		: b & 1 ? 0   // Nodes are in different documents
+		: 1;          // Else node b should come first
 }
 
 function sortRevDocOrder(a, b) {
-	var pos = a.compareDocumentPosition(b);
-	if (pos & 2) { //Node b should come first
-		pos = -1;
-	}
-	else if (pos & 1) { //Nodes are in different documents
-		pos = 0;
-	}
-	//else node a should come first (pos is already positive)
-	return pos;
+	b = a.compareDocumentPosition(b);
+	return b & 2 ? -1 // Node b should come first
+		: b & 1 ? 0   // Nodes are in different documents
+		: 1;          // Else node a should come first
 }
 
 function typeofObject(value) {
