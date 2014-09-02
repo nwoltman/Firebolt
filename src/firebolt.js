@@ -2830,12 +2830,12 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 	}
 
 	// Set an event that cleans up the animation and calls the complete callback after the transition is done
-	_this.addEventListener(transitionendEventName, _this._$A_ = function onTransitionEnd(eObj, stoppedEarly) {
+	_this.addEventListener(transitionendEventName, _this._$A_ = function onTransitionEnd(animationCompleted) {
 		// Immediately remove the event listener and delete its saved reference
 		_this.removeEventListener(transitionendEventName, onTransitionEnd);
 		delete _this._$A_;
 
-		if (stoppedEarly) {
+		if (!animationCompleted) {
 			//Get the current values of the CSS properties being animated
 			properties = _this.css(propertyNames);
 		}
@@ -2853,7 +2853,7 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 		// Restore any CSS properties that need to be restored
 		_this.css(valsToRestore);
 
-		if (stoppedEarly) {
+		if (!animationCompleted) {
 			//Set all the current CSS property values
 			_this.css(properties);
 		}
@@ -3335,7 +3335,7 @@ HTMLElementPrototype.slideUp = function(duration, easing, complete) {
  */
 HTMLElementPrototype.stop = function(jumpToEnd) {
 	if (this._$A_) {
-		this._$A_(undefined, !jumpToEnd);
+		this._$A_(jumpToEnd);
 	}
 
 	return this;
