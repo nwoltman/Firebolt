@@ -678,8 +678,6 @@ function isUndefined(value) {
 	return value === undefined;
 }
 
-function NOOP() { }
-
 /*
  * Prepends a node to a reference node. 
  */
@@ -1675,14 +1673,14 @@ Firebolt.ajax = function(url, settings) {
 	var xhr = extend(new XMLHttpRequest(), settings.xhrFields),
 		async = settings.async,
 		beforeSend = settings.beforeSend,
-		complete = settings.complete || NOOP,
+		complete = settings.complete || returnFalse,
 		contentType = settings.contentType,
 		crossDomain = settings.crossDomain || url.contains('//') && url.indexOf(document.domain) < 0,
 		dataType = settings.dataType,
-		error = settings.error || NOOP,
+		error = settings.error || returnFalse,
 		headers = settings.headers || {}, //For true XHRs only
 		lastState = 0, //For true XHRs only
-		success = settings.success || NOOP,
+		success = settings.success || returnFalse,
 		timeout = settings.timeout,
 		type = settings.type.toUpperCase(),
 		isGetOrHead = type == 'GET' || type == 'HEAD',
