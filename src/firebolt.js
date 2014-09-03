@@ -2010,7 +2010,8 @@ Firebolt.each = function(obj, callback, thisArg, isArrayLike) {
 	var len = obj.length,
 		i = 0;
 
-	if (isArrayLike || typeof len == 'number' && typeof obj != 'function' && obj.toString() != '[object Window]') {
+	if (isArrayLike || isArray(obj) ||
+		typeof len == 'number' && typeof obj != 'function' && obj.toString() != '[object Window]' && (!len || (len - 1) in obj)) {
 		while (i < len && callback.call(thisArg || obj[i], obj[i], i++, obj) !== false);
 	}
 	else {
