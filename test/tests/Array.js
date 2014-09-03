@@ -76,6 +76,7 @@ test('diff', function() {
 test('each', function() {
 	var array = [],
 		callback = function() {},
+		each = Firebolt.each,
 		thisArg;
 
 	Firebolt.each = function(_obj, _callback, _thisArg, _isArrayLike) {
@@ -89,6 +90,9 @@ test('each', function() {
 
 	thisArg = 'this';
 	array.each(callback, thisArg);
+
+	// Restore the spy
+	Firebolt.each = each;
 });
 
 test('equals', function() {
