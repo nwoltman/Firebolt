@@ -1576,7 +1576,7 @@ function Firebolt(selector, context) {
 		if (!rgxNotId.test(selector)) {
 			context = new NodeCollection(); //Use the unused context argument to be the NodeCollection
 			if (selector = getElementById(selector.slice(1))) { //Reuse the selector argument to be the retrieved element
-				context.push(selector);
+				context[0] = selector;
 			}
 			return context;
 		}
