@@ -3598,7 +3598,8 @@ NodePrototype.clone = function(withDataAndEvents, deepWithDataAndEvents) {
  * @description
  * __Note:__ Unlike jQuery, there is no version of this function where you can provide a "context" element, whose children that match
  * the input CSS selector will be searched for a match. This is because it is very easy to get the matching children of an element
- * youself using {@linkcode Element#QSA|Element#QSA()} or {@linkcode Element#find|Element#find()}.
+ * yourself using {@linkcode Element#QSA|Element#QSA()} or {@linkcode Element#find|Element#find()} and you may find that one of
+ * these functions suits your needs better than the other.
  * 
  * @function Node#closest
  * @param {String|Node|Node[]} selector - A CSS selector, a node, or a collection of nodes used to match the node and its parents against.
@@ -4563,8 +4564,8 @@ NodeCollectionPrototype.clone = function(withDataAndEvents, deepWithDataAndEvent
  * @description
  * __Note:__ Unlike jQuery, there is no version of this function where you can provide a "context" element, whose children that match
  * the input CSS selector will be searched for a match. This is because it is very easy to get the matching children of an element
- * youself using [`Element#querySelectorAll()`](https://developer.mozilla.org/en-US/docs/Web/API/Element.querySelectorAll) or Firebolt's
- * alias `Element#QSA()`.
+ * yourself using {@linkcode Element#QSA|Element#QSA()} or {@linkcode Element#find|Element#find()} and you may find that one of
+ * these functions suits your needs better than the other.
  * 
  * @function NodeCollection#closest
  * @param {String|Node|Node[]} selector - A CSS selector, a node, or a collection of nodes used to match the node and its parents against.
