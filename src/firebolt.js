@@ -2177,14 +2177,15 @@ Firebolt.hasData = function(object) {
  * + `undefined`
  * + a zero-length array
  * + a zero-length string
- * + an empty object (if the `typeof` operator returns `"object"` and {@linkcode Firebolt.isEmptyObject} returns `true`)
+ * + an empty object (if the value has the "Object" class and {@linkcode Firebolt.isEmptyObject} returns `true`)
  * 
  * @function Firebolt.isEmpty
  * @param {*} value - The value to be tested.
  * @returns {Boolean} - `true` if the object is deemed empty, `false` otherwise.
  */
 Firebolt.isEmpty = function(value) {
-	return value == undefined || (isArray(value) ? !value.length : typeofObject(value) ? isEmptyObject(value) : typeofString(value) && !value);
+	return value == undefined ||
+		(isArray(value) || typeofString(value) ? !value.length : specialElementsMap.toString.call(value) == '[object Object]' && isEmptyObject(value));
 };
 
 /**
