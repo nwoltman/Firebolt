@@ -373,6 +373,34 @@ test('hasData', function() {
 		'Correctly reports that an element with data pulled from a "data-*" attribute has data.');
 });
 
+test('isEmpty', function func() {
+	// False
+	ok(!Firebolt.isEmpty(0));
+	ok(!Firebolt.isEmpty(1));
+	ok(!Firebolt.isEmpty('string'));
+	ok(!Firebolt.isEmpty([0]));
+	ok(!Firebolt.isEmpty({a: ''}));
+	ok(!Firebolt.isEmpty(true));
+	ok(!Firebolt.isEmpty(false));
+	ok(!Firebolt.isEmpty(func));
+	ok(!Firebolt.isEmpty(/RegExp/));
+	ok(!Firebolt.isEmpty(window));
+	ok(!Firebolt.isEmpty(document));
+	ok(!Firebolt.isEmpty(document.body));
+	ok(!Firebolt.isEmpty(document.getElementsByTagName('div')));
+	ok(!Firebolt.isEmpty(document.querySelectorAll('div')));
+
+	// True
+	ok(Firebolt.isEmpty(null));
+	ok(Firebolt.isEmpty(undefined));
+	ok(Firebolt.isEmpty([]));
+	ok(Firebolt.isEmpty({}));
+	ok(Firebolt.isEmpty(''));
+
+	var CustomObject = function() { };
+	ok(Firebolt.isEmpty(new CustomObject()));
+});
+
 test('isPlainObject', function func() {
 	// False
 	ok(!Firebolt.isPlainObject(1));
