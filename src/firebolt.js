@@ -882,7 +882,6 @@ var
 	TOGGLE = 'toggle',
 
 	/* Misc */
-	_$ = window.$, //Save the `$` variable in case something else is currently using it
 	documentHead = document.head, //The document's <head> element
 	iframe = createElement('iframe'), //Used for subclassing Array and determining default CSS values
 	any = iframe.style, //Arbitrary variable that may be used for whatever -- keep no references so this can be garbage collected
@@ -1517,13 +1516,15 @@ ElementPrototype.removeProp = function(propertyName) {
 //#region =========================== Firebolt ===============================
 
 /**
- * The Firebolt namespace object and selector function (can also be referenced by the synonyms `FB` and `$`).
+ * The Firebolt namespace object and selector function. Can also be referenced by the synonyms `FB`
+ * and `$` (if `$` has not already been defined).
  * @namespace Firebolt
  */
 
 /**
  * @summary
- * The global Firebolt function (can also be referenced by the synonyms <code>FB</code> and <code>$</code>).
+ * Firebolt's multi-use selector function. Can also be referenced by the synonyms <code>FB</code> and
+ * <code>$</code> (if <code>$</code> has not already been defined).
  * 
  * @description
  * Returns a list of the elements either found in the DOM that match the passed in CSS selector or created by passing an HTML string.
@@ -2212,20 +2213,6 @@ Firebolt.isPlainObject = isPlainObject;
 Firebolt.isTouchDevice = 'ontouchstart' in window || 'onmsgesturechange' in window;
 
 /**
- * Relinquishes Firebolt's control of the global `$` variable (restoring its previous value in the process).
- * 
- * @returns Firebolt
- * @memberOf Firebolt
- */
-Firebolt.noConflict = function() {
-	if (window.$ === Firebolt) {
-		window.$ = _$;
-	}
-
-	return Firebolt;
-};
-
-/**
  * Creates a serialized representation of an array or object, suitable for use in a URL query string or Ajax request.  
  * Unlike jQuery, arrays will be serialized like objects when `traditional` is not `true`, with the indices of
  * the array becoming the keys of the query string parameters.
@@ -2476,9 +2463,12 @@ defineProperty(FunctionPrototype, 'every', {
 //#region =========================== Globals ================================
 
 /*
- * Firebolt reference objects.
+ * Global Firebolt references.
  */
-window.$ = window.FB = window.Firebolt = Firebolt;
+window.FB = window.Firebolt = Firebolt;
+if (isUndefined(window.$)) {
+	window.$ = Firebolt;
+}
 
 /**
  * PHP-style associative array (Object) of URL parameters. This object is created when the page loads and thus contains the URL's
