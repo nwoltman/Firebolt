@@ -2175,17 +2175,18 @@ Firebolt.hasData = function(object) {
  * 
  * + `null`
  * + `undefined`
- * + a zero-length array
- * + a zero-length string
+ * + a zero-length string, array, NodeCollection, NodeList, or HTMLCollection
  * + an empty object (if the value has the "Object" class and {@linkcode Firebolt.isEmptyObject} returns `true`)
  * 
  * @function Firebolt.isEmpty
  * @param {*} value - The value to be tested.
  * @returns {Boolean} - `true` if the object is deemed empty, `false` otherwise.
  */
-Firebolt.isEmpty = function(value) {
+Firebolt.isEmpty = function(value, className) {
 	return value == undefined ||
-		(isArray(value) || typeofString(value) ? !value.length : specialElementsMap.toString.call(value) == '[object Object]' && isEmptyObject(value));
+		(isArray(value) || typeofString(value) || ((className = getClassOf(value)) == 'NodeList' || className == 'HTMLCollection')
+			? !value.length
+			: className == 'Object' && isEmptyObject(value));
 };
 
 /**

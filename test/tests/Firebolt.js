@@ -396,6 +396,8 @@ test('isEmpty', function func() {
 	ok(Firebolt.isEmpty([]));
 	ok(Firebolt.isEmpty({}));
 	ok(Firebolt.isEmpty(''));
+	ok(Firebolt.isEmpty(document.getElementsByTagName('video')));
+	ok(Firebolt.isEmpty(document.querySelectorAll('video')));
 
 	var CustomObject = function() { };
 	ok(Firebolt.isEmpty(new CustomObject()));
