@@ -2184,7 +2184,7 @@ function isEmptyObject(object) {
  */
 Firebolt.isPlainObject = isPlainObject;
 function isPlainObject(obj) {
-	return obj && obj.constructor && obj.constructor.toString().trim().slice(9, 16) == 'Object(';
+	return obj && (obj = obj.constructor) && obj.toString().trim().slice(9, 16) == 'Object(';
 }
 
 /**
