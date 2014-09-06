@@ -92,14 +92,6 @@ function copyDataAndEvents(nodeA, nodeB, doNotCopyChildNodes) {
 }
 
 /*
- * @see Firebolt.elem
- */
-function createElement(tagName, attributes) {
-	var el = document.createElement(tagName);
-	return attributes ? el.attr(attributes) : el;
-}
-
-/*
  * Takes a string indicating an event type and returns an Event object that bubbles and is cancelable.
  * @param {String} eventType - The name of the type of event (such as "click").
  */
@@ -201,74 +193,6 @@ function definePrototypeExtensionsOn(proto) {
 			writable: true
 		});
 	}
-}
-
-/*
- * @see Firebolt.extend
- */
-function extend(target) {
-	var numArgs = arguments.length,
-		i = 1,
-		arg,
-		key;
-
-	if (numArgs > 1) {
-		if (target === true) { //`target` was actually the `deep` variable; extend recursively
-			return extendDeep.apply(0, ArrayPrototype.slice.call(arguments, 1));
-		}
-
-		if (!target) { //`target` was actually the `deep` variable, but was false
-			target = arguments[i++];
-		}
-
-		//Extend the target object
-		for (; i < numArgs; i++) {
-			arg = arguments[i];
-			for (key in arg) {
-				if (arg[key] !== undefined) {
-					target[key] = arg[key];
-				}
-			}
-		}
-
-		return target;
-	}
-
-	//Extend the Firebolt objects
-	extend(NodeCollectionPrototype, target);
-	extend(NodeListPrototype, target);
-	extend(HTMLCollectionPrototype, target);
-}
-
-/*
- * @see Firebolt.extend
- */
-function extendDeep(target) {
-	var i = 1,
-		arg,
-		key,
-		val,
-		curval;
-
-	// Extend the target object, extending recursively if the new value is a plain object or array
-	for (; i < arguments.length; i++) {
-		arg = arguments[i];
-
-		for (key in arg) {
-			curval = target[key];
-			val = arg[key];
-
-			// If the values are not already the same and the new value is not the
-			// target (prevents endless recursion), set the new value on the target
-			if (curval !== val && val !== target) {
-				target[key] = isArray(val) ? extendDeep(isArray(curval) ? curval : [], val)     // Deep-extend arrays
-					: isPlainObject(val) ? extendDeep(isPlainObject(curval) ? curval : {}, val) // Deep-extend plain objects
-					: val; // Else just copy the value into the target
-			}
-		}
-	}
-
-	return target;
 }
 
 /*
@@ -655,23 +579,6 @@ function insertBefore(newNode, refNode) {
  */
 function isDisplayNone(element, styleObject) {
 	return (styleObject || getComputedStyle(element)).display == 'none';
-}
-
-/*
- * @see Firebolt.isEmptyObject
- */
-function isEmptyObject(object) {
-	for (var item in object) {
-		return false;
-	}
-	return true;
-}
-
-/*
- * @see Firebolt.isPlainObject
- */
-function isPlainObject(obj) {
-	return obj && obj.constructor && obj.constructor.toString().trim().slice(9, 16) == 'Object(';
 }
 
 function isUndefined(value) {
@@ -2042,6 +1949,10 @@ Firebolt.easing = {
  * @returns {Element}
  */
 Firebolt.elem = createElement;
+function createElement(tagName, attributes) {
+	var el = document.createElement(tagName);
+	return attributes ? el.attr(attributes) : el;
+}
 
 /* The key where Firebolt stores data using $.data() */
 Firebolt.expando = 'FB' + Date.now() + 1 / Math.random();
@@ -2070,6 +1981,67 @@ Firebolt.expando = 'FB' + Date.now() + 1 / Math.random();
  * @returns {Object} The target object.
  */
 Firebolt.extend = extend;
+function extend(target) {
+	var numArgs = arguments.length,
+		i = 1,
+		arg,
+		key;
+
+	if (numArgs > 1) {
+		if (target === true) { //`target` was actually the `deep` variable; extend recursively
+			return extendDeep.apply(0, ArrayPrototype.slice.call(arguments, 1));
+		}
+
+		if (!target) { //`target` was actually the `deep` variable, but was false
+			target = arguments[i++];
+		}
+
+		//Extend the target object
+		for (; i < numArgs; i++) {
+			arg = arguments[i];
+			for (key in arg) {
+				if (arg[key] !== undefined) {
+					target[key] = arg[key];
+				}
+			}
+		}
+
+		return target;
+	}
+
+	//Extend the Firebolt objects
+	extend(NodeCollectionPrototype, target);
+	extend(NodeListPrototype, target);
+	extend(HTMLCollectionPrototype, target);
+}
+
+function extendDeep(target) {
+	var i = 1,
+		arg,
+		key,
+		val,
+		curval;
+
+	// Extend the target object, extending recursively if the new value is a plain object or array
+	for (; i < arguments.length; i++) {
+		arg = arguments[i];
+
+		for (key in arg) {
+			curval = target[key];
+			val = arg[key];
+
+			// If the values are not already the same and the new value is not the
+			// target (prevents endless recursion), set the new value on the target
+			if (curval !== val && val !== target) {
+				target[key] = isArray(val) ? extendDeep(isArray(curval) ? curval : [], val)     // Deep-extend arrays
+					: isPlainObject(val) ? extendDeep(isPlainObject(curval) ? curval : {}, val) // Deep-extend plain objects
+					: val; // Else just copy the value into the target
+			}
+		}
+	}
+
+	return target;
+}
 
 /**
  * Creates a new DocumentFragment and (optionally) appends the passed in content to it.
@@ -2197,6 +2169,12 @@ Firebolt.isEmpty = function(value, className) {
  * @returns {Boolean}
  */
 Firebolt.isEmptyObject = isEmptyObject;
+function isEmptyObject(object) {
+	for (var item in object) {
+		return false;
+	}
+	return true;
+}
 
 /**
  * Determines if a variable is a plain object.
@@ -2205,6 +2183,9 @@ Firebolt.isEmptyObject = isEmptyObject;
  * @param {*} obj - The item to test.
  */
 Firebolt.isPlainObject = isPlainObject;
+function isPlainObject(obj) {
+	return obj && obj.constructor && obj.constructor.toString().trim().slice(9, 16) == 'Object(';
+}
 
 /**
  * Indicates if the user is on a touchscreen device.
