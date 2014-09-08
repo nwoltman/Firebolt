@@ -268,7 +268,7 @@ function getGetDirElementsFunc(direction, sorter) {
 			var collections = [],
 				i = 0;
 			for (; i < len; i++) {
-				collections.push(direction.apply(this[i], arguments));
+				collections[i] = direction.apply(this[i], arguments);
 			}
 
 			//Union the collections so that the resulting collection contains unique elements and return the sorted result
@@ -299,7 +299,7 @@ function getGetDirElementsFunc(direction, sorter) {
 			// until the `stop()` function returns `true`
 			while ((node = node[direction]) && !stop()) {
 				if (!filter || node.matches(filter)) {
-					nc.push(node);
+					push1(nc, node);
 				}
 			}
 
@@ -314,7 +314,7 @@ function getGetDirElementsFunc(direction, sorter) {
 			//Traverse all nodes in the direction and add them (or if there is a selector the ones that match it) to the NodeCollection
 			while (node = node[direction]) {
 				if (!selector || node.matches(selector)) {
-					nc.push(node);
+					push1(nc, node);
 				}
 			}
 
@@ -360,7 +360,7 @@ function getNextOrPrevFunc(dirElementSibling, forNode) {
 			for (; i < this.length; i++) {
 				sibling = this[i][dirElementSibling];
 				if (sibling && (!selector || sibling.matches(selector))) {
-					nc.push(sibling);
+					push1(nc, sibling);
 				}
 			}
 			return nc;
@@ -590,6 +590,16 @@ function isUndefined(value) {
  */
 function prepend(newNode, refNode) {
 	refNode.insertBefore(newNode, refNode.firstChild);
+}
+
+/*
+ * Appends a single value to the end of the specified array.
+ * 
+ * @param {Array} array - Must be a true array (includes NodeCollection).
+ * @param {*} value - The value to append to the array.
+ */
+function push1(array, value) {
+	array[array.length] = value;
 }
 
 /*
@@ -849,7 +859,7 @@ prototypeExtensions = {
 
 		for (; i < this.length; i++) {
 			if (!Firebolt.isEmpty(this[i])) {
-				cleaned.push(this[i]);
+				push1(cleaned, this[i]);
 			}
 		}
 
@@ -917,7 +927,7 @@ prototypeExtensions = {
 			}
 
 			//The item was not part of any of the input arrays so it can be added to the difference array
-			difference.push(item);
+			push1(difference, item);
 		}
 
 		return difference;
@@ -1021,7 +1031,7 @@ prototypeExtensions = {
 					}
 				}
 
-				intersection.push(item);
+				push1(intersection, item);
 			}
 		}
 
@@ -1074,7 +1084,7 @@ prototypeExtensions = {
 			array = arguments[i];
 			for (j = 0; j < array.length; j++) {
 				if (union.indexOf(array[j]) < 0) {
-					union.push(array[j]);
+					push1(union, array[j]);
 				}
 			}
 		};
@@ -1105,11 +1115,11 @@ prototypeExtensions = {
 		for (; i < this.length; i++) {
 			if (isSorted) {
 				if (this[i] !== this[i + 1]) {
-					unique.push(this[i]);
+					push1(unique, this[i]);
 				}
 			}
 			else if (unique.indexOf(this[i]) < 0) {
-				unique.push(this[i]);
+				push1(unique, this[i]);
 			}
 		}
 
@@ -1137,7 +1147,7 @@ prototypeExtensions = {
 					continue next;
 				}
 			}
-			array.push(this[i]);
+			push1(array, this[i]);
 		}
 
 		return array;
@@ -3441,7 +3451,7 @@ HTMLSelectElementPrototype.val = function(value) {
 			value = [];
 			for (; i < options.length; i++) {
 				if (options[i].selected) {
-					value.push(options[i].value);
+					push1(value, options[i].value);
 				}
 			}
 			return value;
@@ -3539,7 +3549,7 @@ NodePrototype.childElements = function(selector) {
 		i = 0;
 	for (; i < children.length; i++) {
 		if (children[i].matches(selector)) {
-			nc.push(children[i]);
+			push1(nc, children[i]);
 		}
 	}
 	return nc;
@@ -3929,7 +3939,7 @@ NodePrototype.on = function(events, selector, data, handler, one) { //one is for
 				savedHandlers = savedHandlers[selector] || (savedHandlers[selector] = []);
 
 				//Add the user-input handler and data to the array of handlers
-				savedHandlers.push({f: handler, d: data, o: one});
+				push1(savedHandlers, {f: handler, d: data, o: one});
 			}
 		}
 	}
@@ -4551,7 +4561,7 @@ NodeCollectionPrototype.closest = function(selector) {
 
 	for (; i < this.length; i++) {
 		if ((node = this[i].closest(selector)) && nc.indexOf(node) < 0) {
-			nc.push(node);
+			push1(nc, node);
 		}
 	}
 
@@ -4925,12 +4935,14 @@ NodeCollectionPrototype.parent = function(selector) {
 	var nc = new NodeCollection(),
 		i = 0,
 		parent;
+
 	for (; i < this.length; i++) {
 		parent = this[i].parentNode;
 		if ((!selector || (parent.matches && parent.matches(selector))) && nc.indexOf(parent) < 0) {
-			nc.push(parent);
+			push1(nc, parent);
 		}
 	}
+
 	return nc;
 };
 
