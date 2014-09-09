@@ -403,6 +403,15 @@ test('isEmpty', function func() {
 	ok(Firebolt.isEmpty(new CustomObject()));
 });
 
+test('isEmptyObject', function() {
+	// True
+	equal(Firebolt.isEmptyObject({}), true, 'An object with no properties is an empty object.');
+	equal(Firebolt.isEmptyObject([]), true, 'An empty array is an empty object.');
+
+	// False
+	equal(Firebolt.isEmptyObject({a: 1}), false, 'An object with a property is not an empty object.');
+});
+
 test('isPlainObject', function func() {
 	// False
 	ok(!Firebolt.isPlainObject(1));
