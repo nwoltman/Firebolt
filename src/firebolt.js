@@ -2180,7 +2180,7 @@ Firebolt.isEmpty = function(value, className) {
  */
 Firebolt.isEmptyObject = isEmptyObject;
 function isEmptyObject(object) {
-	for (var item in object) {
+	for (object in object) {
 		return false;
 	}
 	return true;
