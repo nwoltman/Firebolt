@@ -5523,13 +5523,11 @@ NodeCollectionPrototype.wrapInner = function(wrappingElement) {
 Object.getOwnPropertyNames(NodeCollectionPrototype)
 	.diff('clear length pop push reverse shift splice unshift'.split(' ')) //These properties should not be added to the NodeList prototype
 	.forEach(function(methodName) {
-		if (rgxDifferentNL.test(methodName)) { //Convert to a NodeCollection first
-			HTMLCollectionPrototype[methodName] = NodeListPrototype[methodName] = function() {
-				return NodeCollectionPrototype[methodName].apply(ncFrom(this), arguments);
-			}
-		}
-		else if (!NodeListPrototype[methodName]) {
-			HTMLCollectionPrototype[methodName] = NodeListPrototype[methodName] = NodeCollectionPrototype[methodName];
+		if (!NodeListPrototype[methodName]) {
+			var method = NodeCollectionPrototype[methodName];
+			HTMLCollectionPrototype[methodName] = NodeListPrototype[methodName] = rgxDifferentNL.test(methodName) ? function() {
+				return method.apply(ncFrom(this), arguments); // Convert to a NodeCollection first, then apply the method
+			} : method; // Else directly copy the method
 		}
 	});
 
