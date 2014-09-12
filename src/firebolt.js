@@ -649,9 +649,7 @@ function setAndGetArrayFromFunction(constructor) {
 		return array;
 	}
 
-	if (!constructor.from) {
-		constructor.from = from;
-	}
+	constructor.from = constructor.from || from;
 
 	return from;
 }
