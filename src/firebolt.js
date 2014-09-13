@@ -202,16 +202,6 @@ function getAjaxErrorStatus(xhr) {
 	return xhr.readyState ? xhr.statusText.replace(xhr.status + ' ', '') : '';
 }
 
-/*
- * Returns a function that basically does this: `document.querySelectorAll.call(document, selector)`
- * @param {function} fn - The function to be called on the document.
- */
-function getElementSelectionFunction(fn) {
-	return function(selector) {
-		return fn.call(document, selector);
-	};
-}
-
 /** 
  * Returns a function that calls the passed in function on each element in a NodeCollection unless the callback
  * returns true, in which case the result of calling the function on the first element is returned.
@@ -549,7 +539,7 @@ function htmlToNodes(html, detachNodes, single) {
 	}
 
 	if (single) {
-		//Only the `$1` function uses the `single` argument so the returned node must always be removed
+		// When returning a single element, it should always be removed from its creation parent
 		return elem.removeChild(elem.firstChild);
 	}
 
@@ -716,32 +706,32 @@ var
 	keys = Object.keys,
 
 	//Local + global selector funtions
-	useNormalSelectionFunction = window.chrome || usesGecko,
+	useNormalSelectionFunction = window.chrome,
 
 	getElementById = window.$$ = window.$ID =
 		useNormalSelectionFunction ? function(id) {
 			return document.getElementById(id);
-		} : getElementSelectionFunction(document.getElementById),
+		} : document.getElementById.bind(document),
 
 	getElementsByClassName = window.$CLS =
 		useNormalSelectionFunction ? function(className) {
 			return document.getElementsByClassName(className);
-		} : getElementSelectionFunction(document.getElementsByClassName),
+		} : document.getElementsByClassName.bind(document),
 
 	getElementsByTagName = window.$TAG =
 		useNormalSelectionFunction ? function(tagName) {
 			return document.getElementsByTagName(tagName);
-		} : getElementSelectionFunction(document.getElementsByTagName),
+		} : document.getElementsByTagName.bind(document),
 
 	querySelector = window.$QS =
 		useNormalSelectionFunction ? function(selector) {
 			return document.querySelector(selector);
-		} : getElementSelectionFunction(document.querySelector),
+		} : document.querySelector.bind(document),
 
 	querySelectorAll = window.$QSA =
 		useNormalSelectionFunction ? function(selector) {
 			return document.querySelectorAll(selector);
-		} : getElementSelectionFunction(document.querySelectorAll),
+		} : document.querySelectorAll.bind(document),
 
 	/* Pre-built RegExps */
 	rgxDataType = /\b(?:xml|json)\b|script\b/,    // Matches an AJAX data type in Content-Type header
@@ -1464,43 +1454,40 @@ ElementPrototype.removeProp = function(propertyName) {
  * @variation 2
  * @function Firebolt
  * @param {String} string - A CSS selector string or an HTML string.
- * @param {Document} [context=document] - A DOM Document to serve as the context when selecting or creating elements.
- * @returns {NodeList|HTMLCollection|NodeCollection} A NodeList/HTMLCollection of selected elements or a NodeCollection of newly created elements.
- * @throws {SyntaxError} When an invalid CSS selector is passed as the string.
+ * @param {ParentNode} [context=document] - A node to serve as the context when selecting or creating elements.
+ * Only a DOM Document may be used as the `context` argument when creating elements.
+ * @returns {NodeCollection} A NodeCollection of selected elements or newly created elements.
+ * @throws {SyntaxError} When the passed in string is not an HTML string (does not start with the "<" character) and is an invalid CSS selector.
  */
 function Firebolt(selector, context) {
-	if (context) {
-		//Set the scoped document variable to the context document and re-call this function
-		document = context;
-		context = Firebolt(selector); //Reuse the context argument to hode the returned collection
+	var firstChar = selector[0];
 
-		//Restore the document and return the retrieved collection
-		document = window.document;
-		return context;
+	if (context) {
+		return firstChar === '<' ? Firebolt.parseHTML(selector, context) : ncFrom(context.querySelectorAll(selector));
 	}
 
-	if (selector[0] === '.') { //Check for a single class name
+	if (firstChar === '.') { // Check for a single class name
 		if (!rgxNotClass.test(selector)) {
-			return getElementsByClassName(selector.slice(1).replace(rgxAllDots, ' '));
+			return ncFrom(getElementsByClassName(selector.slice(1).replace(rgxAllDots, ' ')));
 		}
 	}
-	else if (selector[0] === '#') { //Check for a single ID
+	else if (firstChar === '#') { // Check for a single ID
 		if (!rgxNotId.test(selector)) {
-			context = new NodeCollection(); //Use the unused context argument to be the NodeCollection
-			if (selector = getElementById(selector.slice(1))) { //Reuse the selector argument to be the retrieved element
+			context = new NodeCollection(); // Use the unused context argument to be the NodeCollection
+			if (selector = getElementById(selector.slice(1))) { // Reuse the selector argument to be the retrieved element
 				context[0] = selector;
 			}
 			return context;
 		}
 	}
-	else if (!rgxNotTag.test(selector)) { //Check for a single tag name
-		return getElementsByTagName(selector);
+	else if (firstChar === '<') { // Check if the string is an HTML string
+		return htmlToNodes(selector, 1); // Pass in 1 to tell the function to detach the nodes from their creation container
 	}
-	else if (selector[0] === '<') { //Check if the string is an HTML string
-		return htmlToNodes(selector, 1); //Pass in 1 to tell the function to detach the nodes from their creation container
+	else if (!rgxNotTag.test(selector)) { // Check for a single tag name
+		return ncFrom(getElementsByTagName(selector));
 	}
 	//else
-	return querySelectorAll(selector);
+	return ncFrom(querySelectorAll(selector));
 }
 
 /**
@@ -2267,10 +2254,10 @@ function serialize(obj, prefix, traditional) {
  * @param {Document} [context=document] - A DOM Document to serve as the context in which the nodes will be created.
  * @returns {NodeCollection} The collection of created nodes.
  */
-Firebolt.parseHTML = function(html, context) {
+Firebolt.parseHTML = function(html, context, single) {
 	document = context || document; // Set the context for creating nodes
 
-	html = htmlToNodes(html, 1); // Parse the HTML, passing in 1 to tell the function to detach the nodes from their creation container
+	html = htmlToNodes(html, 1, single); // Parse the HTML, passing in 1 to tell the function to detach the nodes from their creation container
 
 	if (context) { // If the context was changed, restore it
 		document = window.document;
@@ -2491,36 +2478,33 @@ Firebolt._GET(); // Just call the function to update the global $_GET object
  * 
  * @global
  * @param {String} string - A CSS selector string or an HTML string.
- * @param {Document} [context] - A DOM Document to serve as the context when selecting or creating an element.
+ * @param {ParentNode} [context=document] - A node to serve as the context when selecting or creating elements.
+ * Only a DOM Document may be used as the `context` argument when creating elements.
  * @returns {?Element} - The selected element (or `null` if no element matched the selector) or the created element.
- * @throws {SyntaxError} When an invalid CSS selector is passed as the string.
+ * @throws {SyntaxError} When the passed in string is not an HTML string (does not start with the "<" character) and is an invalid CSS selector.
  */
 window.$1 = function(selector, context) {
-	if (context) {
-		//Set the scoped document variable to the context document and re-call this function
-		document = context;
-		context = $1(selector); //Reuse the context argument
+	var firstChar = selector[0];
 
-		//Restore the document and return the retrieved element
-		document = window.document;
-		return context;
+	if (context) {
+		return firstChar === '<' ? Firebolt.parseHTML(selector, context, 1) : context.querySelector(selector);
 	}
 
-	if (selector[0] === '.') { //Check for a single class name
+	if (firstChar === '.') { // Check for a single class name
 		if (!rgxNotClass.test(selector)) {
 			return getElementsByClassName(selector.slice(1).replace(rgxAllDots, ' '))[0];
 		}
 	}
-	else if (selector[0] === '#') { //Check for a single id
+	else if (firstChar === '#') { // Check for a single id
 		if (!rgxNotId.test(selector)) {
 			return getElementById(selector.slice(1));
 		}
 	}
-	else if (!rgxNotTag.test(selector)) { //Check for a single tag name
-		return getElementsByTagName(selector)[0];
+	else if (firstChar === '<') { // Check if the string is an HTML string
+		return htmlToNodes(selector, 1, 1); // Pass in the second 1 to tell the htmlToNodes function to return only one node
 	}
-	else if (selector[0] === '<') { //Check if the string is an HTML string
-		return htmlToNodes(selector, 1, 1); //Pass in the second 1 to tell the htmlToNodes function to return only one node
+	else if (!rgxNotTag.test(selector)) { // Check for a single tag name
+		return getElementsByTagName(selector)[0];
 	}
 	//else
 	return querySelector(selector);
@@ -5421,7 +5405,7 @@ NodeCollectionPrototype.wrapInner = function(wrappingElement) {
 
 /**
  * @classdesc
- * The HTML DOM NodeList interface. Represents a collection of DOM Nodes and is the main object returned by {@link Firebolt(2) | Firebolt}.
+ * The HTML DOM NodeList interface. Represents a collection of DOM Nodes.
  * 
  * NodeLists have <u>almost</u> the exact same API as {@link NodeCollection}, so there are a few caveats to take note of:
  * 
@@ -5464,7 +5448,7 @@ NodeCollectionPrototype.wrapInner = function(wrappingElement) {
  * This is because these functions my alter live NodeLists, as seen in this example:
  * 
  * ```javascript
- * var blueThings = $CLS('blue');
+ * var blueThings = $CLS('blue');  // If you're unfamiliar with Firebolt, $CLS is Firebolt's alias for document.getElementsByClassName
  * console.log(blueThings.length); // -> 10 (for example)
  * 
  * var ncBlueThings = blueThings.removeClass('blue');
