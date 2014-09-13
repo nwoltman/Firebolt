@@ -581,10 +581,6 @@ function isDisplayNone(element, styleObject) {
 	return (styleObject || getComputedStyle(element)).display == 'none';
 }
 
-function isUndefined(value) {
-	return value === undefined;
-}
-
 /*
  * Prepends a node to a reference node. 
  */
@@ -618,7 +614,7 @@ function returnFalse() {
 
 function sanitizeCssPropName(name) {
 	// Camelize the property name, and check if it exists on the saved iframe's style object
-	if (isUndefined(iframe.style[name = camelize(name)])) {
+	if (iframe.style[name = camelize(name)] === undefined) {
 		// The input property name is not supported, so make the vendor name and check if that one is supported
 		var vendorName = cssVendorPrefix + name[0].toUpperCase() + name.slice(1);
 		if (iframe.style[vendorName] != undefined) {
@@ -807,7 +803,7 @@ var
 					: isIE ? 'ms'
 					: 'O',
 	cssTransitionKey = sanitizeCssPropName('transition'),
-	noCssTransitionSupport = isUndefined(any[cssTransitionKey]),
+	noCssTransitionSupport = any[cssTransitionKey] === undefined,
 
 	/* Events */
 	transitionendEventName = cssTransitionKey + (cssTransitionKey[0] === 'w' ? 'End' : 'end'),
@@ -1228,7 +1224,7 @@ ElementPrototype.QSA = ElementPrototype.querySelectorAll;
  * @param {Object} attributes - An object of attribute-value pairs to set.
  */
 ElementPrototype.attr = function(attrib, value) {
-	if (isUndefined(value)) {
+	if (value === undefined) {
 		if (typeofString(attrib)) {
 			return this.getAttribute(attrib); //Get
 		}
@@ -1368,7 +1364,7 @@ ElementPrototype.matches = ElementPrototype.matches || ElementPrototype.webkitMa
  * @param {Object} properties - An object of property-value pairs to set.
  */
 ElementPrototype.prop = function(prop, value) {
-	if (isUndefined(value)) {
+	if (value === undefined) {
 		if (typeofString(prop)) {
 			return this[prop]; //Get
 		}
@@ -1644,7 +1640,7 @@ Firebolt.ajax = function(url, settings) {
 			}
 		});
 
-		if (isUndefined(script.async)) {
+		if (script.async === undefined) {
 			script.defer = async;
 		}
 		else {
@@ -1874,17 +1870,17 @@ Firebolt.data = function(object, key, value, isElement) {
 		}
 	}
 
-	if (isUndefined(value)) {
+	if (value === undefined) {
 		if (typeofObject(key)) {
 			extend(dataStore, key); //Set multiple
 		}
 		else {
-			if (isUndefined(key)) {
+			if (key === undefined) {
 				return dataStore; // Get the data store object
 			}
 
 			// Else get the data at the specified name
-			return isUndefined(value = dataStore[key = camelize(key)]) && object._$DA_
+			return (value = dataStore[key = camelize(key)]) === undefined && object._$DA_
 				? dataStore[key] = object._$DA_[key] // Save the data-* attribute value to the data store and return it
 				: value;
 		}
@@ -2352,11 +2348,11 @@ Firebolt.removeData = function(object, list) {
 
 	// First make sure the data store object exists
 	if (dataStore) {
-		if (isUndefined(list)) {
-			list = keys(dataStore); // Select all items for removal
-		}
-		else if (typeofString(list)) {
+		if (typeofString(list)) {
 			list = list.split(' ');
+		}
+		else if (!list) {
+			list = keys(dataStore); // Select all items for removal
 		}
 
 		for (; i < list.length; i++) {
@@ -2373,7 +2369,7 @@ Firebolt.removeData = function(object, list) {
  * @returns {TextNode}
  */
 Firebolt.text = function(text) {
-	return document.createTextNode(isUndefined(text) ? '' : text);
+	return document.createTextNode(text === undefined ? '' : text);
 };
 
 //#endregion Firebolt
@@ -2457,7 +2453,7 @@ defineProperty(FunctionPrototype, 'every', {
  * Global Firebolt references.
  */
 window.FB = window.Firebolt = Firebolt;
-if (isUndefined(window.$)) {
+if (window.$ === undefined) {
 	window.$ = Firebolt;
 }
 
@@ -2697,7 +2693,7 @@ HTMLElementPrototype.afterPut = getHTMLElementAfterPutOrPrependWith('afterend', 
  */
 HTMLElementPrototype.animate = function(properties, duration, easing, complete) {
 	//Massage arguments into their proper places
-	if (isUndefined(duration) || typeof duration == 'function') {
+	if (duration === undefined || typeof duration == 'function') {
 		complete = duration;
 		duration = ANIMATION_DEFAULT_DURATION;
 		easing = ANIMATION_DEFAULT_EASING;
@@ -2744,7 +2740,7 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 		val = properties[prop];
 
 		//Should set overflow to "hidden" when animating height or width properties
-		if ((prop == 'height' || prop == 'width') && isUndefined(valsToRestore.overflow)) {
+		if ((prop == 'height' || prop == 'width') && valsToRestore.overflow === undefined) {
 			valsToRestore.overflow = inlineStyle.overflow;
 			inlineStyle.overflow = 'hidden';
 		}
@@ -2941,7 +2937,7 @@ HTMLElementPrototype.css = function(prop, value) {
 		mustHide,
 		retVal;
 
-	if (isUndefined(value)) {
+	if (value === undefined) {
 		// Temporarily use `retVal` to keep track if the input is an array (it will get set to the correct return value when needed)
 		if ((retVal = isArray(prop)) || typeofString(prop)) {
 			computedStyle = getComputedStyle(_this);
@@ -3103,7 +3099,7 @@ HTMLElementPrototype.hide = function() {
  * @param {String} innerHTML - An HTML string.
  */
 HTMLElementPrototype.html = function(innerHTML) {
-	if (isUndefined(innerHTML)) {
+	if (innerHTML === undefined) {
 		return this.innerHTML; //Get
 	}
 	this.innerHTML = innerHTML; //Set
@@ -3183,7 +3179,7 @@ HTMLElementPrototype.prependWith = getHTMLElementAfterPutOrPrependWith('afterbeg
  * @param {String} [className] - One or more space-separated classes to be removed from the element's class attribute.
  */
 HTMLElementPrototype.removeClass = function(value) {
-	if (isUndefined(value)) {
+	if (value === undefined) {
 		this.className = ''; //Remove all classes
 	}
 	else {
@@ -3443,7 +3439,7 @@ HTMLSelectElementPrototype.val = function(value) {
 		options = this.options,
 		i = 0;
 
-	if (isUndefined(value)) {
+	if (value === undefined) {
 		//If multiple selection is allowed and there is at least one selected item, return an array of selected values
 		if (multiple && this.selectedIndex >= 0) {
 			value = [];
@@ -3814,7 +3810,7 @@ function nodeEventHandler(eventObject, extraParameters) {
 	}
 
 	//If the extra parameters are not defined (by `.triggerHandler()`), perhaps they were defined by `.trigger()`
-	if (isUndefined(extraParameters)) {
+	if (extraParameters === undefined) {
 		extraParameters = eventObject._$P_;
 	}
 
@@ -3902,8 +3898,8 @@ NodePrototype.on = function(events, selector, data, handler, one) { //one is for
 		events = events.split(' ');
 
 		//Organize arguments into their proper places
-		if (isUndefined(handler)) {
-			if (isUndefined(data)) {
+		if (handler === undefined) {
+			if (data === undefined) {
 				handler = selector; //The handler was in the selector argument
 			}
 			else {
@@ -4134,7 +4130,7 @@ NodePrototype.siblings = function(selector) {
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.textContent | Node.textContent - Web API Interfaces | MDN}
  */
 NodePrototype.text = function(text) {
-	if (isUndefined(text)) {
+	if (text === undefined) {
 		return this.textContent; //Get
 	}
 
@@ -5246,7 +5242,7 @@ NodeCollectionPrototype.text = function(text) {
 	var len = this.length,
 		i = 0;
 	//Get
-	if (isUndefined(text)) {
+	if (text === undefined) {
 		for (text = ''; i < len; i++) {
 			text += this[i].textContent;
 		}
@@ -5370,7 +5366,7 @@ NodeCollectionPrototype.unwrap = function() {
  */
 NodeCollectionPrototype.val = function(value) {
 	//Get first
-	if (isUndefined(value)) {
+	if (value === undefined) {
 		return this[0].val();
 	}
 
@@ -5805,7 +5801,7 @@ else {
 if (iframe.className.length !== 3 || (usesWebkit && !isIOS)) {
 
 	HTMLElementPrototype.removeClass = function(value) {
-		if (isUndefined(value)) {
+		if (value === undefined) {
 			this.className = ''; //Remove all classes
 		}
 		else {
@@ -5830,7 +5826,7 @@ if (iframe.className.length !== 3 || (usesWebkit && !isIOS)) {
 }
 
 //Fix the `nextElementSibling` and `previousElementSibling` properties for ChildNodes in browsers than only support them on Elements
-if (isUndefined(Firebolt.text()[nextElementSibling])) {
+if (Firebolt.text()[nextElementSibling] === undefined) {
 
 	[CharacterData[prototype], DocumentType[prototype]].forEach(function(proto) {
 		defineProperty(proto, nextElementSibling, {
@@ -5852,7 +5848,7 @@ if (isUndefined(Firebolt.text()[nextElementSibling])) {
 }
 
 //Fix the parentElement property for Nodes in browsers than only support it on Element
-if (isUndefined(document.parentElement)) {
+if (document.parentElement === undefined) {
 
 	defineProperty(NodePrototype, 'parentElement', {
 		get: function() {
