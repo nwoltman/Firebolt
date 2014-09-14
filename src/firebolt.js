@@ -521,18 +521,18 @@ function htmlToNodes(html, detachNodes, single) {
 		elem = createElement(
 			html.slice(1, html.length - (html[html.length - 2] === '/' ? 2 : 1))
 		);
-		return single ? elem : new NodeCollection(elem);
+		return single ? elem : (html = new NodeCollection())[0] = elem, html;
 	}
 
 	//Parse the HTML, taking care to handle special elements
 	elem = createElement('body');
 	specialElementData = rgxFirstTag.exec(html);
 	if (specialElementData && (specialElementData = specialElementsMap[specialElementData[0]])) {
-			elem.innerHTML = specialElementData[1] + html + specialElementData[2];
-			specialElementData = specialElementData[0];
-			while (specialElementData--) {
-				elem = elem.firstChild;
-			}
+		elem.innerHTML = specialElementData[1] + html + specialElementData[2];
+		specialElementData = specialElementData[0];
+		while (specialElementData--) {
+			elem = elem.firstChild;
+		}
 	}
 	else {
 		elem.innerHTML = html;
