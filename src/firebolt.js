@@ -2254,15 +2254,21 @@ function serialize(obj, prefix, traditional) {
  * @returns {NodeCollection} The collection of created nodes.
  */
 Firebolt.parseHTML = function(html, context, single) {
-	document = context || document; // Set the context for creating nodes
-
-	html = htmlToNodes(html, 1, single); // Parse the HTML, passing in 1 to tell the function to detach the nodes from their creation container
-
-	if (context) { // If the context was changed, restore it
-		document = window.document;
+	if (context) {
+		document = context; // Set the context for creating nodes
+		try {
+			return htmlToNodes(html, 1, single); // Parse the HTML, passing in 1 to tell the function to detach the nodes from their creation container
+		}
+		catch (e) {
+			throw e;
+		}
+		finally {
+			document = window.document; // Restore the document
+		}
 	}
 
-	return html;
+	// No need to change the context, just parse the HTML and have the returned nodes detached
+	return htmlToNodes(html, 1, single);
 };
 
 /**
