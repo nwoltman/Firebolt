@@ -666,7 +666,8 @@ var
 	/* Browser/Engine detection */
 	isIE = document.documentMode,
 	isIOS = /^iP/.test(navigator.platform), // iPhone, iPad, iPod
-	usesWebkit = isIOS || window.webkitURL,
+	usesWebkit = window.webkitURL,
+	webkitNotIOS = usesWebkit && !isIOS,
 	usesGecko = window.mozInnerScreenX != undefined,
 
 	/*
@@ -706,30 +707,28 @@ var
 	keys = Object.keys,
 
 	//Local + global selector funtions
-	useNormalSelectionFunction = window.chrome,
-
 	getElementById = window.$$ = window.$ID =
-		useNormalSelectionFunction ? function(id) {
+		webkitNotIOS ? function(id) {
 			return document.getElementById(id);
 		} : document.getElementById.bind(document),
 
 	getElementsByClassName = window.$CLS =
-		useNormalSelectionFunction ? function(className) {
+		webkitNotIOS ? function(className) {
 			return document.getElementsByClassName(className);
 		} : document.getElementsByClassName.bind(document),
 
 	getElementsByTagName = window.$TAG =
-		useNormalSelectionFunction ? function(tagName) {
+		webkitNotIOS ? function(tagName) {
 			return document.getElementsByTagName(tagName);
 		} : document.getElementsByTagName.bind(document),
 
 	querySelector = window.$QS =
-		useNormalSelectionFunction ? function(selector) {
+		webkitNotIOS ? function(selector) {
 			return document.querySelector(selector);
 		} : document.querySelector.bind(document),
 
 	querySelectorAll = window.$QSA =
-		useNormalSelectionFunction ? function(selector) {
+		webkitNotIOS ? function(selector) {
 			return document.querySelectorAll(selector);
 		} : document.querySelectorAll.bind(document),
 
@@ -3050,9 +3049,13 @@ HTMLElementPrototype.finish = function() {
  * @param {String} className - A string containing a single class name.
  * @returns {Boolean} `true` if the class name is in the element's class list; else `false`.
  */
-HTMLElementPrototype.hasClass = function(className) {
-	return this.classList.contains(className);
-};
+HTMLElementPrototype.hasClass = iframe.classList ? (iframe.classList.add('a', 'b'),
+	function(className) {
+		return this.classList.contains(className);
+	})
+	: function(className) { // A function for browsers that don't support the `classList` property
+		return new RegExp('(?:^|\\s)' + className + '(?:\\s|$)').test(this.className);
+	};
 
 /**
  * Hides the element by setting its display style to 'none'.
@@ -3162,16 +3165,41 @@ HTMLElementPrototype.prependWith = getHTMLElementAfterPutOrPrependWith('afterbeg
  * @function HTMLElement#removeClass
  * @param {String} [className] - One or more space-separated classes to be removed from the element's class attribute.
  */
-HTMLElementPrototype.removeClass = function(value) {
-	if (value === undefined) {
-		this.className = ''; //Remove all classes
+HTMLElementPrototype.removeClass = iframe.className.length !== 3 || webkitNotIOS ?
+	// Browser compatibility (IE and other old browsers) and speed boost for non-iOS WebKit browsers
+	function(value) {
+		if (value === undefined) {
+			this.className = ''; //Remove all classes
+		}
+		else {
+			var remClasses = value.split(' '),
+				curClasses = this.className.split(rgxSpaceChars),
+				newClassName = '',
+				i = 0;
+			for (; i < curClasses.length; i++) {
+				if (curClasses[i] && remClasses.indexOf(curClasses[i]) < 0) {
+					newClassName += (newClassName ? ' ' : '') + curClasses[i];
+				}
+			}
+			//Only assign if the new class name is different (shorter) to avoid unnecessary rendering
+			if (newClassName.length < this.className.length) {
+				this.className = newClassName;
+			}
+		}
+
+		return this;
 	}
-	else {
-		this.classList.remove.apply(this.classList, value.split(' '));
-	}
+	// All other browsers
+	: function(value) {
+		if (value === undefined) {
+			this.className = ''; //Remove all classes
+		}
+		else {
+			this.classList.remove.apply(this.classList, value.split(' '));
+		}
 	
-	return this;
-};
+		return this;
+	};
 
 /**
  * Encode a form element or form control element as a string for submission in an HTTP request.
@@ -5769,45 +5797,7 @@ definePrototypeExtensionsOn(StringPrototype);
 //#endregion String
 
 
-//#region ============ Browser Compatibility and Speed Boosters ==============
-
-if (iframe.classList) {
-	iframe.classList.add('a', 'b');
-}
-else {
-	//Define a compatible `hasClass()` function for browsers that don't support the `classList` property
-	HTMLElementPrototype.hasClass = function(className) {
-		return new RegExp('(?:^|\\s)' + className + '(?:\\s|$)').test(this.className);
-	};
-}
-
-//Browser (definitely IE) compatibility and speed boost for removeClass()
-if (iframe.className.length !== 3 || (usesWebkit && !isIOS)) {
-
-	HTMLElementPrototype.removeClass = function(value) {
-		if (value === undefined) {
-			this.className = ''; //Remove all classes
-		}
-		else {
-			var remClasses = value.split(' '),
-				curClasses = this.className.split(rgxSpaceChars),
-				newClassName = '',
-				i = 0;
-			for (; i < curClasses.length; i++) {
-				if (curClasses[i] && remClasses.indexOf(curClasses[i]) < 0) {
-					newClassName += (newClassName ? ' ' : '') + curClasses[i];
-				}
-			}
-			//Only assign if the new class name is different (shorter) to avoid unnecessary rendering
-			if (newClassName.length < this.className.length) {
-				this.className = newClassName;
-			}
-		}
-
-		return this;
-	};
-
-}
+//#region ========================= Browser Fixes ============================
 
 //Fix the `nextElementSibling` and `previousElementSibling` properties for ChildNodes in browsers than only support them on Elements
 if (Firebolt.text()[nextElementSibling] === undefined) {
