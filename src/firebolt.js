@@ -4321,13 +4321,14 @@ NodeCollectionPrototype._$C_ = NodeCollection;
 });
 
 /**
- * Adds the queried elements to a copy of the existing collection (if they are not already in the collection)
+ * @summary Adds the queried elements to a copy of the existing collection (if they are not already in the collection)
  * and returns the result.
  * 
- * Do not assume that this method appends the elements to the existing collection in the order they are passed to the method
- * (that's what `concat` is for). When all elements are members of the same document, the resulting collection will be sorted
- * in document order; that is, in order of each element's appearance in the document. If the collection consists of elements
- * from different documents or ones not in any document, the sort order is undefined (but elements in the collection that are
+ * @description
+ * Do not assume that this method appends the nodes to the existing collection in the order they are passed to the method
+ * (that's what `concat` is for). When all nodes are members of the same document, the resulting collection will be sorted
+ * in document order; that is, in order of each node's appearance in the document. If the collection consists of nodes
+ * from different documents or ones not in any document, the sort order is undefined (but nodes in the collection that are
  * in the same document will still be in document order).
  * 
  * @function NodeCollection#add
@@ -4342,39 +4343,38 @@ NodeCollectionPrototype._$C_ = NodeCollection;
  * @returns {NodeCollection} The result adding the elements created with the HTML to current collection.
  */
 /**
- * Adds the element to a copy of the existing collection (if it is not already in the collection)
- * and returns the result.
+ * @summary Adds the node to a copy of the existing collection (if it is not already in the collection) and returns the result.
+ * 
+ * @description
+ * Do not assume that this method appends the node to the existing collection (that is what `push` is for).
+ * When all nodes are members of the same document, the resulting collection will be sorted in document order;
+ * that is, in order of each node's appearance in the document. If the collection consists of nodes from
+ * different documents or ones not in any document, the sort order is undefined (but nodes in the collection
+ * that are in the same document will still be in document order).
  * 
  * @function NodeCollection#add
- * @param {Element|Node} element - A DOM Element or Node.
- * @returns {NodeCollection} The result of adding the element to the current collection.
+ * @param {Node} node - A DOM Node.
+ * @returns {NodeCollection} The result of adding the node to the current collection.
  */
 /**
- * Returns the union of the current collection and the input one.
+ * @summary Returns the union of the current collection of nodes and the input one.
  * 
- * Do not assume that this method appends the elements to the existing collection in the order they are passed to the method
- * (that's what `concat` is for). When all elements are members of the same document, the resulting collection will be sorted
- * in document order; that is, in order of each element's appearance in the document. If the collection consists of elements
- * from different documents or ones not in any document, the sort order is undefined (but elements in the collection that are
+ * @description
+ * Do not assume that this method appends the nodes to the existing collection in the order they are passed to the method
+ * (that's what `concat` is for). When all nodes are members of the same document, the resulting collection will be sorted
+ * in document order; that is, in order of each node's appearance in the document. If the collection consists of nodes
+ * from different documents or ones not in any document, the sort order is undefined (but nodes in the collection that are
  * in the same document will still be in document order).
  * 
  * @function NodeCollection#add
- * @param {NodeCollection|NodeList|HTMLCollection|Node[]} elements
- * @returns {NodeCollection} The result of adding the input elements to the current collection.
+ * @param {NodeCollection|NodeList|HTMLCollection|Node[]} nodes
+ * @returns {NodeCollection} The result of adding the input nodes to the current collection.
  */
 NodeCollectionPrototype.add = function(input) {
-	var newCollection;
-	if (input.nodeType) {
-		if (this.contains(input)) { //This collection already contains the input node
-			return ncFrom(this); //Return a shallow clone of the current collection
-		}
-		newCollection = this.concat(input);
-	}
-	else {
-		newCollection = this.union(typeofString(input) ? Firebolt(input) : input);
-	}
-
-	return newCollection.sort(sortDocOrder);
+	return (
+		input.nodeType ? this.contains(input) ? ncFrom(this) : this.concat(input)
+		               : this.union(typeofString(input) ? Firebolt(input) : input)
+	).sort(sortDocOrder);
 };
 
 /**
