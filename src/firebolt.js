@@ -183,6 +183,13 @@ function cssMath(curVal, changeVal, type, element, property) {
 }
 
 /*
+ * Returns a dasherized version of a camel case string
+ */
+function dasherize(str) {
+	return str.replace(rgxDasherizables, '-$&').toLowerCase();
+}
+
+/*
  * Uses Object.defineProperty to define the values in the prototypeExtension object on the passed in prototype object
  */
 function definePrototypeExtensionsOn(proto) {
@@ -746,6 +753,7 @@ var
 	rgxFormButton = /button|file|reset|submit/, //Matches input element types that are buttons
 	rgxCheckableElement = /checkbox|radio/,     //Matches checkbox or radio input element types
 	rgxCamelizables = isIE ? /^-+|-+([a-z])/g : /-+([a-z])/g, //Matches dashed parts of CSS property names
+	rgxDasherizables = /[A-Z]/g, //Matches capitol letters in a camel case string
 	rgxNoParse = /^\d+\D/, //Matches strings that look like numbers but have non-digit characters
 	rgxUpToUnits = /.*\d/, //Matches a CSS string value up to the units (i.e. matches up to the last number before 'px' or '%')
 
@@ -2700,6 +2708,8 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 	var _this = this,
 		i = 0,
 		propertyNames = keys(properties),
+		numProperties = propertyNames.length,
+		numChangingProps = numProperties,
 		inlineStyle = _this.style,
 		currentStyle = getComputedStyle(_this),
 		isCurrentDisplayNone = isDisplayNone(0, currentStyle),
@@ -2712,132 +2722,141 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 		val,
 		temp;
 
-	// The original transition style should be restored after the animation completes
-	valsToRestore[cssTransitionKey] = inlineStyle[cssTransitionKey];
+	// Only perform the animation if there are properties to animate
+	if (numProperties) {
+		// The original transition style should be restored after the animation completes
+		valsToRestore[cssTransitionKey] = inlineStyle[cssTransitionKey];
 
-	// Force the transition style to be 'none' in case the element already has a transition style
-	inlineStyle[cssTransitionKey] = 'none';
-
-	if (noCssTransitionSupport) {
-		framesLeft = parseInt(duration / 25); // Total animation frames = duration / frame period
-		cssIncrementProps = {};
-	}
-
-	//Parse properties
-	for (; i < propertyNames.length; i++) {
-		sanitaryProp = sanitizeCssPropName(prop = propertyNames[i]);
-		val = properties[prop];
-
-		//Should set overflow to "hidden" when animating height or width properties
-		if ((prop == 'height' || prop == 'width') && valsToRestore.overflow === undefined) {
-			valsToRestore.overflow = inlineStyle.overflow;
-			inlineStyle.overflow = 'hidden';
-		}
-
-		if (val == TOGGLE) {
-			if (isCurrentDisplayNone) {
-				if (isDisplayNone(0, currentStyle)) {
-					_this.show();
-				}
-				val = currentStyle[sanitaryProp];
-				valsToRestore[sanitaryProp] = inlineStyle[sanitaryProp];
-				inlineStyle[sanitaryProp] = 0;
-			}
-			else {
-				val = 0;
-				valsToRestore[sanitaryProp] = inlineStyle[sanitaryProp];
-				hideOnComplete = 1;
-			}
-		}
-		else if (val == 'auto') {
-			valsToRestore[sanitaryProp] = val; // Save value to be set on the element at the end of the transition
-			temp = inlineStyle[sanitaryProp];  // Save the current inline value of the property
-			inlineStyle[sanitaryProp] = val;   // Set the style to the input value ('auto')
-			val = _this.css(sanitaryProp);     // Get the computed style that will be used as the target value (use .css in case the element is hidden)
-			inlineStyle[sanitaryProp] = temp;  // Restore the current inline value of the property
-		}
-		else if (val[1] === '=') { // "+=value" or "-=value"
-			val = cssMath(parseFloat(currentStyle[sanitaryProp]), parseFloat(val.replace('=', '')), val.replace(rgxUpToUnits, ''), _this, sanitaryProp);
-		}
-
-		properties[prop] = val; // Set the value back into the object of properties in case it changed
-
-		if (noCssTransitionSupport) {
-			// The amount of linear change per frame = total change amount / num frames = (newValue - currentValue) * framesLeft
-			// Where: currentValue = cssMath(currentValue + 0)
-			cssIncrementProps[sanitaryProp] = (parseFloat(val) - parseFloat(cssMath(parseFloat(currentStyle[sanitaryProp]), 0, (val + '').replace(rgxUpToUnits, ''), _this, sanitaryProp))) / framesLeft;
-		}
-	}
-
-	//Inline the element's current CSS styles (even if some properties were set to 0 in the loop because setting all at once here prevents bugs)
-	_this.css(_this.css(propertyNames));
-
-	//Set the CSS transition style
-	inlineStyle[cssTransitionKey] = 'all ' + duration + 'ms ' + (Firebolt.easing[easing] || easing);
-	_this.offsetWidth; // Trigger reflow
-
-	// Start the transition
-	if (noCssTransitionSupport) {
-		//Increment the CSS properties by their respective amounts each frame period until all frames have been rendered
-		(function renderFrame() {
-			for (prop in cssIncrementProps) {
-				inlineStyle[prop] = parseFloat(inlineStyle[prop]) + cssIncrementProps[prop] + inlineStyle[prop].replace(rgxUpToUnits, '');
-			}
-
-			if (--framesLeft) {
-				temp = setTimeout(renderFrame, 25);
-			}
-			else {
-				_this.trigger(transitionendEventName);
-			}
-		})();
-	}
-	else {
-		_this.css(properties); // Setting the CSS values starts the transition
-	}
-
-	// Set an event that cleans up the animation and calls the complete callback after the transition is done
-	_this.addEventListener(transitionendEventName, _this._$A_ = function onTransitionEnd(animationCompleted) {
-		// Immediately remove the event listener and delete its saved reference
-		_this.removeEventListener(transitionendEventName, onTransitionEnd);
-		delete _this._$A_;
-
-		if (!animationCompleted) {
-			//Get the current values of the CSS properties being animated
-			properties = _this.css(propertyNames);
-		}
-
-		if (noCssTransitionSupport) {
-			//End the frame rendering and set all the final CSS values
-			clearTimeout(temp);
-			_this.css(properties);
-		}
-
-		// Force the animation to stop now by setting the transition style to 'none'
+		// Force the transition style to be 'none' in case the element already has a transition style
 		inlineStyle[cssTransitionKey] = 'none';
+
+		if (noCssTransitionSupport) {
+			framesLeft = parseInt(duration / 25); // Total animation frames = duration / frame period
+			cssIncrementProps = {};
+		}
+
+		//Parse properties
+		for (; i < numProperties; i++) {
+			sanitaryProp = sanitizeCssPropName(prop = propertyNames[i]);
+			val = properties[prop];
+
+			//Should set overflow to "hidden" when animating height or width properties
+			if ((prop == 'height' || prop == 'width') && valsToRestore.overflow === undefined) {
+				valsToRestore.overflow = inlineStyle.overflow;
+				inlineStyle.overflow = 'hidden';
+			}
+
+			if (val == TOGGLE) {
+				if (isCurrentDisplayNone) {
+					if (isDisplayNone(0, currentStyle)) {
+						_this.show();
+					}
+					val = currentStyle[sanitaryProp];
+					valsToRestore[sanitaryProp] = inlineStyle[sanitaryProp];
+					inlineStyle[sanitaryProp] = 0;
+				}
+				else {
+					val = 0;
+					valsToRestore[sanitaryProp] = inlineStyle[sanitaryProp];
+					hideOnComplete = 1;
+				}
+			}
+			else if (val == 'auto') {
+				valsToRestore[sanitaryProp] = val; // Save value to be set on the element at the end of the transition
+				temp = inlineStyle[sanitaryProp];  // Save the current inline value of the property
+				inlineStyle[sanitaryProp] = val;   // Set the style to the input value ('auto')
+				val = _this.css(sanitaryProp);     // Get the computed style that will be used as the target value (use .css in case the element is hidden)
+				inlineStyle[sanitaryProp] = temp;  // Restore the current inline value of the property
+			}
+			else if (val[1] === '=') { // "+=value" or "-=value"
+				val = cssMath(parseFloat(currentStyle[sanitaryProp]), parseFloat(val.replace('=', '')), val.replace(rgxUpToUnits, ''), _this, sanitaryProp);
+			}
+
+			properties[prop] = val; // Set the value back into the object of properties in case it changed
+
+			// If the value is the same as the current value, decrement the number of properties that are changing
+			if ((val === 0 ? val + 'px' : val) === currentStyle[sanitaryProp]) {
+				numChangingProps--;
+			} 
+
+			if (noCssTransitionSupport) {
+				// The amount of linear change per frame = total change amount / num frames = (newValue - currentValue) * framesLeft
+				// Where: currentValue = cssMath(currentValue + 0)
+				cssIncrementProps[sanitaryProp] = (parseFloat(val) - parseFloat(cssMath(parseFloat(currentStyle[sanitaryProp]), 0, (val + '').replace(rgxUpToUnits, ''), _this, sanitaryProp))) / framesLeft;
+			}
+		}
+
+		//Inline the element's current CSS styles (even if some properties were set to 0 in the loop because setting all at once here prevents bugs)
+		_this.css(_this.css(propertyNames));
+
+		// Set the CSS transition style
+		inlineStyle[cssTransitionKey] = duration + 'ms ' + (Firebolt.easing[easing] || easing);
+		inlineStyle[cssTransitionKey + 'Property'] = propertyNames.map(dasherize).toString();
 		_this.offsetWidth; // Trigger reflow
 
-		// Restore any CSS properties that need to be restored
-		_this.css(valsToRestore);
+		// Start the transition
+		if (noCssTransitionSupport) {
+			//Increment the CSS properties by their respective amounts each frame period until all frames have been rendered
+			(function renderFrame() {
+				for (prop in cssIncrementProps) {
+					inlineStyle[prop] = parseFloat(inlineStyle[prop]) + cssIncrementProps[prop] + inlineStyle[prop].replace(rgxUpToUnits, '');
+				}
 
-		if (!animationCompleted) {
-			//Set all the current CSS property values
-			_this.css(properties);
+				if (--framesLeft) {
+					temp = setTimeout(renderFrame, 25);
+				}
+				else {
+					_this.trigger(transitionendEventName);
+				}
+			})();
 		}
 		else {
-			if (hideOnComplete) {
-				_this.hide();
+			_this.css(properties); // Setting the CSS values starts the transition
+		}
+
+		// Set an event that cleans up the animation and calls the complete callback after the transition is done
+		_this.addEventListener(transitionendEventName, _this._$A_ = function onTransitionEnd(animationCompleted) {
+			// When multiple properties are being animated at once, there will be multiple transitionend events.
+			// Only continue if this is the last transitionend event or the animation was stopped early
+			if (!noCssTransitionSupport && animationCompleted && animationCompleted.propertyName && --numChangingProps) return;
+
+			// Immediately remove the event listener and delete its saved reference
+			_this.removeEventListener(transitionendEventName, onTransitionEnd);
+			delete _this._$A_;
+
+			if (!animationCompleted) {
+				//Get the current values of the CSS properties being animated
+				properties = _this.css(propertyNames);
 			}
 
-			if (complete) {
-				// Set an immediate timeout so that the complete function is called
-				// after any other transitionend events are dispatched
-				setTimeout(function() {
-					complete.call(_this);
-				}, 0);
+			if (noCssTransitionSupport) {
+				//End the frame rendering and set all the final CSS values
+				clearTimeout(temp);
+				_this.css(properties);
 			}
-		}
-	});
+
+			// Force the animation to stop now by setting the transition style to 'none'
+			inlineStyle[cssTransitionKey] = 'none';
+			_this.offsetWidth; // Trigger reflow
+
+			// Restore any CSS properties that need to be restored
+			_this.css(valsToRestore);
+
+			if (!animationCompleted) {
+				//Set all the current CSS property values
+				_this.css(properties);
+			}
+			else {
+				if (hideOnComplete) {
+					_this.hide();
+				}
+
+				if (complete) {
+					complete.call(_this);
+				}
+			}
+		});
+	}
 
 	return _this;
 };
