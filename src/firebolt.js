@@ -192,10 +192,10 @@ function dasherize(str) {
 /*
  * Uses Object.defineProperty to define the values in the prototypeExtension object on the passed in prototype object
  */
-function definePrototypeExtensionsOn(proto) {
-	for (any in prototypeExtensions) {
+function definePrototypeExtensionsOn(proto, extensions) {
+	for (any in extensions) {
 		defineProperty(proto, any, {
-			value: prototypeExtensions[any],
+			value: extensions[any],
 			configurable: true,
 			writable: true
 		});
@@ -455,43 +455,6 @@ function getNodePutOrWithFunction(inserter) {
 }
 
 /*
- * Returns a convenience function for setting and clearing timeouts and intervals.
- * @see Function#delay
- * @see Function#every
- */
-function getTimingFunction(setTiming, clearTiming) {
-	return function(delay, args, thisArg) {
-		var
-			fn = this,
-
-			callback = function() {
-				fn.apply(thisArg, args);
-				callbackObject.hasExecuted = true;
-			},
-
-			clearRef = setTiming(callback, delay),
-
-			callbackObject = {
-				callback: fn,
-				hasExecuted: false,
-				execute: function(cancel) {
-					if (cancel !== false) {
-						clearTiming(clearRef);
-					}
-					callback();
-				},
-				cancel: function() {
-					clearTiming(clearRef);
-				}
-			};
-
-		thisArg = thisArg || !isArray(args) && args || callbackObject;
-
-		return callbackObject;
-	};
-}
-
-/*
  * Takes in the input from `.wrap()` or `.wrapInner()` and returns a new element (or null/undefined) to be the wrapping element.
  */
 function getWrappingElement(input) {
@@ -698,7 +661,6 @@ var
 	ArrayPrototype = Array[prototype],
 	ElementPrototype = Element[prototype],
 	EventPrototype = Event[prototype],
-	FunctionPrototype = Function[prototype],
 	HTMLElementPrototype = HTMLElement[prototype],
 	HTMLSelectElementPrototype = HTMLSelectElement[prototype],
 	NodePrototype = Node[prototype],
@@ -1145,8 +1107,8 @@ prototypeExtensions = {
 	}
 };
 
-//Define the properties on Array.prototype
-definePrototypeExtensionsOn(ArrayPrototype);
+// Define the properties on Array.prototype
+definePrototypeExtensionsOn(ArrayPrototype, prototypeExtensions);
 
 //#endregion Array
 
@@ -2409,9 +2371,6 @@ Firebolt.text = function(text) {
  * + `cancel` - A function that, when called, will cancel the timeout to prevent the function from being executed (if it hasn't been already).
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Window.setTimeout | window.setTimeout - Web API Interfaces | MDN}
  */
-defineProperty(FunctionPrototype, 'delay', {
-	value: getTimingFunction(setTimeout, clearTimeout)
-});
 
 /**
  * Executes the function repeatedly, with a fixed time delay between each call to the function.
@@ -2440,8 +2399,46 @@ defineProperty(FunctionPrototype, 'delay', {
  * + `cancel` - A function that, when called, will cancel the interval so the function will stop being called.
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Window.setInterval | window.setInterval - Web API Interfaces | MDN}
  */
-defineProperty(FunctionPrototype, 'every', {
-	value: getTimingFunction(setInterval, clearInterval)
+
+/*
+ * Returns a convenience function for setting and clearing timeouts and intervals.
+ */
+function getTimingFunction(setTiming, clearTiming) {
+	return function(delay, args, thisArg) {
+		var
+			fn = this,
+
+			callback = function() {
+				fn.apply(thisArg, args);
+				callbackObject.hasExecuted = true;
+			},
+
+			clearRef = setTiming(callback, delay),
+
+			callbackObject = {
+				callback: fn,
+				hasExecuted: false,
+				execute: function(cancel) {
+					if (cancel !== false) {
+						clearTiming(clearRef);
+					}
+					callback();
+				},
+				cancel: function() {
+					clearTiming(clearRef);
+				}
+			};
+
+		thisArg = thisArg || !isArray(args) && args || callbackObject;
+
+		return callbackObject;
+	};
+}
+
+// Define the delay and every functions on the Function prototype
+definePrototypeExtensionsOn(Function[prototype], {
+	delay: getTimingFunction(setTimeout, clearTimeout),
+	every: getTimingFunction(setInterval, clearInterval)
 });
 
 //#endregion Function
@@ -5816,8 +5813,8 @@ if (!StringPrototype.startsWith) {
 	};
 }
 
-//Define the prototype properties on String.prototype
-definePrototypeExtensionsOn(StringPrototype);
+// Define the prototype properties on String.prototype
+definePrototypeExtensionsOn(StringPrototype, prototypeExtensions);
 
 //#endregion String
 
