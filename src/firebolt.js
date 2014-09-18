@@ -542,6 +542,16 @@ function isDisplayNone(element, styleObject) {
 }
 
 /*
+ * Determines if the passed in node is an element
+ * 
+ * @param {Node} node
+ * @returns {Boolean}
+ */
+function isNodeElement(node) {
+	return node.nodeType === 1;
+}
+
+/*
  * Prepends a node to a reference node. 
  */
 function prepend(newNode, refNode) {
@@ -1277,7 +1287,7 @@ ElementPrototype.find = function(selector) {
 		try {
 			return this.querySelectorAll(
 				// Must make this check for when this function is used by NodeCollection#find() because `this` may be a Document or DocumentFragment
-				this.nodeType === 1 ? '#' + (this.id = 'root' + (timestamp++)) + ' ' + selector
+				isNodeElement(this) ? '#' + (this.id = 'root' + (timestamp++)) + ' ' + selector
 									: selector
 			);
 		}
@@ -3565,9 +3575,8 @@ NodePrototype.beforePut = getNodePutOrWithFunction(insertBefore);
  * @returns {NodeCollection}
  */
 NodePrototype.childElements = function(selector) {
-	//If this node does not implement the ParentNode interface, this.children will be `undefined`,
-	//so set children to an empty array so nothing will be added to the returned NodeCollection
-	var children = this.children || [];
+	// Try to directly get the element's children, or else filter its child nodes to be only elements
+	var children = this.children || ncFilter.call(this.childNodes, isNodeElement);
 
 	if (!selector) {
 		return ncFrom(children);
@@ -3625,8 +3634,8 @@ NodePrototype.closest = function(selector) {
 	}
 
 	if (typeofString(selector)) {
-		// If the node does not have the `matches()` function, it is not an element so skip to its parent element
-		node = node.matches ? node : node.parentElement;
+		// If the node is not an element, skip to its parent element
+		node = isNodeElement(node) ? node : node.parentElement;
 
 		// Search the node's parent elements until one matches the selector or there are no more parents
 		while (node && !node.matches(selector)) {
@@ -3859,8 +3868,8 @@ function nodeEventHandler(eventObject, extraParameters) {
 		//The bubble path is the elements from the target up to (but not including) this node
 		path = target.parentsUntil(_this);
 
-		//Add the target to the front of the path if it has the matches function (meaning it is an element)
-		if (target.matches) {
+		//Add the target to the front of the path if it is an element
+		if (isNodeElement(target)) {
 			path.unshift(target);
 		}
 
@@ -4334,7 +4343,7 @@ NodeCollectionPrototype._$C_ = NodeCollection;
 		var len = this.length,
 			i = 0;
 		for (; i < len; i++) {
-			if (this[i].nodeType === 1) {
+			if (isNodeElement(this[i])) {
 				fn.apply(this[i], arguments);
 			}
 		}
@@ -4531,11 +4540,18 @@ NodeCollectionPrototype.beforePut = NodeCollectionPrototype.before = getNodeColl
 /**
  * Gets the child elements of each element in the collection, optionally filtered by a selector.
  * 
+ * @function NodeCollection#childElements
+ * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
+ * @returns {NodeCollection} The set of children, sorted in document order.
+ */
+/**
+ * Alias for {@linkcode NodeCollection#childElements|NodeCollection#childElements()}.
+ * 
  * @function NodeCollection#children
  * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
  * @returns {NodeCollection} The set of children, sorted in document order.
  */
-NodeCollectionPrototype.children = getGetDirElementsFunc(HTMLElementPrototype.childElements, sortDocOrder);
+NodeCollectionPrototype.children = NodeCollectionPrototype.childElements = getGetDirElementsFunc(HTMLElementPrototype.childElements, sortDocOrder);
 
 /**
  * Calls {@linkcode https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement.click | HTMLElement#click()} on each element in the collection.
@@ -4744,7 +4760,7 @@ NodeCollectionPrototype.data = getFirstSetEachElement(ElementPrototype.data, fun
 NodeCollectionPrototype.filter = function(selector) {
 	return ncFilter.call(this, 
 		typeofString(selector)
-			? function(node) { return node.matches && node.matches(selector); } //Use CSS string filter
+			? function(node) { return isNodeElement(node) && node.matches(selector); } //Use CSS string filter
 			: selector //Use given filter function
 	);
 };
@@ -4966,7 +4982,7 @@ NodeCollectionPrototype.parent = function(selector) {
 
 	for (; i < this.length; i++) {
 		parent = this[i].parentNode;
-		if ((!selector || (parent.matches && parent.matches(selector))) && nc.indexOf(parent) < 0) {
+		if ((!selector || (isNodeElement(parent) && parent.matches(selector))) && nc.indexOf(parent) < 0) {
 			push1(nc, parent);
 		}
 	}
@@ -5849,23 +5865,8 @@ if (document.parentElement === undefined) {
 	defineProperty(NodePrototype, 'parentElement', {
 		get: function() {
 			var parent = this.parentNode;
-			return parent && parent.nodeType === 1 ? parent : null;
+			return parent && isNodeElement(parent) ? parent : null;
 		}
-	});
-
-}
-
-//Fix the children property for Document and DocumentFragment in browsers than only support it on Element
-if (!document.children) {
-
-	[Document, DocumentFragment].forEach(function(docInterface) {
-		defineProperty(docInterface[prototype], 'children', {
-			get: function() {
-				return ncFilter.call(this.childNodes, function(node) {
-					return node.nodeType === 1;
-				});
-			}
-		});
 	});
 
 }
