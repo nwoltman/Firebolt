@@ -672,7 +672,6 @@ var
 	ElementPrototype = Element[prototype],
 	EventPrototype = Event[prototype],
 	HTMLElementPrototype = HTMLElement[prototype],
-	HTMLSelectElementPrototype = HTMLSelectElement[prototype],
 	NodePrototype = Node[prototype],
 	NodeListPrototype = NodeList[prototype],
 	HTMLCollectionPrototype = HTMLCollection[prototype],
@@ -720,7 +719,6 @@ var
 	rgxNotTag = /[^A-Za-z]/,
 	rgxFirstTag = /<\w+/, //Matches the first tag in an HTML string
 	rgxSingleTag = /^<[A-Za-z]+\/?>$/, //Matches a single HTML tag such as "<div/>"
-	rgxNonWhitespace = /\S+/g,
 	rgxSpaceChars = /[ \t-\f]+/, //From W3C http://www.w3.org/TR/html5/single-page.html#space-character
 	rgxFormButton = /button|file|reset|submit/, //Matches input element types that are buttons
 	rgxCheckableElement = /checkbox|radio/,     //Matches checkbox or radio input element types
@@ -3478,7 +3476,7 @@ HTMLElementPrototype.val = function(value) {
 	return this;
 };
 
-HTMLSelectElementPrototype.val = function(value) {
+HTMLSelectElement[prototype].val = function(value) {
 	var multiple = this.multiple,
 		options = this.options,
 		i = 0;
@@ -5722,7 +5720,7 @@ prototypeExtensions = {
 	 * str.tokenize(); // -> ["The", "boy", "who", "lived."]
 	 */
 	tokenize: function() {
-		return this.match(rgxNonWhitespace) || [];
+		return this.match(/\S+/g) || [];
 	},
 
 	/**
