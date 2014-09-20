@@ -5651,11 +5651,12 @@ Number[prototype].toPaddedString = function(length, radix) {
  */
 
 /**
- * Gets the passed in object's JavaScript class name.
+ * Gets the passed in object's JavaScript [[class]].
  * 
  * @example
- * Object.getClassOf([]); // -> "Array"
- * Object.getClassOf({}); // -> "Object"
+ * Object.getClassOf([]);       // -> "Array"
+ * Object.getClassOf({});       // -> "Object"
+ * Object.getClassOf(window);   // -> "Object"
  * Object.getClassOf('string'); // -> "String"
  * Object.getClassOf(/^.+reg/); // -> "RegExp"
  * Object.getClassOf(document.querySelectorAll('div')); // -> "NodeList"
@@ -5665,8 +5666,8 @@ Number[prototype].toPaddedString = function(length, radix) {
  * @returns String - The passed in object's class name.
  */
 Object.getClassOf = getClassOf;
-function getClassOf(obj) {
-	return specialElementsMap.toString.call(obj).slice(8, -1);
+function getClassOf(value) {
+	return (value = specialElementsMap.toString.call(value).slice(8, -1)) == 'global' ? 'Object' : value;
 }
 
 //#endregion Object

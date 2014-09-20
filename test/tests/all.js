@@ -10,6 +10,7 @@ QUnit.config.hidepassed = true;
 	'Array',
 	'Firebolt',
 	'NodeList',
+	'Object',
 	'String'
 ].forEach(function(module) {
 	$.getScript('tests/' + module + '.js');
