@@ -28,9 +28,7 @@ function append(newNode, refNode) {
  */
 function callOnEach(fn) {
 	return function() {
-		var len = this.length,
-			i = 0;
-		for (; i < len; i++) {
+		for (var i = 0, len = this.length; i < len; i++) {
 			fn.apply(this[i], arguments);
 		}
 		return this;
@@ -375,14 +373,14 @@ function getNodeCollectionPutOrWithFunction(inserter) {
 		addClones = addClones === 0;
 
 		var len = this.length,
+			i = 1,
 			fragment,
-			clone,
-			i;
+			clone;
 
 		//Only create the DocumentFragment and do insertions if this NodeCollection isn't empty
 		if (len) {
 			fragment = createFragment(addClones ? [nc] : arguments);
-			for (i = 1; i < len; i++) {
+			for (; i < len; i++) {
 				clone = fragment.cloneNode(true);
 				if (addClones) {
 					array_push.apply(nc, clone.childNodes);
@@ -1013,10 +1011,7 @@ prototypeExtensions = {
 	 * @returns {Array} A reference to the array (so it's chainable).
 	 */
 	remove: function() {
-		var i = 0,
-			remIndex;
-
-		for (; i < arguments.length; i++) {
+		for (var i = 0, remIndex; i < arguments.length; i++) {
 			while ((remIndex = this.indexOf(arguments[i])) >= 0) {
 				this.splice(remIndex, 1);
 			}
@@ -2871,10 +2866,7 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
  * @see Node#appendWith
  */
 HTMLElementPrototype.appendWith = function() {
-	var i = 0,
-		arg;
-
-	for (; i < arguments.length; i++) {
+	for (var i = 0, arg; i < arguments.length; i++) {
 		if (typeofString(arg = arguments[i])) {
 			this.insertAdjacentHTML('beforeend', arg);
 		}
@@ -2893,10 +2885,7 @@ HTMLElementPrototype.appendWith = function() {
  * @see Node#beforePut
  */
 HTMLElementPrototype.beforePut = function() {
-	var i = 0,
-		arg;
-
-	for (; i < arguments.length; i++) {
+	for (var i = 0, arg; i < arguments.length; i++) {
 		if (typeofString(arg = arguments[i])) {
 			this.insertAdjacentHTML('beforebegin', arg);
 		}
@@ -4338,9 +4327,7 @@ NodeCollectionPrototype._$C_ = NodeCollection;
 + 'show slideDown slideToggle slideUp stop toggle toggleClass').split(' ').forEach(function(fnName) {
 	var fn = HTMLElementPrototype[fnName];
 	NodeCollectionPrototype[fnName] = function() {
-		var len = this.length,
-			i = 0;
-		for (; i < len; i++) {
+		for (var i = 0, len = this.length; i < len; i++) {
 			if (isNodeElement(this[i])) {
 				fn.apply(this[i], arguments);
 			}
@@ -5581,9 +5568,7 @@ Object.getOwnPropertyNames(NodeCollectionPrototype)
  * @returns {?Element}
  */
 NodeListPrototype.namedItem = NodeCollectionPrototype.namedItem = function(name) {
-	var i = 0,
-		node;
-	for (; i < this.length; i++) {
+	for (var i = 0, node; i < this.length; i++) {
 		node = this[i];
 		if (node.id == name || node.name == name) {
 			return node;
