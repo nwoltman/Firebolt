@@ -1,6 +1,6 @@
 /*!
  * Firebolt core file
- * @version 0.8.4
+ * @version 0.9.0
  * @author Nathan Woltman
  * @copyright 2014 Nathan Woltman
  * @license MIT https://github.com/woollybogger/Firebolt/blob/master/LICENSE.txt
