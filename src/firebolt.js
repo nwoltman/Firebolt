@@ -2195,14 +2195,14 @@ function serialize(obj, prefix, traditional) {
 			if (isArray(value)) {
 				for (cur = 0; cur < value.length; cur++) {
 					//Add key again for multiple array values
-					queryString += (cur ? '&' + encodeURIComponent(key) : '') + '=' + encodeURIComponent(value[cur]);
+					queryString += (cur ? '&' + encodeURIComponent(key) : '') + '=' + encodeURIComponent(value[cur] == undefined ? '' : value[cur]);
 				}
 			}
 			else {
 				queryString += '=' + encodeURIComponent(value);
 			}
 		}
-		else if (!(valueIsObject = typeofObject(value)) || !isEmptyObject(value)) {
+		else if (!(valueIsObject = isArray(value) || getClassOf(value) == 'Object') || !isEmptyObject(value)) {
 			/* Inspired by: http://stackoverflow.com/questions/1714786/querystring-encoding-of-a-javascript-object */
 			cur = prefix ? prefix + '[' + key + ']' : key;
 			queryString += (queryString ? '&' : '') + (valueIsObject ? serialize(value, cur)
