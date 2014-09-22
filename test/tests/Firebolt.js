@@ -437,6 +437,93 @@ test('isPlainObject', function func() {
 	ok(Firebolt.isPlainObject({}));
 });
 
+test("param", function() {
+	expect(25);
+
+	var params = {foo: 'bar', 'baz': 42, quux: 'All your base are belong to us'};
+	equal(Firebolt.param(params), 'foo=bar&baz=42&quux=All%20your%20base%20are%20belong%20to%20us', 'simple');
+
+	params = {string: 'foo', 'null': null, 'undefined': undefined};
+	equal(Firebolt.param(params), 'string=foo&null=&undefined=', 'handle nulls and undefineds properly');
+
+	params = {someName: [1, 2, 3], regularThing: 'blah'};
+	equal(Firebolt.param(params), 'someName%5B0%5D=1&someName%5B1%5D=2&someName%5B2%5D=3&regularThing=blah', 'with array');
+
+	params = {foo: ['a', 'b', 'c']};
+	equal(Firebolt.param(params), 'foo%5B0%5D=a&foo%5B1%5D=b&foo%5B2%5D=c', 'with array of strings');
+
+	params = {foo: ['baz', 42, 'All your base are belong to us']};
+	equal(Firebolt.param(params), 'foo%5B0%5D=baz&foo%5B1%5D=42&foo%5B2%5D=All%20your%20base%20are%20belong%20to%20us', 'more array');
+
+	params = {foo: {bar: 'baz', beep: 42, quux: 'All your base are belong to us'}};
+	equal(Firebolt.param(params), 'foo%5Bbar%5D=baz&foo%5Bbeep%5D=42&foo%5Bquux%5D=All%20your%20base%20are%20belong%20to%20us', 'handles objects inside objects');
+
+	params = {a: [1, 2], b: {c: 3, d: [4, 5], e: {x: [6], y: 7, z: [8, 9]}, f: true, g: false, h: undefined}, i: [10, 11], j: true, k: false, l: [undefined, 0], m: 'cowboy%20hat?'};
+	equal(decodeURIComponent(Firebolt.param(params)), 'a[0]=1&a[1]=2&b[c]=3&b[d][0]=4&b[d][1]=5&b[e][x][0]=6&b[e][y]=7&b[e][z][0]=8&b[e][z][1]=9&b[f]=true&b[g]=false&b[h]=&i[0]=10&i[1]=11&j=true&k=false&l[0]=&l[1]=0&m=cowboy%20hat?', 'huge structure');
+
+	params = {a: [0, [1, 2], [3, [4, 5], [6]], {b: [7, [8, 9], [{c: 10, d: 11}], [[12]], [[[13]]], {e: {f: {g: [14, [15]]}}}, 16]}, 17]};
+	equal(decodeURIComponent(Firebolt.param(params)), 'a[0]=0&a[1][0]=1&a[1][1]=2&a[2][0]=3&a[2][1][0]=4&a[2][1][1]=5&a[2][2][0]=6&a[3][b][0]=7&a[3][b][1][0]=8&a[3][b][1][1]=9&a[3][b][2][0][c]=10&a[3][b][2][0][d]=11&a[3][b][3][0][0]=12&a[3][b][4][0][0][0]=13&a[3][b][5][e][f][g][0]=14&a[3][b][5][e][f][g][1][0]=15&a[3][b][6]=16&a[4]=17', 'nested arrays');
+
+	params = {a: [1, 2], b: {c: 3, d: [4, 5], e: {x: [6], y: 7, z: [8, 9]}, f: true, g: false, h: undefined}, i: [10, 11], j: true, k: false, l: [undefined, 0], m: 'cowboy hat?'};
+	equal(Firebolt.param(params, true), 'a=1&a=2&b=%5Bobject%20Object%5D&i=10&i=11&j=true&k=false&l=&l=0&m=cowboy%20hat%3F', 'huge structure, forced traditional');
+
+	params = {a: [1, 2, 3], 'b[]': [4, 5, 6], 'c[d]': [7, 8, 9], e: {f: [10], g: [11, 12], h: 13}};
+	equal(decodeURIComponent(Firebolt.param(params)), 'a[0]=1&a[1]=2&a[2]=3&b[][0]=4&b[][1]=5&b[][2]=6&c[d][0]=7&c[d][1]=8&c[d][2]=9&e[f][0]=10&e[g][0]=11&e[g][1]=12&e[h]=13', 'Make sure params are not double-encoded.');
+
+	equal(Firebolt.param({version: '1.4.2'}), 'version=1.4.2', 'Check that object with a version property gets serialized correctly.');
+
+	params = {foo: 'bar', baz: 42, quux: 'All your base are belong to us'};
+	equal(Firebolt.param(params, true), 'foo=bar&baz=42&quux=All%20your%20base%20are%20belong%20to%20us', 'simple');
+
+	params = {someName: [1, 2, 3], regularThing: 'blah'};
+	equal(Firebolt.param(params, true), 'someName=1&someName=2&someName=3&regularThing=blah', 'with array');
+
+	params = {foo: ['a', 'b', 'c']};
+	equal(Firebolt.param(params, true), 'foo=a&foo=b&foo=c', 'with array of strings');
+
+	params = {'foo[]': ['baz', 42, 'All your base are belong to us']};
+	equal(Firebolt.param(params, true), 'foo%5B%5D=baz&foo%5B%5D=42&foo%5B%5D=All%20your%20base%20are%20belong%20to%20us', 'more array');
+
+	params = {'foo[bar]': 'baz', 'foo[beep]': 42, 'foo[quux]': 'All your base are belong to us'};
+	equal(Firebolt.param(params, true), 'foo%5Bbar%5D=baz&foo%5Bbeep%5D=42&foo%5Bquux%5D=All%20your%20base%20are%20belong%20to%20us', 'even more arrays');
+
+	params = {a: [1, 2], b: {c: 3, d: [4, 5], e: {x: [6], y: 7, z: [8, 9]}, f: true, g: false, h: undefined}, i: [10, 11], j: true, k: false, l: [undefined, 0], m: 'cowboy hat?'};
+	equal(Firebolt.param(params, true), 'a=1&a=2&b=%5Bobject%20Object%5D&i=10&i=11&j=true&k=false&l=&l=0&m=cowboy%20hat%3F', 'huge structure');
+
+	params = {a: [0, [1, 2], [3, [4, 5], [6]], {b: [7, [8, 9], [{c: 10, d: 11}], [[12]], [[[13]]], {e: {f: {g: [14, [15]]}}}, 16]}, 17]};
+	equal(Firebolt.param(params, true), 'a=0&a=1%2C2&a=3%2C4%2C5%2C6&a=%5Bobject%20Object%5D&a=17', 'Nested arrays (not possible when traditional is true)');
+
+	params = {a: [1, 2], b: {c: 3, d: [4, 5], e: {x: [6], y: 7, z: [8, 9]}, f: true, g: false, h: undefined}, i: [10, 11], j: true, k: false, l: [undefined, 0], m: 'cowboy hat?'};
+	equal(decodeURIComponent(Firebolt.param(params, false)), 'a[0]=1&a[1]=2&b[c]=3&b[d][0]=4&b[d][1]=5&b[e][x][0]=6&b[e][y]=7&b[e][z][0]=8&b[e][z][1]=9&b[f]=true&b[g]=false&b[h]=&i[0]=10&i[1]=11&j=true&k=false&l[0]=&l[1]=0&m=cowboy hat?', 'huge structure, forced not traditional');
+
+	params = {param: null};
+	equal(Firebolt.param(params, false), 'param=', 'Make sure that null params are not traversed');
+
+	params = {test: {length: 3, foo: 'bar'}};
+	equal(Firebolt.param(params, false), 'test%5Blength%5D=3&test%5Bfoo%5D=bar', 'Sub-object with a length property');
+
+	/** @constructor */
+	function Record() {
+		this['prop'] = 'val';
+	}
+
+	var MyString = String,
+		MyNumber = Number;
+
+	params = {'test': new MyString('foo')};
+	equal(Firebolt.param(params, false), 'test=foo', 'Do not mistake new String() for a plain object');
+
+	params = {test: new MyNumber(5)};
+	equal(Firebolt.param(params, false), 'test=5', 'Do not mistake new Number() for a plain object');
+
+	params = {test: new Date()};
+	ok(Firebolt.param(params, false), '(Non empty string returned) Do not mistake new Date() for a plain object');
+
+	// should allow non-native constructed objects
+	params = {test: new Record()};
+	equal(Firebolt.param(params, false), Firebolt.param({test: {prop: 'val'}}), 'Allow non-native constructed objects');
+});
+
 test('parseHTML', function() {
 	var iframe = document.createElement('iframe'),
 		element;
