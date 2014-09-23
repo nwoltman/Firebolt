@@ -10,6 +10,7 @@ QUnit.config.hidepassed = true;
 	'Array',
 	'Firebolt',
 	'NodeList',
+	'Number',
 	'Object',
 	'String'
 ].forEach(function(module) {
