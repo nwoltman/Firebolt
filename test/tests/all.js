@@ -8,6 +8,7 @@ QUnit.config.hidepassed = true;
 // Load the test modules
 [
 	'Array',
+	'AJAX',
 	'Firebolt',
 	'NodeList',
 	'Number',
