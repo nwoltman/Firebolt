@@ -531,6 +531,20 @@ test('parseHTML', function() {
 	ok(window.whoa != 9, 'Created scripts are not evaluated.');
 });
 
+test('ready', function() {
+	expect(2);
+
+	// The document must be done loading for the test to be valid
+	if (document.readyState == 'interactive' || document.readyState == 'complete') {
+		strictEqual(window.readyTestVal, 1, 'The test value is changed to 1 when the page is ready.');
+
+		Firebolt.ready(function() {
+			window.readyTestVal = 2;
+		});
+		strictEqual(window.readyTestVal, 2, 'The ready function is called immediately if the ready event has already fired.');
+	}
+});
+
 test('removeData', function() {
 	var object = {},
 		testData = {a: 1, b: 2, c: 3},
