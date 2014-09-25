@@ -710,7 +710,7 @@ var
 
 	/* Pre-built RegExps */
 	rgxDataType = /\b(?:xml|json)\b|script\b/,    // Matches an AJAX data type in Content-Type header
-	rgxDifferentNL = /^(?:af|ap|be|conc|ea|ins|prep|pu|rep|toggleC)|wrap|remove(?:Class)?$/, //Determines if the function is different for NodeLists
+	rgxDifferentNL = /^(?:af|ap|be|conc|ea|ins|prep|pu|rep|sor|toggleC)|wrap|remove(?:Class)?$/, //Determines if the function is different for NodeLists
 	rgxNotId = /[ .,>:[+~\t-\f]/,    //Matches other characters that cannot be in an id selector
 	rgxNotClass = /[ #,>:[+~\t-\f]/, //Matches other characters that cannot be in a class selector
 	rgxAllDots = /\./g,
@@ -5491,12 +5491,13 @@ NodeCollectionPrototype.wrapInner = function(wrappingElement) {
  * + removeClass
  * + replaceAll
  * + replaceWith
+ * + sort
  * + toggleClass
  * + unwrap
  * + wrap
  * + wrapInner
  * 
- * This is because these functions my alter live NodeLists, as seen in this example:
+ * This is because these functions will or may alter live NodeLists, as seen in this example:
  * 
  * ```javascript
  * var blueThings = $CLS('blue');  // If you're unfamiliar with Firebolt, $CLS is Firebolt's alias for document.getElementsByClassName
@@ -5522,7 +5523,6 @@ NodeCollectionPrototype.wrapInner = function(wrappingElement) {
  * + intersect
  * + map
  * + slice
- * + sort
  * + union
  * + unique
  * + without

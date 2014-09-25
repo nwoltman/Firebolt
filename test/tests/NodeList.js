@@ -25,6 +25,7 @@ test('has correct functions', function() {
 			'removeClass',
 			'replaceAll',
 			'replaceWith',
+			'sort',
 			'toggleClass',
 			'unwrap',
 			'wrap',
