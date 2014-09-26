@@ -802,29 +802,6 @@ var
  */
 
 prototypeExtensions = {
-	/* Private reference to the Array constructor */
-	_$C_: Array,
-
-	/**
-	 * Returns a copy of the array with all "empty" items (as defined by {@linkcode Firebolt.isEmpty}) removed.
-	 * 
-	 * @function Array#clean
-	 * @returns {Array} A clean copy of the array.
-	 * @see Firebolt.isEmpty
-	 */
-	clean: function() {
-		var cleaned = new this._$C_(),
-			i = 0;
-
-		for (; i < this.length; i++) {
-			if (!Firebolt.isEmpty(this[i])) {
-				push1(cleaned, this[i]);
-			}
-		}
-
-		return cleaned;
-	},
-
 	/**
 	 * Removes all elements from the array.
 	 * 
@@ -852,44 +829,6 @@ prototypeExtensions = {
 	 */
 	contains: function(e) {
 		return this.indexOf(e) >= 0;
-	},
-
-	/**
-	 * Returns a new array with all of the values of this array that are not in any of the input arrays (performs a set difference).
-	 * 
-	 * @example
-	 * [1, 2, 3, 4, 5].diff([5, 2, 10]); // -> [1, 3, 4]
-	 * 
-	 * @function Array#diff
-	 * @param {...Array} *arrays - A variable number of arrays or array-like objects.
-	 * @returns {Array}
-	 */
-	diff: function() {
-		var difference = new this._$C_(),
-			i = 0,
-			j,
-			k,
-			item,
-			array;
-
-		next: for (; i < this.length; i++) {
-			item = this[i];
-
-			for (j = 0; j < arguments.length; j++) {
-				array = arguments[j];
-
-				for (k = 0; k < array.length; k++) {
-					if (item === array[k]) {
-						continue next;
-					}
-				}
-			}
-
-			//The item was not part of any of the input arrays so it can be added to the difference array
-			push1(difference, item);
-		}
-
-		return difference;
 	},
 
 	/**
@@ -964,40 +903,6 @@ prototypeExtensions = {
 	},
 
 	/**
-	 * Performs a set intersection on this array and the input array(s).
-	 * 
-	 * @example
-	 * [1, 2, 3].intersect([2, 3, 4]); // -> [2, 3]
-	 * [1, 2, 3].intersect([101, 2, 50, 1], [2, 1]); // -> [1, 2]
-	 * 
-	 * @function Array#intersect
-	 * @param {...Array} *arrays - A variable number of arrays or array-like objects.
-	 * @returns {Array} An array that is the intersection of this array and the input array(s).
-	 */
-	intersect: function() {
-		var intersection = new this._$C_(),
-			i = 0,
-			j,
-			item;
-
-		next: for (; i < this.length; i++) {
-			//The current item can only be added if it is not already in the intersection
-			if (intersection.indexOf(item = this[i]) < 0) {
-				//If the item is not in every input array, continue to the next item without adding the current one
-				for (j = 0; j < arguments.length; j++) {
-					if (ArrayPrototype.indexOf.call(arguments[j], item) < 0) {
-						continue next;
-					}
-				}
-
-				push1(intersection, item);
-			}
-		}
-
-		return intersection;
-	},
-
-	/**
 	 * Removes all occurrences of the passed in items from the array if they exist in the array.
 	 * 
 	 * @example
@@ -1046,72 +951,168 @@ prototypeExtensions = {
 		};
 
 		return union;
-	},
-
-	/**
-	 * Returns a duplicate-free clone of the array.
-	 * 
-	 * @example
-	 * // Unsorted
-	 * [4, 2, 3, 2, 1, 4].uniq();     // -> [4, 2, 3, 1]
-	 * 
-	 * // Sorted
-	 * [1, 2, 2, 3, 4, 4].uniq();     // -> [1, 2, 3, 4]
-	 * [1, 2, 2, 3, 4, 4].uniq(true); // -> [1, 2, 3, 4] (but faster than on the previous line)
-	 * 
-	 * @function Array#uniq
-	 * @param {Boolean} [isSorted=false] - If the input array's contents are sorted and this is set to `true`,
-	 * a faster algorithm will be used to create the unique array.
-	 * @returns {Array}
-	 */
-	uniq: function(isSorted) {
-		var unique = new this._$C_(),
-			i = 0;
-
-		for (; i < this.length; i++) {
-			if (isSorted) {
-				if (this[i] !== this[i + 1]) {
-					push1(unique, this[i]);
-				}
-			}
-			else if (unique.indexOf(this[i]) < 0) {
-				push1(unique, this[i]);
-			}
-		}
-
-		return unique;
-	},
-
-	/**
-	 * Returns a copy of the current array without any elements from the input parameters.
-	 * 
-	 * @example
-	 * [1, 2, 3, 4].without(2, 4); // -> [1, 3]
-	 * 
-	 * @function Array#without
-	 * @param {...*} *items - Items to leave out of the returned array.
-	 * @returns {Array}
-	 */
-	without: function() {
-		var array = new this._$C_(),
-			i = 0,
-			j;
-
-		next: for (; i < this.length; i++) {
-			for (j = 0; j < arguments.length; j++) {
-				if (this[i] === arguments[j]) {
-					continue next;
-				}
-			}
-			push1(array, this[i]);
-		}
-
-		return array;
 	}
 };
 
+function getTypedArrayFunctions(constructor) {
+	return {
+		/**
+		 * Returns a copy of the array with all "empty" items (as defined by {@linkcode Firebolt.isEmpty}) removed.
+		 * 
+		 * @function Array#clean
+		 * @returns {Array} A clean copy of the array.
+		 * @see Firebolt.isEmpty
+		 */
+		clean: function() {
+			var cleaned = new constructor(),
+				i = 0;
+
+			for (; i < this.length; i++) {
+				if (!Firebolt.isEmpty(this[i])) {
+					push1(cleaned, this[i]);
+				}
+			}
+
+			return cleaned;
+		},
+
+		/**
+		 * Returns a new array with all of the values of this array that are not in any of the input arrays (performs a set difference).
+		 * 
+		 * @example
+		 * [1, 2, 3, 4, 5].diff([5, 2, 10]); // -> [1, 3, 4]
+		 * 
+		 * @function Array#diff
+		 * @param {...Array} *arrays - A variable number of arrays or array-like objects.
+		 * @returns {Array}
+		 */
+		diff: function() {
+			var difference = new constructor(),
+				i = 0,
+				j,
+				k,
+				item,
+				array;
+
+			next: for (; i < this.length; i++) {
+				item = this[i];
+
+				for (j = 0; j < arguments.length; j++) {
+					array = arguments[j];
+
+					for (k = 0; k < array.length; k++) {
+						if (item === array[k]) {
+							continue next;
+						}
+					}
+				}
+
+				//The item was not part of any of the input arrays so it can be added to the difference array
+				push1(difference, item);
+			}
+
+			return difference;
+		},
+
+		/**
+		 * Performs a set intersection on this array and the input array(s).
+		 * 
+		 * @example
+		 * [1, 2, 3].intersect([2, 3, 4]); // -> [2, 3]
+		 * [1, 2, 3].intersect([101, 2, 50, 1], [2, 1]); // -> [1, 2]
+		 * 
+		 * @function Array#intersect
+		 * @param {...Array} *arrays - A variable number of arrays or array-like objects.
+		 * @returns {Array} An array that is the intersection of this array and the input array(s).
+		 */
+		intersect: function() {
+			var intersection = new constructor(),
+				i = 0,
+				j,
+				item;
+
+			next: for (; i < this.length; i++) {
+				//The current item can only be added if it is not already in the intersection
+				if (intersection.indexOf(item = this[i]) < 0) {
+					//If the item is not in every input array, continue to the next item without adding the current one
+					for (j = 0; j < arguments.length; j++) {
+						if (ArrayPrototype.indexOf.call(arguments[j], item) < 0) {
+							continue next;
+						}
+					}
+
+					push1(intersection, item);
+				}
+			}
+
+			return intersection;
+		},
+
+		/**
+		 * Returns a duplicate-free clone of the array.
+		 * 
+		 * @example
+		 * // Unsorted
+		 * [4, 2, 3, 2, 1, 4].uniq();     // -> [4, 2, 3, 1]
+		 * 
+		 * // Sorted
+		 * [1, 2, 2, 3, 4, 4].uniq();     // -> [1, 2, 3, 4]
+		 * [1, 2, 2, 3, 4, 4].uniq(true); // -> [1, 2, 3, 4] (but faster than on the previous line)
+		 * 
+		 * @function Array#uniq
+		 * @param {Boolean} [isSorted=false] - If the input array's contents are sorted and this is set to `true`,
+		 * a faster algorithm will be used to create the unique array.
+		 * @returns {Array}
+		 */
+		uniq: function(isSorted) {
+			var unique = new constructor(),
+				i = 0;
+
+			for (; i < this.length; i++) {
+				if (isSorted) {
+					if (this[i] !== this[i + 1]) {
+						push1(unique, this[i]);
+					}
+				}
+				else if (unique.indexOf(this[i]) < 0) {
+					push1(unique, this[i]);
+				}
+			}
+
+			return unique;
+		},
+
+		/**
+		 * Returns a copy of the current array without any elements from the input parameters.
+		 * 
+		 * @example
+		 * [1, 2, 3, 4].without(2, 4); // -> [1, 3]
+		 * 
+		 * @function Array#without
+		 * @param {...*} *items - Items to leave out of the returned array.
+		 * @returns {Array}
+		 */
+		without: function() {
+			var array = new constructor(),
+				i = 0,
+				j;
+
+			next: for (; i < this.length; i++) {
+				for (j = 0; j < arguments.length; j++) {
+					if (this[i] === arguments[j]) {
+						continue next;
+					}
+				}
+				push1(array, this[i]);
+			}
+
+			return array;
+		}
+	}
+}
+
 // Define the properties on Array.prototype
-definePrototypeExtensionsOn(ArrayPrototype, prototypeExtensions);
+definePrototypeExtensionsOn(ArrayPrototype, extend(prototypeExtensions, getTypedArrayFunctions(Array)));
 
 //#endregion Array
 
@@ -4308,7 +4309,7 @@ var
 	NodeCollection = window.NodeCollection = window.NC = documentHead.appendChild(iframe).contentWindow.Array,
 
 	//Extend NodeCollection's prototype with the Array functions
-	NodeCollectionPrototype = extend(NodeCollection[prototype], prototypeExtensions),
+	NodeCollectionPrototype = extend(NodeCollection[prototype], prototypeExtensions, getTypedArrayFunctions(NodeCollection)),
 
 	//Set and get the NodeCollection.from function (gets the custom function and not the native one even if it exists)
 	ncFrom = setAndGetArrayFromFunction(NodeCollection),
@@ -4317,9 +4318,6 @@ var
 	ncFilter = NodeCollectionPrototype.filter;
 
 iframe.remove(); //Remove the iframe that was used to subclass Array
-
-/* Set the private constructor (which will be inherited by NodeList and HTMLCollection) */
-NodeCollectionPrototype._$C_ = NodeCollection;
 
 /* Add a bunch of functions by calling the HTMLElement version on each element in the collection */
 ('addClass animate blur click empty fadeIn fadeOut fadeToggle '
