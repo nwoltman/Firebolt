@@ -23,6 +23,7 @@ if (document.readyState == 'loading') { // The document should not be done loadi
 [
 	'Array',
 	'AJAX',
+	'Element',
 	'Firebolt',
 	'NodeList',
 	'Number',
