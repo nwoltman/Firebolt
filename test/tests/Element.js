@@ -32,3 +32,13 @@ test('matches', function() {
 	strictEqual(Element.prototype.matches, Element.prototype.matches || Element.prototype.webkitMatchesSelector || Element.prototype.mozMatchesSelector || Element.prototype.msMatchesSelector || Element.prototype.oMatchesSelector,
 		'Has the `matches()` alias function.');
 });
+
+test('removeAttr', function() {
+	var el = document.createElement('div');
+	el.setAttribute('class', 'mydiv');
+
+	strictEqual(el.getAttribute('class'), 'mydiv', 'Test that the testing element has the specified class attribute.');
+
+	strictEqual(el.removeAttr('class'), el, 'Returns the element.');
+	strictEqual(el.getAttribute('class'), null, 'Successfully removes the attribute from the element.');
+});
