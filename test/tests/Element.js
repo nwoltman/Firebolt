@@ -59,8 +59,6 @@ test('removeAttr', function() {
 	var el = document.createElement('div');
 	el.setAttribute('class', 'mydiv');
 
-	strictEqual(el.getAttribute('class'), 'mydiv', 'Test that the testing element has the specified class attribute.');
-
 	strictEqual(el.removeAttr('class'), el, 'Returns the element.');
 	strictEqual(el.getAttribute('class'), null, 'Successfully removes the attribute from the element.');
 });
@@ -80,4 +78,12 @@ test('removeData', function() {
 
 	// Restore the function
 	Firebolt.removeData = removeData;
+});
+
+test('removeProp', function() {
+	var el = document.createElement('div');
+	el.testProp = 1;
+
+	strictEqual(el.removeProp('testProp'), el, 'Returns the element.');
+	strictEqual(el.testProp, undefined, 'Successfully removes the property from the element.');
 });
