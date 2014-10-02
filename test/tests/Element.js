@@ -55,6 +55,17 @@ test('matches', function() {
 		'Has the `matches()` alias function.');
 });
 
+test('prop', function() {
+	var el = document.createElement('div');
+
+	strictEqual(el.prop('testProp', 1), el, 'Returns the element when setting a single property.');
+	strictEqual(el.testProp, 1, 'Sets a single property at the specified key.');
+	strictEqual(el.prop('testProp'), 1, 'Returns a single property at the specified key.');
+
+	strictEqual(el.prop({p1: 1, p2: 2}), el, 'Returns the element when setting multiple properties.');
+	ok(el.p1 === 1 && el.p2 === 2, 'Sets multiple properties when passed in an object of key-value pairs.');
+});
+
 test('removeAttr', function() {
 	var el = document.createElement('div');
 	el.setAttribute('class', 'mydiv');
