@@ -118,7 +118,10 @@ function createEventObject(eventType, event) { // Declaring `event` in the param
 function createFragment(content) {
 	var fragment = document.createDocumentFragment(),
 		i = 0,
-		item;
+		item,
+		len,
+		isLive,
+		j;
 
 	for (; i < content.length; i++) {
 		if (isNode(item = content[i])) {
@@ -128,19 +131,12 @@ function createFragment(content) {
 			if (typeofString(item)) {
 				item = htmlToNodes(item);
 			}
-			var origLen = item.length,
-				j = 1;
-			if (origLen) {
+
+			if (len = item.length) {
 				fragment.appendChild(item[0]);
-				if (item.length < origLen) { //item is a live NodeList/HTMLCollection
-					for (; j < origLen; j++) {
-						fragment.appendChild(item[0]);
-					}
-				}
-				else { //item is a static collection of nodes
-					for (; j < origLen; j++) {
-						fragment.appendChild(item[j]);
-					}
+				isLive = item.length < len; // Determine if the item is a live NodeList/HTMLCollection
+				for (j = 1; j < len; j++) {
+					fragment.appendChild(item[isLive ? 0 : j]);
 				}
 			}
 		}
