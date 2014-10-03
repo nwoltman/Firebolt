@@ -3793,11 +3793,12 @@ NodePrototype.off = function(events, selector, handler) {
 };
 
 /* Slightly alter the Event#stopPropagation() method for more convenient use in Node#on() */
-EventPrototype._$SP_ = EventPrototype.stopPropagation;
-EventPrototype.stopPropagation = function() {
-	this._$SP_();
-	this.propagationStopped = true;
-};
+(function(stopPropagation) {
+	EventPrototype.stopPropagation = function() {
+		stopPropagation.call(this);
+		this.propagationStopped = true;
+	};
+})(EventPrototype.stopPropagation);
 
 /* This is the function that will be invoked for each event type when a handler is set with Node#on() */
 function nodeEventHandler(eventObject, extraParameters) {
