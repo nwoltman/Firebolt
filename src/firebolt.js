@@ -43,7 +43,7 @@ function camelize(str) {
 }
 
 /*
- * Pre-defined so that an anonymous function does not need to be created each time sanitizeCssPropName() is called.
+ * Pre-defined so that an anonymous function does not need to be created each time camelize() is called.
  */
 function camelizer(match, p1) {
 	return p1 ? p1.toUpperCase() : '';
@@ -61,28 +61,28 @@ function copyDataAndEvents(nodeA, nodeB, doNotCopyChildNodes) {
 	var data = nodeA[Firebolt.expando],
 		events = nodeA._$E_;
 
-	//Data
+	// Data
 	if (data) {
-		//Use Firebolt.data in case the node was created in a different window
+		// Use Firebolt.data in case the node was created in a different window
 		extendDeep(Firebolt.data(nodeB), data);
 	}
 
-	//From this point on, the `data` variable is reused as the counter (or property name) in loops
+	/* From this point on, the `data` variable is reused as the counter (or property name) in loops */
 
-	//Events
+	// Events
 	if (events) {
-		//Copy event data and set the handler for each type of event
+		// Copy event data and set the handler for each type of event
 		nodeB._$E_ = extendDeep({}, events);
 		for (data in events) {
 			nodeB.addEventListener(data, nodeEventHandler);
 		}
 	}
 
-	//Copy data and events for child nodes
+	// Copy data and events for child nodes
 	if (!doNotCopyChildNodes && (nodeA = nodeA.childNodes)) {
 		nodeB = nodeB.childNodes;
 
-		//The nodeA and nodeB variables are now the childNodes NodeLists or the original nodes
+		// The nodeA and nodeB variables are now the childNodes NodeLists of the original nodes
 		for (data = 0; data < nodeA.length; data++) {
 			copyDataAndEvents(nodeA[data], nodeB[data]);
 		}
@@ -91,16 +91,17 @@ function copyDataAndEvents(nodeA, nodeB, doNotCopyChildNodes) {
 
 /*
  * Takes a string indicating an event type and returns an Event object that bubbles and is cancelable.
+ * 
  * @param {String} eventType - The name of the type of event (such as "click").
  */
 function createEventObject(eventType, event) { // Declaring `event` in the parameters to save a var declaration
-	if (Event.length) {
+	if (Event.length) { // Use the modern Event constructor
 		event = new Event(eventType, {
 			bubbles: true,
 			cancelable: true
 		});
 	}
-	else {
+	else { // Use the deprecated document.createEvent() + event.initEvent() method
 		event = document.createEvent('Event');
 		event.initEvent(eventType, true, true);
 	}
@@ -108,10 +109,9 @@ function createEventObject(eventType, event) { // Declaring `event` in the param
 	return event;
 }
 
-/**
- * Creates a new DocumentFragment and (optionally) appends the passed in content to it.
+/*
+ * Creates a new DocumentFragment and appends the (optionally) passed in content to it.
  * 
- * @private
  * @param {ArgumentsList} [content] - List of content to append to the new DocumentFragment.
  * @returns {DocumentFragment} The new fragment.
  */
@@ -207,11 +207,10 @@ function getAjaxErrorStatus(xhr) {
 	return xhr.readyState ? xhr.statusText.replace(xhr.status + ' ', '') : '';
 }
 
-/** 
+/*
  * Returns a function that calls the passed in function on each element in a NodeCollection unless the callback
  * returns true, in which case the result of calling the function on the first element is returned.
  * 
- * @private
  * @param {Function} fn - The function to use as the getter or setter.
  * @param {Function} callback(numArgs, firstArg) - Function to determine if the value of the first element should be returned.
  */
