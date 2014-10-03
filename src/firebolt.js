@@ -208,28 +208,28 @@ function getAjaxErrorStatus(xhr) {
  * returns true, in which case the result of calling the function on the first element is returned.
  * 
  * @param {Function} fn - The function to use as the getter or setter.
- * @param {Function} callback(numArgs, firstArg) - Function to determine if the value of the first element should be returned.
+ * @param {Function} isSetter(numArgs, firstArg) - Function to determine if the value of the first element should be returned.
  */
-function getFirstSetEachElement(fn, callback) {
+function getFirstSetEachElement(fn, isSetter) {
 	return function(firstArg) {
 		var items = this,
 			len = items.length,
 			i = 0;
 
-		if (!callback(arguments.length, firstArg)) {
-			//Set each
+		if (!isSetter(arguments.length, firstArg)) {
+			// Set each
 			for (; i < len; i++) {
-				if (items[i].nodeType === 1) {
+				if (isNodeElement(items[i])) {
 					fn.apply(items[i], arguments);
 				}
 			}
 			return items;
 		}
 
-		//Get first
+		// Get first
 		for (; i < len; i++) {
-			if (items[i].nodeType === 1) {
-				return fn.call(items[i], firstArg); //Only need first arg for getting
+			if (isNodeElement(items[i])) {
+				return fn.call(items[i], firstArg); // Only need first arg for getting
 			}
 		}
 	};
