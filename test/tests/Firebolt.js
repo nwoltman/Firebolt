@@ -48,6 +48,11 @@ test('data', function() {
 
 	strictEqual(Firebolt.data(element, undefined, undefined, 1).stuff, 23,
 		'Adds data retrieved from custom "data-*" attributes to the data store object.');
+
+	element = Firebolt.elem('div', {'data-a': '100.000', 'data-b': '1E02', 'data-c': '19.'});
+	dataStore = Firebolt.data(element, undefined, undefined, 1);
+	ok(dataStore.a === '100.000' && dataStore.b === '1E02' && dataStore.c === '19.',
+		'Retrieves numeric values as strings if their numeric representation would look different from the string representation.');
 });
 
 test('each', function() {

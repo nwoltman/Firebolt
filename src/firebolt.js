@@ -717,7 +717,7 @@ var
 	rgxCheckableElement = /checkbox|radio/,     //Matches checkbox or radio input element types
 	rgxCamelizables = isIE ? /^-+|-+([a-z])/g : /-+([a-z])/g, //Matches dashed parts of CSS property names
 	rgxDasherizables = /[A-Z]/g, //Matches capitol letters in a camel case string
-	rgxNoParse = /^\d+\D/, //Matches strings that look like numbers but have non-digit characters
+	rgxNoParse = /^\d+(?:[^\d.]|\..*\D|\..*0$)/, //Matches strings that look like numbers but should remain as strings
 	rgxUpToUnits = /.*\d/, //Matches a CSS string value up to the units (i.e. matches up to the last number before 'px' or '%')
 
 	/* Needed for parsing HTML */
