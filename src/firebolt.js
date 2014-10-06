@@ -674,6 +674,7 @@ var
 	isArray = Array.isArray,
 	arrayFrom = setAndGetArrayFromFunction(Array),
 	array_push = ArrayPrototype.push,
+	stopPropagation = EventPrototype.stopPropagation,
 	defineProperty = Object.defineProperty,
 	keys = Object.keys,
 
@@ -3793,12 +3794,10 @@ NodePrototype.off = function(events, selector, handler) {
 };
 
 /* Slightly alter the Event#stopPropagation() method for more convenient use in Node#on() */
-(function(stopPropagation) {
-	EventPrototype.stopPropagation = function() {
-		stopPropagation.call(this);
-		this.propagationStopped = true;
-	};
-})(EventPrototype.stopPropagation);
+EventPrototype.stopPropagation = function() {
+	stopPropagation.call(this);
+	this.propagationStopped = true;
+};
 
 /* This is the function that will be invoked for each event type when a handler is set with Node#on() */
 function nodeEventHandler(eventObject, extraParameters) {
