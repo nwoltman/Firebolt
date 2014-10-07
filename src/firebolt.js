@@ -5634,7 +5634,7 @@ Number[prototype].toPaddedString = function(length, radix) {
  * @example
  * Object.getClassOf([]);       // -> "Array"
  * Object.getClassOf({});       // -> "Object"
- * Object.getClassOf(window);   // -> "Object"
+ * Object.getClassOf(window);   // -> "Window"
  * Object.getClassOf('string'); // -> "String"
  * Object.getClassOf(/^.+reg/); // -> "RegExp"
  * Object.getClassOf(document.querySelectorAll('div')); // -> "NodeList"
@@ -5645,7 +5645,13 @@ Number[prototype].toPaddedString = function(length, radix) {
  */
 Object.getClassOf = getClassOf;
 function getClassOf(value) {
-	return (value = specialElementsMap.toString.call(value).slice(8, -1)) == 'global' ? 'Object' : value;
+	if ((value = specialElementsMap.toString.call(value).slice(8, -1)) == 'global') {
+		return 'Window';
+	}
+	if (value == 'Document') {
+		return 'HTMLDocument';
+	}
+	return value;
 }
 
 //#endregion Object

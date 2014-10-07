@@ -28,7 +28,7 @@ test('getClassOf', function () {
 	
 	ok(Object.getClassOf(false) === 'Boolean', 'Gets class of a boolean.');
 
-	ok(Object.getClassOf(window) === 'Object', 'Gets class of `window`.');
+	ok(Object.getClassOf(window) === 'Window', 'Gets class of `window`.');
 	
 	ok(Object.getClassOf(document) === 'HTMLDocument', 'Gets class of `document`.');
 
