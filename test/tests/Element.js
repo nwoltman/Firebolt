@@ -51,8 +51,17 @@ test('data', function() {
 });
 
 test('matches', function() {
-	strictEqual(Element.prototype.matches, Element.prototype.matches || Element.prototype.webkitMatchesSelector || Element.prototype.mozMatchesSelector || Element.prototype.msMatchesSelector || Element.prototype.oMatchesSelector,
-		'Has the `matches()` alias function.');
+	if ($$('qunit-fixture').appendChild(document.createElement('iframe')).contentWindow.Element.prototype.matches) {
+		// Element.prototype.matches is natively supported
+		ok(typeof Element.prototype.matches == 'function', 'Has the `matches()` function.');
+	}
+	else {
+		strictEqual(
+			Element.prototype.matches,
+			Element.prototype.webkitMatchesSelector || Element.prototype.mozMatchesSelector || Element.prototype.msMatchesSelector || Element.prototype.oMatchesSelector,
+			'Has the `matches()` function.'
+		);
+	}
 });
 
 test('prop', function() {
