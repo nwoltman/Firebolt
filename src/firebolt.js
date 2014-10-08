@@ -706,7 +706,7 @@ var
 
 	/* Pre-built RegExps */
 	rgxDataType = /\b(?:xml|json)\b|script\b/,    // Matches an AJAX data type in Content-Type header
-	rgxDifferentNL = /^(?:af|ap|be|conc|ea|ins|prep|pu|rep|sor|toggleC)|wrap|remove(?:Class)?$/, //Determines if the function is different for NodeLists
+	rgxDifferentNL = /^(?:af|ap|be|conc|ea|ins|prep|pu|rep|rev|sor|toggleC)|wrap|remove(?:Class)?$/, //Determines if the function is different for NodeLists
 	rgxNotId = /[ .,>:[+~\t-\f]/,    //Matches other characters that cannot be in an id selector
 	rgxNotClass = /[ #,>:[+~\t-\f]/, //Matches other characters that cannot be in a class selector
 	rgxAllDots = /\./g,
@@ -5484,6 +5484,7 @@ NodeCollectionPrototype.wrapInner = function(wrappingElement) {
  * + removeClass
  * + replaceAll
  * + replaceWith
+ * + reverse
  * + sort
  * + toggleClass
  * + unwrap
@@ -5543,7 +5544,7 @@ NodeCollectionPrototype.wrapInner = function(wrappingElement) {
 
 /* Give NodeLists and HTMLCollections many of the same prototype functions as NodeCollections */
 Object.getOwnPropertyNames(NodeCollectionPrototype)
-	.diff('clear length pop push reverse shift splice unshift'.split(' ')) //These properties should not be added to the NodeList prototype
+	.diff('clear length pop push shift splice unshift'.split(' ')) //These properties should not be added to the NodeList prototype
 	.forEach(function(methodName) {
 		if (!NodeListPrototype[methodName]) {
 			var method = NodeCollectionPrototype[methodName];

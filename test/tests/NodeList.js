@@ -9,8 +9,7 @@
 module('NodeList.prototype');
 
 test('has correct functions', function() {
-	var NodeCollection = $TAG('div').toNC(),
-		differentFuncs = [
+	var differentFuncs = [
 			'after', 'afterPut',
 			'append', 'appendWith',
 			'appendTo',
@@ -25,22 +24,26 @@ test('has correct functions', function() {
 			'removeClass',
 			'replaceAll',
 			'replaceWith',
+			'reverse',
 			'sort',
 			'toggleClass',
 			'unwrap',
 			'wrap',
 			'wrapInner'
-		],
-		nodeListFuncs = Object.keys(NodeList.prototype).remove('item', 'uniq', 'length', '@@iterator');
+		];
 
-	nodeListFuncs.forEach(function(methodName) {
-		if (differentFuncs.contains(methodName)) {
-			ok(NodeList.prototype[methodName] !== NodeCollection[methodName],
-				'NodeList.prototype.' + methodName + ' !== NodeCollection.prototype.' + methodName);
-		}
-		else {
-			ok(NodeList.prototype[methodName] === NodeCollection[methodName],
-				'NodeList.prototype.' + methodName + ' === NodeCollection.prototype.' + methodName);
-		}
-	});
+	Object.keys(NodeList.prototype)
+		.remove('item', 'uniq', 'length', '@@iterator')
+		.forEach(function(methodName) {
+			if (differentFuncs.contains(methodName)) {
+				ok(NodeList.prototype[methodName] !== NodeCollection.prototype[methodName],
+					'NodeList.prototype.' + methodName + ' !== NodeCollection.prototype.' + methodName);
+			}
+			else {
+				ok(NodeList.prototype[methodName] === NodeCollection.prototype[methodName],
+					'NodeList.prototype.' + methodName + ' === NodeCollection.prototype.' + methodName);
+			}
+		});
+	ok(NodeList.prototype.uniq === NodeCollection.prototype.toNC,
+		'NodeList.prototype.uniq === NodeCollection.prototype.toNC');
 });
