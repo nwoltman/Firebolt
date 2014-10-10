@@ -129,7 +129,7 @@ function createFragment(content) {
 		}
 		else {
 			if (typeofString(item)) {
-				item = htmlToNodes(item);
+				item = parseHTML(item);
 			}
 
 			if (len = item.length) {
@@ -469,46 +469,6 @@ function getWrappingInnerElement(wrapper) {
 		wrapper = wrapper.firstElementChild;
 	}
 	return wrapper;
-}
-
-/*
- * Takes an HTML string and returns a NodeList created by the HTML.
- * NOTE: Prototype functions added by Firebolt cannot be used in this function in case the context was changed in the Firebolt function
- */
-function htmlToNodes(html, detachNodes, single) {
-	var elem, specialElementData;
-
-	//If the HTML is just a single element without attributes, using document.createElement is much faster
-	if (rgxSingleTag.test(html)) {
-		//Create a new element from the HTML tag, retrieved by stripping "<" from the front and "/>" or ">" from the back
-		elem = createElement(
-			html.slice(1, html.length - (html[html.length - 2] === '/' ? 2 : 1))
-		);
-		return single ? elem : (html = new NodeCollection())[0] = elem, html;
-	}
-
-	//Parse the HTML, taking care to handle special elements
-	elem = createElement('body');
-	specialElementData = rgxFirstTag.exec(html);
-	if (specialElementData && (specialElementData = specialElementsMap[specialElementData[0]])) {
-		elem.innerHTML = specialElementData[1] + html + specialElementData[2];
-		specialElementData = specialElementData[0];
-		while (specialElementData--) {
-			elem = elem.firstChild;
-		}
-	}
-	else {
-		elem.innerHTML = html;
-	}
-
-	if (single) {
-		// When returning a single element, it should always be removed from its creation parent
-		return elem.removeChild(elem.firstChild);
-	}
-
-	html = elem.childNodes;
-
-	return detachNodes ? ncFrom(html).remove() : html;
 }
 
 /*
@@ -1432,7 +1392,7 @@ function Firebolt(selector, context) {
 	var firstChar = selector[0];
 
 	if (context) {
-		return firstChar === '<' ? Firebolt.parseHTML(selector, context) : ncFrom(context.querySelectorAll(selector));
+		return firstChar === '<' ? parseHTML(selector, context, 1) : ncFrom(context.querySelectorAll(selector));
 	}
 
 	if (firstChar === '.') { // Check for a single class name
@@ -1450,7 +1410,7 @@ function Firebolt(selector, context) {
 		}
 	}
 	else if (firstChar === '<') { // Check if the string is an HTML string
-		return htmlToNodes(selector, 1); // Pass in 1 to tell the function to detach the nodes from their creation container
+		return parseHTML(selector, document, 1); // Pass in 1 to tell the function to detach the nodes from their creation container
 	}
 	else if (!rgxNotTag.test(selector)) { // Check for a single tag name
 		return ncFrom(getElementsByTagName(selector));
@@ -2223,23 +2183,43 @@ function serialize(obj, prefix, traditional) {
  * @param {Document} [context=document] - A DOM Document to serve as the context in which the nodes will be created.
  * @returns {NodeCollection} The collection of created nodes.
  */
-Firebolt.parseHTML = function(html, context, single) {
-	if (context) {
-		document = context; // Set the context for creating nodes
-		try {
-			return htmlToNodes(html, 1, single); // Parse the HTML, passing in 1 to tell the function to detach the nodes from their creation container
-		}
-		catch (e) {
-			throw e;
-		}
-		finally {
-			document = window.document; // Restore the document
-		}
+Firebolt.parseHTML = parseHTML;
+function parseHTML(html, context, detachNodes, single) {
+	var elem;
+	context = context || document;
+
+	// If the HTML is just a single element without attributes, using document.createElement is much faster
+	if (rgxSingleTag.test(html)) {
+		// Create a new element from the HTML tag, retrieved by stripping "<" from the front and "/>" or ">" from the back
+		elem = context.createElement(
+			html.slice(1, html.length - (html[html.length - 2] === '/' ? 2 : 1))
+		);
+		return single ? elem : (html = new NodeCollection())[0] = elem, html;
 	}
 
-	// No need to change the context, just parse the HTML and have the returned nodes detached
-	return htmlToNodes(html, 1, single);
-};
+	// Parse the HTML, taking care to handle special elements
+	elem = context.createElement('body');
+	context = rgxFirstTag.exec(html);
+	if (context && (context = specialElementsMap[context[0]])) {
+		elem.innerHTML = context[1] + html + context[2];
+		context = context[0];
+		while (context--) {
+			elem = elem.firstChild;
+		}
+	}
+	else {
+		elem.innerHTML = html;
+	}
+
+	if (single) {
+		// When returning a single element, it should always be removed from its creation parent
+		return elem.removeChild(elem.firstChild);
+	}
+
+	html = elem.childNodes;
+
+	return detachNodes ? ncFrom(html).remove() : html;
+}
 
 /**
  * Load data from the server using a HTTP POST request.
@@ -2497,7 +2477,7 @@ window.$1 = function(selector, context) {
 	var firstChar = selector[0];
 
 	if (context) {
-		return firstChar === '<' ? Firebolt.parseHTML(selector, context, 1) : context.querySelector(selector);
+		return firstChar === '<' ? parseHTML(selector, context, 1, 1) : context.querySelector(selector);
 	}
 
 	if (firstChar === '.') { // Check for a single class name
@@ -2511,7 +2491,7 @@ window.$1 = function(selector, context) {
 		}
 	}
 	else if (firstChar === '<') { // Check if the string is an HTML string
-		return htmlToNodes(selector, 1, 1); // Pass in the second 1 to tell the htmlToNodes function to return only one node
+		return parseHTML(selector, document, 1, 1); // Pass in the second 1 to tell the function to return only one node
 	}
 	else if (!rgxNotTag.test(selector)) { // Check for a single tag name
 		return getElementsByTagName(selector)[0];
