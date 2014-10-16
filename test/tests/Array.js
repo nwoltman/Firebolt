@@ -60,7 +60,7 @@ test('contains', function() {
 });
 
 test('diff', function() {
-	var array = [1, 2, 3, 4, 5];
+	var array = [1, 2, 3, 4, 5, 2];
 
 	deepEqual(array.diff(), array, 'Returns a clone when called with no parameters.');
 
