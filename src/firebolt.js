@@ -2507,7 +2507,7 @@ window.$1 = function(selector, context) {
  * @global
  * @function $CLS
  * @param {String} className
- * @returns {HTMLCollection|NodeList} A list of elements with the specified class name.
+ * @returns {HTMLCollection} A set of elements with the specified class name.
  */
 
 /**
@@ -2521,7 +2521,7 @@ window.$1 = function(selector, context) {
  */
 
 /**
- * Returns a list of the elements within the document with the specified name attribute.  
+ * Returns a set of the elements within the document with the specified name attribute.  
  * Alias of `document.getElementsByName()`.
  * 
  * @global
@@ -2549,17 +2549,17 @@ window.$NAME = function(name) {
  * @global
  * @function $QSA
  * @param {String} selector
- * @returns {?Element}
+ * @returns {NodeList}
  */
 
 /**
- * Returns a list of the elements within the document with the specified tag name.  
+ * Returns a set of the elements within the document with the specified tag name.  
  * Alias of `document.getElementsByTagName()`.
  * 
  * @global
  * @function $TAG
  * @param {String} tagName
- * @returns {HTMLCollection|NodeList} A collection of elements with the specified tag name.
+ * @returns {HTMLCollection} A collection of elements with the specified tag name.
  */
 
 //#endregion Globals
@@ -2605,7 +2605,7 @@ window.$NAME = function(name) {
  * ```
  * 
  * @function HTMLElement#addClass
- * @param {String} className - One or more space-separated classes to be added to the element's class attribute.
+ * @param {String} className - One or more classes separated by a single space to be added to the element's class attribute.
  * @throws {TypeError} The input `value` must be string. __Note:__ This error will not be thrown if `value` is not a string and
  * the element does not have a className value at the time of invocation.
  */
@@ -3159,7 +3159,7 @@ HTMLElementPrototype.prependWith = getHTMLElementAfterPutOrPrependWith('afterbeg
  * ```
  * 
  * @function HTMLElement#removeClass
- * @param {String} [className] - One or more space-separated classes to be removed from the element's class attribute.
+ * @param {String} [className] - One or more classes separated by a single space to be removed from the element's class attribute.
  */
 HTMLElementPrototype.removeClass = iframe.className.length !== 3 || webkitNotIOS ?
 	// Browser compatibility (IE and other old browsers) and speed boost for non-iOS WebKit browsers
@@ -3357,7 +3357,7 @@ HTMLElementPrototype.toggle = function(showOrHide) {
  * ```
  * 
  * @function HTMLElement#toggleClass
- * @param {String} [className] - One or more space-separated classes to be toggled. If left empty, the element's current class is toggled.
+ * @param {String} [className] - One or more classes separated by a single space to be toggled. If left empty, the element's current class is toggled.
  * @param {Boolean} [addOrRemove] - A Boolean indicating whether to add or remove the class (`true` => add, `false` => remove).
  */
 HTMLElementPrototype.toggleClass = function(value, addOrRemove) {
