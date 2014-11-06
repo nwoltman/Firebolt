@@ -5763,14 +5763,19 @@ if (!StringPrototype.repeat) {
 	 * "0".repeat(5)     // "00000"
 	 */
 	prototypeExtensions.repeat = function(count) {
-		count = parseInt(count || 0);
-		if (isNaN(count) || count < 0) {
-			throw new RangeError('The repeat count must be positive and less than infinity.');
+		count = Math.floor(count) || 0;
+		if (!isFinite(count) || count < 0) {
+			throw new RangeError('Invalid count value');
 		}
-		for (var str = '', i = 0; i < count; i++) {
-			str += this;
+		// Thanks to V8 for the algorithm: https://github.com/v8/v8-git-mirror/blob/master/src/harmony-string.js#L27
+		var str = this.toString(),
+			retStr = '';
+		for (;;) {
+			if (count & 1) retStr += str;
+			count >>= 1;
+			if (count === 0) return retStr;
+			str += str;
 		}
-		return str;
 	};
 }
 

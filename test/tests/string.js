@@ -72,6 +72,8 @@ test('repeat', function() {
 	//Test return value
 	strictEqual(str.repeat(), '', 'Returns an empty string when no input is given.');
 
+	strictEqual(str.repeat('a'), '', 'Returns an empty string when non-number is given.');
+
 	strictEqual(str.repeat(0), '', 'Returns an empty string when given 0 as input.');
 
 	strictEqual(str.repeat(1), str, 'Returns the original string when given 1 as input.');
@@ -88,6 +90,14 @@ test('repeat', function() {
 	throws(function() {
 		str.repeat(1/0);
 	}, RangeError, 'Thows a RangeError when given infinity as input.');
+
+	throws(function() {
+		String.prototype.repeat.call(null);
+	}, TypeError, 'Throws a TypeError when called on null.');
+
+	throws(function() {
+		String.prototype.repeat.call(undefined);
+	}, TypeError, 'Throws a TypeError when called on undefined.');
 });
 
 test('startsWith', function() {
