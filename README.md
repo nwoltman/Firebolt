@@ -1,4 +1,4 @@
-<h1>
+<h1 align="center">
   <a href="http://fireboltjs.com">
     <img alt="Firebolt - JavaScript Empowered" src="http://fireboltjs.com/img/logo_big.png" title="Firebolt - JavaScript Empowered" height="100px" />
   </a>
