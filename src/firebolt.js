@@ -2034,19 +2034,15 @@ Firebolt.getScript = function(url, success) {
  * @memberOf Firebolt
  */
 Firebolt.globalEval = function(code) {
-	var indirect = eval,
-		script;
-
 	if (code = code.trim()) {
-		//If the code begins with a strict mode pragma, execute code by injecting a script tag into the document.
+		// If the code begins with a strict mode pragma, execute code by injecting a script tag into the document
 		if (code.slice(1, 11) === 'use strict') {
-			script = createElement('script');
+			var script = createElement('script');
 			script.text = code;
 			documentHead.appendChild(script).remove();
-		}
-		else {
-			//Otherwise, avoid the DOM node creation, insertion, and removal by using an indirect global eval
-			indirect(code);
+		} else {
+			// Avoid the DOM node creation, insertion, and removal by using an indirect eval
+			(1,eval)(code);
 		}
 	}
 };
