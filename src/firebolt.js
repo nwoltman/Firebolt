@@ -783,9 +783,9 @@ prototypeExtensions = {
 	 * Determines if the input item is in the array.
 	 * 
 	 * @function Array#contains
-	 * @returns {Boolean} `true` if the item is in the array; else `false`.
+	 * @returns {Boolean} `true` if the item is in the array, `false` otherwise.
 	 */
-	contains: function(e) {
+	contains: ArrayPrototype.contains || function(e) {
 		return this.indexOf(e) >= 0;
 	},
 
