@@ -50,6 +50,32 @@ test('data', function() {
 	Firebolt.data = data;
 });
 
+test('find', function() {
+	expect(4);
+
+	var div = document.createElement('div'),
+		span = document.createElement('span');
+
+	div.appendChild(span);
+	div.id = 'testId1'; // Set the id to make sure .find() doesn't alter it
+
+	strictEqual(div.find('div span').length, 0,
+		'Does not find elements that match the selector but do not match from the root element.');
+
+	strictEqual(div.find('span')[0], span,
+		'Finds elements that match the selector from the root element.');
+
+	strictEqual(div.id, 'testId1', "Does not alter the element's id property.");
+
+	div.id = 'testId2'; // Set the id to make sure .find() doesn't alter it if an error occurs
+	try {
+		div.find('&');
+	}
+	catch (e) {
+		strictEqual(div.id, 'testId2', "Does not alter the element's id property when an error occurs.");
+	} 
+});
+
 test('matches', function() {
 	if ($$('qunit-fixture').appendChild(document.createElement('iframe')).contentWindow.Element.prototype.matches) {
 		// Element.prototype.matches is natively supported
