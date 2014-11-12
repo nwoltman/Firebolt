@@ -665,8 +665,7 @@ var
 		} : document.querySelectorAll.bind(document),
 
 	/* Pre-built RegExps */
-	rgxDataType = /\b(?:xml|json)\b|script\b/,    // Matches an AJAX data type in Content-Type header
-	rgxDifferentNL = /^(?:af|ap|be|conc|ea|ins|prep|pu|rep|rev|sor|toggleC)|wrap|remove(?:Class)?$/, //Determines if the function is different for NodeLists
+	rgxDataType = /\b(?:xml|json)\b|script\b/, // Matches an AJAX data type in Content-Type header
 	rgxNotId = /[ .,>:[+~\t-\f]/,    //Matches other characters that cannot be in an id selector
 	rgxNotClass = /[ #,>:[+~\t-\f]/, //Matches other characters that cannot be in a class selector
 	rgxAllDots = /\./g,
@@ -680,6 +679,9 @@ var
 	rgxDasherizables = /[A-Z]/g, //Matches capitol letters in a camel case string
 	rgxNoParse = /^\d+(?:[^\d.]|\..*\D|\..*0$)/, //Matches strings that look like numbers but should remain as strings
 	rgxUpToUnits = /.*\d/, //Matches a CSS string value up to the units (i.e. matches up to the last number before 'px' or '%')
+
+	// Determines if the function is different for NodeLists
+	rgxDifferentNL = /^(?:af|ap|be|conc|cop|ea|fill|ins|prep|pu|rep|rev|sor|toggleC)|wrap|remove(?:Class)?$/,
 
 	/* Needed for parsing HTML */
 	optData = [1, '<select multiple>', '</select>'],
@@ -5451,7 +5453,9 @@ NodeCollectionPrototype.wrapInner = function(wrappingElement) {
  * + appendWith / append
  * + appendTo
  * + beforePut / before
+ * + copyWithin (ES6 browsers only)
  * + each
+ * + fill (ES6 browsers only)
  * + putAfter / insertAfter
  * + putBefore / insertBefore
  * + prependWith / prepend
