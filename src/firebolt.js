@@ -1136,7 +1136,7 @@ ElementPrototype.QSA = ElementPrototype.querySelectorAll;
  * 
  * @function Element#attr
  * @param {String} attribute - The name of the attribute who's value should be set.
- * @param {String} value - The value to set the specified attribute to.
+ * @param {String|Number} value - The value to set the specified attribute to.
  */
 /**
  * Sets the specified attributes of the element.
