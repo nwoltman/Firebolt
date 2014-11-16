@@ -1211,11 +1211,11 @@ ElementPrototype.data = function(key, value) {
 };
 
 /**
- * Gets the descendants of the element, filtered by a selector, collection of elements, or a single element.
+ * Gets the descendants of the element, filtered by a selector.
  * 
- * __Note:__ The main difference between when this function is called with a CSS selector string and `Element#querySelectorAll()`
- * (or Firebolt's short form `Element#QSA()`) is that in this function, the selector is evaluated with the current element as
- * the root of the selection (as opposed to the document). This can be seen in the example below.
+ * __Note:__ The main difference between when this function and `Element#querySelectorAll()` (or Firebolt's
+ * short form `Element#QSA()`) is that in this function, the selector is evaluated with the current element
+ * as the root of the selection (as opposed to the document). This can be seen in the example below.
  * 
  * @example <caption>Comparing Element#querySelectorAll() and Element#find()</caption>
  * /// HTML
@@ -1229,8 +1229,16 @@ ElementPrototype.data = function(key, value) {
  * testDiv.find('b');     // -> [<b>Hello</b>]
  * 
  * @function Element#find
- * @param {String|Element|Element[]} selector - A CSS selector, a collection of elements, or a single element used to match descendant elements against.
- * @returns {NodeList|NodeCollection}
+ * @param {String} selector - A CSS selector string.
+ * @returns {NodeList}
+ */
+/**
+ * Gets the descendants of the element, filtered by a collection of elements or a single element.
+ * 
+ * @function Element#find
+ * @param {Element|Element[]} matcher - A collection of elements or a single element used to match
+ * descendant elements against.
+ * @returns {NodeCollection}
  */
 ElementPrototype.find = function(selector) {
 	if (typeofString(selector)) {
@@ -1238,7 +1246,8 @@ ElementPrototype.find = function(selector) {
 		var origID = this.id;
 		try {
 			return this.querySelectorAll(
-				// Must make this check for when this function is used by NodeCollection#find() because `this` may be a Document or DocumentFragment
+				// Must make this check for when this function is used by NodeCollection#find()
+				// because `this` may be a Document or DocumentFragment
 				isNodeElement(this) ? '#' + (this.id = 'root' + (timestamp++)) + ' ' + selector
 									: selector
 			);
@@ -1251,8 +1260,10 @@ ElementPrototype.find = function(selector) {
 		}
 	}
 
-	//Return the intersection of all of the element's descendants with the elements in the input collection or single element (in an array)
-	return NodeCollectionPrototype.intersect.call(this.querySelectorAll('*'), selector.nodeType ? [selector] : selector);
+	// Return the intersection of all of the element's descendants with the elements in the
+	// input collection or single element (in an array)
+	return NodeCollectionPrototype.intersect.call(this.querySelectorAll('*'),
+	                                              selector.nodeType ? [selector] : selector);
 };
 
 /**
