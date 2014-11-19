@@ -1,1 +1,1 @@
-npm install uglify-js adm-zip
+npm install --production uglify-js adm-zip

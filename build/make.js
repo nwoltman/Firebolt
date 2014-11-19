@@ -6,6 +6,8 @@
  * three files and saves that to the dist folder as well.
  */
 
+console.log('Making Firebolt...');
+
 var fs = require('fs');
 var UglifyJS = require("uglify-js");
 var admZip = require('adm-zip')
@@ -40,3 +42,5 @@ zip.addLocalFile(distFirebolt);
 zip.addLocalFile(distMinified);
 zip.addLocalFile(distSourceMap);
 zip.writeZip(distZip);
+
+console.log('Done!');
