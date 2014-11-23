@@ -40,8 +40,7 @@ test('has correct functions', function() {
 			if (differentFuncs.contains(methodName)) {
 				ok(NodeList.prototype[methodName] !== NodeCollection.prototype[methodName],
 					'NodeList.prototype.' + methodName + ' !== NodeCollection.prototype.' + methodName);
-			}
-			else {
+			} else {
 				ok(NodeList.prototype[methodName] === NodeCollection.prototype[methodName],
 					'NodeList.prototype.' + methodName + ' === NodeCollection.prototype.' + methodName);
 			}

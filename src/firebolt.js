@@ -5445,7 +5445,6 @@ NodeCollectionPrototype.wrapInner = function(wrappingElement) {
  * + clear
  * + pop
  * + push
- * + reverse
  * + shift
  * + splice
  * + unshift
