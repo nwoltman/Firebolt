@@ -4115,38 +4115,46 @@ NodePrototype.siblings = function(selector) {
 };
 
 /**
- * @summary Gets this node's text content (specifically uses the native JavaScript property `Node.textContent`).
+ * Gets this node's text content.
  * 
- * @description __ATTENTION:__ There is a known bug where `<body>` elements will have an empty string as the `text` property instead
+ * __Note:__ Consider using the native `textContent` property instead of this function.
+ * 
+ * __Warning #1:__ There is a known bug where `<body>` elements will have an empty string as the `text` property instead
  * of this function due to browsers continuing to implement a deprecated API on the HTMLBodyElement prototype. Please use the native
  * `textContent` property to get and set the text content of `<body>` elements instead of attempting to use this function.
+ * 
+ * __Warning #2:__ `<script>` elements have a `text` property with the exact same functionality as the `textContent` property
+ * that cannot be overwritten. Please use the native `text` property or the `textContent` property to get and set the text
+ * content of `<script>` elements instead of attempting to use this function.
  * 
  * @function Node#text
  * @returns {String} The node's text content.
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.textContent|Node.textContent - Web API Interfaces | MDN}
  */
 /**
- * @summary Sets this node's text content (specifically uses the native JavaScript property `Node.textContent`).
+ * @summary Sets this node's text content.
  * 
  * @description
- * __Note #1:__ There is a known bug where `<body>` elements will have an empty string as the `text` property instead
+ * __Note:__ Consider using the native `textContent` property instead of this function.
+ * 
+ * __Warning #1:__ There is a known bug where `<body>` elements will have an empty string as the `text` property instead
  * of this function due to browsers continuing to implement a deprecated API on the HTMLBodyElement prototype. Please use the native
  * `textContent` property to get and set the text content of `<body>` elements instead of attempting to use this function.
  * 
- * __Note #2:__ `<script>` elements have a `text` property with the exact same functionality as the `textContent` property
+ * __Warning #2:__ `<script>` elements have a `text` property with the exact same functionality as the `textContent` property
  * that cannot be overwritten. Please use the native `text` property or the `textContent` property to get and set the text
  * content of `<script>` elements instead of attempting to use this function.
  * 
  * @function Node#text
- * @param {String|*} text - The text or content that will be converted to a string to be set as the node's text content.
+ * @param {String} text - The text or content that will be converted to a string to be set as the node's text content.
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.textContent | Node.textContent - Web API Interfaces | MDN}
  */
 NodePrototype.text = function(text) {
 	if (text === undefined) {
-		return this.textContent; //Get
+		return this.textContent; // Get
 	}
 
-	this.textContent = text; //Set
+	this.textContent = text; // Set
 
 	return this;
 };
