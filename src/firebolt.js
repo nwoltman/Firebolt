@@ -4210,9 +4210,7 @@ NodePrototype.triggerHandler = function(event, extraParameters) {
  * Remove the node's parent from the DOM, leaving the node in its place.
  * 
  * @function Node#unwrap
- * @throws {TypeError} The subject node must have a
- * {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode},
- * which in turn must also have a ParentNode.
+ * @throws {TypeError} The subject node must have a {@link ParentNode}, which in turn must also have a ParentNode.
  */
 NodePrototype.unwrap = function() {
 	var parent = this.parentNode,
@@ -4231,9 +4229,10 @@ NodePrototype.unwrap = function() {
  * Wrap an HTML structure around the node.
  * 
  * @function Node#wrap
- * @param {String|Element|Element[]} wrappingElement - CSS selector&mdash;to select wrapping element(s)&mdash;, HTML string&mdash;to
- * create wrapping element(s)&mdash;, element, or collection of elements used to specify the structure to wrap around the node.
- * @throws {TypeError} The subject node must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
+ * @param {String|Element|Element[]} wrappingElement - CSS selector&mdash;to select wrapping element(s)&mdash;,
+ *     HTML string&mdash;to create wrapping element(s)&mdash;, element, or collection of elements used to
+ *     specify the structure to wrap around the node.
+ * @throws {TypeError} The subject node must have a {@link ParentNode}.
  */
 NodePrototype.wrap = function(wrappingElement) {
 	if (wrappingElement = getWrappingElement(wrappingElement)) {
@@ -4248,8 +4247,9 @@ NodePrototype.wrap = function(wrappingElement) {
  * Wrap an HTML structure around the content of the node.
  * 
  * @function Node#wrapInner
- * @param {String|Element|Element[]} wrappingElement - CSS selector&mdash;to select wrapping element(s)&mdash;, HTML string&mdash;to
- * create wrapping element(s)&mdash;, element, or collection of elements used to specify the structure to wrap the node's contents.
+ * @param {String|Element|Element[]} wrappingElement - CSS selector&mdash;to select wrapping element(s)&mdash;,
+ *     HTML string&mdash;to create wrapping element(s)&mdash;, element, or collection of elements used to
+ *     specify the structure to wrap around the node's contents.
  * @throws {HierarchyRequestError} The node must implement the {@link ParentNode} interface.
  */
 NodePrototype.wrapInner = function(wrappingElement) {
@@ -5355,8 +5355,7 @@ NodeCollectionPrototype.triggerHandler = function(eventType, extraParameters) {
  * Remove the each node's parent from the DOM, leaving the node in its place.
  * 
  * @function NodeCollection#unwrap
- * @throws {TypeError} Each node must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode},
- * which in turn must also have a ParentNode.
+ * @throws {TypeError} Each node must have a {@link ParentNode}, which in turn must also have a ParentNode.
  */
 NodeCollectionPrototype.unwrap = function() {
 	var parents = this.parent(),
@@ -5412,9 +5411,10 @@ NodeCollectionPrototype.val = function(value) {
  * Wrap an HTML structure around each node in the collection.
  * 
  * @function NodeCollection#wrap
- * @param {String|Element|Element[]) wrappingElement - CSS selector&mdash;to select wrapping element(s)&mdash;, HTML string&mdash;to
- * create wrapping element(s)&mdash;, element, or collection of elements used to specify the wrapping structure.
- * @throws {TypeError} The target node(s) must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
+ * @param {String|Element|Element[]) wrappingElement - CSS selector&mdash;to select wrapping element(s)&mdash;,
+ *     HTML string&mdash;to create wrapping element(s)&mdash;, element, or collection of elements used to
+ *     specify the wrapping structure.
+ * @throws {TypeError} The target node(s) must have a {@link ParentNode}.
  */
 NodeCollectionPrototype.wrap = function(wrappingElement) {
 	if (wrappingElement = getWrappingElement(wrappingElement)) {
@@ -5430,8 +5430,9 @@ NodeCollectionPrototype.wrap = function(wrappingElement) {
  * Wrap an HTML structure around the contents of each node in the collection.
  * 
  * @function NodeCollection#wrapInner
- * @param {String|Element|Element[]) wrappingElement - CSS selector&mdash;to select wrapping element(s)&mdash;, HTML string&mdash;to
- * create wrapping element(s)&mdash;, element, or collection of elements used to specify the wrapping structure.
+ * @param {String|Element|Element[]) wrappingElement - CSS selector&mdash;to select wrapping element(s)&mdash;,
+ *     HTML string&mdash;to create wrapping element(s)&mdash;, element, or collection of elements used to
+ *     specify the wrapping structure.
  * @throws {HierarchyRequestError} The target node(s) must implement the {@link ParentNode} interface.
  */
 NodeCollectionPrototype.wrapInner = function(wrappingElement) {
