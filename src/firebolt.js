@@ -4210,11 +4210,19 @@ NodePrototype.triggerHandler = function(event, extraParameters) {
  * Remove the node's parent from the DOM, leaving the node in its place.
  * 
  * @function Node#unwrap
- * @throws {TypeError} The subject node must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode},
+ * @throws {TypeError} The subject node must have a
+ * {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode},
  * which in turn must also have a ParentNode.
  */
 NodePrototype.unwrap = function() {
-	replaceWith(this, this.parentNode);
+	var parent = this.parentNode,
+		grandparent = parent.parentNode;
+
+	while (parent.firstChild) {
+		grandparent.insertBefore(parent.firstChild, parent);
+	}
+
+	grandparent.removeChild(parent);
 
 	return this;
 };
