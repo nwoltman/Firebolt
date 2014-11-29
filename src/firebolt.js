@@ -4226,24 +4226,6 @@ NodePrototype.unwrap = function() {
 };
 
 /**
- * Wrap an HTML structure around the node.
- * 
- * @function Node#wrap
- * @param {String|Element|Element[]} wrappingElement - CSS selector&mdash;to select wrapping element(s)&mdash;,
- *     HTML string&mdash;to create wrapping element(s)&mdash;, element, or collection of elements used to
- *     specify the structure to wrap around the node.
- * @throws {TypeError} The subject node must have a {@link ParentNode}.
- */
-NodePrototype.wrap = function(wrappingElement) {
-	if (wrappingElement = getWrappingElement(wrappingElement)) {
-		replaceWith(wrappingElement, this);
-		getWrappingInnerElement(wrappingElement).appendChild(this);
-	}
-
-	return this;
-};
-
-/**
  * Wrap an HTML structure around the content of the node.
  * 
  * @function Node#wrapInner
@@ -4255,6 +4237,24 @@ NodePrototype.wrap = function(wrappingElement) {
 NodePrototype.wrapInner = function(wrappingElement) {
 	if (wrappingElement = getWrappingElement(wrappingElement)) {
 		this.appendChild(getWrappingInnerElement(wrappingElement).appendWith(this.childNodes));
+	}
+
+	return this;
+};
+
+/**
+ * Wrap an HTML structure around the node.
+ * 
+ * @function Node#wrapWith
+ * @param {String|Element|Element[]} wrappingElement - CSS selector&mdash;to select wrapping element(s)&mdash;,
+ *     HTML string&mdash;to create wrapping element(s)&mdash;, element, or collection of elements used to
+ *     specify the structure to wrap around the node.
+ * @throws {TypeError} The subject node must have a {@link ParentNode}.
+ */
+NodePrototype.wrapWith = function(wrappingElement) {
+	if (wrappingElement = getWrappingElement(wrappingElement)) {
+		replaceWith(wrappingElement, this);
+		getWrappingInnerElement(wrappingElement).appendChild(this);
 	}
 
 	return this;
@@ -5408,25 +5408,6 @@ NodeCollectionPrototype.val = function(value) {
 };
 
 /**
- * Wrap an HTML structure around each node in the collection.
- * 
- * @function NodeCollection#wrap
- * @param {String|Element|Element[]) wrappingElement - CSS selector&mdash;to select wrapping element(s)&mdash;,
- *     HTML string&mdash;to create wrapping element(s)&mdash;, element, or collection of elements used to
- *     specify the wrapping structure.
- * @throws {TypeError} The target node(s) must have a {@link ParentNode}.
- */
-NodeCollectionPrototype.wrap = function(wrappingElement) {
-	if (wrappingElement = getWrappingElement(wrappingElement)) {
-		for (var i = 0; i < this.length; i++) {
-			this[i].wrap(wrappingElement);
-		}
-	}
-
-	return this;
-};
-
-/**
  * Wrap an HTML structure around the contents of each node in the collection.
  * 
  * @function NodeCollection#wrapInner
@@ -5439,6 +5420,32 @@ NodeCollectionPrototype.wrapInner = function(wrappingElement) {
 	if (wrappingElement = getWrappingElement(wrappingElement)) {
 		for (var i = 0; i < this.length; i++) {
 			this[i].wrapInner(wrappingElement);
+		}
+	}
+
+	return this;
+};
+
+/**
+ * A jQuery-reminiscent alias for {@linkcode NodeCollection#wrapWith}.
+ * 
+ * @function NodeCollection#wrap
+ * @param {String|Element|Element[]) wrappingElement
+ */
+/**
+ * Wrap an HTML structure around each node in the collection.
+ * 
+ * @function NodeCollection#wrapWith
+ * @param {String|Element|Element[]) wrappingElement - CSS selector&mdash;to select wrapping element(s)&mdash;,
+ *     HTML string&mdash;to create wrapping element(s)&mdash;, element, or collection of elements used to
+ *     specify the wrapping structure.
+ * @throws {TypeError} The target node(s) must have a {@link ParentNode}.
+ */
+NodeCollectionPrototype.wrap =
+NodeCollectionPrototype.wrapWith = function(wrappingElement) {
+	if (wrappingElement = getWrappingElement(wrappingElement)) {
+		for (var i = 0; i < this.length; i++) {
+			NodePrototype.wrapWith.call(this[i], wrappingElement);
 		}
 	}
 
@@ -5492,7 +5499,7 @@ NodeCollectionPrototype.wrapInner = function(wrappingElement) {
  * + sort
  * + toggleClass
  * + unwrap
- * + wrap
+ * + wrapWith / wrap
  * + wrapInner
  * 
  * This is because these functions will or may alter live NodeLists, as seen in this example:

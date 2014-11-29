@@ -10,10 +10,10 @@ module('NodeList.prototype');
 
 test('has correct functions', function() {
 	var differentFuncs = [
-			'after', 'afterPut',
-			'append', 'appendWith',
+			'afterPut', 'after',
+			'appendWith', 'append',
 			'appendTo',
-			'before', 'beforePut',
+			'beforePut', 'before',
 			'concat',
 			'copyWithin',
 			'each',
@@ -30,8 +30,8 @@ test('has correct functions', function() {
 			'sort',
 			'toggleClass',
 			'unwrap',
-			'wrap',
-			'wrapInner'
+			'wrapInner',
+			'wrapWith', 'wrap'
 		];
 
 	Object.keys(NodeList.prototype)
