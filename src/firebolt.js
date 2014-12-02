@@ -4216,11 +4216,12 @@ NodePrototype.unwrap = function() {
 	var parent = this.parentNode,
 		grandparent = parent.parentNode;
 
-	while (parent.firstChild) {
-		grandparent.insertBefore(parent.firstChild, parent);
+	if (parent.nodeName != 'BODY') {
+		while (parent.firstChild) {
+			grandparent.insertBefore(parent.firstChild, parent);
+		}
+		grandparent.removeChild(parent);
 	}
-
-	grandparent.removeChild(parent);
 
 	return this;
 };
@@ -5358,14 +5359,10 @@ NodeCollectionPrototype.triggerHandler = function(eventType, extraParameters) {
  * @throws {TypeError} Each node must have a {@link ParentNode}, which in turn must also have a ParentNode.
  */
 NodeCollectionPrototype.unwrap = function() {
-	var parents = this.parent(),
-		i = 0,
-		parent;
+	var parents = NodeCollectionPrototype.parent.call(this),
+		i = 0;
 	for (; i < parents.length; i++) {
-		parent = parents[i];
-		if (parent.nodeName != 'BODY') {
-			parent.replaceWith(parent.childNodes);
-		}
+		NodePrototype.unwrap.call(parents[i].firstChild);
 	}
 
 	return this;
