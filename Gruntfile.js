@@ -19,7 +19,6 @@ module.exports = function(grunt) {
       'internet explorer': ['9', '10', '11']
     },
     'OS X 10.8': {
-      iPhone: ['6.0'],
       safari: ['6']
     },
     'OS X 10.9': {
@@ -32,7 +31,8 @@ module.exports = function(grunt) {
     },
     Linux: {
       chrome: ['38', '39'],
-      firefox: ['33', '34']
+      firefox: ['33', '34'],
+      android: ['4.0', '4.4']
     }
   };
 
@@ -103,10 +103,20 @@ module.exports = function(grunt) {
           urls: [qunitTestsUrl]
         }
       },
+      ios: {
+        options: {
+          browsers: [ ['OS X 10.8', 'iPhone', '6.0'] ],
+          build: process.env.TRAVIS_JOB_ID,
+          concurrency: 3,
+          tags: ['master'],
+          testname: 'Firebolt QUnit iOS 6.0 test',
+          tunnelTimeout: 5,
+          urls: [qunitTestsUrl]
+        }
+      },
       simple: {
         options: {
           browsers: [sauceBrowsers[1]],
-          build: process.env.TRAVIS_JOB_ID,
           concurrency: 3,
           tags: ['master'],
           testname: 'Firebolt QUnit simple test',
@@ -164,7 +174,8 @@ module.exports = function(grunt) {
   // Only connect to Sauce if the user has Sauce credentials
   if (process.env.SAUCE_USERNAME && process.env.SAUCE_ACCESS_KEY) {
     grunt.registerTask('test', ['lint', 'connect:temp', 'saucelabs-qunit:simple']);
-    grunt.registerTask('fulltest', ['lint', 'connect:temp', 'saucelabs-qunit:full']);
+    grunt.registerTask('fulltest', ['lint', 'connect:temp', 'saucelabs-qunit:full', 'saucelabs-qunit:ios']);
+    grunt.registerTask('iostest', ['connect:temp', 'saucelabs-qunit:ios']);
   } else {
     grunt.registerTask('test', ['lint', 'connect:local']); // Same as dev
     grunt.registerTask('fulltest', ['lint', 'tasks.nofulltest']);
