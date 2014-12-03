@@ -1,7 +1,15 @@
 module.exports = function (grunt) {
   'use strict';
 
-  grunt.registerTask('build.release', 'Extra build steps for a release build', function () {
+  grunt.registerTask('tasks.cleandist', 'Deletes the dist folder', function () {
+    var fs = require('fs');
+    fs.readdirSync('dist').forEach(function(file) {
+      fs.unlink('dist/' + file);
+    });
+    grunt.log.ok('Cleaned dist folder.');
+  });
+
+  grunt.registerTask('tasks.release', 'Extra build steps for a release build', function () {
     var fs = require('fs');
     var AdmZip = require('adm-zip');
 
@@ -23,6 +31,11 @@ module.exports = function (grunt) {
     code = code.replace(/\r?\n\/\/#.*/, ''); // Remove source map comment
     fs.writeFileSync('dist/firebolt.min.js', code);
     grunt.log.ok('Removed source map comment from "' + pathMin + '".');
+  });
+
+  grunt.registerTask('tasks.nofulltest', 'Warn the user that they cannot run fulltest', function () {
+    grunt.log.error('Cannot run "fulltest" without Sauce Labs crendentials.');
+    grunt.log.error('Please run `grunt build` to skip the fulltest or run `grunt dev` to test locally.');
   });
 
 };

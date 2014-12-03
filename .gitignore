@@ -1,4 +1,5 @@
 *.bak
+*.log
 *.sizecache.json
 /dist
 node_modules/
