@@ -91,6 +91,12 @@ test('repeat', function() {
 		str.repeat(1/0);
 	}, RangeError, 'Thows a RangeError when given infinity as input.');
 
+
+	/* The following tests will only work if the browser supports strict mode */
+
+	var strict = (function() { 'use strict'; return !this; })();
+	if (!strict) return; // Return if strict mode is not supported
+
 	throws(function() {
 		String.prototype.repeat.call(null);
 	}, TypeError, 'Throws a TypeError when called on null.');
