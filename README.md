@@ -5,6 +5,7 @@
 </h1>
 
 [![Build Status](https://travis-ci.org/woollybogger/Firebolt.svg)](https://travis-ci.org/woollybogger/Firebolt)
+[![devDependency Status](https://david-dm.org/woollybogger/Firebolt/dev-status.svg)](https://david-dm.org/woollybogger/Firebolt#info=devDependencies)
 
 [![Sauce Test Status](https://saucelabs.com/browser-matrix/nwoltman.svg)](https://saucelabs.com/u/nwoltman)
 
