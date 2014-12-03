@@ -19,11 +19,12 @@ module.exports = function(grunt) {
       'internet explorer': ['9', '10', '11']
     },
     'OS X 10.8': {
+      iPhone: ['6.0'],
       safari: ['6']
     },
     'OS X 10.9': {
-      iPhone: ['8.0', '8.1'],
-      iPad: ['8.0', '8.1'],
+      iPhone: ['8.1'],
+      iPad: ['8.1'],
       safari: ['7']
     },
     'OS X 10.10': {
@@ -174,7 +175,7 @@ module.exports = function(grunt) {
   // Only connect to Sauce if the user has Sauce credentials
   if (process.env.SAUCE_USERNAME && process.env.SAUCE_ACCESS_KEY) {
     grunt.registerTask('test', ['lint', 'connect:temp', 'saucelabs-qunit:simple']);
-    grunt.registerTask('fulltest', ['lint', 'connect:temp', 'saucelabs-qunit:full', 'saucelabs-qunit:ios']);
+    grunt.registerTask('fulltest', ['lint', 'connect:temp', 'saucelabs-qunit:full']);
     grunt.registerTask('iostest', ['connect:temp', 'saucelabs-qunit:ios']);
   } else {
     grunt.registerTask('test', ['lint', 'connect:local']); // Same as dev
