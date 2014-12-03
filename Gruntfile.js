@@ -23,8 +23,8 @@ module.exports = function(grunt) {
       safari: ['6']
     },
     'OS X 10.9': {
-      iPhone: ['8.1'],
-      iPad: ['8.1'],
+      iPhone: ['8.0', '8.1'],
+      iPad: ['8.0', '8.1'],
       safari: ['7']
     },
     'OS X 10.10': {
