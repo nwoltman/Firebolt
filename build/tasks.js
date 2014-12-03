@@ -3,6 +3,9 @@ module.exports = function (grunt) {
 
   grunt.registerTask('tasks.cleandist', 'Deletes the dist folder', function () {
     var fs = require('fs');
+
+    if (!fs.existsSync('dist')) return; // Nothing to do if the folder doesn't exist
+
     fs.readdirSync('dist').forEach(function(file) {
       fs.unlink('dist/' + file);
     });
