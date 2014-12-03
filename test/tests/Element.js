@@ -42,7 +42,7 @@ test('data', function() {
 		strictEqual(_isElement, 1);
 
 		return 'retVal';
-	}
+	};
 
 	strictEqual(el.data(key, value), 'retVal', 'Returns what Firebolt.data() returns.');
 
@@ -77,7 +77,7 @@ test('find', function() {
 });
 
 test('matches', function() {
-	if ($$('qunit-fixture').appendChild(document.createElement('iframe')).contentWindow.Element.prototype.matches) {
+	if (document.getElementById('qunit-fixture').appendChild(document.createElement('iframe')).contentWindow.Element.prototype.matches) {
 		// Element.prototype.matches is natively supported
 		ok(typeof Element.prototype.matches == 'function', 'Has the `matches()` function.');
 	}
@@ -118,7 +118,7 @@ test('removeData', function() {
 	Firebolt.removeData = function(_obj, _key) {
 		strictEqual(_obj, el);
 		strictEqual(_key, key);
-	}
+	};
 
 	strictEqual(el.removeData(key), el, 'Returns the element.');
 

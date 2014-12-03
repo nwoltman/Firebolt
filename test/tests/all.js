@@ -32,5 +32,5 @@ else {
 	'Object',
 	'String'
 ].forEach(function(module) {
-	$.getScript('tests/' + module + '.js');
+	Firebolt.getScript('tests/' + module + '.js');
 });

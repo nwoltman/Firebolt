@@ -125,7 +125,7 @@ test('each', function() {
 	}
 
 	seen = {
-		'Sparse Array': Array(4),
+		'Sparse Array': new Array(4),
 		'length: 1 plain object': {length: 1, '0': true},
 		'length: 2 plain object': {length: 2, '0': true, '1': true},
 		NodeList: document.getElementsByTagName('html')
@@ -173,7 +173,7 @@ test('elem', function() {
 test('extend', function() {
 	expect(31);
 
-	var empty, optionsWithLength, optionsWithDate, myKlass,
+	var empty, optionsWithLength, optionsWithDate, MyKlass,
 		customObject, optionsWithCustomObject, MyNumber, ret,
 		nullUndef, target, recursive, obj,
 		defaults, defaultsCopy, options1, options1Copy, options2, options2Copy, merged2,
@@ -217,15 +217,15 @@ test('extend', function() {
 	deepEqual(empty.foo, optionsWithDate.foo, 'Dates copy correctly');
 
 	/** @constructor */
-	myKlass = function() {};
-	customObject = new myKlass();
+	MyKlass = function() {};
+	customObject = new MyKlass();
 	optionsWithCustomObject = {'foo': {'date': customObject}};
 	empty = {};
 	Firebolt.extend(true, empty, optionsWithCustomObject);
 	ok(empty.foo && empty.foo.date === customObject, 'Custom objects copy correctly (no methods)');
 
 	// Makes the class a little more realistic
-	myKlass.prototype = {'someMethod': function() {}};
+	MyKlass.prototype = {'someMethod': function() {}};
 	empty = {};
 	Firebolt.extend(true, empty, optionsWithCustomObject);
 	ok(empty.foo && empty.foo.date === customObject, 'Custom objects copy correctly');
@@ -300,29 +300,29 @@ test('extend', function() {
 });
 
 test('frag', function() {
-	var fragment = $.frag(),
+	var fragment = Firebolt.frag(),
 		nodes,
 		node;
 
 	ok(fragment.nodeType === 11 && fragment.firstChild === null,
 		'Creates an empty DocumentFragment when called with no parameters.');
 
-	fragment = $.frag('<div>content</div>');
+	fragment = Firebolt.frag('<div>content</div>');
 	node = fragment.firstChild;
 	ok(fragment.nodeType === 11 && node.nodeName === 'DIV' && node.textContent === 'content',
 		'Creates a DocumentFragment with the specified HTML content.');
 
-	node = $.elem('p', {'class': 'class'});
-	fragment = $.frag(node);
+	node = Firebolt.elem('p', {'class': 'class'});
+	fragment = Firebolt.frag(node);
 	ok(fragment.nodeType === 11 && fragment.firstChild === node,
 		'Creates a DocumentFragment and appends an input node to it.');
 
-	nodes = $('<div>one</div> <p>two</p>');
-	fragment = $.frag(nodes);
+	nodes = Firebolt('<div>one</div> <p>two</p>');
+	fragment = Firebolt.frag(nodes);
 	ok(fragment.nodeType === 11 && fragment.childNodes.equals(nodes),
 		'Creates a DocumentFragment and appends the input nodes to it.');
 
-	fragment = $.frag(nodes, node);
+	fragment = Firebolt.frag(nodes, node);
 	nodes.push(node);
 	ok(fragment.nodeType === 11 && fragment.childNodes.equals(nodes),
 		'Creates a DocumentFragment and from multiple input parameters.');
@@ -490,7 +490,7 @@ test("param", function() {
 
 	/** @constructor */
 	function Record() {
-		this['prop'] = 'val';
+		this.prop = 'val';
 	}
 
 	var MyString = String,

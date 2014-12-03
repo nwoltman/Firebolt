@@ -11,7 +11,7 @@ module('Array.prototype');
 test('clean', function() {
 	var isClean = function(array) {
 			return array.every(function(item) {
-				return !$.isEmpty(item);
+				return !Firebolt.isEmpty(item);
 			});
 		},
 		origArray,
@@ -26,7 +26,7 @@ test('clean', function() {
 	cleanArray = origArray.clean();
 	deepEqual(cleanArray, [], 'Returns an empty array when cleaning an array with only empty items.');
 
-	origArray = [$.elem('div'), 100, -1, 0, false, true, 'random string', { notEmpty: true }, [1, 'a']];
+	origArray = [Firebolt.elem('div'), 100, -1, 0, false, true, 'random string', { notEmpty: true }, [1, 'a']];
 	cleanArray = origArray.clean();
 	ok(isClean(cleanArray), 'Cleans an array with both no empty items.');
 	ok(cleanArray != origArray && cleanArray.equals(origArray), 'Returns a clone of an array with no empty items.');
@@ -84,7 +84,7 @@ test('each', function() {
 		strictEqual(_callback, callback);
 		strictEqual(_thisArg, thisArg);
 		strictEqual(_isArrayLike, 1);
-	}
+	};
 
 	array.each(callback);
 
