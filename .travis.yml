@@ -1,9 +1,13 @@
 language: node_js
 node_js:
-  - "0.10"
+- '0.10'
 install:
-  - cd build
-  - npm install --production uglify-js adm-zip
+- cd build
+- npm install --production uglify-js adm-zip
 script: node make
 notifications:
   email: info@fireboltjs.com
+env:
+  global:
+  - secure: bTkTM3i7CVGW5bv1KCb3LggHNgYI9/wCybN3CZv+hhKPBED5HEvCmqQUVD+M1/yWe8PWx6BFRJEA80C/OsnMBLxI5okpydMZLOffxLe5psZtKA7iNWsPL61gyIVvpzIdo4NydkjXEmtB5kER+aIxYeqNeSWA7jAoo7O2zVtE5W8=
+  - secure: nVJfmap41XsAZROYKgWnnXKZg+UXKtb81x3DyNVAqufaiRbXAerkElQYb3jCtFVJ1jfGetSo/pp6RnUu5ASBmfwUXYd4GyIAsg+5pm6cE/2btQtbM7UmJHOlOHGm+nfbxgI39cBJs555sZle96nx0htsS9R7k6ek5jVzpB0mQ8o=
