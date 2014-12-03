@@ -158,7 +158,7 @@ test('each', function() {
 	Firebolt.each(document.styleSheets, function() {
 		i++;
 	});
-	equal(i, 1, 'Iteration over document.styleSheets');
+	equal(i, document.styleSheets.length, 'Iteration over document.styleSheets');
 });
 
 test('elem', function() {
