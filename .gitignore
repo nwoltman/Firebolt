@@ -1,3 +1,4 @@
 *.bak
+*.sizecache.json
 /dist
-/build/node_modules
+node_modules/

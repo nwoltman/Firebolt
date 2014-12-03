@@ -1,0 +1,25 @@
+{
+  "browser": true,
+  "devel": true,
+  "eqnull": true,
+  "indent": 4,
+  "laxbreak": true,
+  "newcap": true,
+  "undef": true,
+  "unused": true,
+  "predef": [
+    "HTMLCollection",
+    "Firebolt",
+    "NodeCollection",
+    "QUnit",
+    "module",
+    "test",
+    "expect",
+    "ok",
+    "equal",
+    "notEqual",
+    "strictEqual",
+    "deepEqual",
+    "throws"
+  ]
+}

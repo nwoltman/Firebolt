@@ -17,9 +17,23 @@ Just clone the repo and you're all set!
 git clone https://github.com/woollybogger/Firebolt.git
 ```
 
+### Building Firebolt
+
+Before you build for the first time, you must run:
+
+```bash
+npm install
+```
+
+Then to build run:
+
+```bash
+grunt
+```
+
 ### Running Unit Tests
 
-Simply open `Firebolt/test/index.html` in a browser to run unit tests.
+Simply open `test/index.html` in a browser to run unit tests.
 
 ### Contributing
 
