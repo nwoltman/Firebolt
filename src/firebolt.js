@@ -800,24 +800,30 @@ prototypeExtensions = {
 	 * @summary Executes a function on each item in the array.
 	 * 
 	 * @description
-	 * The difference between this function and `Array#forEach()` is that you can cancel the iteration by returning
-	 * `false` in the callback and the array is returned (allowing for function chaining).  
-	 * The difference between this function and `Array#every()` is that only returning `false` in the callback will
-	 * cancel the iteration (instead of any falsy value) and the array is returned instead of a boolean.
+	 * A generic iterator function is similar to `Array#forEach()` but with the following differences:
+	 * 
+	 * 1. `this` always refers to the current item in the iteration (the `value` argument to the callback).
+	 * 2. Returning `false` in the callback will cancel the iteration (similar to a `break` statement).
+	 * 3. The array is returned to allow for function chaining.
 	 * 
 	 * @function Array#each
-	 * @param {function(*, Number, Array)} callback(value,index,array) - The function that will be executed on each item.
-	 * @param {Object} [thisArg=value] - Value to use as `this` when executing `callback`. Defaults to the `value` parameter of `callback`.
+	 * @param {function(*, Number, Array)} callback(value,index,array) - A function to be executed on each
+	 *                                                                   item in the array.
 	 * @returns {Array} this
 	 */
-	each: function(callback, thisArg) {
-		return Firebolt.each(this, callback, thisArg, 1);
+	each: function(callback) {
+		var i = 0;
+
+		while (i < this.length && callback.call(this[i], this[i], i++, this) !== false);
+
+		return this;
 	},
 
 	/**
 	 * Determines if the arrays are equal by doing a shallow comparison of their elements using strict equality.
 	 * 
-	 * __Note:__ The order of elements in the arrays DOES matter. The elements must be found in the same order for the arrays to be considered equal.
+	 * __Note:__ The order of elements in the arrays DOES matter. The elements must be found in the same order
+	 * for the arrays to be considered equal.
 	 * 
 	 * @example
 	 * var array = [1, 2, 3];
@@ -1825,49 +1831,6 @@ Firebolt.data = function(object, key, value, isElement) {
 	}
 
 	return object;
-};
-
-/**
- * A generic iterator function, which can be used to iterate over both objects and arrays.
- * Arrays and array-like objects with a length property (such as a NodeLists) are iterated
- * by numeric index, from 0 to length-1. Other objects are iterated via their named properties.
- * Iteration can be cancelled by returning `false` in the callback.
- * 
- * @function Firebolt.each
- * @param {Array} array - The array or array-like object to iterate over.
- * @param {function(*, Number, Array)} callback(value,index,array) - The function that will be executed on each item.
- * @param {Object} [thisArg=value] - Value to use as `this` when executing `callback`. Defaults to the `value` parameter of `callback`.
- * @param {Boolean} [isArrayLike] - A hint you can give to Firebolt to tell it to use this version of the function so
- * it can skip checking the object's type.
- * @returns {Array} The input array.
- */
-/**
- * A generic iterator function, which can be used to iterate over both objects and arrays.
- * Arrays and array-like objects with a length property (such as a NodeLists) are iterated
- * by numeric index, from 0 to length-1. Other objects are iterated via their named properties.
- * Iteration can be cancelled by returning `false` in the callback.
- * 
- * @function Firebolt.each
- * @param {Object} object - The object to iterate over.
- * @param {function(*, String, Object)} callback(value,key,object) - The function that will be executed on each item.
- * @param {Object} [thisArg=value] - Value to use as `this` when executing `callback`. Defaults to the `value` parameter of `callback`.
- * @returns {Object} The input object.
- */
-Firebolt.each = function(obj, callback, thisArg, isArrayLike) {
-	var len = obj.length,
-		i = 0;
-
-	if (isArrayLike || isArray(obj) ||
-		typeof len == 'number' && typeof obj != 'function' && obj.toString() != '[object Window]' && (!len || (len - 1) in obj)) {
-		while (i < len && callback.call(thisArg || obj[i], obj[i], i++, obj) !== false);
-	}
-	else {
-		for (i in obj) {
-			if (callback.call(thisArg || obj[i], obj[i], i, obj) === false) break;
-		}
-	}
-
-	return obj;
 };
 
 /*
@@ -5634,8 +5597,25 @@ Number[prototype].toPaddedString = function(length, radix) {
 /**
  * @class Object
  * @classdesc The JavaScript Object class.
- * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object | Object - JavaScript | MDN}
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object|Object - JavaScript | MDN}
  */
+
+/**
+ * A generic iterator function for iterating over objects via their named properties.
+ * Iteration can be cancelled by returning `false` in the callback.
+ * 
+ * @function Object.each
+ * @param {Object} object - An object to iterate over.
+ * @param {function(*, String, Object)} callback(value,key,object) - A function to be executed on each item.
+ * @returns {Object} The input object.
+ */
+Object.each = function(obj, callback) {
+	for (var i in obj) {
+		if (callback.call(obj[i], obj[i], i, obj) === false) break;
+	}
+
+	return obj;
+};
 
 /**
  * Gets the passed in object's JavaScript [[class]].

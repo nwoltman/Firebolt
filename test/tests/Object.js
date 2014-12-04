@@ -8,6 +8,49 @@
 
 module('Object');
 
+test('each', function() {
+	expect(9);
+
+	var seen,
+		i;
+
+	seen = {};
+	Object.each([3, 4, 5], function(v, k) {
+		seen[k] = v;
+	});
+	deepEqual(seen, { '0': 3, '1': 4, '2': 5 }, 'Array iteration');
+
+	seen = {};
+	Object.each({ name: 'name', lang: 'lang' }, function(v, k) {
+		seen[k] = v;
+	});
+	deepEqual(seen, { name: 'name', lang: 'lang' }, 'Object iteration');
+
+	seen = [];
+	Object.each([1, 2, 3], function(v, k) {
+		seen.push(v);
+		if (k === '1') {
+			return false;
+		}
+	});
+	deepEqual(seen, [1, 2], 'Broken array iteration');
+
+	seen = [];
+	Object.each({ a: 1, b: 2, c: 3 }, function(v) {
+		seen.push(v);
+		return false;
+	});
+	deepEqual(seen, [1], 'Broken object iteration');
+
+	i = [{}, []];
+	Object.each(i, function(v, k, a) {
+		strictEqual(this, v, k + ' - `this` equals the first argument to the callback.');
+		strictEqual(i, a, k + ' - The third argument to the callback is the object.');
+	});
+
+	strictEqual(Object.each(i, function() { }), i, 'Returns the object.');
+});
+
 test('getClassOf', function () {
 	// Testing every single case is unnecessary, so this tests some regular cases but mainly edge cases
 	expect(11);

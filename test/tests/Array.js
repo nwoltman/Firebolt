@@ -74,25 +74,43 @@ test('diff', function() {
 });
 
 test('each', function() {
-	var array = [],
-		callback = function() {},
-		each = Firebolt.each,
-		thisArg;
+	expect(9);
 
-	Firebolt.each = function(_obj, _callback, _thisArg, _isArrayLike) {
-		strictEqual(_obj, array);
-		strictEqual(_callback, callback);
-		strictEqual(_thisArg, thisArg);
-		strictEqual(_isArrayLike, 1);
-	};
+	var seen,
+		i;
 
-	array.each(callback);
+	seen = {};
+	[3, 4, 5].each(function(v, k) {
+		seen[k] = v;
+	});
+	deepEqual(seen, {'0': 3, '1': 4, '2': 5}, 'Array iteration');
 
-	thisArg = 'this';
-	array.each(callback, thisArg);
+	seen = [];
+	[1, 2, 3].each(function(v, k) {
+		seen.push(v);
+		if (k === 1) {
+			return false;
+		}
+	});
+	deepEqual(seen, [1, 2], 'Broken iteration');
 
-	// Restore the spy
-	Firebolt.each = each;
+	i = [{}, []];
+	i.each(function(v, k, a) {
+		strictEqual(this, v, k + ' - `this` equals the first argument to the callback.');
+		strictEqual(i, a, k + ' - The third argument to the callback is the array.');
+	});
+
+	strictEqual(i.each(function() {}), i, 'Returns the array.');
+
+	document.querySelectorAll('body').each(function(v) {
+		strictEqual(v, document.body, 'Works on the prototype of NodeList');
+	});
+
+	i = 0;
+	Array.prototype.each.call(document.styleSheets, function() {
+		i++;
+	});
+	equal(i, document.styleSheets.length, 'Iteration over document.styleSheets');
 });
 
 test('equals', function() {
