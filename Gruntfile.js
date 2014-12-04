@@ -104,23 +104,22 @@ module.exports = function(grunt) {
           urls: [qunitTestsUrl]
         }
       },
-      ios: {
-        options: {
-          browsers: [ ['OS X 10.8', 'iPhone', '6.0'] ],
-          build: process.env.TRAVIS_JOB_ID,
-          concurrency: 3,
-          tags: ['master'],
-          testname: 'Firebolt QUnit iOS 6.0 test',
-          tunnelTimeout: 5,
-          urls: [qunitTestsUrl]
-        }
-      },
       simple: {
         options: {
           browsers: [sauceBrowsers[1]],
           concurrency: 3,
           tags: ['master'],
           testname: 'Firebolt QUnit simple test',
+          tunnelTimeout: 5,
+          urls: [qunitTestsUrl]
+        }
+      },
+      custom: {
+        options: {
+          browsers: [ ['OS X 10.8', 'iPhone', '6.0'] ],
+          concurrency: 3,
+          tags: ['master'],
+          testname: 'Firebolt QUnit custom test',
           tunnelTimeout: 5,
           urls: [qunitTestsUrl]
         }
@@ -176,7 +175,7 @@ module.exports = function(grunt) {
   if (process.env.SAUCE_USERNAME && process.env.SAUCE_ACCESS_KEY) {
     grunt.registerTask('test', ['lint', 'connect:temp', 'saucelabs-qunit:simple']);
     grunt.registerTask('fulltest', ['lint', 'connect:temp', 'saucelabs-qunit:full']);
-    grunt.registerTask('iostest', ['connect:temp', 'saucelabs-qunit:ios']);
+    grunt.registerTask('customtest', ['connect:temp', 'saucelabs-qunit:custom']);
   } else {
     grunt.registerTask('test', ['lint', 'connect:local']); // Same as dev
     grunt.registerTask('fulltest', ['lint', 'tasks.nofulltest']);
