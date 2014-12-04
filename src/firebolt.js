@@ -5660,7 +5660,7 @@ function getClassOf(value) {
 	if (value === null) {
 		return 'Null';
 	}
-	if ((value = specialElementsMap.toString.call(value).slice(8, -1)) == 'global') {
+	if ((value = specialElementsMap.toString.call(value).slice(8, -1)) == 'global' || value == 'DOMWindow') {
 		return 'Window';
 	}
 	if (value == 'Document') {
