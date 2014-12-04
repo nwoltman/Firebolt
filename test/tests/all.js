@@ -47,7 +47,8 @@ if (document.readyState == 'loading') { // The document should not be done loadi
 		});
 	}
 } else if (typeof console != 'undefined') {
-	console.warn('The Firebolt.ready() test will be incomplete because the document is done loading before it should be.');
+	console.warn('The Firebolt.ready() test will be incomplete because' // jshint ignore:line
+		         + 'the document is done loading before it should be.');
 }
 
 // Load the test modules
