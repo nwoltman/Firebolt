@@ -5643,6 +5643,12 @@ Number[prototype].toPaddedString = function(length, radix) {
  */
 Object.getClassOf = getClassOf;
 function getClassOf(value) {
+	if (value === _undefined) {
+		return 'Undefined';
+	}
+	if (value === null) {
+		return 'Null';
+	}
 	if ((value = specialElementsMap.toString.call(value).slice(8, -1)) == 'global') {
 		return 'Window';
 	}
