@@ -3186,11 +3186,11 @@ HTMLElementPrototype.serialize = function() {
 		name = this.name,
 		value = this.val();
 
-	if (!name                                                 // Doesn't have a name
-		|| this.disabled                                      // Is disabled
-		|| value == _undefined                                 // Is a <select> element and has no value or is not a form control
-		|| rgxFormButton.test(type)                           // Is a form button (button|file|reset|submit)
-		|| rgxCheckableElement.test(type) && !this.checked) { // Is a checkbox or radio button and is not checked
+	if (!name ||                                           // Doesn't have a name
+		this.disabled ||                                   // Is disabled
+		value == _undefined ||                             // Is a <select> element and has no value or is not a form control
+		rgxFormButton.test(type) ||                        // Is a form button (button|file|reset|submit)
+		rgxCheckableElement.test(type) && !this.checked) { // Is a checkbox or radio button and is not checked
 		return '';
 	}
 
@@ -5640,7 +5640,8 @@ function getClassOf(value) {
 	if (value === null) {
 		return 'Null';
 	}
-	if ((value = specialElementsMap.toString.call(value).slice(8, -1)) == 'global' || value == 'DOMWindow') {
+	if ((value = specialElementsMap.toString.call(value).slice(8, -1)) == 'global' ||
+		value == 'DOMWindow') { // 'DOMWindow' check is specifically for iOS 5.1
 		return 'Window';
 	}
 	if (value == 'Document') {
