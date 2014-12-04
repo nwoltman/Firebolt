@@ -97,7 +97,7 @@ module.exports = function(grunt) {
         options: {
           browsers: sauceBrowsers,
           build: process.env.TRAVIS_JOB_ID,
-          concurrency: 1,
+          concurrency: 3,
           tags: ['master'],
           testname: 'Firebolt QUnit full test',
           urls: [qunitTestsUrl]
