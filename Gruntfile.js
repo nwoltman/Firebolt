@@ -5,17 +5,17 @@ module.exports = function(grunt) {
   var platforms = {
     'Windows 8.1': {
       chrome: ['38', '39'],
-      firefox: ['32', '33'],
+      firefox: ['33'],
       'internet explorer': ['11']
     },
     'Windows 8': {
       chrome: ['38', '39'],
-      firefox: ['32', '33'],
+      firefox: ['33'],
       'internet explorer': ['10']
     },
     'Windows 7': {
       chrome: ['38', '39'],
-      firefox: ['32', '33'],
+      firefox: ['33'],
       'internet explorer': ['9', '10', '11']
     },
     'OS X 10.8': {
