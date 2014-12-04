@@ -19,7 +19,7 @@ module.exports = function(grunt) {
       'internet explorer': ['9', '10', '11']
     },
     'OS X 10.8': {
-      iPhone: ['5.1', '6.0'],
+      iPhone: ['5.1'],
       safari: ['6']
     },
     'OS X 10.9': {
