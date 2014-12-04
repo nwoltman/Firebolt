@@ -204,6 +204,17 @@ function getAjaxErrorStatus(xhr) {
 }
 
 /*
+ * Returns a function that is the input function bound to the document.
+ * Used for creating the $$, $CLS, $TAG, $QS, $QSA functions.
+ * @param {function} fn - The function to be called on the document.
+ */
+function getElementSelectionFunction(fn) {
+	return isIOS ? function(selector) {
+		return fn.call(document, selector);
+	} : fn.bind(document);
+}
+
+/*
  * Returns a function that calls the passed in function on each element in a NodeCollection unless the callback
  * returns true, in which case the result of calling the function on the first element is returned.
  * 
@@ -639,27 +650,27 @@ var
 	getElementById = window.$$ = window.$ID =
 		webkitNotIOS ? function(id) {
 			return document.getElementById(id);
-		} : document.getElementById.bind(document),
+		} : getElementSelectionFunction(document.getElementById),
 
 	getElementsByClassName = window.$CLS =
 		webkitNotIOS ? function(className) {
 			return document.getElementsByClassName(className);
-		} : document.getElementsByClassName.bind(document),
+		} : getElementSelectionFunction(document.getElementsByClassName),
 
 	getElementsByTagName = window.$TAG =
 		webkitNotIOS ? function(tagName) {
 			return document.getElementsByTagName(tagName);
-		} : document.getElementsByTagName.bind(document),
+		} : getElementSelectionFunction(document.getElementsByTagName),
 
 	querySelector = window.$QS =
 		webkitNotIOS ? function(selector) {
 			return document.querySelector(selector);
-		} : document.querySelector.bind(document),
+		} : getElementSelectionFunction(document.querySelector),
 
 	querySelectorAll = window.$QSA =
 		webkitNotIOS ? function(selector) {
 			return document.querySelectorAll(selector);
-		} : document.querySelectorAll.bind(document),
+		} : getElementSelectionFunction(document.querySelectorAll),
 
 	/* Pre-built RegExps */
 	rgxDataType = /\b(?:xml|json)\b|script\b/, // Matches an AJAX data type in Content-Type header
