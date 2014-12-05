@@ -18,21 +18,21 @@ Firebolt is a high performance JavaScript library packed into a very small file 
 
 Just clone the repo and you're all set!
 
-```bash
+```sh
 git clone https://github.com/woollybogger/Firebolt.git
 ```
 
 ### Building Firebolt
 
-Before you build for the first time, you must run:
+Before you build for the first time, you must have [Node.js](http://nodejs.org/) installed and install dev dependencies with:
 
-```bash
+```sh
 npm install
 ```
 
 Then to build run:
 
-```bash
+```sh
 grunt build
 ```
 
