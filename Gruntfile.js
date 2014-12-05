@@ -8,11 +8,6 @@ module.exports = function(grunt) {
       firefox: ['33'],
       'internet explorer': ['11']
     },
-    'Windows 8': {
-      chrome: ['38', '39'],
-      firefox: ['33'],
-      'internet explorer': ['10']
-    },
     'Windows 7': {
       chrome: ['38', '39'],
       firefox: ['33'],
