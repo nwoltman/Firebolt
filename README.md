@@ -50,9 +50,7 @@ grunt fulltest # runs tests on all browsers configured in the Gruntfile
 
 ### Contributing
 
-Simply make your changes and submit a pull request :smiley:
-
-If you plan on making any major changes, [open an issue](https://github.com/woollybogger/Firebolt/issues) or contact [me](https://github.com/woollybogger) directly to discuss the changes you would like to make.
+Please read the [contributing documentation](https://github.com/woollybogger/Firebolt/blob/master/CONTRIBUTING.md).
 
 
 ## Questions?

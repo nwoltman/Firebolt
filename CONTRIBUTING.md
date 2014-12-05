@@ -3,7 +3,7 @@ CONTRIBUTING
 
 This document will guide you through the process of contributing to Firebolt.
 If you're new to open source in general, check out [GitHub's open source intro guide](https://guides.github.com/overviews/os-contributing/).
-If you're an experienced open source contributor, you probably only need to read the Code and Build & Test sections.
+If you're an experienced open source contributor, you probably only need to read the [Code](#code) and [Build & Test](#build--test) sections.
 
 
 ### Fork
@@ -132,4 +132,4 @@ Go to https://github.com/*username*/Firebolt and select the branch you have been
 Click the 'Pull Request' button and fill out the form.
 
 
-And then you play the waiting game...but hopefully not for very long :smile:
+And then you play the waiting game...but hopefully not for very long :smiley:
