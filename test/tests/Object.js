@@ -18,13 +18,13 @@ test('each', function() {
 	Object.each([3, 4, 5], function(v, k) {
 		seen[k] = v;
 	});
-	deepEqual(seen, { '0': 3, '1': 4, '2': 5 }, 'Array iteration');
+	deepEqual(seen, {'0': 3, '1': 4, '2': 5}, 'Array iteration');
 
 	seen = {};
-	Object.each({ name: 'name', lang: 'lang' }, function(v, k) {
+	Object.each({name: 'name', lang: 'lang'}, function(v, k) {
 		seen[k] = v;
 	});
-	deepEqual(seen, { name: 'name', lang: 'lang' }, 'Object iteration');
+	deepEqual(seen, {name: 'name', lang: 'lang'}, 'Object iteration');
 
 	seen = [];
 	Object.each([1, 2, 3], function(v, k) {
@@ -36,7 +36,7 @@ test('each', function() {
 	deepEqual(seen, [1, 2], 'Broken array iteration');
 
 	seen = [];
-	Object.each({ a: 1, b: 2, c: 3 }, function(v) {
+	Object.each({a: 1, b: 2, c: 3}, function(v) {
 		seen.push(v);
 		return false;
 	});

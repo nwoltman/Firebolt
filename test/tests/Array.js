@@ -26,7 +26,7 @@ test('clean', function() {
 	cleanArray = origArray.clean();
 	deepEqual(cleanArray, [], 'Returns an empty array when cleaning an array with only empty items.');
 
-	origArray = [Firebolt.elem('div'), 100, -1, 0, false, true, 'random string', { notEmpty: true }, [1, 'a']];
+	origArray = [Firebolt.elem('div'), 100, -1, 0, false, true, 'random string', {notEmpty: true}, [1, 'a']];
 	cleanArray = origArray.clean();
 	ok(isClean(cleanArray), 'Cleans an array with both no empty items.');
 	ok(cleanArray != origArray && cleanArray.equals(origArray), 'Returns a clone of an array with no empty items.');
