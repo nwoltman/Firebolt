@@ -5268,6 +5268,14 @@ NodeCollectionPrototype.text = function(text) {
  */
 
 /**
+ * Returns all of the nodes in the NodeCollection, as an {@link Array}.
+ * 
+ * @function NodeCollection#toArray
+ * @returns {Array}
+ */
+NodeCollectionPrototype.toArray = ArrayPrototype.clone;
+
+/**
  * Returns a shallow copy of the NodeCollection.  
  * This is mainly just so it can be inherited by {@link NodeList}, but can also be used like {@linkcode Array#clone}.
  * 

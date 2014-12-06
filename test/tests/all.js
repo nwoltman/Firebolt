@@ -57,6 +57,7 @@ if (document.readyState == 'loading') { // The document should not be done loadi
 	'AJAX',
 	'Element',
 	'Firebolt',
+	'NodeCollection',
 	'NodeList',
 	'Number',
 	'Object',
