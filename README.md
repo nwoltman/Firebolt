@@ -9,7 +9,7 @@
 
 [![Sauce Test Status](https://saucelabs.com/browser-matrix/nwoltman.svg)](https://saucelabs.com/u/nwoltman)
 
-Firebolt is a high performance JavaScript library packed into a very small file size. Firebolt's functionality is based off of <a href="http://jquery.com" target="_blank">jQuery</a> (a lot of the [API](http://api.fireboltjs.com) is identical to jQuery's), but is built by extending the `prototype` of native objects, similar to the <a href="http://prototypejs.org" target="_blank">Prototype framework</a>. This opens up a whole new world of coding possibilties, allowing users of the libary to write extremely efficient code, but with the simplicity of a jQuery-like API.
+Firebolt is a high performance JavaScript library packed into a very small file size. Firebolt's functionality is based off of <a href="http://jquery.com" target="_blank">jQuery</a> (a lot of the [API](http://api.fireboltjs.com) is identical to jQuery's), but is built by extending the `prototype` of native objects, similar to the <a href="http://prototypejs.org" target="_blank">Prototype framework</a>. This opens up a whole new world of coding possibilities, allowing users of the library to write extremely efficient code, but with the simplicity of a jQuery-like API.
 
 
 ## Getting Started
@@ -22,15 +22,15 @@ Just clone the repo and you're all set!
 git clone https://github.com/woollybogger/Firebolt.git
 ```
 
-### Building Firebolt
-
-Before you build for the first time, you must have [Node.js](http://nodejs.org/) installed and install dev dependencies with:
+If you want to build or test Firebolt, you'll need to have [Node.js](http://nodejs.org/) installed and install dev dependencies with:
 
 ```sh
 npm install
+npm install -g grunt-cli
+# *nix users may need `sudo` in front of those commands
 ```
 
-Then to build run:
+### Building Firebolt
 
 ```sh
 grunt build

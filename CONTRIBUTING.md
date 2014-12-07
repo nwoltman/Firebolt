@@ -3,18 +3,18 @@ CONTRIBUTING
 
 This document will guide you through the process of contributing to Firebolt.
 If you're new to open source in general, check out [GitHub's open source intro guide](https://guides.github.com/overviews/os-contributing/).
-If you're an experienced open source contributor, you probably only need to read the [Code](#code) and [Build & Test](#build--test) sections.
 
 
 ### Fork
 
 Fork the project [on GitHub](https://github.com/woollybogger/Firebolt.git) by pressing the Fork button:
+
 <img src="https://sammyk.s3.amazonaws.com/blog/images/2014-05-28/fork.png" alt="Fork" height="46px">
 
 Then check out your copy:
 
 ```sh
-git clone https://github.com/*username*/Firebolt.git
+git clone https://github.com/<username>/Firebolt.git
 cd Firebolt
 git remote add upstream https://github.com/woollybogger/Firebolt.git
 ```
@@ -31,7 +31,7 @@ git checkout -b my-branch-name -t origin/master
 
 ### Code
 
-Please attempt to match the code style already in the codebase. Some things to note are that single quotes (`'`) are used for strings, browser code (in `src/` and `test/`) is indented with tab characters with a tab width of 4 spaces, and Node code is indented with spaces with a tab width of 2 spaces.
+Please attempt to match the code style already in the code base. Some things to note are that single quotes (`'`) are used for strings, browser code (in `src/` and `test/`) is indented with tab characters with a tab width of 4 spaces, and Node code is indented with spaces with a tab width of 2 spaces.
 
 When fixing bugs and adding features, when appropriate please:
 
@@ -46,6 +46,8 @@ You'll also need to install the dev dependencies the first time you clone the re
 
 ```sh
 npm install
+npm install -g grunt-cli
+# *nix users may need `sudo` in front of those commands
 ```
 
 Then
@@ -90,7 +92,7 @@ First, make sure you have [configured git](https://help.github.com/articles/set-
 Writing good commit logs is important. A commit log should describe what changed and why.
 Follow these guidelines when writing one:
 
-1. The first line should be 50 characters or less and contain a short description of the change prefixed with the name of the changed subsystem (e.g. "src: refactor Firebolt.data()").
+1. The first line should be 50 characters or less and contain a short description of the change prefixed with the name of the changed subsystem (e.g. "src: Refactor Firebolt.data()").
 2. Keep the second line blank.
 3. The rest is a more detailed description of the commit and is written in either prose or list-format.
 
@@ -106,7 +108,7 @@ being fixed, etc etc.
 You could also list things about this commit like so:
 
 + Improves performance
-+ Improves minified/gizipped size
++ Improves minified/gzipped size
 + Makes code more clear
 + etc.
 ```
@@ -128,7 +130,7 @@ $ git rebase upstream/master
 $ git push origin my-branch-name
 ```
 
-Go to https://github.com/*username*/Firebolt and select the branch you have been working on.
+Go to https://github.com/<username>/Firebolt and select the branch you have been working on.
 Click the 'Pull Request' button and fill out the form.
 
 
