@@ -36,7 +36,7 @@
     "load-grunt-tasks": "1.0.0"
   },
   "scripts": {
-    "build": "npm install && grunt",
+    "build": "npm install && grunt build",
     "test": "grunt"
   }
 }
