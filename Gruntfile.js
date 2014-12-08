@@ -93,7 +93,7 @@ module.exports = function(grunt) {
           browsers: sauceBrowsers,
           build: process.env.TRAVIS_JOB_ID,
           concurrency: 3,
-          tags: ['master'],
+          tags: ['master', 'full'],
           testname: 'Firebolt QUnit full test',
           urls: [qunitTestsUrl]
         }
@@ -102,7 +102,7 @@ module.exports = function(grunt) {
         options: {
           browsers: [sauceBrowsers[1]],
           concurrency: 1,
-          tags: ['master'],
+          tags: ['master', 'simple'],
           testname: 'Firebolt QUnit simple test',
           urls: [qunitTestsUrl]
         }
@@ -111,7 +111,7 @@ module.exports = function(grunt) {
         options: {
           browsers: [ ['OS X 10.8', 'iPhone', '6.0'] ],
           concurrency: 1,
-          tags: ['master'],
+          tags: ['master', 'custom'],
           testname: 'Firebolt QUnit custom test',
           urls: [qunitTestsUrl]
         }
