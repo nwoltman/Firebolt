@@ -47,7 +47,7 @@ You'll also need to install the dev dependencies the first time you clone the re
 ```sh
 npm install
 npm install -g grunt-cli
-# *nix users may need `sudo` in front of those commands
+# *nix users may need `sudo` in front of these commands
 ```
 
 Then
@@ -87,7 +87,7 @@ grunt fulltest # runs tests on all browsers configured in the Gruntfile
 
 ### Commit
 
-First, make sure you have [configured git](https://help.github.com/articles/set-up-git/#setting-up-git).
+First, make sure you have [configured git](https://help.github.com/articles/set-up-git/#setting-up-git) before continuing.
 
 Writing good commit logs is important. A commit log should describe what changed and why.
 Follow these guidelines when writing one:
@@ -99,7 +99,7 @@ Follow these guidelines when writing one:
 A good commit log looks like this:
 
 ```
-subsystem: explaining the commit in one line
+subsystem: Explaining the commit in one line
 
 Body of commit message is a few lines of text, explaining things
 in more detail, possibly giving some background about the issue

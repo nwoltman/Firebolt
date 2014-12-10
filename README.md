@@ -27,7 +27,7 @@ If you want to build or test Firebolt, you'll need to have [Node.js](http://node
 ```sh
 npm install
 npm install -g grunt-cli
-# *nix users may need `sudo` in front of those commands
+# *nix users may need `sudo` in front of these commands
 ```
 
 ### Building Firebolt
