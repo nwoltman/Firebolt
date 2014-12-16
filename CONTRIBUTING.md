@@ -1,4 +1,4 @@
-CONTRIBUTING
+Contributing
 ========================
 
 This document will guide you through the process of contributing to Firebolt.
@@ -7,9 +7,7 @@ If you're new to open source in general, check out [GitHub's open source intro g
 
 ### Fork
 
-Fork the project [on GitHub](https://github.com/woollybogger/Firebolt.git) by pressing the Fork button:
-
-<img src="https://sammyk.s3.amazonaws.com/blog/images/2014-05-28/fork.png" alt="Fork" height="46px">
+Fork the project [on GitHub](https://github.com/woollybogger/Firebolt.git) by pressing the Fork button.
 
 Then check out your copy:
 
