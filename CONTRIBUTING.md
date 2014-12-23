@@ -128,7 +128,7 @@ $ git rebase upstream/master
 $ git push origin my-branch-name
 ```
 
-Go to https://github.com/<username>/Firebolt and select the branch you have been working on.
+Go to `https://github.com/<username>/Firebolt` and select the branch you have been working on.
 Click the 'Pull Request' button and fill out the form.
 
 
