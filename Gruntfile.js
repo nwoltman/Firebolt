@@ -137,7 +137,7 @@ module.exports = function(grunt) {
         sourceMapName: 'dist/firebolt.min.map'
       },
       build: {
-        src: 'src/firebolt.js',
+        src: 'dist/firebolt.js',
         dest: 'dist/firebolt.min.js'
       }
     },
