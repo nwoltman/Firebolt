@@ -103,12 +103,12 @@ module.exports = function(grunt) {
           urls: [qunitTestsUrl]
         }
       },
-      simple: {
+      basic: {
         options: {
           browsers: [sauceBrowsers[1]],
           concurrency: 1,
-          tags: ['master', 'simple'],
-          testname: 'Firebolt QUnit simple test',
+          tags: ['master', 'basic'],
+          testname: 'Firebolt QUnit basic test',
           urls: [qunitTestsUrl]
         }
       },
@@ -168,20 +168,21 @@ module.exports = function(grunt) {
   // --- Register tasks ---
   grunt.registerTask('lint', ['jsonlint', 'jshint']);
   grunt.registerTask('dev', ['lint', 'connect:local']);
-  grunt.registerTask('cleanbuild', ['tasks.cleandist', 'copy', 'uglify']);
-  grunt.registerTask('build', ['lint', 'cleanbuild', 'compare_size']);
-  grunt.registerTask('release', ['lint', 'cleanbuild', 'tasks.release']);
+  grunt.registerTask('build:clean', ['tasks.cleandist']);
+  grunt.registerTask('build:basic', ['copy', 'uglify']);
+  grunt.registerTask('build', ['lint', 'build:clean', 'build:basic', 'compare_size']);
+  grunt.registerTask('release', ['build', 'tasks.release']);
 
   // Only connect to Sauce if the user has Sauce credentials
   if (process.env.SAUCE_USERNAME && process.env.SAUCE_ACCESS_KEY) {
-    grunt.registerTask('test', ['lint', 'connect:temp', 'saucelabs-qunit:simple']);
+    grunt.registerTask('test', ['lint', 'connect:temp', 'saucelabs-qunit:basic']);
     grunt.registerTask('fulltest', ['lint', 'connect:temp', 'saucelabs-qunit:full']);
     grunt.registerTask('customtest', ['connect:temp', 'saucelabs-qunit:custom']);
   } else {
     grunt.registerTask('test', ['lint', 'connect:local']); // Same as dev
-    grunt.registerTask('fulltest', ['lint', 'tasks.nofulltest']);
+    grunt.registerTask('fulltest', ['tasks.nofulltest']);
   }
 
-  // Default: run everything
-  grunt.registerTask('default', ['fulltest', 'cleanbuild', 'compare_size', 'tasks.release']);
+  // Default: do a release build and run all tests
+  grunt.registerTask('default', ['release', 'connect:temp', 'saucelabs-qunit:full']);
 };

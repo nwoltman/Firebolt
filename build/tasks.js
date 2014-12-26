@@ -1,7 +1,7 @@
 module.exports = function (grunt) {
   'use strict';
 
-  grunt.registerTask('tasks.cleandist', 'Deletes the dist folder', function () {
+  grunt.registerTask('tasks.cleandist', 'Deletes the contents of the dist folder', function () {
     var fs = require('fs');
 
     // Nothing to do if the folder doesn't exist
