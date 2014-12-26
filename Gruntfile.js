@@ -49,7 +49,9 @@ module.exports = function(grunt) {
 
   // Project configuration.
   grunt.initConfig({
+
     pkg: grunt.file.readJSON('package.json'),
+
     jsonlint: {
       all: {
         src: [
@@ -60,6 +62,7 @@ module.exports = function(grunt) {
         ]
       }
     },
+
     jshint: {
       all: {
         src: [
@@ -73,6 +76,7 @@ module.exports = function(grunt) {
         }
       }
     },
+
     connect: {
       temp: {
         options: {
@@ -87,6 +91,7 @@ module.exports = function(grunt) {
         }
       }
     },
+
     'saucelabs-qunit': {
       full: {
         options: {
@@ -117,12 +122,14 @@ module.exports = function(grunt) {
         }
       }
     },
+
     copy: {
       all: {
         src: 'src/firebolt.js',
         dest: 'dist/firebolt.js'
       }
     },
+
     uglify: {
       options: {
         banner: '/*! Firebolt v<%= pkg.version %> | (c)2014 Nathan Woltman | fireboltjs.com/license */',
@@ -134,6 +141,7 @@ module.exports = function(grunt) {
         dest: 'dist/firebolt.min.js'
       }
     },
+
     compare_size: {
       files: [
         'dist/firebolt.js',
@@ -148,6 +156,7 @@ module.exports = function(grunt) {
         }
       }
     }
+
   });
 
   // Load the Grunt plugins
@@ -156,7 +165,7 @@ module.exports = function(grunt) {
   // Load custom build tasks
   grunt.loadTasks('build');
 
-  /* Register tasks */
+  // --- Register tasks ---
   grunt.registerTask('lint', ['jsonlint', 'jshint']);
   grunt.registerTask('dev', ['lint', 'connect:local']);
   grunt.registerTask('cleanbuild', ['tasks.cleandist', 'copy', 'uglify']);
