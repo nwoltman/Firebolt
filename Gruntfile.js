@@ -1,16 +1,16 @@
 module.exports = function(grunt) {
   'use strict';
 
-  // Define the browser to test with Sauce Labs
+  // Define the browsers to test with Sauce Labs
   var platforms = {
     'Windows 8.1': {
       chrome: ['38', '39'],
-      firefox: ['33'],
+      firefox: ['33', '34'],
       'internet explorer': ['11']
     },
     'Windows 7': {
       chrome: ['38', '39'],
-      firefox: ['33'],
+      firefox: ['33', '34'],
       'internet explorer': ['9', '10', '11']
     },
     'OS X 10.8': {
