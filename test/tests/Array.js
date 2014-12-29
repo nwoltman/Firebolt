@@ -6,75 +6,77 @@
 /// <reference path="../qunit/qunit.js"/>
 /// <reference path="../../src/firebolt.js"/>
 
-module('Array.prototype');
+QUnit.module('Array.prototype');
 
-test('clean', function() {
-	var isClean = function(array) {
-			return array.every(function(item) {
-				return !Firebolt.isEmpty(item);
-			});
-		},
-		origArray,
-		cleanArray;
+QUnit.test('clean', function(assert) {
+	function isClean(array) {
+		return array.every(function(item) {
+			return !Firebolt.isEmpty(item);
+		});
+	}
 
-	origArray = [function() {}, 1, null, 0, '', 'str', undefined, false, {}, [], true, {notEmpty: true}, {}];
-	cleanArray = origArray.clean();
-	ok(isClean(cleanArray), 'Cleans an array with both empty and not-empty items.');
-	deepEqual(cleanArray, [origArray[0], 1, 0, 'str', false, true, origArray[11]], 'Preserves the order of non-empty items.');
+	var origArray = [function() {}, 1, null, 0, '', 'str', undefined, false, {}, [], true, {notEmpty: true}, {}];
+	var cleanArray = origArray.clean();
+	assert.ok(isClean(cleanArray), 'Cleans an array with both empty and not-empty items.');
+	assert.deepEqual(cleanArray, [origArray[0], 1, 0, 'str', false, true, origArray[11]],
+		'Preserves the order of non-empty items.');
 
 	origArray = [undefined, [], null, '', {}];
 	cleanArray = origArray.clean();
-	deepEqual(cleanArray, [], 'Returns an empty array when cleaning an array with only empty items.');
+	assert.deepEqual(cleanArray, [], 'Returns an empty array when cleaning an array with only empty items.');
 
 	origArray = [Firebolt.elem('div'), 100, -1, 0, false, true, 'random string', {notEmpty: true}, [1, 'a']];
 	cleanArray = origArray.clean();
-	ok(isClean(cleanArray), 'Cleans an array with both no empty items.');
-	ok(cleanArray != origArray && cleanArray.equals(origArray), 'Returns a clone of an array with no empty items.');
+	assert.ok(isClean(cleanArray), 'Cleans an array with both no empty items.');
+	assert.ok(cleanArray != origArray && cleanArray.equals(origArray),
+		'Returns a clone of an array with no empty items.');
 });
 
-test('clear', function() {
+QUnit.test('clear', function(assert) {
 	var array = [1, 2, 3];
 
 	array.clear();
 
-	ok(array.length === 0, 'Cleared array has no length.');
-	ok(array[0] === undefined && array[1] === undefined && array[3] === undefined,
+	assert.ok(array.length === 0, 'Cleared array has no length.');
+	assert.ok(array[0] === undefined && array[1] === undefined && array[3] === undefined,
 		'Items are no longer in the array (the indices where the items used to be are now undefined).');
 });
 
-test('clone', function() {
+QUnit.test('clone', function(assert) {
 	var origArray = [1, 99, '', {}, ['a', 'b'], false, /regex/],
 		clonedArray = origArray.clone();
 
-	notEqual(clonedArray, origArray, 'Cloned array is not the same as the original array.');
-	deepEqual(clonedArray, origArray, 'Cloned array contains the same items as the original array.');
+	assert.notEqual(clonedArray, origArray, 'Cloned array is not the same as the original array.');
+	assert.deepEqual(clonedArray, origArray, 'Cloned array contains the same items as the original array.');
 });
 
-test('contains', function() {
+QUnit.test('contains', function(assert) {
 	var array = ['a', 'b'];
 
-	ok(array.contains('a'), 'Correctly reports that an item in the array is in fact in the array.');
-	ok(array.contains('b'), 'Correctly reports that an item in the array is in fact in the array.');
-	ok(!array.contains('c'), 'Correctly reports that an item not in the array is not in the array.');
-	ok(!array.contains(1), 'Correctly reports that an item not in the array is not in the array.');
+	assert.ok(array.contains('a'), 'Correctly reports that an item in the array is in fact in the array.');
+	assert.ok(array.contains('b'), 'Correctly reports that an item in the array is in fact in the array.');
+	assert.ok(!array.contains('c'), 'Correctly reports that an item not in the array is not in the array.');
+	assert.ok(!array.contains(1), 'Correctly reports that an item not in the array is not in the array.');
 });
 
-test('diff', function() {
+QUnit.test('diff', function(assert) {
 	var array = [1, 2, 3, 4, 5, 2];
 
-	deepEqual(array.diff(), array, 'Returns a clone when called with no parameters.');
+	assert.deepEqual(array.diff(), array, 'Returns a clone when called with no parameters.');
 
-	deepEqual(array.diff([5, 2, 10]), [1, 3, 4], 'Correctly performs a set difference when given one array as input.');
+	assert.deepEqual(array.diff([5, 2, 10]), [1, 3, 4],
+		'Correctly performs a set difference when given one array as input.');
 
-	deepEqual(array.diff([5, 2], [1, 4]), [3], 'Correctly performs a set difference when given multiple arrays as input.');
+	assert.deepEqual(array.diff([5, 2], [1, 4]), [3],
+		'Correctly performs a set difference when given multiple arrays as input.');
 
-	deepEqual((function() {
+	assert.deepEqual((function() {
 		return array.diff(arguments);
 	})(1, 2, 5), [3, 4], 'Correctly performs a set difference when given an array-like object as input.');
 });
 
-test('each', function() {
-	expect(9);
+QUnit.test('each', function(assert) {
+	assert.expect(9);
 
 	var seen,
 		i;
@@ -83,7 +85,7 @@ test('each', function() {
 	[3, 4, 5].each(function(v, k) {
 		seen[k] = v;
 	});
-	deepEqual(seen, {'0': 3, '1': 4, '2': 5}, 'Array iteration');
+	assert.deepEqual(seen, {'0': 3, '1': 4, '2': 5}, 'Array iteration');
 
 	seen = [];
 	[1, 2, 3].each(function(v, k) {
@@ -92,125 +94,131 @@ test('each', function() {
 			return false;
 		}
 	});
-	deepEqual(seen, [1, 2], 'Broken iteration');
+	assert.deepEqual(seen, [1, 2], 'Broken iteration');
 
 	i = [{}, []];
 	i.each(function(v, k, a) {
-		strictEqual(this, v, k + ' - `this` equals the first argument to the callback.');
-		strictEqual(i, a, k + ' - The third argument to the callback is the array.');
+		assert.strictEqual(this, v, k + ' - `this` equals the first argument to the callback.');
+		assert.strictEqual(i, a, k + ' - The third argument to the callback is the array.');
 	});
 
-	strictEqual(i.each(function() {}), i, 'Returns the array.');
+	assert.strictEqual(i.each(function() {}), i, 'Returns the array.');
 
 	document.querySelectorAll('body').each(function(v) {
-		strictEqual(v, document.body, 'Works on the prototype of NodeList');
+		assert.strictEqual(v, document.body, 'Works on the prototype of NodeList');
 	});
 
 	i = 0;
 	Array.prototype.each.call(document.styleSheets, function() {
 		i++;
 	});
-	equal(i, document.styleSheets.length, 'Iteration over document.styleSheets');
+	assert.equal(i, document.styleSheets.length, 'Iteration over document.styleSheets');
 });
 
-test('equals', function() {
+QUnit.test('equals', function(assert) {
 	var array = [1, 2, 3];
 
-	ok(array.equals(array), 'Reports that an array equals itself.');
+	assert.ok(array.equals(array), 'Reports that an array equals itself.');
 
-	ok(array.equals([1, 2, 3]), 'Reports that an array equals another array with the same values.');
+	assert.ok(array.equals([1, 2, 3]),
+		'Reports that an array equals another array with the same values.');
 
-	ok(!array.equals([3, 2, 1]), 'Reports that an array does not equal another array with the same values but in another order.');
+	assert.ok(!array.equals([3, 2, 1]),
+		'Reports that an array does not equal another array with the same values but in another order.');
 
-	ok(!array.equals([1, 2]), 'Reports that an array does not equal another that has a different length.');
+	assert.ok(!array.equals([1, 2]),
+		'Reports that an array does not equal another that has a different length.');
 
-	ok((function() {
+	assert.ok((function() {
 		return array.equals(arguments);
 	})(1, 2, 3), 'Reports that an array equals another array-like object with the same values.');
 
-	throws(array.equals, TypeError, 'Throws a TypeError when executed with undefined input.');
+	assert.throws(array.equals, TypeError, 'Throws a TypeError when executed with undefined input.');
 });
 
-test('get', function() {
+QUnit.test('get', function(assert) {
 	var array = ['a', 'b', 'c'];
 
-	ok(array.get(0) === 'a', 'Get first item with positive index.');
-	ok(array.get(1) === 'b', 'Get middle item with positive index.');
-	ok(array.get(2) === 'c', 'Get last item with positive index.');
-	ok(array.get(3) === undefined, 'Get no item with positive out-of-range index.');
-	ok(array.get(-1) === 'c', 'Get last item with negative index.');
-	ok(array.get(-2) === 'b', 'Get middle item with negative index.');
-	ok(array.get(-3) === 'a', 'Get first item with negative index.');
-	ok(array.get(-4) === undefined, 'Get no item with out-of-range negative index.');
+	assert.ok(array.get(0) === 'a', 'Get first item with positive index.');
+	assert.ok(array.get(1) === 'b', 'Get middle item with positive index.');
+	assert.ok(array.get(2) === 'c', 'Get last item with positive index.');
+	assert.ok(array.get(3) === undefined, 'Get no item with positive out-of-range index.');
+	assert.ok(array.get(-1) === 'c', 'Get last item with negative index.');
+	assert.ok(array.get(-2) === 'b', 'Get middle item with negative index.');
+	assert.ok(array.get(-3) === 'a', 'Get first item with negative index.');
+	assert.ok(array.get(-4) === undefined, 'Get no item with out-of-range negative index.');
 });
 
-test('intersect', function() {
+QUnit.test('intersect', function(assert) {
 	var array = [1, 2, 3];
 
-	deepEqual(array.intersect(), array, 'Returns a clone when called with no parameters.');
+	assert.deepEqual(array.intersect(), array, 'Returns a clone when called with no parameters.');
 
-	deepEqual(array.intersect([2, 3, 4]), [2, 3],
+	assert.deepEqual(array.intersect([2, 3, 4]), [2, 3],
 		'Correctly performs a set intersection when given one array as input.');
 
-	deepEqual(array.intersect([107, 1, 50, 2], [2, 1]), [1, 2],
+	assert.deepEqual(array.intersect([107, 1, 50, 2], [2, 1]), [1, 2],
 		'Correctly performs a set intersection when given multiple arrays as input.');
 
-	deepEqual((function() {
+	assert.deepEqual((function() {
 		return array.intersect(arguments);
 	})(5, 2, 1), [1, 2], 'Correctly performs a set intersection when given an array-like object as input.');
 });
 
-test('remove', function() {
+QUnit.test('remove', function(assert) {
 	var array = [1, 2, 3, 3, 4, 3];
 
 	var retArray = array.remove(2);
-	strictEqual(array, retArray, 'Returns the array.');
-	deepEqual(array, [1, 3, 3, 4, 3], 'Can remove a single item from the array.');
+	assert.strictEqual(array, retArray, 'Returns the array.');
+	assert.deepEqual(array, [1, 3, 3, 4, 3], 'Can remove a single item from the array.');
 
-	deepEqual(array.remove(3), [1, 4], 'Removes all instances of the input value.');
+	assert.deepEqual(array.remove(3), [1, 4], 'Removes all instances of the input value.');
 
-	deepEqual(array.remove(2), [1, 4], 'Removes nothing if the specified value is not in the array.');
+	assert.deepEqual(array.remove(2), [1, 4], 'Removes nothing if the specified value is not in the array.');
 
-	deepEqual(array.remove(1, 4), [], 'Removes all instances of each input value.');
+	assert.deepEqual(array.remove(1, 4), [], 'Removes all instances of each input value.');
 });
 
-test('union', function() {
+QUnit.test('union', function(assert) {
 	var array = [1, 2, 3];
 
-	deepEqual(array.union(), array, 'Returns a clone when called with no parameters.');
+	assert.deepEqual(array.union(), array, 'Returns a clone when called with no parameters.');
 
-	deepEqual(array.union([2, 3, 4, 5]), [1, 2, 3, 4, 5],
+	assert.deepEqual(array.union([2, 3, 4, 5]), [1, 2, 3, 4, 5],
 		'Correctly performs a set union when given one array as input.');
 
-	deepEqual(array.union([3, 4], [50, 9]), [1, 2, 3, 4, 50, 9],
+	assert.deepEqual(array.union([3, 4], [50, 9]), [1, 2, 3, 4, 50, 9],
 		'Correctly performs a set union when given multiple arrays as input.');
 
-	deepEqual((function() {
+	assert.deepEqual((function() {
 		return array.union(arguments);
 	})(2, 3, 4, 5), [1, 2, 3, 4, 5], 'Correctly performs a set union when given an array-like object as input.');
 });
 
-test('uniq', function() {
-	deepEqual([1, 2, 3, 0].uniq(), [1, 2, 3, 0], 'Returns a clone when called on an array that already contains unique elements.');
+QUnit.test('uniq', function(assert) {
+	assert.deepEqual([1, 2, 3, 0].uniq(), [1, 2, 3, 0],
+		'Returns a clone when called on an array that already contains unique elements.');
 
-	deepEqual([4, 2, 3, 2, 1, 4].uniq(), [4, 2, 3, 1], 'Returns a unique set when called on an unsorted array with duplicates.');
+	assert.deepEqual([4, 2, 3, 2, 1, 4].uniq(), [4, 2, 3, 1],
+		'Returns a unique set when called on an unsorted array with duplicates.');
 
-	deepEqual([1, 2, 2, 3, 4, 4].uniq(), [1, 2, 3, 4], 'Returns a unique set when called on a sorted array with duplicates.');
+	assert.deepEqual([1, 2, 2, 3, 4, 4].uniq(), [1, 2, 3, 4],
+		'Returns a unique set when called on a sorted array with duplicates.');
 
-	deepEqual([1, 2, 2, 3, 4, 4].uniq(true), [1, 2, 3, 4],
+	assert.deepEqual([1, 2, 2, 3, 4, 4].uniq(true), [1, 2, 3, 4],
 		'Returns a unique set when called on a sorted array with duplicates and the `isSorted` parameter is `true`.');
 });
 
-test('without', function() {
+QUnit.test('without', function(assert) {
 	var array = [1, 2, 3, 3, 4, 3];
 
 	var retArray = array.without(2);
-	ok(array != retArray, 'Returns a new array.');
-	deepEqual(retArray, [1, 3, 3, 4, 3], 'Can return a new array without a single specified item.');
+	assert.ok(array != retArray, 'Returns a new array.');
+	assert.deepEqual(retArray, [1, 3, 3, 4, 3], 'Can return a new array without a single specified item.');
 
-	deepEqual(array.without(), array, 'Returns a clone when called with no parameters.');
+	assert.deepEqual(array.without(), array, 'Returns a clone when called with no parameters.');
 
-	deepEqual(array.without(3), [1, 2, 4], 'Can return a new array minus all instances of the input value.');
+	assert.deepEqual(array.without(3), [1, 2, 4], 'Can return a new array minus all instances of the input value.');
 
-	deepEqual(array.without(1, 4, 3), [2], 'Returns a new array minus all instances of each input value.');
+	assert.deepEqual(array.without(1, 4, 3), [2], 'Returns a new array minus all instances of each input value.');
 });

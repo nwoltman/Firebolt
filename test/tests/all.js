@@ -39,8 +39,8 @@ Firebolt.ready(function() {
 });
 if (document.readyState == 'loading') { // The document should not be done loading yet
 	if (window.readyTestVal !== 0) {
-		test('Firebolt.ready()', function() {
-			ok(false, 'A function passed to Firebolt.ready() was called before the document became ready!');
+		QUnit.test('Firebolt.ready()', function(assert) {
+			assert.ok(false, 'A function passed to Firebolt.ready() was called before the document became ready!');
 		});
 	}
 } else if (typeof console != 'undefined') {

@@ -6,9 +6,9 @@
 /// <reference path="../qunit/qunit.js"/>
 /// <reference path="../../src/firebolt.js"/>
 
-module('AJAX');
+QUnit.module('AJAX');
 
-test('Firebolt.ajaxSetup()', function() {
+QUnit.test('Firebolt.ajaxSetup()', function(assert) {
 	var ajaxSettings = Firebolt.ajaxSetup(),
 		testObject = {
 			a: [1, 2, 3],
@@ -18,9 +18,9 @@ test('Firebolt.ajaxSetup()', function() {
 		};
 
 	Firebolt.ajaxSetup({test: 1});
-	strictEqual(ajaxSettings.test, 1, 'Extends the AJAX settings object.');
+	assert.strictEqual(ajaxSettings.test, 1, 'Extends the AJAX settings object.');
 
 	Firebolt.ajaxSetup({test: testObject});
-	deepEqual(ajaxSettings.test, testObject, 'Deep-extends the AJAX settings object.');
-	notEqual(ajaxSettings.test, testObject);
+	assert.deepEqual(ajaxSettings.test, testObject, 'Deep-extends the AJAX settings object.');
+	assert.notEqual(ajaxSettings.test, testObject);
 });

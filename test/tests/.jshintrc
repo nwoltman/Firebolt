@@ -10,15 +10,6 @@
     "HTMLCollection",
     "Firebolt",
     "NodeCollection",
-    "QUnit",
-    "module",
-    "test",
-    "expect",
-    "ok",
-    "equal",
-    "notEqual",
-    "strictEqual",
-    "deepEqual",
-    "throws"
+    "QUnit"
   ]
 }

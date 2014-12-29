@@ -6,9 +6,9 @@
 /// <reference path="../qunit/qunit.js"/>
 /// <reference path="../../src/firebolt.js"/>
 
-module('NodeList.prototype');
+QUnit.module('NodeList.prototype');
 
-test('has correct functions', function() {
+QUnit.test('has correct functions', function(assert) {
 	var differentFuncs = [
 			'afterPut', 'after',
 			'appendWith', 'append',
@@ -38,13 +38,13 @@ test('has correct functions', function() {
 		.remove('item', 'uniq', 'length', '@@iterator')
 		.forEach(function(methodName) {
 			if (differentFuncs.contains(methodName)) {
-				ok(NodeList.prototype[methodName] !== NodeCollection.prototype[methodName],
+				assert.ok(NodeList.prototype[methodName] !== NodeCollection.prototype[methodName],
 					'NodeList.prototype.' + methodName + ' !== NodeCollection.prototype.' + methodName);
 			} else {
-				ok(NodeList.prototype[methodName] === NodeCollection.prototype[methodName],
+				assert.ok(NodeList.prototype[methodName] === NodeCollection.prototype[methodName],
 					'NodeList.prototype.' + methodName + ' === NodeCollection.prototype.' + methodName);
 			}
 		});
-	ok(NodeList.prototype.uniq === NodeCollection.prototype.toNC,
+	assert.ok(NodeList.prototype.uniq === NodeCollection.prototype.toNC,
 		'NodeList.prototype.uniq === NodeCollection.prototype.toNC');
 });
