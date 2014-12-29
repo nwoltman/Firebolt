@@ -1184,9 +1184,8 @@ ElementPrototype.attr = function(attribute, value) {
 			return this.getAttribute(attribute); // Get
 		}
 
-		// Reuse the value parameter since it is undefined
-		for (value in attribute) {
-			setAttribute(this, value, attribute[value]); // Set multiple
+		for (var a in attribute) {
+			setAttribute(this, a, attribute[a]); // Set multiple
 		}
 	} else {
 		setAttribute(this, attribute, value); // Set single
@@ -2904,44 +2903,43 @@ HTMLElementPrototype.beforePut = function() {
  * @param {Object.<String, String|Number>} properties - An object of CSS property-values.
  */
 HTMLElementPrototype.css = function(prop, value) {
-	var _this = this, //Improves minification
+	var _this = this, // Improves minification
 		computedStyle,
 		mustHide,
-		retVal;
+		val;
 
 	if (value === _undefined) {
-		// Temporarily use `retVal` to keep track if the input is an array (it will get set to the correct return value when needed)
-		if ((retVal = isArray(prop)) || typeofString(prop)) {
+		// Temporarily use `val` to keep track if the input is an array
+		// (it will get set to the correct return value when needed)
+		if ((val = isArray(prop)) || typeofString(prop)) {
 			computedStyle = getComputedStyle(_this);
 
 			// If the element is not visible, it should be shown before reading its CSS values
 			mustHide = isDisplayNone(0, computedStyle) && _this.show();
 
-			if (retVal) { // isArray
+			if (val) { // isArray
 				// Build an object with the values specified by the input array of properties
-				retVal = {};
+				val = {};
 				for (value = 0; value < prop.length; value++) { // Reuse the value argument instead of a new var
-					retVal[prop[value]] = computedStyle[sanitizeCssPropName(prop[value])];
+					val[prop[value]] = computedStyle[sanitizeCssPropName(prop[value])];
 				}
-			}
-			else {
+			} else {
 				// Get the specified property
-				retVal = computedStyle[sanitizeCssPropName(prop)];
+				val = computedStyle[sanitizeCssPropName(prop)];
 			}
 
 			if (mustHide) {
 				_this.hide(); // Hide the element since it was shown temporarily to obtain style values
 			}
 
-			return retVal;
+			return val;
 		}
 
 		// Set all specifed properties
-		for (value in prop) { // Reuse the value argument instead of a new var
-			_this.style[sanitizeCssPropName(value)] = prop[value];
+		for (val in prop) {
+			_this.style[sanitizeCssPropName(val)] = prop[val];
 		}
-	}
-	else {
+	} else {
 		// Set the specified property
 		_this.style[sanitizeCssPropName(prop)] = value;
 	}
