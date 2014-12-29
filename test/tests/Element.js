@@ -28,6 +28,33 @@ test('QSA', function() {
 		'Has the `querySelectorAll()` alias function.');
 });
 
+test('attr', function() {
+	var el = document.createElement('div');
+
+	equal(el.attr('data-test', 'a'), el, 'Returns the element when setting a single attribute.');
+	strictEqual(el.getAttribute('data-test'), 'a', 'Sets a single attribute wth the specified name.');
+	strictEqual(el.attr('data-test'), 'a', 'Returns a single attribute with the specified name.');
+
+	strictEqual(el.attr('nope'), null, 'Returns null when getting a non-existant attribute.');
+
+	equal(el.attr({'data-a': 'a', 'data-b': 'b', 'data-c': 'c'}), el,
+		'Returns the element when setting multiple properties.');
+	ok(el.getAttribute('data-a') === 'a' && el.getAttribute('data-b') === 'b' && el.getAttribute('data-c') === 'c',
+		'Sets multiple attributes when passed in an object of key-value pairs.');
+
+	el.attr('data-a', null);
+	ok(!el.hasAttribute('data-a'), 'Removes an attribute if attempting to set it to null.');
+
+	el.attr('data-b', undefined);
+	ok(!el.hasAttribute('data-b'), 'Removes an attribute if attempting to set it to undefined.');
+
+	el.attr({'data-c': null, 'data-test': undefined});
+	ok(!el.hasAttribute('data-c'),
+		'Removes an attribute if attempting to set it to null when setting multiple attributes.');
+	ok(!el.hasAttribute('data-test'),
+		'Removes an attribute if attempting to set it to undefined when setting multiple attributes.');
+});
+
 test('data', function() {
 	var el = document.createElement('div'),
 		key = 'key',

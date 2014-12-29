@@ -1,6 +1,6 @@
 /*!
  * Firebolt core file
- * @version 0.10.0
+ * @version 0.11.0
  * @author Nathan Woltman
  * @copyright 2014 Nathan Woltman
  * @license MIT https://github.com/woollybogger/Firebolt/blob/master/LICENSE.txt
@@ -581,6 +581,18 @@ function setAndGetArrayFromFunction(constructor) {
 	return from;
 }
 
+/*
+ * Sets an attribute on an element to the specified value, or removes
+ * the attribute if the value is `null` or `undefined`.
+ */
+function setAttribute(element, key, value) {
+	if (value != _undefined) {
+		element.setAttribute(key, value);
+	} else {
+		element.removeAttribute(key);
+	}
+}
+
 function sortDocOrder(a, b) {
 	b = a.compareDocumentPosition(b);
 	return b & 4 ? -1 // Node a should come first
@@ -1140,35 +1152,44 @@ ElementPrototype.QSA = ElementPrototype.querySelectorAll;
  * Gets the value of the element's specified attribute.
  * 
  * @function Element#attr
+ * @variation 1
  * @param {String} attribute - The name of the attribute who's value you want to get.
- * @returns {String} The value of the attribute.
+ * @returns {?String} The value of the attribute. If the element does not have the specified
+ *     attribute, `null` is returned.
  */
 /**
- * Sets the element's specified attribute.
+ * @summary Sets the element's specified attribute.
+ * 
+ * @description
+ * If the `value` argument is specified and is `null` or `undefined`, the specified attribute is removed.
  * 
  * @function Element#attr
+ * @variation 2
  * @param {String} attribute - The name of the attribute who's value should be set.
  * @param {String|Number} value - The value to set the specified attribute to.
  */
 /**
- * Sets the specified attributes of the element.
+ * @summary Sets the specified attributes of the element.
+ * 
+ * @description
+ * If a value in the `attributes` object is `null` or `undefined`, the attribute is removed from the element.
  * 
  * @function Element#attr
- * @param {Object} attributes - An object of attribute-value pairs to set.
+ * @variation 3
+ * @param {Object} attributes - An object of attribute-value pairs.
  */
-ElementPrototype.attr = function(attrib, value) {
-	if (value === _undefined) {
-		if (typeofString(attrib)) {
-			return this.getAttribute(attrib); //Get
+ElementPrototype.attr = function(attribute, value) {
+	if (arguments.length < 2) {
+		if (typeofString(attribute)) {
+			return this.getAttribute(attribute); // Get
 		}
 
-		//Reuse the value parameter since it is undefined
-		for (value in attrib) {
-			this.setAttribute(value, attrib[value]); //Set multiple
+		// Reuse the value parameter since it is undefined
+		for (value in attribute) {
+			setAttribute(this, value, attribute[value]); // Set multiple
 		}
-	}
-	else {
-		this.setAttribute(attrib, value); //Set single
+	} else {
+		setAttribute(this, attribute, value); // Set single
 	}
 
 	return this;
