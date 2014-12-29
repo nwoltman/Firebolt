@@ -45,7 +45,7 @@ module.exports = function(grunt) {
   }
 
   // Define more options
-  var qunitTestsUrl = 'http://127.0.0.1:9999/test/index.html';
+  var qunitTestsUrl = 'http://127.0.0.1:9999/test/index.html?hidepassed';
 
   // Project configuration.
   grunt.initConfig({

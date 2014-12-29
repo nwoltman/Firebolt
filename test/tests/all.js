@@ -2,9 +2,6 @@
  * Firebolt tests loader
  */
 
-// Hide passed tests by default
-QUnit.config.hidepassed = true;
-
 /* Sauce Labs setup */
 (function() {
 	var log = [];
