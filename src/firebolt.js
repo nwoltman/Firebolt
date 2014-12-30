@@ -1880,27 +1880,27 @@ function createElement(tagName, attributes) {
 Firebolt.expando = 'FB' + Date.now() + 1 / Math.random();
 
 /**
- * Extend the "Firebolt object" (a.k.a. NodeCollection, NodeList, and HTMLCollection).
+ * @summary Extend the {@link NodeCollection} prototype.
+ * 
+ * @description __Warning:__ Providing `false` for the `deep` argument is not supported.
  * 
  * @function Firebolt.extend
- * @param {Object} object - An object with properties to add to the prototype of the collections returned by Firebolt.
+ * @variation 1
+ * @param {Boolean} [deep] - If `true`, the merge becomes recursive (performs a deep copy).
+ * @param {Object} object - An object with properties to add to `NodeCollection.prototype`.
+ * @returns {Object} Returns `NodeCollection.prototype`.
  */
 /**
- * Merge the contents of one or more objects into the first object.
+ * @summary Merge the contents of one or more objects into the first object.
+ * 
+ * @description __Warning:__ Providing `false` for the `deep` argument is not supported.
  * 
  * @function Firebolt.extend
+ * @variation 2
+ * @param {Boolean} [deep] - If `true`, the merge becomes recursive (performs a deep copy).
  * @param {Object} target - The object that will receive the new properties.
- * @param {...Object} object - One or more objects whose properties will be added to the target object.
- * @returns {Object} The target object.
- */
-/**
- * Recursively merge the contents of one or more objects into the target object.
- * 
- * @function Firebolt.extend
- * @param {Boolean} deep - If `true`, the merge becomes recursive (performs a deep copy on object values).
- * @param {Object} target - The object that will receive the new properties.
- * @param {...Object} object - One or more objects whose properties will be merged into the target object.
- * @returns {Object} The target object.
+ * @param {...Object} object - One or more objects whose properties will be added to the `target` object.
+ * @returns {Object} The `target` object.
  */
 Firebolt.extend = extend;
 function extend(target) {
@@ -1909,16 +1909,16 @@ function extend(target) {
 		arg,
 		key;
 
-	if (numArgs > 1) {
-		if (target === true) { //`target` was actually the `deep` variable; extend recursively
-			return extendDeep.apply(0, ArrayPrototype.slice.call(arguments, 1));
-		}
+	if (numArgs < 2) {
+		return extend(NodeCollectionPrototype, target);
+	}
 
-		if (!target) { //`target` was actually the `deep` variable, but was false
-			target = arguments[i++];
+	if (target === true) { // Do a deep extend
+		target = (numArgs > 2) ? arguments[i++] : NodeCollectionPrototype;
+		for (; i < numArgs; i++) {
+			extendDeep(target, arguments[i]);
 		}
-
-		//Extend the target object
+	} else {               // Do a shallow extend
 		for (; i < numArgs; i++) {
 			arg = arguments[i];
 			for (key in arg) {
@@ -1927,14 +1927,9 @@ function extend(target) {
 				}
 			}
 		}
-
-		return target;
 	}
 
-	//Extend the Firebolt objects
-	extend(NodeCollectionPrototype, target);
-	extend(NodeListPrototype, target);
-	extend(HTMLCollectionPrototype, target);
+	return target;
 }
 
 function extendDeep(target) {

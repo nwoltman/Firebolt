@@ -65,7 +65,7 @@ QUnit.test('elem', function(assert) {
 });
 
 QUnit.test('extend', function(assert) {
-	assert.expect(31);
+	assert.expect(32);
 
 	var empty, optionsWithLength, optionsWithDate, MyKlass,
 		customObject, optionsWithCustomObject, MyNumber, ret,
@@ -175,22 +175,26 @@ QUnit.test('extend', function(assert) {
 	assert.deepEqual(options2, options2Copy, 'Check if not modified: options2 must not be modified');
 
 	var initial = {
-			array: [1, 2, 3, 4],
-			object: {}
-		},
-		result = Firebolt.extend(true, {}, initial);
+		array: [1, 2, 3, 4],
+		object: {}
+	};
+	var result = Firebolt.extend(true, {}, initial);
 	assert.deepEqual(result, initial, 'The [result] and [initial] have equal shape and values');
 	assert.ok(!Array.isArray(result.object), 'result.object was not paved with an empty array');
 
-	// Extend important prototypes
+	// Extend NodeCollection.prototype
 	Firebolt.extend({res: result});
-	assert.ok(NodeList.prototype.res === result && HTMLCollection.prototype.res === result && NodeCollection.prototype.res === result,
-		'Extends the prototype of NodeList, HTMLCollection, and NodeCollection when called with only one parameter.');
+	assert.ok(NodeCollection.prototype.res === result,
+		'Extends NodeCollection.prototype when called with only one parameter.');
 
-	// Clean up that last test
-	delete NodeList.prototype.res;
-	delete HTMLCollection.prototype.res;
-	delete NodeCollection.prototype.res;
+	// Deep-extend NodeCollection.prototype
+	Firebolt.extend(true, {rez: result});
+	assert.deepEqual(NodeCollection.prototype.rez, initial,
+		'Deep-extends NodeCollection.prototype when called with only `true` and another parameter.');
+
+	// Clean up that last two tests
+	NodeCollection.prototype.res = undefined;
+	NodeCollection.prototype.rez = undefined;
 });
 
 QUnit.test('frag', function(assert) {
