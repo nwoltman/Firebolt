@@ -544,15 +544,12 @@ function returnFalse() {
 }
 
 function sanitizeCssPropName(name) {
-	// Camelize the property name, and check if it exists on the saved iframe's style object
-	if (iframe.style[name = camelize(name)] === _undefined) {
-		// The input property name is not supported, so make the vendor name and check if that one is supported
-		var vendorName = cssVendorPrefix + name[0].toUpperCase() + name.slice(1);
-		if (iframe.style[vendorName] != _undefined) {
-			name = vendorName;
-		}
+	// Camelize the property name and check if it exists on the saved iframe's style object
+	name = camelize(name);
+	if (!(name in iframe.style)) {
+		// The camelized input property name is not supported, so make the vendor name
+		return cssVendorPrefix + name[0].toUpperCase() + name.slice(1);
 	}
-
 	return name;
 }
 
