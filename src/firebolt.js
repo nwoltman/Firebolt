@@ -3134,36 +3134,36 @@ HTMLElementPrototype.prependWith = getHTMLElementAfterPutOrPrependWith('afterbeg
  * @summary Removes the specified class(es) or all classes from the element.
  * 
  * @description
- * __Note:__ Unlike jQuery, the format of the space-separated classes required by Firebolt is strict. Each class must
- * be separated by only a single space character and there cannot be whitespace at the beginning or end of the string.
+ * __Note:__ Unlike jQuery, the format of the space-separated classes required by Firebolt is strict.
+ * Each class must be separated by only a single space character and there cannot be whitespace at
+ * the beginning or end of the string.
  * ```javascript
- * element.addClass('one  two').removeClass('three ');  // Bad syntax
- * element.addClass('one two').removeClass('three');    // Correct syntax
+ * element.addClass('one  two').removeClass('three '); // Bad syntax
+ * element.addClass('one two').removeClass('three');   // Correct syntax
  * ```
  * 
  * @function HTMLElement#removeClass
- * @param {String} [className] - One or more classes separated by a single space to be removed from the element's class attribute.
+ * @param {String} [className] - One or more classes separated by a single space
+ *     to be removed from the element's class attribute.
  */
 HTMLElementPrototype.removeClass = iframe.className.length !== 3 || webkitNotIOS ?
 	// Browser compatibility (IE and other old browsers) and speed boost for non-iOS WebKit browsers
 	function(value) {
 		if (value === _undefined) {
-			this.className = ''; //Remove all classes
-		}
-		else {
+			this.className = ''; // Remove all classes
+		} else {
 			var remClasses = value.split(' '),
 				curClasses = this.className.split(rgxSpaceChars),
-				newClassName = '',
 				i = 0;
+
+			value = '';
 			for (; i < curClasses.length; i++) {
 				if (curClasses[i] && remClasses.indexOf(curClasses[i]) < 0) {
-					newClassName += (newClassName ? ' ' : '') + curClasses[i];
+					value += (value ? ' ' : '') + curClasses[i];
 				}
 			}
-			//Only assign if the new class name is different (shorter) to avoid unnecessary rendering
-			if (newClassName.length < this.className.length) {
-				this.className = newClassName;
-			}
+
+			this.className = value;
 		}
 
 		return this;
@@ -3171,9 +3171,8 @@ HTMLElementPrototype.removeClass = iframe.className.length !== 3 || webkitNotIOS
 	// All other browsers
 	: function(value) {
 		if (value === _undefined) {
-			this.className = ''; //Remove all classes
-		}
-		else {
+			this.className = ''; // Remove all classes
+		} else {
 			this.classList.remove.apply(this.classList, value.split(' '));
 		}
 	
