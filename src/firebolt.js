@@ -604,6 +604,19 @@ function sortRevDocOrder(a, b) {
 		: 1;          // Else node a should come first
 }
 
+/*
+ * Tries to parse a JSON string into an object and return the result.
+ * Returns the string if parsing results in an error.
+ */
+function tryParseJson(json) {
+	try {
+		return JSON.parse(json);
+	}
+	catch (e) {
+		return json;
+	}
+}
+
 function typeofObject(value) {
 	return typeof value == 'object';
 }
@@ -1797,7 +1810,7 @@ Firebolt.data = function(object, key, value, isElement) {
 			value: dataStore = {}
 		});
 
-		//If the object is an Element, try loading "data-*" attributes
+		// If the object is an Element, try loading "data-*" attributes
 		if (isElement) {
 			var attributes = object.attributes,
 				dataAttributes = {},
@@ -1809,11 +1822,7 @@ Firebolt.data = function(object, key, value, isElement) {
 				attrib = attributes[i];
 				if (attrib.name.startsWith('data-')) {
 					if (!rgxNoParse.test(val = attrib.value)) {
-						//Try to parse the value
-						try {
-							val = JSON.parse(val);
-						}
-						catch (e) { }
+						val = tryParseJson(val); // Try to parse the string into a native object
 					}
 					// Set the value in the data attributes object and data store
 					attrib = camelize(attrib.name.slice(5));
@@ -1821,7 +1830,7 @@ Firebolt.data = function(object, key, value, isElement) {
 				}
 			}
 
-			//Save the data attributes if there are any
+			// Save the data attributes if there are any
 			if (!isEmptyObject(dataAttributes)) {
 				object._$DA_ = dataAttributes;
 			}
@@ -1830,20 +1839,21 @@ Firebolt.data = function(object, key, value, isElement) {
 
 	if (value === _undefined) {
 		if (typeofObject(key)) {
-			extend(dataStore, key); //Set multiple
-		}
-		else {
+			extend(dataStore, key); // Set multiple
+		} else {
 			if (key === _undefined) {
 				return dataStore; // Get the data store object
 			}
 
-			// Else get the data at the specified name
-			return (value = dataStore[key = camelize(key)]) === _undefined && object._$DA_
-				? dataStore[key] = object._$DA_[key] // Save the data-* attribute value to the data store and return it
-				: value;
+			// Get the data at the specified name
+			if ((value = dataStore[key = camelize(key)]) === _undefined && object._$DA_) {
+				// Save the data-* attribute value to the data store and return it
+				return dataStore[key] = object._$DA_[key];
+			}
+
+			return value;
 		}
-	}
-	else {
+	} else {
 		dataStore[camelize(key)] = value; // Set value
 	}
 
