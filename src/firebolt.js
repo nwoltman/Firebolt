@@ -981,7 +981,7 @@ function getTypedArrayFunctions(constructor) {
 					array = arguments[j];
 
 					for (k = 0; k < array.length; k++) {
-						if (item === array[k]) {
+						if (array[k] === item) {
 							continue next;
 						}
 					}
@@ -1078,7 +1078,7 @@ function getTypedArrayFunctions(constructor) {
 
 			next: for (; i < this.length; i++) {
 				for (j = 0; j < arguments.length; j++) {
-					if (this[i] === arguments[j]) {
+					if (arguments[j] === this[i]) {
 						continue next;
 					}
 				}
@@ -3360,7 +3360,7 @@ HTMLElementPrototype.toggleClass = function(value, addOrRemove) {
 			for (; i < togClasses.length; i++) {
 				className = togClasses[i];
 				for (j = 0; j < curClasses.length; j++) {
-					if (className === curClasses[j]) {
+					if (curClasses[j] === className) {
 						togClasses[i] = curClasses[j] = null;
 					}
 				}
