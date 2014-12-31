@@ -3332,61 +3332,58 @@ HTMLElementPrototype.toggle = function(showOrHide) {
  * @summary Add or remove one or more classes from the element depending on the class's presence (or lack thereof).
  * 
  * @description
- * __Note:__ Unlike jQuery, the format of the space-separated classes required by Firebolt is strict. Each class must
- * be separated by only a single space character and there cannot be whitespace at the beginning or end of the string.
- * ```javascript
- * element.toggleClass('one  two ');  // Bad syntax
- * element.toggleClass('one two');    // Correct syntax
- * ```
+ * __Note:__ Functionality is undefined if the input class names are not unique.
  * 
  * @function HTMLElement#toggleClass
- * @param {String} [className] - One or more classes separated by a single space to be toggled. If left empty, the element's current class is toggled.
- * @param {Boolean} [addOrRemove] - A Boolean indicating whether to add or remove the class (`true` => add, `false` => remove).
+ * @param {String} [className] - One or more classes separated by a single space to be toggled.
+ *     If left empty, the element's current class is toggled.
+ * @param {Boolean} [addOrRemove] - Indicates whether to add or remove the class (`true` => add, `false` => remove).
  */
 HTMLElementPrototype.toggleClass = function(value, addOrRemove) {
 	if (addOrRemove === true) {
 		return this.addClass(value);
 	}
-	else if (addOrRemove === false) {
+	if (addOrRemove === false) {
 		return this.removeClass(value);
 	}
 
-	if (this.className && value !== true) {
+	var className = this.className;
+
+	if (className && value !== true) {
 		if (value) {
-			var togClasses = value.split(' '),
-			curClasses = this.className.split(rgxSpaceChars),
-			i = 0;
+			var curClasses = className.split(rgxSpaceChars),
+				togClasses = value.split(' '),
+				i = 0,
+				j;
 
-			//`value` will now be the new class name value
+			// Find the symmetric difference between the current class names and the names to toggle
 			value = '';
-
-			//Remove existing classes from the array and rebuild the class string without those classes
-			for (; i < curClasses.length; i++) {
-				if (curClasses[i]) {
-					var len = togClasses.length;
-					if (togClasses.remove(curClasses[i]).length === len) {
-						value += (value ? ' ' : '') + curClasses[i];
+			for (; i < togClasses.length; i++) {
+				className = togClasses[i];
+				for (j = 0; j < curClasses.length; j++) {
+					if (className === curClasses[j]) {
+						togClasses[i] = curClasses[j] = null;
 					}
 				}
+				if (className = togClasses[i]) {
+					value += (value ? ' ' : '') + className;
+				}
 			}
-
-			//If there are still classes in the array, they are to be added to the class name
-			if (togClasses.length) {
-				value += (value ? ' ' : '') + togClasses.join(' ');
+			for (i = 0; i < curClasses.length; i++) {
+				if (className = curClasses[i]) {
+					value += (value ? ' ' : '') + className;
+				}
 			}
+		} else {
+			this._$TC_ = className; // Save the element's current class name
+			value = ''; // Set to an empty string so the class name will be cleared
 		}
-		else {
-			this._$TC_ = this.className; //Save the element's current class name
-			value = ''; //Set to an empty string so the class name will be cleared
-		}
-	}
-	else if (!value || value === true) {
-		//Retrieve the saved class name or an empty string if there is no saved class name
-		value = value !== false && this._$TC_ || (value ? this.className : '');
+	} else if (!value || value === true) {
+		// Retrieve the saved class name or an empty string if there is no saved class name
+		value = value !== false && this._$TC_ || (value ? className : '');
 	}
 
-	//Set the new value
-	this.className = value;
+	this.className = value; // Set the new value
 
 	return this;
 };
