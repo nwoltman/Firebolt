@@ -3322,7 +3322,7 @@ HTMLElementPrototype.toggle = function(showOrHide) {
 	if (showOrHide === true) {
 		return this.show();
 	}
-	else if (showOrHide === false) {
+	if (showOrHide === false) {
 		return this.hide();
 	}
 	return isDisplayNone(this) ? this.show() : this.hide();
