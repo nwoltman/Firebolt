@@ -6,6 +6,7 @@ module.exports = function(grunt) {
     'Windows 7': {
       chrome: ['38', '39'],
       firefox: ['33', '34'],
+      opera: ['12'],
       'internet explorer': ['9', '10', '11']
     },
     'OS X 10.8': {
