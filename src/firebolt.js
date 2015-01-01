@@ -443,7 +443,7 @@ function getNodeInsertingFunction(inserter) {
 }
 
 /* 
- * Returns the function body for NodeCollection#[afterPut, appendWith, beforePut, prependWith, replaceWith]
+ * Returns the function body for Node#[afterPut, appendWith, beforePut, prependWith, replaceWith]
  * 
  * @param {Function} inserter(newNode, refNode) - The function that performs the insertion.
  */
