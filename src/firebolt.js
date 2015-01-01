@@ -110,46 +110,6 @@ function createEventObject(eventType, event) { // Declaring `event` in the param
 }
 
 /*
- * Creates a new DocumentFragment and appends the (optionally) passed in content to it.
- * 
- * @param {ArgumentsList} [content] - List of content to append to the new DocumentFragment.
- * @returns {DocumentFragment} The new fragment.
- */
-function createFragment(content) {
-	var fragment = document.createDocumentFragment(),
-		i = 0,
-		item,
-		len,
-		j;
-
-	for (; i < content.length; i++) {
-		if (isNode(item = content[i])) {
-			fragment.appendChild(item);
-		} else {
-			if (typeofString(item)) {
-				item = parseHTML(item);
-			}
-
-			if (len = item.length) {
-				fragment.appendChild(item[0]);
-				if (item.length < len) { // If the item is a live NodeList/HTMLCollection
-					while (item.length) {
-						fragment.appendChild(item[0]);
-					}
-				} else {
-					for (j = 1; j < len; j++) {
-						fragment.appendChild(item[j]);
-					}
-				}
-				
-			}
-		}
-	}
-
-	return fragment;
-}
-
-/*
  * Used for animations to compute a new CSS value when doing += or -= for some value type.
  * For this to work, the current value (in pixels) must be converted to the value type that is being changed.
  * 
@@ -336,9 +296,7 @@ function getHTMLElementAfterPutOrPrependWith(htmlLocation, inserter) {
 			if (typeofString(arg = arguments[i])) {
 				this.insertAdjacentHTML(htmlLocation, arg);
 			} else {
-				// When arg is a collection of nodes, create a fragment by passing the collection in an array
-				// (that is the form of input createFragment expects since it normally takes a function's arg list)
-				inserter(isNode(arg) ? arg : createFragment([arg]), this);
+				inserter(isNode(arg) ? arg : createFragment(arg), this);
 			}
 		}
 
@@ -378,7 +336,7 @@ function getNextOrPrevFunc(dirElementSibling, forNode) {
  */
 function getNodeCollectionPutOrWithFunction(inserter) {
 	return function(nc, addClones) {
-		//Determine if this function was called by a function created with `getNodeCollectionPutToOrReplaceAllFunction()`
+		// Determine if this function was called by a function created with `getNodeCollectionPutToOrReplaceAllFunction()`
 		addClones = addClones === 0;
 
 		var len = this.length,
@@ -386,9 +344,9 @@ function getNodeCollectionPutOrWithFunction(inserter) {
 			fragment,
 			clone;
 
-		//Only create the DocumentFragment and do insertions if this NodeCollection isn't empty
+		// Only create the DocumentFragment and do insertions if this NodeCollection isn't empty
 		if (len) {
-			fragment = createFragment(addClones ? [nc] : arguments);
+			fragment = addClones ? createFragment(nc) : createFragment.apply(this, arguments);
 			for (; i < len; i++) {
 				clone = fragment.cloneNode(true);
 				if (addClones) {
@@ -396,7 +354,7 @@ function getNodeCollectionPutOrWithFunction(inserter) {
 				}
 				inserter(clone, this[i]);
 			}
-			inserter(fragment, this[0]); //The first node always gets the original fragment
+			inserter(fragment, this[0]); // The first node always gets the original fragment
 		}
 
 		return this;
@@ -453,7 +411,7 @@ function getNodeInsertingFunction(inserter) {
  */
 function getNodePutOrWithFunction(inserter) {
 	return function() {
-		inserter(createFragment(arguments), this);
+		inserter(createFragment.apply(this, arguments), this);
 
 		return this;
 	};
@@ -1978,9 +1936,40 @@ function extendDeep(target) {
  * @returns {DocumentFragment} The newly created document fragment.
  * @memberOf Firebolt
  */
-Firebolt.frag = function() {
-	return createFragment(arguments);
-};
+Firebolt.frag = createFragment;
+function createFragment() {
+	var fragment = document.createDocumentFragment(),
+		i = 0,
+		item,
+		len,
+		j;
+
+	for (; i < arguments.length; i++) {
+		if (isNode(item = arguments[i])) {
+			fragment.appendChild(item);
+		} else {
+			if (typeofString(item)) {
+				item = parseHTML(item);
+			}
+
+			if (len = item.length) {
+				fragment.appendChild(item[0]);
+				if (item.length < len) { // If the item is a live NodeList/HTMLCollection
+					while (item.length) {
+						fragment.appendChild(item[0]);
+					}
+				} else {
+					for (j = 1; j < len; j++) {
+						fragment.appendChild(item[j]);
+					}
+				}
+
+			}
+		}
+	}
+
+	return fragment;
+}
 
 /**
  * Load data from the server using a HTTP GET request.
@@ -2844,11 +2833,8 @@ HTMLElementPrototype.appendWith = function() {
 	for (var i = 0, arg; i < arguments.length; i++) {
 		if (typeofString(arg = arguments[i])) {
 			this.insertAdjacentHTML('beforeend', arg);
-		}
-		else {
-			//When arg is a collection of nodes, create a fragment by passing the collection in an array
-			//(that is the form of input createFragment expects since it normally takes a function's arg list)
-			this.appendChild(isNode(arg) ? arg : createFragment([arg]));
+		} else {
+			this.appendChild(isNode(arg) ? arg : createFragment(arg));
 		}
 	}
 
@@ -2863,11 +2849,8 @@ HTMLElementPrototype.beforePut = function() {
 	for (var i = 0, arg; i < arguments.length; i++) {
 		if (typeofString(arg = arguments[i])) {
 			this.insertAdjacentHTML('beforebegin', arg);
-		}
-		else {
-			//When arg is a collection of nodes, create a fragment by passing the collection in an array
-			//(that is the form of input createFragment expects since it normally takes a function's arg list)
-			insertBefore(isNode(arg) ? arg : createFragment([arg]), this);
+		} else {
+			insertBefore(isNode(arg) ? arg : createFragment(arg), this);
 		}
 	}
 
