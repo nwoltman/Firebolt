@@ -3,11 +3,6 @@ module.exports = function(grunt) {
 
   // Define the browsers to test with Sauce Labs
   var platforms = {
-    'Windows 8.1': {
-      chrome: ['38', '39'],
-      firefox: ['33', '34'],
-      'internet explorer': ['11']
-    },
     'Windows 7': {
       chrome: ['38', '39'],
       firefox: ['33', '34'],
@@ -19,15 +14,12 @@ module.exports = function(grunt) {
     },
     'OS X 10.9': {
       iPhone: ['8.1'],
-      iPad: ['8.1'],
       safari: ['7']
     },
     'OS X 10.10': {
       safari: ['8']
     },
     Linux: {
-      chrome: ['38', '39'],
-      firefox: ['33', '34'],
       android: ['4.0', '4.4']
     }
   };
