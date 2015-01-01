@@ -41,14 +41,14 @@ QUnit.test('contains', function(assert) {
 QUnit.test('endsWith', function(assert) {
 	var str = 'Who am I, Gamling?';
 
-	//True
+	// True
 	assert.strictEqual(str.endsWith('Gamling?'), true);             // 1
 	assert.strictEqual(str.endsWith('Gamling?', 99), true);         // 2
 	assert.strictEqual(str.endsWith('Gamling?', str.length), true); // 3
 	assert.strictEqual(str.endsWith('am I', 8), true);              // 4
 	assert.strictEqual(str.endsWith('a', 5), true);                 // 5
 
-	//False
+	// False
 	assert.strictEqual(str.endsWith('Gamling?', -1), false); // 6
 	assert.strictEqual(str.endsWith('am I'), false);         // 7
 	assert.strictEqual(str.endsWith('am I', 9), false);      // 8
@@ -69,7 +69,7 @@ QUnit.test('escapeHTML', function(assert) {
 QUnit.test('repeat', function(assert) {
 	var str = 'abc';
 
-	//Test return value
+	// Test return value
 	assert.strictEqual(str.repeat(), '', 'Returns an empty string when no input is given.');
 
 	assert.strictEqual(str.repeat('a'), '', 'Returns an empty string when non-number is given.');
@@ -82,7 +82,7 @@ QUnit.test('repeat', function(assert) {
 
 	assert.strictEqual(str.repeat(2.5), 'abcabc', 'Rounds down the input number before repeating the string.');
 
-	//Test for throwing errors
+	// Test for throwing errors
 	assert.throws(function() {
 		str.repeat(-1);
 	}, RangeError, 'Thows a RangeError when given a negative number as input.');
@@ -109,11 +109,11 @@ QUnit.test('repeat', function(assert) {
 QUnit.test('startsWith', function(assert) {
 	var str = 'Who am I, Gamling?';
 
-	//True
+	// True
 	assert.strictEqual(str.startsWith('Who'), true);      // 1
 	assert.strictEqual(str.startsWith('am I', 4), true);  // 2
 
-	//False
+	// False
 	assert.strictEqual(str.startsWith('Who are'), false); // 3
 	assert.strictEqual(str.startsWith('am I'), false);    // 4
 });

@@ -122,14 +122,14 @@ function cssMath(curVal, changeVal, type, element, property) {
 	if (type == 'em') {
 		curVal /= parseFloat(getComputedStyle(element).fontSize);
 	} else if (type == 'pt') {
-		curVal *= 0.75; //Close enough (who uses pt anyway?)
+		curVal *= 0.75; // Close enough (who uses pt anyway?)
 	} else if (type == '%') {
 		curVal *= 100 / parseFloat(getComputedStyle(element.parentNode)[property]);
 	}
 
-	curVal += changeVal; //Add the change value (which may be negative)
+	curVal += changeVal; // Add the change value (which may be negative)
 
-	//Convert invalid negative values to 0
+	// Convert invalid negative values to 0
 	if (curVal < 0 && /^height|width|padding|opacity/.test(property)) {
 		curVal = 0;
 	}
@@ -217,28 +217,28 @@ function getFirstSetEachElement(fn, isSetter) {
  */
 function getGetDirElementsFunc(direction, sorter) {
 	if (sorter) {
-		//For NodeCollection.prototype
+		// For NodeCollection.prototype
 		return function() {
 			var len = this.length;
 
-			//Simple and speedy for one node
+			// Simple and speedy for one node
 			if (len === 1) {
 				return direction.apply(this[0], arguments);
 			}
 
-			//Build a list of NodeCollections
+			// Build a list of NodeCollections
 			var collections = [],
 				i = 0;
 			for (; i < len; i++) {
 				collections[i] = direction.apply(this[i], arguments);
 			}
 
-			//Union the collections so that the resulting collection contains unique elements and return the sorted result
+			// Union the collections so that the resulting collection contains unique elements and return the sorted result
 			return ArrayPrototype.union.apply(NodeCollectionPrototype, collections).sort(sorter);
 		};
 	}
 
-	//For Node.prototype
+	// For Node.prototype
 	return sorter === 0
 		//nextUntil, prevUntil, parentsUntil
 		? function(until, filter) {
@@ -273,7 +273,7 @@ function getGetDirElementsFunc(direction, sorter) {
 			var nc = new NodeCollection(),
 				node = this;
 
-			//Traverse all nodes in the direction and add them (or if there is a selector the ones that match it) to the NodeCollection
+			// Traverse all nodes in the direction and add them (or if there is a selector the ones that match it) to the NodeCollection
 			while (node = node[direction]) {
 				if (!selector || node.matches(selector)) {
 					push1(nc, node);
@@ -366,7 +366,7 @@ function getNodeCollectionPutToOrReplaceAllFunction(funcName) {
 		var copy = ncFrom(this);
 
 		if (typeofString(target)) {
-			Firebolt(target)[funcName](copy, 0); //Pass in 0 to tell the function to add clones to the copy
+			Firebolt(target)[funcName](copy, 0); // Pass in 0 to tell the function to add clones to the copy
 		} else {
 			NodeInserter.call(target, copy);
 		}
@@ -603,12 +603,12 @@ var
 			return obj && obj.nodeType;
 		},
 
-	//Property strings
+	// Property strings
 	nextElementSibling = 'nextElementSibling',
 	previousElementSibling = 'previousElementSibling',
 	prototype = 'prototype',
 
-	//Prototype references
+	// Prototype references
 	ArrayPrototype = Array[prototype],
 	ElementPrototype = Element[prototype],
 	EventPrototype = Event[prototype],
@@ -618,7 +618,7 @@ var
 	HTMLCollectionPrototype = HTMLCollection[prototype],
 	StringPrototype = String[prototype],
 
-	//Helpers
+	// Helpers
 	isArray = Array.isArray,
 	arrayFrom = setAndGetArrayFromFunction(Array),
 	array_push = ArrayPrototype.push,
@@ -626,7 +626,7 @@ var
 	defineProperty = Object.defineProperty,
 	keys = Object.keys,
 
-	//Local + global selector funtions
+	// Local + global selector funtions
 	getElementById = window.$$ = window.$ID =
 		webkitNotIOS ? function(id) {
 			return document.getElementById(id);
@@ -654,19 +654,19 @@ var
 
 	/* Pre-built RegExps */
 	rgxDataType = /\b(?:xml|json)\b|script\b/, // Matches an AJAX data type in Content-Type header
-	rgxNotId = /[ .,>:[+~\t-\f]/,    //Matches other characters that cannot be in an id selector
-	rgxNotClass = /[ #,>:[+~\t-\f]/, //Matches other characters that cannot be in a class selector
+	rgxNotId = /[ .,>:[+~\t-\f]/,    // Matches other characters that cannot be in an id selector
+	rgxNotClass = /[ #,>:[+~\t-\f]/, // Matches other characters that cannot be in a class selector
 	rgxAllDots = /\./g,
 	rgxNotTag = /[^A-Za-z]/,
-	rgxFirstTag = /<\w+/, //Matches the first tag in an HTML string
-	rgxSingleTag = /^<[A-Za-z]+\/?>$/, //Matches a single HTML tag such as "<div/>"
-	rgxSpaceChars = /[ \t-\f]+/, //From W3C http://www.w3.org/TR/html5/single-page.html#space-character
-	rgxFormButton = /button|file|reset|submit/, //Matches input element types that are buttons
-	rgxCheckableElement = /checkbox|radio/,     //Matches checkbox or radio input element types
-	rgxCamelizables = isIE ? /^-+|-+([a-z])/g : /-+([a-z])/g, //Matches dashed parts of CSS property names
-	rgxDasherizables = /[A-Z]/g, //Matches capitol letters in a camel case string
-	rgxNoParse = /^\d+(?:[^\d.]|\..*\D|\..*0$)/, //Matches strings that look like numbers but should remain as strings
-	rgxUpToUnits = /.*\d/, //Matches a CSS string value up to the units (i.e. matches up to the last number before 'px' or '%')
+	rgxFirstTag = /<\w+/, // Matches the first tag in an HTML string
+	rgxSingleTag = /^<[A-Za-z]+\/?>$/, // Matches a single HTML tag such as "<div/>"
+	rgxSpaceChars = /[ \t-\f]+/, // From W3C http://www.w3.org/TR/html5/single-page.html#space-character
+	rgxFormButton = /button|file|reset|submit/, // Matches input element types that are buttons
+	rgxCheckableElement = /checkbox|radio/,     // Matches checkbox or radio input element types
+	rgxCamelizables = isIE ? /^-+|-+([a-z])/g : /-+([a-z])/g, // Matches dashed parts of CSS property names
+	rgxDasherizables = /[A-Z]/g, // Matches capitol letters in a camel case string
+	rgxNoParse = /^\d+(?:[^\d.]|\..*\D|\..*0$)/, // Matches strings that look like numbers but should remain as strings
+	rgxUpToUnits = /.*\d/, // Matches a CSS string value up to the units (i.e. matches up to the last number before 'px' or '%')
 
 	// Determines if the function is different for NodeLists
 	rgxDifferentNL = /^(?:af|ap|be|conc|cop|ea|fill|ins|prep|pu|rep|rev|sor|toggleC)|wrap|remove(?:Class)?$/,
@@ -704,8 +704,8 @@ var
 	TOGGLE = 'toggle',
 
 	/* Misc */
-	documentHead = document.head, //The document's <head> element
-	iframe = createElement('iframe'), //Used for subclassing Array and determining default CSS values
+	documentHead = document.head, // The document's <head> element
+	iframe = createElement('iframe'), // Used for subclassing Array and determining default CSS values
 
 	/* CSS */
 	cssVendorPrefix = usesWebkit ? 'webkit'
@@ -958,7 +958,7 @@ function getTypedArrayFunctions(constructor) {
 					}
 				}
 
-				//The item was not part of any of the input arrays so it can be added to the difference array
+				// The item was not part of any of the input arrays so it can be added to the difference array
 				push1(difference, item);
 			}
 
@@ -983,9 +983,9 @@ function getTypedArrayFunctions(constructor) {
 				item;
 
 			next: for (; i < this.length; i++) {
-				//The current item can only be added if it is not already in the intersection
+				// The current item can only be added if it is not already in the intersection
 				if (intersection.indexOf(item = this[i]) < 0) {
-					//If the item is not in every input array, continue to the next item without adding the current one
+					// If the item is not in every input array, continue to the next item without adding the current one
 					for (j = 0; j < arguments.length; j++) {
 						if (ArrayPrototype.indexOf.call(arguments[j], item) < 0) {
 							continue next;
@@ -1207,7 +1207,7 @@ ElementPrototype.attr = function(attribute, value) {
  * @param {Object} obj - An object of key-value pairs to add to the element's stored data.
  */
 ElementPrototype.data = function(key, value) {
-	return Firebolt.data(this, key, value, 1); //Pass in 1 to tell the generic function the object is an element
+	return Firebolt.data(this, key, value, 1); // Pass in 1 to tell the generic function the object is an element
 };
 
 /**
@@ -1298,11 +1298,11 @@ ElementPrototype.matches = ElementPrototype.matches || ElementPrototype.webkitMa
 ElementPrototype.prop = function(prop, value) {
 	if (value === _undefined) {
 		if (typeofString(prop)) {
-			return this[prop]; //Get
+			return this[prop]; // Get
 		}
-		extend(this, prop); //Set multiple
+		extend(this, prop); // Set multiple
 	} else {
-		this[prop] = value; //Set single
+		this[prop] = value; // Set single
 	}
 
 	return this;
@@ -1492,7 +1492,7 @@ Firebolt._GET = function() {
  * @returns {XMLHttpRequest} The XMLHttpRequest object this request is using.
  */
 Firebolt.ajax = function(url, settings) {
-	//Parameter processing
+	// Parameter processing
 	if (typeofString(url)) {
 		settings = settings || {};
 		settings.url = url;
@@ -1500,12 +1500,12 @@ Firebolt.ajax = function(url, settings) {
 		settings = url;
 	}
 
-	//Merge the passed in settings object with the default values
+	// Merge the passed in settings object with the default values
 	settings = extendDeep({}, ajaxSettings, settings);
 
 	url = settings.url;
 
-	//Create the XMLHttpRequest and give it settings
+	// Create the XMLHttpRequest and give it settings
 	var xhr = extend(new XMLHttpRequest(), settings.xhrFields),
 		async = settings.async,
 		beforeSend = settings.beforeSend,
@@ -1514,31 +1514,31 @@ Firebolt.ajax = function(url, settings) {
 		crossDomain = settings.crossDomain || url.contains('//') && url.indexOf(document.domain) < 0,
 		dataType = settings.dataType,
 		error = settings.error || returnFalse,
-		headers = settings.headers || {}, //For true XHRs only
-		lastState = 0, //For true XHRs only
+		headers = settings.headers || {}, // For true XHRs only
+		lastState = 0, // For true XHRs only
 		success = settings.success || returnFalse,
 		timeout = settings.timeout,
 		type = settings.type.toUpperCase(),
 		isGetOrHead = type == 'GET' || type == 'HEAD',
 		data = settings.data,
-		statusCode, //For true XHRs only
+		statusCode, // For true XHRs only
 		textStatus;
 
 	if (data) {
-		//Process data if necessary
+		// Process data if necessary
 		if (isArray(data) || isPlainObject(data)) {
 			data = Firebolt.param(data, settings.traditional);
 		}
 
-		//If the request is a GET or HEAD, append the data string to the URL
+		// If the request is a GET or HEAD, append the data string to the URL
 		if (isGetOrHead) {
 			url = url.appendParams(data);
-			data = _undefined; //Clear the data so it is not sent later on
+			data = _undefined; // Clear the data so it is not sent later on
 		}
 	}
 
-	if (dataType == 'script' && (crossDomain || settings.isLocal)) { //Set up an HTML script loader
-		//Prevent caching unless the user explicitly set cache to true
+	if (dataType == 'script' && (crossDomain || settings.isLocal)) { // Set up an HTML script loader
+		// Prevent caching unless the user explicitly set cache to true
 		if (settings.cache !== true) {
 			url = url.appendParams('_=' + (timestamp++));
 		}
@@ -1571,11 +1571,11 @@ Firebolt.ajax = function(url, settings) {
 		}
 
 		if (beforeSend && beforeSend(xhr, settings) === false) {
-			//If the beforeSend function returned false, do not send the request
+			// If the beforeSend function returned false, do not send the request
 			return false;
 		}
 
-		//Set a timeout if there is one
+		// Set a timeout if there is one
 		if (timeout) {
 			timeout = setTimeout(function() {
 				script.remove();
@@ -1584,25 +1584,25 @@ Firebolt.ajax = function(url, settings) {
 			}, timeout);
 		}
 
-		//Append the script to the head of the document to load it
+		// Append the script to the head of the document to load it
 		documentHead.appendChild(script);
 	} else { // Set up a true XHR
-		//Override the requested MIME type in the XHR if there is one specified in the settings
+		// Override the requested MIME type in the XHR if there is one specified in the settings
 		if (settings.mimeType) {
 			xhr.overrideMimeType(settings.mimeType);
 		}
 
-		//Prevent caching if necessary
+		// Prevent caching if necessary
 		if (isGetOrHead && settings.cache === false) {
 			url = url.appendParams('_=' + (timestamp++));
 		}
 
-		//Set the content type header if there is data to submit or the user has specifed a particular content type
+		// Set the content type header if there is data to submit or the user has specifed a particular content type
 		if (data || contentType) {
 			headers['Content-Type'] = contentType || 'application/x-www-form-urlencoded; charset=UTF-8';
 		}
 
-		//The main XHR function for when the request has loaded (and track states in between for abort or timeout)
+		// The main XHR function for when the request has loaded (and track states in between for abort or timeout)
 		xhr.onreadystatechange = function() {
 			if ((lastState = xhr.readyState) < 4) {
 				return;
@@ -1614,24 +1614,24 @@ Firebolt.ajax = function(url, settings) {
 
 			statusCode = xhr.status;
 
-			if (statusCode >= 200 && statusCode < 300 || statusCode === 304 || settings.isLocal && xhr.responseText) { //Success
-				if (statusCode === 204 || type == 'HEAD') { //If no content
+			if (statusCode >= 200 && statusCode < 300 || statusCode === 304 || settings.isLocal && xhr.responseText) { // Success
+				if (statusCode === 204 || type == 'HEAD') { // If no content
 					textStatus = 'nocontent';
 				} else {
 					textStatus = 'success';
 				}
 
 				try {
-					//Only need to process data of there is content
+					// Only need to process data of there is content
 					if (textStatus != 'nocontent') {
-						//If the data type has not been set, try to figure it out
+						// If the data type has not been set, try to figure it out
 						if (!dataType) {
 							if ( dataType = rgxDataType.exec(xhr.getResponseHeader('Content-Type')) ) {
 								dataType = dataType[0];
 							}
 						}
 
-						//Set data based on the data type
+						// Set data based on the data type
 						if (dataType == 'xml') {
 							data = xhr.responseXML;
 						} else if (dataType == 'json') {
@@ -1647,7 +1647,7 @@ Firebolt.ajax = function(url, settings) {
 						data = '';
 					}
 
-					//Invoke the success callback
+					// Invoke the success callback
 					success(data, textStatus, xhr);
 				}
 				catch (e) {
@@ -1660,24 +1660,24 @@ Firebolt.ajax = function(url, settings) {
 				error(xhr, textStatus, getAjaxErrorStatus(xhr));
 			}
 
-			//Invoke the complete callback
+			// Invoke the complete callback
 			complete(xhr, textStatus);
 		};
 
-		//Open the request
+		// Open the request
 		xhr.open(type, url, async, settings.username, settings.password);
 
-		//Set the request headers in the XHR
-		for (type in headers) { //Reuse the `type` variable since it has already served its purpose in opening the XHR
+		// Set the request headers in the XHR
+		for (type in headers) { // Reuse the `type` variable since it has already served its purpose in opening the XHR
 			xhr.setRequestHeader(type, headers[type]);
 		}
 
 		if (beforeSend && beforeSend(xhr, settings) === false) {
-			//If the beforeSend function returned false, do not send the request
+			// If the beforeSend function returned false, do not send the request
 			return false;
 		}
 
-		//Set a timeout if there is one
+		// Set a timeout if there is one
 		if (timeout) {
 			timeout = setTimeout(function() {
 				textStatus = 'timeout';
@@ -1685,7 +1685,7 @@ Firebolt.ajax = function(url, settings) {
 			}, timeout);
 		}
 
-		//Send the XHR
+		// Send the XHR
 		xhr.send(data);
 	}
 
@@ -1811,7 +1811,7 @@ Firebolt.data = function(object, key, value, isElement) {
  * The easing extension can be used to fill this out more.
  */
 Firebolt.easing = {
-	swing: 'cubic-bezier(.36,0,.64,1)' //Essentially the same as jQuery (curve is identical in WolframAlpha)
+	swing: 'cubic-bezier(.36,0,.64,1)' // Essentially the same as jQuery (curve is identical in WolframAlpha)
 };
 
 /**
@@ -1966,9 +1966,9 @@ function createFragment() {
  * @memberOf Firebolt
  */
 Firebolt.get = function(url, data, success, dataType) {
-	//Organize arguments into their proper places
+	// Organize arguments into their proper places
 	if (typeof data == 'function') {
-		dataType = dataType || success; //Using || because when getJSON is called dataType will have a value
+		dataType = dataType || success; // Using || because when getJSON is called dataType will have a value
 		success = data;
 		data = '';
 	} else if (typeofString(success)) {
@@ -2113,13 +2113,13 @@ function serialize(obj, prefix, traditional) {
 		}
 
 		if (traditional) {
-			//Add the key
+			// Add the key
 			queryString += (queryString ? '&' : '') + encodeURIComponent(key);
 
-			//Add the value
+			// Add the value
 			if (isArray(value)) {
 				for (cur = 0; cur < value.length; cur++) {
-					//Add key again for multiple array values
+					// Add key again for multiple array values
 					queryString += (cur ? '&' + encodeURIComponent(key) : '') + '=' + encodeURIComponent(value[cur] == _undefined ? '' : value[cur]);
 				}
 			} else {
@@ -2197,7 +2197,7 @@ function parseHTML(html, context, detachNodes, single) {
  * @memberOf Firebolt
  */
 Firebolt.post = function(url, data, success, dataType) {
-	//Organize arguments into their proper places
+	// Organize arguments into their proper places
 	if (typeof data == 'function') {
 		dataType = success;
 		success = data;
@@ -2570,12 +2570,12 @@ window.$NAME = function(name) {
  */
 HTMLElementPrototype.addClass = function(value) {
 	if (value) {
-		//Only need to determine which classes should be added if this element's className has a value
+		// Only need to determine which classes should be added if this element's className has a value
 		if (this.className) {
 			var newClasses = value.split(' '),
 				i = 0;
 
-			value = this.className; //Reuse the value argument to build the new class name
+			value = this.className; // Reuse the value argument to build the new class name
 
 			for (; i < newClasses.length; i++) {
 				if (!this.hasClass(newClasses[i])) {
@@ -2584,7 +2584,7 @@ HTMLElementPrototype.addClass = function(value) {
 			}
 		}
 
-		//Set the new value
+		// Set the new value
 		this.className = value;
 	}
 
@@ -2671,12 +2671,12 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 			cssIncrementProps = {};
 		}
 
-		//Parse properties
+		// Parse properties
 		for (; i < numProperties; i++) {
 			sanitaryProp = sanitizeCssPropName(prop = propertyNames[i]);
 			val = properties[prop];
 
-			//Should set overflow to "hidden" when animating height or width properties
+			// Should set overflow to "hidden" when animating height or width properties
 			if ((prop == 'height' || prop == 'width') && valsToRestore.overflow === _undefined) {
 				valsToRestore.overflow = inlineStyle.overflow;
 				inlineStyle.overflow = 'hidden';
@@ -2719,7 +2719,7 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 			}
 		}
 
-		//Inline the element's current CSS styles (even if some properties were set to 0 in the loop because setting all at once here prevents bugs)
+		// Inline the element's current CSS styles (even if some properties were set to 0 in the loop because setting all at once here prevents bugs)
 		_this.css(_this.css(propertyNames));
 
 		// Set the CSS transition style
@@ -2729,7 +2729,7 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 
 		// Start the transition
 		if (noCssTransitionSupport) {
-			//Increment the CSS properties by their respective amounts each frame period until all frames have been rendered
+			// Increment the CSS properties by their respective amounts each frame period until all frames have been rendered
 			(function renderFrame() {
 				for (prop in cssIncrementProps) {
 					inlineStyle[prop] = parseFloat(inlineStyle[prop]) + cssIncrementProps[prop] + inlineStyle[prop].replace(rgxUpToUnits, '');
@@ -2756,12 +2756,12 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 			delete _this._$A_;
 
 			if (!animationCompleted) {
-				//Get the current values of the CSS properties being animated
+				// Get the current values of the CSS properties being animated
 				properties = _this.css(propertyNames);
 			}
 
 			if (noCssTransitionSupport) {
-				//End the frame rendering and set all the final CSS values
+				// End the frame rendering and set all the final CSS values
 				clearTimeout(temp);
 				_this.css(properties);
 			}
@@ -2774,7 +2774,7 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 			_this.css(valsToRestore);
 
 			if (!animationCompleted) {
-				//Set all the current CSS property values
+				// Set all the current CSS property values
 				_this.css(properties);
 			} else {
 				if (hideOnComplete) {
@@ -3029,9 +3029,9 @@ HTMLElementPrototype.hide = function() {
  */
 HTMLElementPrototype.html = function(innerHTML) {
 	if (innerHTML === _undefined) {
-		return this.innerHTML; //Get
+		return this.innerHTML; // Get
 	}
-	this.innerHTML = innerHTML; //Set
+	this.innerHTML = innerHTML; // Set
 
 	return this;
 };
@@ -3062,23 +3062,23 @@ HTMLElementPrototype.offset = function(coordinates) {
 		left = 0;
 
 	if (coordinates) {
-		//If the element's position is absolute or fixed, the coordinates can be directly set
+		// If the element's position is absolute or fixed, the coordinates can be directly set
 		var position = this.css('position');
 		if (position[0] === 'a' || position[0] === 'f') {
 			return this.css({top: coordinates.top, left: coordinates.left});
 		}
 
-		//Otherwise, reset the element's top and left values so relative coordinates can be calculated
+		// Otherwise, reset the element's top and left values so relative coordinates can be calculated
 		this.css({top: 0, left: 0});
 	}
 
-	//Calculate the element's current offset
+	// Calculate the element's current offset
 	do {
 		top += el.offsetTop;
 		left += el.offsetLeft;
 	} while (el = el.offsetParent);
 
-	//Set the element's coordinates with relative positioning or return the calculated coordinates
+	// Set the element's coordinates with relative positioning or return the calculated coordinates
 	return coordinates ? this.css({
 			position: 'relative',
 			top: 0 - top + coordinates.top,
@@ -3167,7 +3167,7 @@ HTMLElementPrototype.serialize = function() {
 		return '';
 	}
 
-	//Check if the value is a string because <select> elements may return an array of selected options
+	// Check if the value is a string because <select> elements may return an array of selected options
 	return typeofString(value) ? encodeURIComponent(name) + '=' + encodeURIComponent(value)
 							   : serialize( HTMLElementPrototype.prop.call({}, name, value) );
 };
@@ -3188,15 +3188,15 @@ HTMLElementPrototype.show = function() {
 	var inlineStyle = this.style;
 
 	if (isDisplayNone(0, inlineStyle)) {
-		inlineStyle.display = this._$DS_ || ''; //Use the saved display style or clear the display style
+		inlineStyle.display = this._$DS_ || ''; // Use the saved display style or clear the display style
 	}
 
 	if (isDisplayNone(this)) {
-		//Add an element of the same type as this element to the iframe's body to figure out what the default display value should be
+		// Add an element of the same type as this element to the iframe's body to figure out what the default display value should be
 		inlineStyle.display = getComputedStyle(
 			documentHead.appendChild(iframe).contentDocument.body.appendChild(iframe.contentDocument.createElement(this.tagName))
 		).display;
-		iframe.remove(); //Remove the iframe from the document (this also deletes its contents)
+		iframe.remove(); // Remove the iframe from the document (this also deletes its contents)
 	}
 
 	return this;
@@ -3373,12 +3373,12 @@ HTMLElementPrototype.toggleClass = function(value, addOrRemove) {
  * @param {String[]} values - The array of values used to determine if the element (or its options) should be checked (or selected).
  */
 HTMLElementPrototype.val = function(value) {
-	//If `value` is not an array with values to check
+	// If `value` is not an array with values to check
 	if (!isArray(value)) {
 		return this.prop('value', value);
 	}
 
-	//Check or uncheck this depending on if this element's value is in the array of values to check
+	// Check or uncheck this depending on if this element's value is in the array of values to check
 	this.checked = value.contains(this.value);
 
 	return this;
@@ -3390,7 +3390,7 @@ HTMLSelectElement[prototype].val = function(value) {
 		i = 0;
 
 	if (value === _undefined) {
-		//If multiple selection is allowed and there is at least one selected item, return an array of selected values
+		// If multiple selection is allowed and there is at least one selected item, return an array of selected values
 		if (multiple && this.selectedIndex >= 0) {
 			value = [];
 			for (; i < options.length; i++) {
@@ -3401,7 +3401,7 @@ HTMLSelectElement[prototype].val = function(value) {
 			return value;
 		}
 
-		//Else return the currently selected value or null
+		// Else return the currently selected value or null
 		//(If multiple is true, this.value will be an empty string so null will be returned)
 		return this.value || null;
 	}
@@ -3409,8 +3409,8 @@ HTMLSelectElement[prototype].val = function(value) {
 	if (typeofString(value)) {
 		this.value = value;
 	} else {
-		//Select or deselect each option depending on if its value is in the array of values to check.
-		//Break once an option is selected if this select element does not allow multiple selection.
+		// Select or deselect each option depending on if its value is in the array of values to check.
+		// Break once an option is selected if this select element does not allow multiple selection.
 		for (; i < options.length; i++) {
 			if ((options[i].selected = value.contains(options[i].value)) && !multiple) break;
 		}
@@ -4237,16 +4237,16 @@ var
 	//<iframe> Array subclassing
 	NodeCollection = window.NodeCollection = window.NC = documentHead.appendChild(iframe).contentWindow.Array,
 
-	//Extend NodeCollection's prototype with the Array functions
+	// Extend NodeCollection's prototype with the Array functions
 	NodeCollectionPrototype = extend(NodeCollection[prototype], prototypeExtensions, getTypedArrayFunctions(NodeCollection)),
 
-	//Set and get the NodeCollection.from function (gets the custom function and not the native one even if it exists)
+	// Set and get the NodeCollection.from function (gets the custom function and not the native one even if it exists)
 	ncFrom = setAndGetArrayFromFunction(NodeCollection),
 
-	//Save a reference to the original filter function for use later on
+	// Save a reference to the original filter function for use later on
 	ncFilter = NodeCollectionPrototype.filter;
 
-iframe.remove(); //Remove the iframe that was used to subclass Array
+iframe.remove(); // Remove the iframe that was used to subclass Array
 
 /* Add a bunch of functions by calling the HTMLElement version on each element in the collection */
 ('addClass animate blur click empty fadeIn fadeOut fadeToggle '
@@ -4672,8 +4672,8 @@ NodeCollectionPrototype.data = getFirstSetEachElement(ElementPrototype.data, fun
 NodeCollectionPrototype.filter = function(selector) {
 	return ncFilter.call(this, 
 		typeofString(selector)
-			? function(node) { return isNodeElement(node) && node.matches(selector); } //Use CSS string filter
-			: selector //Use given filter function
+			? function(node) { return isNodeElement(node) && node.matches(selector); } // Use CSS string filter
+			: selector // Use given filter function
 	);
 };
 
@@ -5203,14 +5203,14 @@ NodeCollectionPrototype.siblings = getGetDirElementsFunc(HTMLElementPrototype.si
 NodeCollectionPrototype.text = function(text) {
 	var len = this.length,
 		i = 0;
-	//Get
+	// Get
 	if (text === _undefined) {
 		for (text = ''; i < len; i++) {
 			text += this[i].textContent;
 		}
 		return text;
 	}
-	//Set
+	// Set
 	for (; i < len; i++) {
 		this[i].textContent = text;
 	}
@@ -5330,12 +5330,12 @@ NodeCollectionPrototype.unwrap = function() {
  * @param {String[]} values - The array of values used to determine if each element (or its options) should be checked (or selected).
  */
 NodeCollectionPrototype.val = function(value) {
-	//Get first
+	// Get first
 	if (value === _undefined) {
 		return this[0].val();
 	}
 
-	//Set each
+	// Set each
 	for (var i = 0; i < this.length; i++) {
 		this[i].val(value);
 	}
@@ -5491,7 +5491,7 @@ NodeCollectionPrototype.wrapWith = function(wrappingElement) {
 
 /* Give NodeLists and HTMLCollections many of the same prototype functions as NodeCollections */
 Object.getOwnPropertyNames(NodeCollectionPrototype)
-	.diff('clear length pop push shift splice unshift'.split(' ')) //These properties should not be added to the NodeList prototype
+	.diff('clear length pop push shift splice unshift'.split(' ')) // These properties should not be added to the NodeList prototype
 	.forEach(function(methodName) {
 		if (!NodeListPrototype[methodName]) {
 			var method = NodeCollectionPrototype[methodName];
@@ -5637,7 +5637,7 @@ function getClassOf(value) {
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String|String - JavaScript | MDN}
  */
 
-//Reuse the prototype extensions variable to hold an object of String extensions
+// Reuse the prototype extensions variable to hold an object of String extensions
 prototypeExtensions = {
 	/**
 	 * Appends query string parameters to a URL.
@@ -5797,7 +5797,7 @@ definePrototypeExtensionsOn(StringPrototype, prototypeExtensions);
 
 //#region ========================= Browser Fixes ============================
 
-//Fix the `nextElementSibling` and `previousElementSibling` properties for ChildNodes in browsers than only support them on Elements
+// Fix the `nextElementSibling` and `previousElementSibling` properties for ChildNodes in browsers than only support them on Elements
 if (Firebolt.text()[nextElementSibling] === _undefined) {
 
 	[CharacterData[prototype], DocumentType[prototype]].forEach(function(proto) {
@@ -5819,7 +5819,7 @@ if (Firebolt.text()[nextElementSibling] === _undefined) {
 
 }
 
-//Fix the parentElement property for Nodes in browsers than only support it on Element
+// Fix the parentElement property for Nodes in browsers than only support it on Element
 if (document.parentElement === _undefined) {
 
 	defineProperty(NodePrototype, 'parentElement', {

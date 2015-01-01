@@ -2,7 +2,7 @@
  * Firebolt tests loader
  */
 
-/* Sauce Labs setup */
+// Sauce Labs setup
 (function() {
 	var log = [];
 
