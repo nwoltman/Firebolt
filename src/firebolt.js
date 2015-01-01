@@ -100,8 +100,7 @@ function createEventObject(eventType, event) { // Declaring `event` in the param
 			bubbles: true,
 			cancelable: true
 		});
-	}
-	else { // Use the deprecated document.createEvent() + event.initEvent() method
+	} else { // Use the deprecated document.createEvent() + event.initEvent() method
 		event = document.createEvent('Event');
 		event.initEvent(eventType, true, true);
 	}
@@ -122,11 +121,9 @@ function createEventObject(eventType, event) { // Declaring `event` in the param
 function cssMath(curVal, changeVal, type, element, property) {
 	if (type == 'em') {
 		curVal /= parseFloat(getComputedStyle(element).fontSize);
-	}
-	else if (type == 'pt') {
+	} else if (type == 'pt') {
 		curVal *= 0.75; //Close enough (who uses pt anyway?)
-	}
-	else if (type == '%') {
+	} else if (type == '%') {
 		curVal *= 100 / parseFloat(getComputedStyle(element.parentNode)[property]);
 	}
 
@@ -423,8 +420,7 @@ function getNodePutOrWithFunction(inserter) {
 function getWrappingElement(input) {
 	if (typeofString(input)) {
 		input = $1(input);
-	}
-	else if (!input.nodeType) { //Element[]
+	} else if (!input.nodeType) { // Element[]
 		input = input[0];
 	}
 
@@ -1305,8 +1301,7 @@ ElementPrototype.prop = function(prop, value) {
 			return this[prop]; //Get
 		}
 		extend(this, prop); //Set multiple
-	}
-	else {
+	} else {
 		this[prop] = value; //Set single
 	}
 
@@ -1416,8 +1411,7 @@ function Firebolt(selector, context) {
 		if (!rgxNotClass.test(selector)) {
 			return ncFrom(getElementsByClassName(selector.slice(1).replace(rgxAllDots, ' ')));
 		}
-	}
-	else if (firstChar === '#') { // Check for a single ID
+	} else if (firstChar === '#') { // Check for a single ID
 		if (!rgxNotId.test(selector)) {
 			context = new NodeCollection(); // Use the unused context argument to be the NodeCollection
 			if (selector = getElementById(selector.slice(1))) { // Reuse the selector argument to be the retrieved element
@@ -1425,11 +1419,9 @@ function Firebolt(selector, context) {
 			}
 			return context;
 		}
-	}
-	else if (firstChar === '<') { // Check if the string is an HTML string
+	} else if (firstChar === '<') { // Check if the string is a HTML string
 		return parseHTML(selector, document, 1); // Pass in 1 to tell the function to detach the nodes from their creation container
-	}
-	else if (!rgxNotTag.test(selector)) { // Check for a single tag name
+	} else if (!rgxNotTag.test(selector)) { // Check for a single tag name
 		return ncFrom(getElementsByTagName(selector));
 	}
 	//else
@@ -1504,8 +1496,7 @@ Firebolt.ajax = function(url, settings) {
 	if (typeofString(url)) {
 		settings = settings || {};
 		settings.url = url;
-	}
-	else {
+	} else {
 		settings = url;
 	}
 
@@ -1575,8 +1566,7 @@ Firebolt.ajax = function(url, settings) {
 
 		if (script.async === _undefined) {
 			script.defer = async;
-		}
-		else {
+		} else {
 			script.async = async;
 		}
 
@@ -1596,8 +1586,7 @@ Firebolt.ajax = function(url, settings) {
 
 		//Append the script to the head of the document to load it
 		documentHead.appendChild(script);
-	}
-	else { //Set up a true XHR
+	} else { // Set up a true XHR
 		//Override the requested MIME type in the XHR if there is one specified in the settings
 		if (settings.mimeType) {
 			xhr.overrideMimeType(settings.mimeType);
@@ -1628,8 +1617,7 @@ Firebolt.ajax = function(url, settings) {
 			if (statusCode >= 200 && statusCode < 300 || statusCode === 304 || settings.isLocal && xhr.responseText) { //Success
 				if (statusCode === 204 || type == 'HEAD') { //If no content
 					textStatus = 'nocontent';
-				}
-				else {
+				} else {
 					textStatus = 'success';
 				}
 
@@ -1646,19 +1634,16 @@ Firebolt.ajax = function(url, settings) {
 						//Set data based on the data type
 						if (dataType == 'xml') {
 							data = xhr.responseXML;
-						}
-						else if (dataType == 'json') {
+						} else if (dataType == 'json') {
 							data = JSON.parse(xhr.responseText);
-						}
-						else {
+						} else {
 							data = xhr.responseText;
 
 							if (dataType == 'script') {
 								Firebolt.globalEval(data);
 							}
 						}
-					}
-					else {
+					} else {
 						data = '';
 					}
 
@@ -1668,8 +1653,7 @@ Firebolt.ajax = function(url, settings) {
 				catch (e) {
 					error(xhr, textStatus = 'parsererror', getAjaxErrorStatus(xhr));
 				}
-			}
-			else { //Error
+			} else { // Error
 				if (textStatus != 'timeout') {
 					textStatus = lastState < 3 ? 'abort' : 'error';
 				}
@@ -1987,8 +1971,7 @@ Firebolt.get = function(url, data, success, dataType) {
 		dataType = dataType || success; //Using || because when getJSON is called dataType will have a value
 		success = data;
 		data = '';
-	}
-	else if (typeofString(success)) {
+	} else if (typeofString(success)) {
 		dataType = success;
 		success = 0;
 	}
@@ -2139,12 +2122,10 @@ function serialize(obj, prefix, traditional) {
 					//Add key again for multiple array values
 					queryString += (cur ? '&' + encodeURIComponent(key) : '') + '=' + encodeURIComponent(value[cur] == _undefined ? '' : value[cur]);
 				}
-			}
-			else {
+			} else {
 				queryString += '=' + encodeURIComponent(value);
 			}
-		}
-		else if (!(valueIsObject = isArray(value) || getClassOf(value) == 'Object') || !isEmptyObject(value)) {
+		} else if (!(valueIsObject = isArray(value) || getClassOf(value) == 'Object') || !isEmptyObject(value)) {
 			/* Inspired by: http://stackoverflow.com/questions/1714786/querystring-encoding-of-a-javascript-object */
 			cur = prefix ? prefix + '[' + key + ']' : key;
 			queryString += (queryString ? '&' : '') + (valueIsObject ? serialize(value, cur)
@@ -2191,8 +2172,7 @@ function parseHTML(html, context, detachNodes, single) {
 		while (context--) {
 			elem = elem.firstChild;
 		}
-	}
-	else {
+	} else {
 		elem.innerHTML = html;
 	}
 
@@ -2222,8 +2202,7 @@ Firebolt.post = function(url, data, success, dataType) {
 		dataType = success;
 		success = data;
 		data = '';
-	}
-	else if (typeofString(success)) {
+	} else if (typeofString(success)) {
 		dataType = success;
 		success = 0;
 	}
@@ -2247,8 +2226,7 @@ Firebolt.post = function(url, data, success, dataType) {
 Firebolt.ready = function(callback) {
 	if (document.readyState == 'loading') {
 		document.addEventListener('DOMContentLoaded', callback);
-	}
-	else {
+	} else {
 		callback();
 	}
 };
@@ -2277,8 +2255,7 @@ Firebolt.removeData = function(object, list) {
 	if (dataStore) {
 		if (typeofString(list)) {
 			list = list.split(' ');
-		}
-		else if (!list) {
+		} else if (!list) {
 			list = keys(dataStore); // Select all items for removal
 		}
 
@@ -2469,16 +2446,13 @@ window.$1 = function(selector, context) {
 		if (!rgxNotClass.test(selector)) {
 			return getElementsByClassName(selector.slice(1).replace(rgxAllDots, ' '))[0];
 		}
-	}
-	else if (firstChar === '#') { // Check for a single id
+	} else if (firstChar === '#') { // Check for a single id
 		if (!rgxNotId.test(selector)) {
 			return getElementById(selector.slice(1));
 		}
-	}
-	else if (firstChar === '<') { // Check if the string is an HTML string
+	} else if (firstChar === '<') { // Check if the string is a HTML string
 		return parseHTML(selector, document, 1, 1); // Pass in the second 1 to tell the function to return only one node
-	}
-	else if (!rgxNotTag.test(selector)) { // Check for a single tag name
+	} else if (!rgxNotTag.test(selector)) { // Check for a single tag name
 		return getElementsByTagName(selector)[0];
 	}
 	//else
@@ -2658,13 +2632,11 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 		complete = duration;
 		duration = ANIMATION_DEFAULT_DURATION;
 		easing = ANIMATION_DEFAULT_EASING;
-	}
-	else if (typeofString(duration)) {
+	} else if (typeofString(duration)) {
 		complete = easing;
 		easing = duration;
 		duration = ANIMATION_DEFAULT_DURATION;
-	}
-	else if (!typeofString(easing)) {
+	} else if (!typeofString(easing)) {
 		complete = easing;
 		easing = ANIMATION_DEFAULT_EASING;
 	}
@@ -2718,21 +2690,18 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 					val = currentStyle[sanitaryProp];
 					valsToRestore[sanitaryProp] = inlineStyle[sanitaryProp];
 					inlineStyle[sanitaryProp] = 0;
-				}
-				else {
+				} else {
 					val = 0;
 					valsToRestore[sanitaryProp] = inlineStyle[sanitaryProp];
 					hideOnComplete = 1;
 				}
-			}
-			else if (val == 'auto') {
+			} else if (val == 'auto') {
 				valsToRestore[sanitaryProp] = val; // Save value to be set on the element at the end of the transition
 				temp = inlineStyle[sanitaryProp];  // Save the current inline value of the property
 				inlineStyle[sanitaryProp] = val;   // Set the style to the input value ('auto')
 				val = _this.css(sanitaryProp);     // Get the computed style that will be used as the target value (use .css in case the element is hidden)
 				inlineStyle[sanitaryProp] = temp;  // Restore the current inline value of the property
-			}
-			else if (val[1] === '=') { // "+=value" or "-=value"
+			} else if (val[1] === '=') { // "+=value" or "-=value"
 				val = cssMath(parseFloat(currentStyle[sanitaryProp]), parseFloat(val.replace('=', '')), val.replace(rgxUpToUnits, ''), _this, sanitaryProp);
 			}
 
@@ -2768,13 +2737,11 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 
 				if (--framesLeft) {
 					temp = setTimeout(renderFrame, 25);
-				}
-				else {
+				} else {
 					_this.trigger(transitionendEventName);
 				}
 			})();
-		}
-		else {
+		} else {
 			_this.css(properties); // Setting the CSS values starts the transition
 		}
 
@@ -2809,8 +2776,7 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 			if (!animationCompleted) {
 				//Set all the current CSS property values
 				_this.css(properties);
-			}
-			else {
+			} else {
 				if (hideOnComplete) {
 					_this.hide();
 				}
@@ -3442,8 +3408,7 @@ HTMLSelectElement[prototype].val = function(value) {
 	
 	if (typeofString(value)) {
 		this.value = value;
-	}
-	else {
+	} else {
 		//Select or deselect each option depending on if its value is in the array of values to check.
 		//Break once an option is selected if this select element does not allow multiple selection.
 		for (; i < options.length; i++) {
@@ -3581,8 +3546,7 @@ NodePrototype.closest = function(selector) {
 		while (node && !node.matches(selector)) {
 			node = node.parentElement;
 		}
-	}
-	else {
+	} else {
 		// Search the node's parent nodes until one is found in the collection or there are no more parents
 		while (node && selector.indexOf(node) < 0) {
 			node = node.parentNode;
