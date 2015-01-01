@@ -120,24 +120,28 @@ function createFragment(content) {
 		i = 0,
 		item,
 		len,
-		isLive,
 		j;
 
 	for (; i < content.length; i++) {
 		if (isNode(item = content[i])) {
 			fragment.appendChild(item);
-		}
-		else {
+		} else {
 			if (typeofString(item)) {
 				item = parseHTML(item);
 			}
 
 			if (len = item.length) {
 				fragment.appendChild(item[0]);
-				isLive = item.length < len; // Determine if the item is a live NodeList/HTMLCollection
-				for (j = 1; j < len; j++) {
-					fragment.appendChild(item[isLive ? 0 : j]);
+				if (item.length < len) { // If the item is a live NodeList/HTMLCollection
+					while (item.length) {
+						fragment.appendChild(item[0]);
+					}
+				} else {
+					for (j = 1; j < len; j++) {
+						fragment.appendChild(item[j]);
+					}
 				}
+				
 			}
 		}
 	}

@@ -210,7 +210,8 @@ QUnit.test('frag', function(assert) {
 	assert.ok(fragment.nodeType === 11 && node.nodeName === 'DIV' && node.textContent === 'content',
 		'Creates a DocumentFragment with the specified HTML content.');
 
-	node = Firebolt.elem('p', {'class': 'class'});
+	node = document.createElement('p');
+	node.className = 'class';
 	fragment = Firebolt.frag(node);
 	assert.ok(fragment.nodeType === 11 && fragment.firstChild === node,
 		'Creates a DocumentFragment and appends an input node to it.');
@@ -224,6 +225,15 @@ QUnit.test('frag', function(assert) {
 	nodes.push(node);
 	assert.ok(fragment.nodeType === 11 && fragment.childNodes.equals(nodes),
 		'Creates a DocumentFragment and from multiple input parameters.');
+
+	node = document.createElement('div');
+	node.className = 'fragtest';
+	node.appendChild(node.cloneNode());
+	document.body.appendChild(node);
+	nodes = document.body.getElementsByClassName('fragtest');
+	fragment = Firebolt.frag(nodes);
+	assert.equal(fragment.firstChild, node, 'Creates a fragment from a live HTMLCollection that reduces'
+	             + ' its size by more than 1 when an element in it is appended to the fragment.');
 });
 
 QUnit.test('globalEval', function(assert) {
