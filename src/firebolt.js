@@ -1467,10 +1467,10 @@ function Firebolt(selector, context) {
  * Returns a PHP-style associative array (Object) of URL parameters and updates
  * the global {@linkcode $_GET} object at the same time.
  * 
+ * @function Firebolt._GET
  * @returns {Object.<String, String>}
  * @see $_GET
  * @see {@link http://www.php.net/manual/en/reserved.variables.get.php|PHP: $_GET - Manual}
- * @memberOf Firebolt
  */
 Firebolt._GET = function() {
 	window.$_GET = {};
@@ -1734,9 +1734,9 @@ Firebolt.ajax = function(url, settings) {
 /**
  * Sets default values for future Ajax requests. Use of this function is not recommended.
  * 
+ * @function Firebolt.ajaxSetup
  * @param {Object} options - A set of key-value pairs that configure the default Ajax settings.
  *     All options are optional.
- * @memberOf Firebolt
  */
 Firebolt.ajaxSetup = function(options) {
 	return extendDeep(ajaxSettings, options);
@@ -1956,10 +1956,10 @@ function extendDeep(target) {
 /**
  * Creates a new DocumentFragment and (optionally) appends the passed in content to it.
  * 
+ * @function Firebolt.frag
  * @param {...(String|Node|Node[])} [content] - One or more HTML strings, nodes, or collections
  *     of nodes to append to the fragment.
  * @returns {DocumentFragment} The newly created document fragment.
- * @memberOf Firebolt
  */
 Firebolt.frag = createFragment;
 function createFragment() {
@@ -1999,13 +1999,13 @@ function createFragment() {
 /**
  * Load data from the server using a HTTP GET request.
  * 
+ * @function Firebolt.get
  * @param {String} url - A string containing the URL to which the request will be sent.
  * @param {String|Object} [data] - A string or object that is sent to the server with the request as a query string.
  * @param {Function} [success(data, textStatus, xhr)] - A callback function that is executed if the request succeeds.
  *     Required if dataType is provided, but can be `null` in that case.
  * @param {String} [dataType] - The type of data expected from the server.
  *     Default: Intelligent Guess (xml, json, script, or html).
- * @memberOf Firebolt
  */
 Firebolt.get = function(url, data, success, dataType) {
 	// Organize arguments into their proper places
@@ -2029,10 +2029,10 @@ Firebolt.get = function(url, data, success, dataType) {
 /**
  * Load JSON-encoded data from the server using a HTTP GET request.
  * 
+ * @function Firebolt.getJSON
  * @param {String} url - A string containing the URL to which the request will be sent.
  * @param {String|Object} [data] - A string or object that is sent to the server with the request as a query string.
  * @param {Function} [success(data, textStatus, xhr)] - A callback function that is executed if the request succeeds.
- * @memberOf Firebolt
  */
 Firebolt.getJSON = function(url, data, success) {
 	return Firebolt.get(url, data, success, 'json');
@@ -2041,9 +2041,9 @@ Firebolt.getJSON = function(url, data, success) {
 /**
  * Load a JavaScript file from the server using a HTTP GET request, then execute it.
  * 
+ * @function Firebolt.getScript
  * @param {String} url - A string containing the URL to which the request will be sent.
  * @param {Function} [success(data, textStatus, xhr)] - A callback function that is executed if the request succeeds.
- * @memberOf Firebolt
  */
 Firebolt.getScript = function(url, success) {
 	return Firebolt.get(url, '', success, 'script');
@@ -2052,8 +2052,8 @@ Firebolt.getScript = function(url, success) {
 /**
  * Executes some JavaScript code globally.
  * 
+ * @function Firebolt.globalEval
  * @param {String} code - The JavaScript code to execute.
- * @memberOf Firebolt
  */
 Firebolt.globalEval = function(code) {
 	documentHead.appendChild(
@@ -2064,9 +2064,9 @@ Firebolt.globalEval = function(code) {
 /**
  * Determines if the object has any Firebolt data associated with it.
  * 
+ * @function Firebolt.hasData
  * @param {Object} object - An object. This can be anything that has Object in its prototype chain.
  * @returns {Boolean} `true` if the object has stored Firebolt data; else `false`.
- * @memberOf Firebolt
  */
 Firebolt.hasData = function(object) {
 	return !isEmptyObject(object[Firebolt.expando]);
@@ -2122,8 +2122,9 @@ function isPlainObject(obj) {
 /**
  * Indicates if the user is on a touchscreen device.
  * 
- * @property {Boolean} isTouchDevice - `true` if the user is on a touchscreen device; else `false`.
+ * @constant
  * @memberOf Firebolt
+ * @property {Boolean} isTouchDevice - `true` if the user is on a touchscreen device; else `false`.
  */
 Firebolt.isTouchDevice = 'ontouchstart' in window || 'onmsgesturechange' in window;
 
@@ -2132,6 +2133,7 @@ Firebolt.isTouchDevice = 'ontouchstart' in window || 'onmsgesturechange' in wind
  * Unlike jQuery, arrays will be serialized like objects when `traditional` is not `true`, with the indices of
  * the array becoming the keys of the query string parameters.
  * 
+ * @function Firebolt.param
  * @param {Array|Object} obj - An array or object to serialize.
  * @param {Boolean} traditional - A Boolean indicating whether to perform a traditional "shallow" serialization.
  * @returns {String} The serialized string representation of the array or object.
@@ -2235,13 +2237,13 @@ function parseHTML(html, context, detachNodes, single) {
 /**
  * Load data from the server using a HTTP POST request.
  * 
+ * @function Firebolt.post
  * @param {String} url - A string containing the URL to which the request will be sent.
  * @param {String|Object} [data] - A string or object that is sent to the server with the request.
  * @param {Function} [success(data, textStatus, xhr)] - A callback function that is executed if the request succeeds.
  *     Required if dataType is provided, but can be `null` in that case.
  * @param {String} [dataType] - The type of data expected from the server.
  *     Default: Intelligent Guess (xml, json, script, or html).
- * @memberOf Firebolt
  */
 Firebolt.post = function(url, data, success, dataType) {
 	// Organize arguments into their proper places
@@ -2267,7 +2269,7 @@ Firebolt.post = function(url, data, success, dataType) {
  * Specify a function to execute when the DOM is fully loaded.  
  * Executes the function immediately if the DOM has already finished loading.
  * 
- * @memberOf Firebolt
+ * @function Firebolt.ready
  * @param {Function} callback - A function to execute once the DOM has been loaded.
  */
 Firebolt.ready = function(callback) {
@@ -2315,7 +2317,7 @@ Firebolt.removeData = function(object, list) {
 /**
  * Creates a TextNode from the provided string.
  * 
- * @memberOf Firebolt
+ * @function Firebolt.text
  * @param {String} text - The string used to construct the TextNode.
  * @returns {TextNode}
  */
@@ -2486,6 +2488,7 @@ Firebolt._GET(); // Just call the function to update the global $_GET object
  * $1('<p>content</p>');     // Creates a new <p> element containing the string "content".
  * 
  * @global
+ * @function $1
  * @param {String} string - A CSS selector string or an HTML string.
  * @param {ParentNode} [context=document] - A node to serve as the context when selecting or creating elements.
  *     Only a DOM Document may be used as the `context` argument when creating elements.
@@ -2543,6 +2546,7 @@ window.$1 = function(selector, context) {
  * Alias of `document.getElementsByName()`.
  * 
  * @global
+ * @function $NAME
  * @param {String} name
  * @returns {HTMLCollection|NodeList} A collection of elements with the specified name attribute.
  */
