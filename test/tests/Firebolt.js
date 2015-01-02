@@ -8,6 +8,45 @@
 
 QUnit.module('Firebolt');
 
+QUnit.test('_GET', function(assert) {
+	var queryString = location.search;
+
+	/* global $_GET */
+	assert.strictEqual(Firebolt._GET(), $_GET, 'Creates and returns the global $_GET object.');
+
+	[
+		// 1
+		{string: '?', result: {}},
+
+		// 2
+		{string: '?a', result: {a: ''}},
+
+		// 3
+		{string: '?a&b', result: {a: '', b: ''}},
+
+		// 4
+		{string: '?hi=ho&oh=hi', result: {hi: 'ho', oh: 'hi'}},
+
+		// 5
+		{string: '?hi=ho&no&oh=hi', result: {hi: 'ho', no: '', oh: 'hi'}},
+
+		// 6
+		{string: '?hi=ho&no&oh=', result: {hi: 'ho', no: '', oh: ''}},
+
+		// 7
+		{string: '?&hi=ho&&&&no&&&oh=&&', result: {hi: 'ho', no: '', oh: ''}},
+
+		// 8
+		{string: '?url-encoded%3F=this%20%26%20that%2Fstuff', result: {'url-encoded?': 'this & that/stuff'}}
+
+	].forEach(function(query, index) {
+		history.replaceState('', '', query.string);
+		assert.deepEqual(Firebolt._GET(), query.result, 'Correctly parses query string #' + (index + 1) + '.');
+	});
+
+	history.replaceState('', '', queryString); // Cleanup
+});
+
 QUnit.test('data', function(assert) {
 	var object = {},
 		dataStore = Firebolt.data(object);
