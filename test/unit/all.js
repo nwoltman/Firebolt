@@ -45,7 +45,7 @@ if (document.readyState == 'loading') { // The document should not be done loadi
 	}
 } else if (typeof console != 'undefined') {
 	console.warn('The Firebolt.ready() test will be incomplete because' // jshint ignore:line
-		         + 'the document is done loading before it should be.');
+	             + 'the document is done loading before it should be.');
 }
 
 // Load the test modules
@@ -60,5 +60,5 @@ if (document.readyState == 'loading') { // The document should not be done loadi
 	'Object',
 	'String'
 ].forEach(function(module) {
-	Firebolt.getScript('tests/' + module + '.js');
+	Firebolt.getScript('unit/' + module + '.js');
 });

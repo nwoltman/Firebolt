@@ -64,7 +64,7 @@ grunt build
 
 #### Unit Tests
 
-Bug fixes and features should come with tests. Add your tests in the `test/tests/` directory in the file related to your changes (e.g. adding a function to `Array.prototype` means tests should be in the `Array.js` file).
+Bug fixes and features should come with tests. Add your tests in the `test/unit/` directory in the file related to your changes (e.g. adding a function to `Array.prototype` means tests should be in the `Array.js` file).
 Look at other tests to see how they should be structured.
 
 To run unit tests, you can simply open `test/index.html` in a browser.
