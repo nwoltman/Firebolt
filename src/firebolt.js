@@ -740,6 +740,7 @@ var
 
 	/* Events */
 	transitionendEventName = cssTransitionKey + (cssTransitionKey[0] === 'w' ? 'End' : 'end'),
+	readyCallbacks = [],
 
 //#endregion Private
 
@@ -2267,14 +2268,22 @@ Firebolt.post = function(url, data, success, dataType) {
 
 /**
  * Specify a function to execute when the DOM is fully loaded.  
- * Executes the function immediately if the DOM has already finished loading.
+ * Executes the function immediately (synchronously) if the DOM has already finished loading.
  * 
  * @function Firebolt.ready
  * @param {Function} callback - A function to execute once the DOM has been loaded.
  */
 Firebolt.ready = function(callback) {
-	if (document.readyState == 'loading') {
-		document.addEventListener('DOMContentLoaded', callback);
+	if (readyCallbacks && document.readyState != 'complete') {
+		if (!readyCallbacks.length) {
+			document.addEventListener('DOMContentLoaded', function() {
+				for (var i = 0; i < readyCallbacks.length; i++) {
+					readyCallbacks[i]();
+				}
+				readyCallbacks = _undefined; // Undefine the callbacks array to indicate that the ready event has fired
+			});
+		}
+		readyCallbacks.push(callback);
 	} else {
 		callback();
 	}

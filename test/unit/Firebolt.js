@@ -537,16 +537,13 @@ QUnit.test('parseHTML', function(assert) {
 QUnit.test('ready', function(assert) {
 	assert.expect(2);
 
-	// The document must be done loading for the test to be valid
-	if (document.readyState == 'interactive' || document.readyState == 'complete') {
-		assert.strictEqual(window.readyTestVal, 1, 'The test value is changed to 1 when the page is ready.');
+	assert.strictEqual(window.readyTestVal, 1, 'The test value is changed to 1 when the page is ready.');
 
-		Firebolt.ready(function() {
-			window.readyTestVal = 2;
-		});
-		assert.strictEqual(window.readyTestVal, 2,
-			'The ready function is called immediately if the ready event has already fired.');
-	}
+	Firebolt.ready(function() {
+		window.readyTestVal = 2;
+	});
+	assert.strictEqual(window.readyTestVal, 2,
+		'The ready function is called immediately if the ready event has already fired.');
 });
 
 QUnit.test('removeData', function(assert) {

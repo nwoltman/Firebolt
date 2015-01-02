@@ -37,15 +37,10 @@ window.readyTestVal = 0;
 Firebolt.ready(function() {
 	window.readyTestVal = 1;
 });
-if (document.readyState == 'loading') { // The document should not be done loading yet
-	if (window.readyTestVal !== 0) {
-		QUnit.test('Firebolt.ready()', function(assert) {
-			assert.ok(false, 'A function passed to Firebolt.ready() was called before the document became ready!');
-		});
-	}
-} else if (typeof console != 'undefined') {
-	console.warn('The Firebolt.ready() test will be incomplete because' // jshint ignore:line
-	             + 'the document is done loading before it should be.');
+if (window.readyTestVal !== 0) {
+	QUnit.test('Firebolt.ready()', function(assert) {
+		assert.ok(false, 'A function passed to Firebolt.ready() was called before the document became ready!');
+	});
 }
 
 // Load the test modules
