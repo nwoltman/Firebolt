@@ -9,10 +9,13 @@
 QUnit.module('Firebolt');
 
 QUnit.test('_GET', function(assert) {
-	var queryString = location.search;
-
 	/* global $_GET */
 	assert.strictEqual(Firebolt._GET(), $_GET, 'Creates and returns the global $_GET object.');
+
+	// Can't do any other tests if the history.replaceState function does not exist (just IE 9)
+	if (!history.replaceState) return;
+
+	var queryString = location.search;
 
 	[
 		// 1
