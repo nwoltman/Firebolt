@@ -39,7 +39,9 @@ QUnit.test('attr', function(assert) {
 
 	assert.equal(el.attr({'data-a': 'a', 'data-b': 'b', 'data-c': 'c'}), el,
 		'Returns the element when setting multiple properties.');
-	assert.ok(el.getAttribute('data-a') === 'a' && el.getAttribute('data-b') === 'b' && el.getAttribute('data-c') === 'c',
+	assert.ok(el.getAttribute('data-a') === 'a' &&
+	          el.getAttribute('data-b') === 'b' &&
+	          el.getAttribute('data-c') === 'c',
 		'Sets multiple attributes when passed in an object of key-value pairs.');
 
 	el.attr('data-a', null);
@@ -104,14 +106,19 @@ QUnit.test('find', function(assert) {
 });
 
 QUnit.test('matches', function(assert) {
-	if (document.getElementById('qunit-fixture').appendChild(document.createElement('iframe')).contentWindow.Element.prototype.matches) {
+	var iframe = document.createElement('iframe');
+	document.getElementById('qunit-fixture').appendChild(iframe);
+
+	if (iframe.contentWindow.Element.prototype.matches) {
 		// Element.prototype.matches is natively supported
 		assert.ok(typeof Element.prototype.matches == 'function', 'Has the `matches()` function.');
-	}
-	else {
+	} else {
 		assert.strictEqual(
 			Element.prototype.matches,
-			Element.prototype.webkitMatchesSelector || Element.prototype.mozMatchesSelector || Element.prototype.msMatchesSelector || Element.prototype.oMatchesSelector,
+			Element.prototype.webkitMatchesSelector ||
+			Element.prototype.mozMatchesSelector ||
+			Element.prototype.msMatchesSelector ||
+			Element.prototype.oMatchesSelector,
 			'Has the `matches()` function.'
 		);
 	}

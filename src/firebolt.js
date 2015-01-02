@@ -6,7 +6,8 @@
  * @license MIT https://github.com/woollybogger/Firebolt/blob/master/LICENSE.txt
  */
 
-(function(window, document, Array, Object, decodeURIComponent, encodeURIComponent, getComputedStyle, parseFloat, setTimeout, clearTimeout, _undefined) {
+(function(window, document, Array, Object, decodeURIComponent, encodeURIComponent,
+          getComputedStyle, parseFloat, setTimeout, clearTimeout, _undefined) {
 
 'use strict';
 
@@ -113,7 +114,8 @@ function createEventObject(eventType, event) { // Declaring `event` in the param
  * For this to work, the current value (in pixels) must be converted to the value type that is being changed.
  * 
  * @param {Number} curVal - The current CSS value in pixels.
- * @param {Number} changeVal - The amount the current value should change. The value type is indicated by the `type` parameter.
+ * @param {Number} changeVal - The amount the current value should change.
+ *     The value type is indicated by the `type` parameter.
  * @param {String} type - "px", "em", "pt", "%", or "" (empty string, for things like opacity)
  * @param {Element} element - The element who's CSS property is to be changed.
  * @param {String} property - The name of the CSS property being changed.
@@ -180,7 +182,8 @@ function getElementSelectionFunction(fn) {
  * returns true, in which case the result of calling the function on the first element is returned.
  * 
  * @param {Function} fn - The function to use as the getter or setter.
- * @param {Function} isSetter(numArgs, firstArg) - Function to determine if the value of the first element should be returned.
+ * @param {Function} isSetter(numArgs, firstArg) - Function to determine if the value of the first
+ *     element should be returned.
  */
 function getFirstSetEachElement(fn, isSetter) {
 	return function(firstArg) {
@@ -213,7 +216,7 @@ function getFirstSetEachElement(fn, isSetter) {
  * 
  * @param {Function|String} direction - A function or name of a function that retrieves elements for a single node.
  * @param {Function|Number} [sorter] - A function used to sort the union of multiple sets of returned elements.
- * If sorter == 0, return an 'until' Node function.
+ *     If sorter == 0, return an 'until' Node function.
  */
 function getGetDirElementsFunc(direction, sorter) {
 	if (sorter) {
@@ -233,14 +236,14 @@ function getGetDirElementsFunc(direction, sorter) {
 				collections[i] = direction.apply(this[i], arguments);
 			}
 
-			// Union the collections so that the resulting collection contains unique elements and return the sorted result
+			// Union the collections so that the result contains unique elements and return the sorted result
 			return ArrayPrototype.union.apply(NodeCollectionPrototype, collections).sort(sorter);
 		};
 	}
 
 	// For Node.prototype
 	return sorter === 0
-		//nextUntil, prevUntil, parentsUntil
+		// nextUntil, prevUntil, parentsUntil
 		? function(until, filter) {
 			var nc = new NodeCollection(),
 				node = this,
@@ -257,8 +260,8 @@ function getGetDirElementsFunc(direction, sorter) {
 							return node === until;
 						};
 
-			// Traverse all nodes in the direction and add them (or if there is a selector the ones that match it) to the NodeCollection
-			// until the `stop()` function returns `true`
+			// Traverse all nodes in the direction and add them (or if there is a selector the ones that match it)
+			// to the NodeCollection until the `stop()` function returns `true`
 			while ((node = node[direction]) && !stop()) {
 				if (!filter || node.matches(filter)) {
 					push1(nc, node);
@@ -268,12 +271,13 @@ function getGetDirElementsFunc(direction, sorter) {
 			return nc;
 		}
 
-		//nextAll, prevAll, parents
+		// nextAll, prevAll, parents
 		: function(selector) {
 			var nc = new NodeCollection(),
 				node = this;
 
-			// Traverse all nodes in the direction and add them (or if there is a selector the ones that match it) to the NodeCollection
+			// Traverse all nodes in the direction and add them (or if there is a selector the ones that match it)
+			// to the NodeCollection
 			while (node = node[direction]) {
 				if (!selector || node.matches(selector)) {
 					push1(nc, node);
@@ -304,7 +308,8 @@ function getHTMLElementAfterPutOrPrependWith(htmlLocation, inserter) {
 /*
  * Returns a function for Node#next(), Node#prev(), NodeCollection#next(), or NodeCollection#prev().
  * 
- * @param {Boolean} [forNode=false] - If truthy, returns the function for Node.prototype (else the NodeCollection version).
+ * @param {Boolean} [forNode=false] - If truthy, returns the function for Node.prototype,
+ *     otherwise the function for NodeCollection.prototype is returned.
  */
 function getNextOrPrevFunc(dirElementSibling, forNode) {
 	return forNode
@@ -415,7 +420,8 @@ function getNodePutOrWithFunction(inserter) {
 }
 
 /*
- * Takes in the input from `.wrap()` or `.wrapInner()` and returns a new element (or null/undefined) to be the wrapping element.
+ * Takes in the input from `.wrap()` or `.wrapInner()` and returns a new
+ * element (or null/undefined) to be the wrapping element.
  */
 function getWrappingElement(input) {
 	if (typeofString(input)) {
@@ -652,21 +658,38 @@ var
 			return document.querySelectorAll(selector);
 		} : getElementSelectionFunction(document.querySelectorAll),
 
+
 	/* Pre-built RegExps */
+
 	rgxDataType = /\b(?:xml|json)\b|script\b/, // Matches an AJAX data type in Content-Type header
-	rgxNotId = /[ .,>:[+~\t-\f]/,    // Matches other characters that cannot be in an id selector
+
+	rgxNotId = /[ .,>:[+~\t-\f]/, // Matches other characters that cannot be in an id selector
+
 	rgxNotClass = /[ #,>:[+~\t-\f]/, // Matches other characters that cannot be in a class selector
+
 	rgxAllDots = /\./g,
-	rgxNotTag = /[^A-Za-z]/,
+
+	rgxNotTag = /[^A-Za-z]/, // Matches a CSS selector that is not selecting by a single tag
+
 	rgxFirstTag = /<\w+/, // Matches the first tag in an HTML string
+
 	rgxSingleTag = /^<[A-Za-z]+\/?>$/, // Matches a single HTML tag such as "<div/>"
+
 	rgxSpaceChars = /[ \t-\f]+/, // From W3C http://www.w3.org/TR/html5/single-page.html#space-character
+
 	rgxFormButton = /button|file|reset|submit/, // Matches input element types that are buttons
-	rgxCheckableElement = /checkbox|radio/,     // Matches checkbox or radio input element types
+
+	rgxCheckable = /checkbox|radio/, // Matches checkbox or radio input element types
+
 	rgxCamelizables = isIE ? /^-+|-+([a-z])/g : /-+([a-z])/g, // Matches dashed parts of CSS property names
+
 	rgxDasherizables = /[A-Z]/g, // Matches capitol letters in a camel case string
-	rgxNoParse = /^\d+(?:[^\d.]|\..*\D|\..*0$)/, // Matches strings that look like numbers but should remain as strings
-	rgxUpToUnits = /.*\d/, // Matches a CSS string value up to the units (i.e. matches up to the last number before 'px' or '%')
+
+	// Matches strings that look like numbers but should remain as strings. Used in Firebolt.data()
+	rgxNoParse = /^\d+(?:[^\d.]|\..*\D|\..*0$)/,
+
+	// Matches a CSS string value up to the units (i.e. matches up to the last number before 'px' or '%')
+	rgxUpToUnits = /.*\d/,
 
 	// Determines if the function is different for NodeLists
 	rgxDifferentNL = /^(?:af|ap|be|conc|cop|ea|fill|ins|prep|pu|rep|rev|sor|toggleC)|wrap|remove(?:Class)?$/,
@@ -727,19 +750,20 @@ var
  * @class Array
  * @classdesc The JavaScript Array object.
  * @mixes Object
- * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array | Array - JavaScript | MDN}
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array|Array - JavaScript | MDN}
  */
 
 /**
  * @summary Creates a new Array instance from an array-like object.
  * 
  * @description
- * This is a partial shim for the ES6-defined {@linkcode https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/from | Array.from()}
+ * This is a partial shim for the ES6-defined
+ * {@linkcode https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/from|Array.from()}
  * function that only accepts array-like objects and does not support the optional `mapFn` or `thisArg` arguments.
  * 
- * Firebolt will not alter `Array.from` if it is already implemented by the browser. Furthermore, since Firebolt implements a subset
- * if the ES6-defined functionality, code that works with Firebolt's shim will also work when browsers natively implement
- * `Array.from`, so your code will be future-proof.
+ * Firebolt will not alter `Array.from` if it is already implemented by the browser. Furthermore, since Firebolt
+ * implements a subset of the ES6-defined functionality, code that works with Firebolt's shim will also work when
+ * browsers natively implement `Array.from`, so your code will be future-proof.
  * 
  * @function Array.from
  * @param {Object} arrayLike - An array-like object to convert to an array.
@@ -928,7 +952,8 @@ function getTypedArrayFunctions(constructor) {
 		},
 
 		/**
-		 * Returns a new array with all of the values of this array that are not in any of the input arrays (performs a set difference).
+		 * Returns a new array with all of the values of this array that are not in
+		 * any of the input arrays (performs a set difference).
 		 * 
 		 * @example
 		 * [1, 2, 3, 4, 5].diff([5, 2, 10]); // -> [1, 3, 4]
@@ -985,7 +1010,8 @@ function getTypedArrayFunctions(constructor) {
 			next: for (; i < this.length; i++) {
 				// The current item can only be added if it is not already in the intersection
 				if (intersection.indexOf(item = this[i]) < 0) {
-					// If the item is not in every input array, continue to the next item without adding the current one
+
+					// If the item is not in every input array, continue to the next item
 					for (j = 0; j < arguments.length; j++) {
 						if (ArrayPrototype.indexOf.call(arguments[j], item) < 0) {
 							continue next;
@@ -1012,7 +1038,7 @@ function getTypedArrayFunctions(constructor) {
 		 * 
 		 * @function Array#uniq
 		 * @param {Boolean} [isSorted=false] - If the input array's contents are sorted and this is set to `true`,
-		 * a faster algorithm will be used to create the unique array.
+		 *     a faster algorithm will be used to create the unique array.
 		 * @returns {Array}
 		 */
 		uniq: function(isSorted) {
@@ -1173,7 +1199,8 @@ ElementPrototype.attr = function(attribute, value) {
  * @returns {Object} The element's stored data object.
  */
 /**
- * @summary Get the value at the named data store for the element as set by `.data(key, value)` or by an HTML5 data-* attribute.
+ * @summary
+ * Get the value at the named data store for the element as set by `.data(key, value)` or by an HTML5 data-* attribute.
  * 
  * @description
  * The HTML5 data-* attributes are pulled into the stored data object the first time the data property is accessed
@@ -1237,7 +1264,7 @@ ElementPrototype.data = function(key, value) {
  * 
  * @function Element#find
  * @param {Element|Element[]} matcher - A collection of elements or a single element used to match
- * descendant elements against.
+ *     descendant elements against.
  * @returns {NodeCollection}
  */
 ElementPrototype.find = function(selector) {
@@ -1273,7 +1300,11 @@ ElementPrototype.find = function(selector) {
  * @param {String} selector - A CSS selector string.
  * @returns {Boolean} `true` if the element matches the selector; else `false`.
  */
-ElementPrototype.matches = ElementPrototype.matches || ElementPrototype.webkitMatchesSelector || ElementPrototype.mozMatchesSelector || ElementPrototype.msMatchesSelector || ElementPrototype.oMatchesSelector;
+ElementPrototype.matches = ElementPrototype.matches ||
+                           ElementPrototype.webkitMatchesSelector ||
+                           ElementPrototype.mozMatchesSelector ||
+                           ElementPrototype.msMatchesSelector ||
+                           ElementPrototype.oMatchesSelector;
 
 /**
  * Gets the value of the element's specified property.
@@ -1369,11 +1400,13 @@ ElementPrototype.removeProp = function(propertyName) {
  * <code>$</code> (if <code>$</code> has not already been defined).
  * 
  * @description
- * Returns a list of the elements either found in the DOM that match the passed in CSS selector or created by passing an HTML string.
+ * Returns a list of the elements either found in the DOM that match the passed in CSS selector or
+ * created by passing an HTML string.
  * 
- * __Note #1:__ Unlike jQuery, only a document may be passed as the `context` variable. This is because there are several ways to
- * select elements with an element as the root for the selection. Check out the {@link Element} interface and look at functions
- * like {@linkcode Element#find|.find()}, {@linkcode Element#QSA|.QSA()}, {@linkcode Element#TAG|.TAG()}, etc.
+ * __Note #1:__ Unlike jQuery, only a document may be passed as the `context` variable. This is
+ * because there are several ways to select elements with an element as the root for the selection.
+ * Check out the {@link Element} interface and look at functions like {@linkcode Element#find|.find()},
+ * {@linkcode Element#QSA|.QSA()}, {@linkcode Element#TAG|.TAG()}, etc.
  * 
  * __Note #2:__ This function will only consider the input string an HTML string if the first character of the
  * string is the opening tag character (`<`). If you want to parse an HTML string that does not begin with an
@@ -1381,14 +1414,14 @@ ElementPrototype.removeProp = function(propertyName) {
  * 
  * __Note #3:__ Since Firebolt does not use Sizzle as a CSS selector engine, only standard CSS selectors may be used.
  * 
- * __ProTip:__ When creating a single element, it's a better idea to use the {@linkcode Firebolt.elem|$.elem()} function since
- * it maps directly to the native `document.createElement()` function (making it much faster) and gives you the option to pass
- * in an object of attributes to be set on the newly created element.
+ * __ProTip:__ When creating a single element, it's a better idea to use the {@linkcode Firebolt.elem|$.elem()}
+ * function since it maps directly to the native `document.createElement()` function (making it much faster) and
+ * gives you the option to pass in an object of attributes to be set on the newly created element.
  * 
  * @example
- * Firebolt('div, span');   // Returns a NodeList of all div and span elements
- * $('button.btn-success'); // Returns a NodeList of all button elements with the class "btn-success"
- * $('<p>content</p><br>'); // Creates a set of nodes and returns it as a NodeCollection (in this case [<p>content</p>, <br>])
+ * Firebolt('div, span');   // Returns a NodeCollection of all div and span elements
+ * $('button.btn-success'); // Returns a NodeCollection of all button elements with the class "btn-success"
+ * $('<p>content</p><br>'); // Creates DOM nodes and returns them in a NodeCollection (in this case [<p>content</p>, <br>])
  * $.elem('div');           // Calls Firebolt's method to create a new div element 
  * 
  * @global
@@ -1396,9 +1429,10 @@ ElementPrototype.removeProp = function(propertyName) {
  * @function Firebolt
  * @param {String} string - A CSS selector string or an HTML string.
  * @param {ParentNode} [context=document] - A node to serve as the context when selecting or creating elements.
- * Only a DOM Document may be used as the `context` argument when creating elements.
+ *     Only a DOM Document may be used as the `context` argument when creating elements.
  * @returns {NodeCollection} A NodeCollection of selected elements or newly created elements.
- * @throws {SyntaxError} When the passed in string is not an HTML string (does not start with the "<" character) and is an invalid CSS selector.
+ * @throws {SyntaxError} When the passed in string is not an HTML string (does not start with the "<" character)
+ *     and is an invalid CSS selector.
  */
 function Firebolt(selector, context) {
 	var firstChar = selector[0];
@@ -1414,22 +1448,24 @@ function Firebolt(selector, context) {
 	} else if (firstChar === '#') { // Check for a single ID
 		if (!rgxNotId.test(selector)) {
 			context = new NodeCollection(); // Use the unused context argument to be the NodeCollection
-			if (selector = getElementById(selector.slice(1))) { // Reuse the selector argument to be the retrieved element
+			if (selector = getElementById(selector.slice(1))) { // Reuse the selector argument to be the element
 				context[0] = selector;
 			}
 			return context;
 		}
 	} else if (firstChar === '<') { // Check if the string is a HTML string
-		return parseHTML(selector, document, 1); // Pass in 1 to tell the function to detach the nodes from their creation container
+		return parseHTML(selector, document, 1); // Pass in 1 to tell parseHTML to detach the nodes from their parent
 	} else if (!rgxNotTag.test(selector)) { // Check for a single tag name
 		return ncFrom(getElementsByTagName(selector));
 	}
-	//else
+
+	// If we could not select by class name, ID, or tag name or parse HTML, use querySelectorAll
 	return ncFrom(querySelectorAll(selector));
 }
 
 /**
- * Returns a PHP-style associative array (Object) of URL parameters and updates the global {@linkcode $_GET} object at the same time.
+ * Returns a PHP-style associative array (Object) of URL parameters and updates
+ * the global {@linkcode $_GET} object at the same time.
  * 
  * @returns {Object.<String, String>}
  * @see $_GET
@@ -1456,7 +1492,8 @@ Firebolt._GET = function() {
  * @function Firebolt.ajax
  * @param {String} url - A string containing the URL to which the request will be sent.
  * @param {Object} [settings] - A set of key/value pairs that configure the Ajax request. All settings are optional.
- * @returns {XMLHttpRequest} The XMLHttpRequest object this request is using (only for requests where the dataType is not "script".
+ * @returns {XMLHttpRequest} The XMLHttpRequest object this request is using
+ *     (only for requests where the dataType is not "script".
  */
 /**
  * @summary Perform an asynchronous HTTP (Ajax) request.
@@ -1466,10 +1503,10 @@ Firebolt._GET = function() {
  * Firebolt's basic AJAX requests differ from jQuery's in the following ways:
  * 
  * 1. Instead of passing a "jqXHR" to callbacks, the native XMLHttpRequest object is passed.
- * 2. The `data` setting may be a string or a plain object or array to serialize and is appended to the URL as a string for
- *    HEAD requests as well as GET requests.
- * 3. The `processData` setting has been left out because Firebolt will automatically process only plain objects and arrays
- *    (so you wouldn't need to set it to `false` to send another type of data&emsp;such as a `FormData` object).
+ * 2. The `data` setting may be a string or a plain object or array to serialize and is appended to the URL as a
+ *    string for HEAD requests as well as GET requests.
+ * 3. The `processData` setting has been left out because Firebolt will automatically process only plain objects and
+ *    arrays (so you wouldn't need to set it to `false` to send another type of data&emsp;such as a `FormData` object).
  * 4. The `success`, `error`, and `complete` settings can only be set to a function, not an array of functions.
  * 5. JSONP is not supported.
  * 6. In addition to the above, the following settings are not supported:
@@ -1614,7 +1651,9 @@ Firebolt.ajax = function(url, settings) {
 
 			statusCode = xhr.status;
 
-			if (statusCode >= 200 && statusCode < 300 || statusCode === 304 || settings.isLocal && xhr.responseText) { // Success
+			if (statusCode >= 200 && statusCode < 300 || statusCode === 304 ||
+			    settings.isLocal && xhr.responseText) { // Success
+
 				if (statusCode === 204 || type == 'HEAD') { // If no content
 					textStatus = 'nocontent';
 				} else {
@@ -1695,7 +1734,8 @@ Firebolt.ajax = function(url, settings) {
 /**
  * Sets default values for future Ajax requests. Use of this function is not recommended.
  * 
- * @param {Object} options - A set of key/value pairs that configure the default Ajax settings. All options are optional.
+ * @param {Object} options - A set of key-value pairs that configure the default Ajax settings.
+ *     All options are optional.
  * @memberOf Firebolt
  */
 Firebolt.ajaxSetup = function(options) {
@@ -1726,8 +1766,8 @@ Firebolt.ajaxSetup = function(options) {
 /**
  * Stores arbitrary data associated with the object.
  * 
- * __Note:__ When setting data properties, Firebolt will camelize dashed key names. For example, when setting data with the
- * key `foo-bar`, Firebolt will add the data to the element's stored data object with the key `fooBar`.
+ * __Note:__ When setting data properties, Firebolt will camelize dashed key names. For example, when setting data
+ * with the key `foo-bar`, Firebolt will add the data to the element's stored data object with the key `fooBar`.
  * 
  * @function Firebolt.data
  * @param {Object} object - An object. This can be anything that has Object in its prototype chain.
@@ -1738,8 +1778,8 @@ Firebolt.ajaxSetup = function(options) {
 /**
  * Stores arbitrary data associated with the object.
  * 
- * __Note:__ When setting data properties, Firebolt will camelize dashed key names. For example, when setting data with the
- * key `foo-bar`, Firebolt will add the data to the element's stored data object with the key `fooBar`.
+ * __Note:__ When setting data properties, Firebolt will camelize dashed key names. For example, when setting data
+ * with the key `foo-bar`, Firebolt will add the data to the element's stored data object with the key `fooBar`.
  * 
  * @function Firebolt.data
  * @param {Object} object - An object. This can be anything that has Object in its prototype chain.
@@ -1916,7 +1956,8 @@ function extendDeep(target) {
 /**
  * Creates a new DocumentFragment and (optionally) appends the passed in content to it.
  * 
- * @param {...(String|Node|Node[])} [content] - One or more HTML strings, nodes, or collections of nodes to append to the fragment.
+ * @param {...(String|Node|Node[])} [content] - One or more HTML strings, nodes, or collections
+ *     of nodes to append to the fragment.
  * @returns {DocumentFragment} The newly created document fragment.
  * @memberOf Firebolt
  */
@@ -1961,8 +2002,9 @@ function createFragment() {
  * @param {String} url - A string containing the URL to which the request will be sent.
  * @param {String|Object} [data] - A string or object that is sent to the server with the request as a query string.
  * @param {Function} [success(data, textStatus, xhr)] - A callback function that is executed if the request succeeds.
- * Required if dataType is provided, but can be `null` in that case.
- * @param {String} [dataType] - The type of data expected from the server. Default: Intelligent Guess (xml, json, script, or html).
+ *     Required if dataType is provided, but can be `null` in that case.
+ * @param {String} [dataType] - The type of data expected from the server.
+ *     Default: Intelligent Guess (xml, json, script, or html).
  * @memberOf Firebolt
  */
 Firebolt.get = function(url, data, success, dataType) {
@@ -2035,7 +2077,7 @@ Firebolt.hasData = function(object) {
  * 
  * + `null`
  * + `undefined`
- * + a zero-length string, array, NodeCollection, NodeList, or HTMLCollection
+ * + a zero-length string, array, NodeList, HTMLCollection, or NodeCollection
  * + an empty object (if the value has the "Object" class and {@linkcode Firebolt.isEmptyObject} returns `true`)
  * 
  * @function Firebolt.isEmpty
@@ -2043,10 +2085,12 @@ Firebolt.hasData = function(object) {
  * @returns {Boolean} - `true` if the object is deemed empty, `false` otherwise.
  */
 Firebolt.isEmpty = function(value, className) {
-	return value == _undefined ||
-		(isArray(value) || typeofString(value) || ((className = getClassOf(value)) == 'NodeList' || className == 'HTMLCollection')
+	return value == _undefined || (
+		isArray(value) || typeofString(value) ||
+		(className = getClassOf(value)) == 'NodeList' || className == 'HTMLCollection'
 			? !value.length
-			: className == 'Object' && isEmptyObject(value));
+			: className == 'Object' && isEmptyObject(value)
+	);
 };
 
 /**
@@ -2120,7 +2164,8 @@ function serialize(obj, prefix, traditional) {
 			if (isArray(value)) {
 				for (cur = 0; cur < value.length; cur++) {
 					// Add key again for multiple array values
-					queryString += (cur ? '&' + encodeURIComponent(key) : '') + '=' + encodeURIComponent(value[cur] == _undefined ? '' : value[cur]);
+					queryString += (cur ? '&' + encodeURIComponent(key) : '') +
+					               '=' + encodeURIComponent(value[cur] == _undefined ? '' : value[cur]);
 				}
 			} else {
 				queryString += '=' + encodeURIComponent(value);
@@ -2128,8 +2173,9 @@ function serialize(obj, prefix, traditional) {
 		} else if (!(valueIsObject = isArray(value) || getClassOf(value) == 'Object') || !isEmptyObject(value)) {
 			/* Inspired by: http://stackoverflow.com/questions/1714786/querystring-encoding-of-a-javascript-object */
 			cur = prefix ? prefix + '[' + key + ']' : key;
-			queryString += (queryString ? '&' : '') + (valueIsObject ? serialize(value, cur)
-																	 : encodeURIComponent(cur) + '=' + encodeURIComponent(value));
+			queryString += (queryString ? '&' : '') +
+			               (valueIsObject ? serialize(value, cur)
+			                              : encodeURIComponent(cur) + '=' + encodeURIComponent(value));
 		}
 	}
 
@@ -2156,7 +2202,7 @@ function parseHTML(html, context, detachNodes, single) {
 
 	// If the HTML is just a single element without attributes, using document.createElement is much faster
 	if (rgxSingleTag.test(html)) {
-		// Create a new element from the HTML tag, retrieved by stripping "<" from the front and "/>" or ">" from the back
+		// Create a new element from the tag name, found by stripping "<" from the front and "/>" or ">" from the back
 		elem = context.createElement(
 			html.slice(1, html.length - (html[html.length - 2] === '/' ? 2 : 1))
 		);
@@ -2192,8 +2238,9 @@ function parseHTML(html, context, detachNodes, single) {
  * @param {String} url - A string containing the URL to which the request will be sent.
  * @param {String|Object} [data] - A string or object that is sent to the server with the request.
  * @param {Function} [success(data, textStatus, xhr)] - A callback function that is executed if the request succeeds.
- * Required if dataType is provided, but can be `null` in that case.
- * @param {String} [dataType] - The type of data expected from the server. Default: Intelligent Guess (xml, json, script, or html).
+ *     Required if dataType is provided, but can be `null` in that case.
+ * @param {String} [dataType] - The type of data expected from the server.
+ *     Default: Intelligent Guess (xml, json, script, or html).
  * @memberOf Firebolt
  */
 Firebolt.post = function(url, data, success, dataType) {
@@ -2284,7 +2331,7 @@ Firebolt.text = function(text) {
 /**
  * @class Function
  * @classdesc The JavaScript Function object.
- * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function | Function - JavaScript | MDN}
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function|Function - JavaScript | MDN}
  */
 
 /**
@@ -2294,8 +2341,9 @@ Firebolt.text = function(text) {
  * window.alert.delay(2000, ['alert!']); // Waits 2 seconds, then opens an alert that says "alert!"
  * 
  * @example <caption>Set a timeout for a function but cancel it before it can be called:</caption>
- * var callbackObject = window.alert.delay(2000, ['alert!']); // Sets the alert to be called in 2 seconds and saves a reference to the returned object
- * callbackObject.callback === window.alert; // -> true (just to show what this variable in the callback object is set to)
+ * var callbackObject = window.alert.delay(2000, ['alert!']); // Sets the alert to be called in 2 seconds
+ *                                                            // and saves a reference to the returned object
+ * callbackObject.callback === window.alert; // -> true (just to show what `callback` in the callback object is set to)
  * 
  * //----- Before 2 seconds ellapses -----
  * callbackObject.cancel(); // Prevents the alert function from being called
@@ -2303,15 +2351,18 @@ Firebolt.text = function(text) {
  * @function Function#delay
  * @param {Number} delay - The number of milliseconds to wait before calling the functions.
  * @param {Array} [args] - An array containing the arguments the function will be called with.
- * @param {Object} [thisArg=returned callback object] - An object you want `this` to refer to inside the function.
- * Defaults to the object returned by this function. If `thisArg` is an Array, `args` must be present (but may be `null`).
+ * @param {Object} [thisArg=returned callback object] - An object you want `this` to refer to inside
+ *     the function. Defaults to the object returned by this function. If `thisArg` is an Array, `args`
+ *     must be present (but may be `null`).
  * @returns {Object} An object with the following properties:
  * + `callback` - The function this method was called upon.
  * + `hasExecuted` - A Boolean, initialized to `false`, that is set to `true` when the delayed function executes.
- * + `execute` - A function that, when called, will execute the function immediately and cancel the timeout so it is not called again by the browser.
- * To prevent the timeout from being cancelled, call this function with the parameter `false`.
- * + `cancel` - A function that, when called, will cancel the timeout to prevent the function from being executed (if it hasn't been already).
- * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Window.setTimeout | window.setTimeout - Web API Interfaces | MDN}
+ * + `execute` - A function that, when called, will execute the function immediately and cancel the
+ *   timeout so it is not called again by the browser. To prevent the timeout from being cancelled,
+ *   call this function with the parameter `false`.
+ * + `cancel` - A function that, when called, will cancel the timeout to prevent the function from
+ *   being executed (if it hasn't been already).
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Window.setTimeout|window.setTimeout - Web API Interfaces | MDN}
  */
 
 /**
@@ -2322,8 +2373,8 @@ Firebolt.text = function(text) {
  *     console.log('stuff');
  * }
  * 
- * var callbackObject = logStuff.every(2000); // Waits 2 seconds, then logs "stuff" to the console and continues to do so every 2 seconds
- * callbackObject.callback === logstuff;      // -> true (just to show what this variable in the callback object is set to)
+ * var callbackObject = logStuff.every(2000); // Logs "stuff" to the console and every 2 seconds
+ * callbackObject.callback === logStuff;      // -> true (just to show what `callback` in the callback object is set to)
  * 
  * //----- Later -----
  * callbackObject.clear();  // Stops the logging calls
@@ -2331,15 +2382,17 @@ Firebolt.text = function(text) {
  * @function Function#every
  * @param {Number} delay - The number of milliseconds to wait between function calls.
  * @param {Array} [args] - An array containing the arguments the function will be called with.
- * @param {Object} [thisArg=returned callback object] - An object you want `this` to refer to inside the function.
- * Defaults to the object returned by this function. If `thisArg` is an Array, `args` must be present (but may be `null`).
+ * @param {Object} [thisArg=returned callback object] - An object you want `this` to refer to inside
+ *     the function. Defaults to the object returned by this function. If `thisArg` is an Array, `args`
+ *     must be present (but may be `null`).
  * @returns {Object} An object with the following properties:
  * + `callback` - The function this method was called upon.
  * + `hasExecuted` - A Boolean, inialized to `false`, that is set to `true` each time the function executes.
- * + `execute` - A function that, when called, will execute the function immediately and cancel the interval so the function will stop being called.
- * To prevent the interval from being cancelled, call this function with the parameter `false`.
+ * + `execute` - A function that, when called, will execute the function immediately and cancel the
+ *   interval so the function will stop being called. To prevent the interval from being cancelled,
+ *   call this function with the parameter `false`.
  * + `cancel` - A function that, when called, will cancel the interval so the function will stop being called.
- * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Window.setInterval | window.setInterval - Web API Interfaces | MDN}
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Window.setInterval|window.setInterval - Web API Interfaces | MDN}
  */
 
 /*
@@ -2397,10 +2450,13 @@ if (window.$ === _undefined) {
 }
 
 /**
- * PHP-style associative array (Object) of URL parameters. This object is created when the page loads and thus contains the URL's
- * query parameters at that time. However, it is possible to change the URL through JavaScript functions such as `history.pushState()`.
- * If the URL may have changed and you need to the most recent query parameters, use Firebolt's {@linkcode Firebolt._GET|$._GET()}
- * function, which also updates the $_GET object when it is called.
+ * @summary PHP-style associative array (Object) of URL parameters.
+ * 
+ * @description
+ * This object is created when the page loads and thus contains the URL's query parameters at that time.
+ * However, it is possible to change the URL through JavaScript functions such as `history.pushState()`.
+ * If the URL may have changed and you need to the most recent query parameters, use Firebolt's
+ * {@linkcode Firebolt._GET|$._GET()} function, which also updates the $_GET object when it is called.
  * 
  * @global
  * @constant
@@ -2421,7 +2477,8 @@ Firebolt._GET(); // Just call the function to update the global $_GET object
  */
 
 /**
- * Returns the first element within the document that matches the specified CSS selector or the element created from the input HTML string.  
+ * Returns the first element within the document that matches the specified
+ * CSS selector or the element created from the input HTML string.  
  * Basically the same thing as `$()`, but only dealing with a single element.
  * 
  * @example
@@ -2431,9 +2488,10 @@ Firebolt._GET(); // Just call the function to update the global $_GET object
  * @global
  * @param {String} string - A CSS selector string or an HTML string.
  * @param {ParentNode} [context=document] - A node to serve as the context when selecting or creating elements.
- * Only a DOM Document may be used as the `context` argument when creating elements.
+ *     Only a DOM Document may be used as the `context` argument when creating elements.
  * @returns {?Element} - The selected element (or `null` if no element matched the selector) or the created element.
- * @throws {SyntaxError} When the passed in string is not an HTML string (does not start with the "<" character) and is an invalid CSS selector.
+ * @throws {SyntaxError} When the passed in string is not an HTML string (does not start with the "<" character)
+ *     and is an invalid CSS selector.
  */
 window.$1 = function(selector, context) {
 	var firstChar = selector[0];
@@ -2451,11 +2509,12 @@ window.$1 = function(selector, context) {
 			return getElementById(selector.slice(1));
 		}
 	} else if (firstChar === '<') { // Check if the string is a HTML string
-		return parseHTML(selector, document, 1, 1); // Pass in the second 1 to tell the function to return only one node
+		return parseHTML(selector, document, 1, 1); // The second 1 tells parseHTML to return only one node
 	} else if (!rgxNotTag.test(selector)) { // Check for a single tag name
 		return getElementsByTagName(selector)[0];
 	}
-	//else
+
+	// If we could not select by class name, ID, or tag name or parse HTML, use querySelector
 	return querySelector(selector);
 };
 
@@ -2556,17 +2615,19 @@ window.$NAME = function(name) {
  * @summary Adds the specified class(es) to the element.
  * 
  * @description
- * __Note:__ Unlike jQuery, the format of the space-separated classes required by Firebolt is strict. Each class must name
- * be separated by only a single space character and there cannot be whitespace at the beginning or end of the string.
+ * __Note:__ Unlike jQuery, the format of the space-separated classes required by Firebolt is strict.
+ * Each class must name be separated by only a single space character and there cannot be whitespace
+ * at the beginning or end of the string.
  * ```javascript
- * element.addClass('one  two').removeClass('three ');  // Bad syntax
- * element.addClass('one two').removeClass('three');    // Correct syntax
+ * element.addClass('one  two').removeClass('three '); // Bad syntax
+ * element.addClass('one two').removeClass('three');   // Correct syntax
  * ```
  * 
  * @function HTMLElement#addClass
- * @param {String} className - One or more classes separated by a single space to be added to the element's class attribute.
- * @throws {TypeError} The input `value` must be string. __Note:__ This error will not be thrown if `value` is not a string and
- * the element does not have a className value at the time of invocation.
+ * @param {String} className - One or more classes separated by a single space to be
+ *     added to the element's class attribute.
+ * @throws {TypeError} The input `value` must be string. __Note:__ This error will not be thrown if `value` is not
+ *     a string and is truthy and the element does not have a `class` value at the time of invocation.
  */
 HTMLElementPrototype.addClass = function(value) {
 	if (value) {
@@ -2601,8 +2662,8 @@ HTMLElementPrototype.afterPut = getHTMLElementAfterPutOrPrependWith('afterend', 
  * @summary Performs a custom animation of a set of CSS properties.
  * 
  * @description
- * Just like HTMLElement#css, CSS properties must be specified the same way they would be in a style sheet since Firebolt
- * does not append "px" to input numeric values (i.e. 1 != 1px).
+ * Just like HTMLElement#css, CSS properties must be specified the same way they would be in a
+ * style sheet since Firebolt does not append "px" to input numeric values (i.e. 1 != 1px).
  * 
  * Unlike jQuery, an object that specifies different easing types for different properties is not supported.
  * (Should it be supported? [Tell me why](https://github.com/woollybogger/Firebolt/issues).)
@@ -2610,7 +2671,8 @@ HTMLElementPrototype.afterPut = getHTMLElementAfterPutOrPrependWith('afterend', 
  * 
  * Also, Firebolt allows `"auto"` to be a viable target value for CSS properties where that is a valid value.
  * 
- * For more `easing` options, use Firebolt's [easing extension](https://github.com/woollybogger/firebolt-extensions/tree/master/easing)
+ * For more `easing` options, use Firebolt's
+ * [easing extension](https://github.com/woollybogger/firebolt-extensions/tree/master/easing)
  * (or just grab some functions from it and use them as the `easing` parameter).
  * 
  * __Note:__ In IE 9, the easing for all animations will be linear.
@@ -2618,11 +2680,12 @@ HTMLElementPrototype.afterPut = getHTMLElementAfterPutOrPrependWith('afterend', 
  * @function HTMLElement#animate
  * @param {Object} properties - An object of CSS properties and values that the animation will move toward.
  * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
- * @param {String} [easing="swing"] - A string indicating which easing function to use for the transition. The string can be any
- * [CSS transition timing function](https://developer.mozilla.org/en-US/docs/Web/CSS/transition-timing-function) or "swing".
+ * @param {String} [easing="swing"] - Indicates which easing function to use for the transition. The string can be any
+ *     [CSS transition timing function](https://developer.mozilla.org/en-US/docs/Web/CSS/transition-timing-function)
+ *     or "swing".
  * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
- * refer to the element that was animated.
- * @see {@link http://api.jquery.com/animate/ | .animate() | jQuery API Documentation}
+ *     refer to the element that was animated.
+ * @see {@link http://api.jquery.com/animate/|.animate() | jQuery API Documentation}
  */
 HTMLElementPrototype.animate = function(properties, duration, easing, complete) {
 	/* jshint expr:true */
@@ -2699,10 +2762,16 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 				valsToRestore[sanitaryProp] = val; // Save value to be set on the element at the end of the transition
 				temp = inlineStyle[sanitaryProp];  // Save the current inline value of the property
 				inlineStyle[sanitaryProp] = val;   // Set the style to the input value ('auto')
-				val = _this.css(sanitaryProp);     // Get the computed style that will be used as the target value (use .css in case the element is hidden)
+				val = _this.css(sanitaryProp);     // Get the computed style that will be used as the target value
+				                                   // (use .css in case the element is hidden)
 				inlineStyle[sanitaryProp] = temp;  // Restore the current inline value of the property
+
 			} else if (val[1] === '=') { // "+=value" or "-=value"
-				val = cssMath(parseFloat(currentStyle[sanitaryProp]), parseFloat(val.replace('=', '')), val.replace(rgxUpToUnits, ''), _this, sanitaryProp);
+				val = cssMath(parseFloat(currentStyle[sanitaryProp]),
+				              parseFloat(val.replace('=', '')),
+				              val.replace(rgxUpToUnits, ''),
+				              _this,
+				              sanitaryProp);
 			}
 
 			properties[prop] = val; // Set the value back into the object of properties in case it changed
@@ -2713,13 +2782,25 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 			} 
 
 			if (noCssTransitionSupport) {
-				// The amount of linear change per frame = total change amount / num frames = (newValue - currentValue) * framesLeft
-				// Where: currentValue = cssMath(currentValue + 0)
-				cssIncrementProps[sanitaryProp] = (parseFloat(val) - parseFloat(cssMath(parseFloat(currentStyle[sanitaryProp]), 0, (val + '').replace(rgxUpToUnits, ''), _this, sanitaryProp))) / framesLeft;
+				// The amount of linear change per frame = total change amount / num frames
+				// Where
+				// num frames = (newValue - currentValue) * framesLeft
+				// And
+				// currentValue = cssMath(currentValue + 0)
+				cssIncrementProps[sanitaryProp] = (
+					parseFloat(val) - parseFloat(
+					                      cssMath(parseFloat(currentStyle[sanitaryProp]),
+					                              0,
+					                              (val + '').replace(rgxUpToUnits, ''),
+					                              _this,
+					                              sanitaryProp)
+					                  )
+				) / framesLeft;
 			}
 		}
 
-		// Inline the element's current CSS styles (even if some properties were set to 0 in the loop because setting all at once here prevents bugs)
+		// Inline the element's current CSS styles
+		// (even if some properties were set to 0 in the loop because setting all at once here prevents bugs)
 		_this.css(_this.css(propertyNames));
 
 		// Set the CSS transition style
@@ -2729,10 +2810,12 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 
 		// Start the transition
 		if (noCssTransitionSupport) {
-			// Increment the CSS properties by their respective amounts each frame period until all frames have been rendered
+			// Increment the CSS properties by their respective amounts each frame period
+			// until all frames have been rendered
 			(function renderFrame() {
 				for (prop in cssIncrementProps) {
-					inlineStyle[prop] = parseFloat(inlineStyle[prop]) + cssIncrementProps[prop] + inlineStyle[prop].replace(rgxUpToUnits, '');
+					inlineStyle[prop] = parseFloat(inlineStyle[prop]) + cssIncrementProps[prop] +
+					                    inlineStyle[prop].replace(rgxUpToUnits, '');
 				}
 
 				if (--framesLeft) {
@@ -2749,7 +2832,8 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 		_this.addEventListener(transitionendEventName, _this._$A_ = function onTransitionEnd(animationCompleted) {
 			// When multiple properties are being animated at once, there will be multiple transitionend events.
 			// Only continue if this is the last transitionend event or the animation was stopped early
-			if (!noCssTransitionSupport && animationCompleted && animationCompleted.propertyName && --numChangingProps) return;
+			if (!noCssTransitionSupport && animationCompleted && animationCompleted.propertyName && --numChangingProps)
+				return;
 
 			// Immediately remove the event listener and delete its saved reference
 			_this.removeEventListener(transitionendEventName, onTransitionEnd);
@@ -2835,14 +2919,15 @@ HTMLElementPrototype.beforePut = function() {
  * 
  * @function HTMLElement#css
  * @param {String[]} propertyNames - An array of one or more CSS property names.
- * @returns {Object.<String, String>} An object of property-value pairs where the values are the computed style values of the input properties.
+ * @returns {Object.<String, String>} An object of property-value pairs where the values are
+ *     the computed style values of the input properties.
  */
 /**
  * Sets the specified style property.
  * 
- * __Note:__ Unlike jQuery, if the passed in value is a number, it will not be converted to a string with `'px'` appended to it
- * to it prior to setting the CSS value. This helps keep the library small and fast and will force your code to be more obvious
- * as to how it is changing the element's style (which is a good thing).
+ * __Note:__ Unlike jQuery, if the passed in value is a number, it will not be converted to a string with `'px'`
+ * appended to it to it prior to setting the CSS value. This helps keep the library small and fast and will force
+ * your code to be more obvious as to how it is changing the element's style (which is a good thing).
  * 
  * @function HTMLElement#css
  * @param {String} propertyName - The name of the style property to set.
@@ -2933,10 +3018,11 @@ HTMLElementPrototype.empty = function() {
  * 
  * @function HTMLElement#fadeIn
  * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
- * @param {String} [easing="swing"] - A string indicating which easing function to use for the transition. The string can be any
- * [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp) or "swing".
+ * @param {String} [easing="swing"] - Indicates which easing function to use for the transition. The string can be any
+ *     [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp)
+ *     or "swing".
  * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
- * refer to the element that was animated.
+ *     refer to the element that was animated.
  */
 HTMLElementPrototype.fadeIn = function(duration, easing, complete) {
 	return isDisplayNone(this) ? this.fadeToggle(duration, easing, complete) : this;
@@ -2947,10 +3033,11 @@ HTMLElementPrototype.fadeIn = function(duration, easing, complete) {
  * 
  * @function HTMLElement#fadeOut
  * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
- * @param {String} [easing="swing"] - A string indicating which easing function to use for the transition. The string can be any
- * [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp) or "swing".
+ * @param {String} [easing="swing"] - Indicates which easing function to use for the transition. The string can be any
+ *     [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp)
+ *     or "swing".
  * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
- * refer to the element that was animated.
+ *     refer to the element that was animated.
  */
 HTMLElementPrototype.fadeOut = function(duration, easing, complete) {
 	return isDisplayNone(this) ? this : this.fadeToggle(duration, easing, complete);
@@ -2961,10 +3048,11 @@ HTMLElementPrototype.fadeOut = function(duration, easing, complete) {
  * 
  * @function HTMLElement#fadeToggle
  * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
- * @param {String} [easing="swing"] - A string indicating which easing function to use for the transition. The string can be any
- * [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp) or "swing".
+ * @param {String} [easing="swing"] - Indicates which easing function to use for the transition. The string can be any
+ *     [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp)
+ *     or "swing".
  * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
- * refer to the element that was animated.
+ *     refer to the element that was animated.
  */
 HTMLElementPrototype.fadeToggle = function(duration, easing, complete) {
 	return this.animate({opacity: TOGGLE}, duration, easing, complete);
@@ -2974,9 +3062,9 @@ HTMLElementPrototype.fadeToggle = function(duration, easing, complete) {
  * @summary Immediately completes the element's currently running animation.
  * 
  * @description
- * Unlike when {@linkcode HTMLElement#stop|HTMLElement#stop()} is called with a truthy `jumpToEnd` parameter, this function
- * will also trigger a `transitionend` event in addition to immediately finishing the element's running animation. The
- * event will not be triggered however, if the element is not running an animation.
+ * Unlike when {@linkcode HTMLElement#stop|HTMLElement#stop()} is called with a truthy `jumpToEnd` parameter,
+ * this function will also trigger a `transitionend` event in addition to immediately finishing the element's
+ * running animation. The event will not be triggered however, if the element is not running an animation.
  * 
  * @function HTMLElement#finish
  */
@@ -3020,9 +3108,9 @@ HTMLElementPrototype.hide = function() {
 /**
  * Sets the element's inner HTML.
  * 
- * __ProTip:__ Quite often, this function is used to set the text contents of elements. However, if the text being set does not
- * (or should not) contain any actual HTML, the `Node#text()` function should be used instead as it will be faster and also
- * prevent unwanted HTML from being injected into the page.
+ * __ProTip:__ Quite often, this function is used to set the text contents of elements. However, if the text
+ * being set does not (or should not) contain any actual HTML, the `Node#text()` function should be used
+ * instead as it will be faster and also prevent unwanted HTML from being injected into the page.
  * 
  * @function HTMLElement#html
  * @param {String} innerHTML - An HTML string.
@@ -3039,8 +3127,6 @@ HTMLElementPrototype.html = function(innerHTML) {
 /**
  * Gets the element's current coordinates relative to the document.
  * 
- * @function HTMLElement#offset
- * @returns {{top: Number, left: Number}} An object containing the coordinates detailing the element's distance from the top and left of the document.
  * @example
  * // HTML
  * // <body style="margin: 0">
@@ -3048,13 +3134,17 @@ HTMLElementPrototype.html = function(innerHTML) {
  * // </body>
  * 
  * $$('mydiv').offset();  // -> Object {top: 10, left: 20}
+ * 
+ * @function HTMLElement#offset
+ * @returns {{top: Number, left: Number}} An object containing the coordinates detailing the element's
+ *     distance from the top and left of the document.
  */
 /**
  * Sets the element's coordinates relative to the document.
  * 
  * @function HTMLElement#offset
  * @param {{top: Number, left: Number}} coordinates - An object containing the properties `top` and `left`,
- * which are numbers indicating the new top and left coordinates for the element.
+ *     which are numbers indicating the new top and left coordinates for the element.
  */
 HTMLElementPrototype.offset = function(coordinates) {
 	var el = this,
@@ -3151,7 +3241,7 @@ HTMLElementPrototype.removeClass = iframe.className.length !== 3 || webkitNotIOS
  * 
  * @function HTMLElement#serialize
  * @returns {String} A URL-encoded string of the form element's value or an empty string if the element is
- * not a [successful control](http://www.w3.org/TR/html401/interact/forms.html#h-17.13.2).
+ *     not a [successful control](http://www.w3.org/TR/html401/interact/forms.html#h-17.13.2).
  * @this HTMLFormElement|HTMLInputElement|HTMLSelectElement|HTMLTextAreaElement
  */
 HTMLElementPrototype.serialize = function() {
@@ -3159,11 +3249,11 @@ HTMLElementPrototype.serialize = function() {
 		name = this.name,
 		value = this.val();
 
-	if (!name ||                                           // Doesn't have a name
-		this.disabled ||                                   // Is disabled
-		value == _undefined ||                             // Is a <select> element and has no value or is not a form control
-		rgxFormButton.test(type) ||                        // Is a form button (button|file|reset|submit)
-		rgxCheckableElement.test(type) && !this.checked) { // Is a checkbox or radio button and is not checked
+	if (!name ||                                    // Doesn't have a name
+		this.disabled ||                            // Is disabled
+		value == _undefined ||                      // Is a <select> element and has no value or is not a form control
+		rgxFormButton.test(type) ||                 // Is a form button (button|file|reset|submit)
+		rgxCheckable.test(type) && !this.checked) { // Is a checkbox or radio button and is not checked
 		return '';
 	}
 
@@ -3179,8 +3269,9 @@ HTMLFormElement[prototype].serialize = function() {
 
 /**
  * Shows the element if it is hidden.  
- * __Note:__ If the element's default display style is 'none' (such as is the case with `<script>` elements), it will not be shown.
- * Also, this method will not show an element if its `visibility` is set to 'hidden' or its `opacity` is `0`.
+ * __Note:__ If the element's default display style is 'none' (such as is the case with `<script>` elements),
+ * it will not be shown. Also, this method will not show an element if its `visibility` is set to 'hidden' or
+ * its `opacity` is `0`.
  * 
  * @function HTMLElement#show
  */
@@ -3192,11 +3283,14 @@ HTMLElementPrototype.show = function() {
 	}
 
 	if (isDisplayNone(this)) {
-		// Add an element of the same type as this element to the iframe's body to figure out what the default display value should be
+		// Add an element of the same type as this element to the iframe's body
+		// to figure out what the default display value should be
 		inlineStyle.display = getComputedStyle(
-			documentHead.appendChild(iframe).contentDocument.body.appendChild(iframe.contentDocument.createElement(this.tagName))
+			documentHead.appendChild(iframe).contentDocument.body.appendChild(
+				iframe.contentDocument.createElement(this.tagName)
+			)
 		).display;
-		iframe.remove(); // Remove the iframe from the document (this also deletes its contents)
+		iframe.remove(); // Remove the iframe from the document
 	}
 
 	return this;
@@ -3207,10 +3301,11 @@ HTMLElementPrototype.show = function() {
  * 
  * @function HTMLElement#slideDown
  * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
- * @param {String} [easing="swing"] - A string indicating which easing function to use for the transition. The string can be any
- * [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp) or "swing".
+ * @param {String} [easing="swing"] - Indicates which easing function to use for the transition. The string can be any
+ *     [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp)
+ *     or "swing".
  * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
- * refer to the element that was animated.
+ *     refer to the element that was animated.
  */
 HTMLElementPrototype.slideDown = function(duration, easing, complete) {
 	return isDisplayNone(this) ? this.slideToggle(duration, easing, complete) : this;
@@ -3221,10 +3316,11 @@ HTMLElementPrototype.slideDown = function(duration, easing, complete) {
  * 
  * @function HTMLElement#slideToggle
  * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
- * @param {String} [easing="swing"] - A string indicating which easing function to use for the transition. The string can be any
- * [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp) or "swing".
+ * @param {String} [easing="swing"] - Indicates which easing function to use for the transition. The string can be any
+ *     [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp)
+ *     or "swing".
  * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
- * refer to the element that was animated.
+ *     refer to the element that was animated.
  */
 HTMLElementPrototype.slideToggle = function(duration, easing, complete) {
 	return this.animate({
@@ -3241,10 +3337,11 @@ HTMLElementPrototype.slideToggle = function(duration, easing, complete) {
  * 
  * @function HTMLElement#slideUp
  * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
- * @param {String} [easing="swing"] - A string indicating which easing function to use for the transition. The string can be any
- * [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp) or "swing".
+ * @param {String} [easing="swing"] - Indicates which easing function to use for the transition. The string can be any
+ *     [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp)
+ *     or "swing".
  * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
- * refer to the element that was animated.
+ *     refer to the element that was animated.
  */
 HTMLElementPrototype.slideUp = function(duration, easing, complete) {
 	return isDisplayNone(this) ? this : this.slideToggle(duration, easing, complete);
@@ -3276,7 +3373,7 @@ HTMLElementPrototype.stop = function(jumpToEnd) {
  * Shows the element if it is hidden or hides it if it is currently showing.
  * 
  * @function HTMLElement#toggle
- * @param {Boolean} [showOrHide] - A Boolean indicating whether to show or hide the element (`true` => show, `false` => hide).
+ * @param {Boolean} [showOrHide] - Indicates whether to show or hide the element (`true` => show, `false` => hide).
  * @see HTMLElement#hide
  * @see HTMLElement#show
  */
@@ -3351,8 +3448,8 @@ HTMLElementPrototype.toggleClass = function(value, addOrRemove) {
 };
 
 /**
- * Retrieves the element's current value. If the element is a `<select>` element, `null` is returned if none of its options
- * are selected and an array of selected options is returned if the element's `multiple` attribute is present.
+ * Retrieves the element's current value. If the element is a `<select>` element, `null` is returned if none of its
+ * options are selected and an array of selected options is returned if the element's `multiple` attribute is present.
  * 
  * @function HTMLElement#val
  * @returns {String|Array|null} The element's value.
@@ -3364,13 +3461,15 @@ HTMLElementPrototype.toggleClass = function(value, addOrRemove) {
  * @param {String} value - The value to give to the element.
  */
 /**
- * Checks the element if its current value is in the input array of values and deselects it otherwise (only `<input>` elements with
- * type `checkbox` or `radio`).  
- * If the element is a `<select>` element, all of its options with a value matching one in the input array of values will be selected
- * and all others deselected. If the select element does not allow multiple selection, only the first matching element is selected.
+ * Checks the element if its current value is in the input array of values and deselects it otherwise
+ * (only `<input>` elements with type `checkbox` or `radio`).  
+ * If the element is a `<select>` element, all of its options with a value matching one in the input
+ * array of values will be selected and all others deselected. If the select element does not allow
+ * multiple selection, only the first matching element is selected.
  * 
  * @function HTMLElement#val
- * @param {String[]} values - The array of values used to determine if the element (or its options) should be checked (or selected).
+ * @param {String[]} values - The array of values used to determine if the element (or its options)
+ *     should be checked (or selected).
  */
 HTMLElementPrototype.val = function(value) {
 	// If `value` is not an array with values to check
@@ -3438,9 +3537,9 @@ HTMLSelectElement[prototype].val = function(value) {
  * Inserts content after the node.
  * 
  * @function Node#afterPut
- * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
- * @throws {TypeError|NoModificationAllowedError} The subject node must have a
- * {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
+ * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or
+ *     collections of nodes to insert.
+ * @throws {TypeError|NoModificationAllowedError} The subject node must have a {@link ParentNode}.
  */
 NodePrototype.afterPut = getNodePutOrWithFunction(insertAfter);
 
@@ -3448,7 +3547,8 @@ NodePrototype.afterPut = getNodePutOrWithFunction(insertAfter);
  * Appends this node to the end of the target element(s).
  * 
  * @function Node#appendTo
- * @param {String|ParentNode|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes to which this node will be appended.
+ * @param {String|ParentNode|NodeCollection} target - A specific node, collection of nodes, or a selector to find
+ *     a set of nodes to which this node will be appended.
  * @throws {HierarchyRequestError} The target(s) must implement the {@link ParentNode} interface.
  */
 NodePrototype.appendTo = getNodeInsertingFunction(append);
@@ -3457,7 +3557,8 @@ NodePrototype.appendTo = getNodeInsertingFunction(append);
  * Appends content to the end of the node.
  * 
  * @function Node#appendWith
- * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
+ * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or
+ *     collections of nodes to insert.
  * @throws {HierarchyRequestError} This node must implement the {@link ParentNode} interface.
  */
 NodePrototype.appendWith = getNodePutOrWithFunction(append);
@@ -3466,9 +3567,9 @@ NodePrototype.appendWith = getNodePutOrWithFunction(append);
  * Inserts content before the node.
  * 
  * @function Node#beforePut
- * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
- * @throws {TypeError|NoModificationAllowedError} The subject node must have a
- * {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
+ * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or
+ *     collections of nodes to insert.
+ * @throws {TypeError|NoModificationAllowedError} The subject node must have a {@link ParentNode}.
  */
 NodePrototype.beforePut = getNodePutOrWithFunction(insertBefore);
 
@@ -3501,10 +3602,12 @@ NodePrototype.childElements = function(selector) {
  * Create a clone of the node.
  * 
  * @function Node#clone
- * @param {Boolean} [withDataAndEvents=false] - A boolean indicating if the node's data and events should be copied over to the clone.
- * @param {Boolean} [deepWithDataAndEvents=value of withDataAndEvents] - If `false`, data and events for the descendants of the cloned node will
- * not be copied over. If cloning with data and events and you know the descendants do not have any data or events that should be copied, using
- * this variable (by setting it to `false`) will improve performance.
+ * @param {Boolean} [withDataAndEvents=false] - A boolean indicating if the node's data and events should be
+ *     copied over to the clone.
+ * @param {Boolean} [deepWithDataAndEvents=value of withDataAndEvents] - If `false`, data and events for the
+ *     descendants of the cloned node will not be copied over. If cloning with data and events and you know
+ *     the descendants do not have any data or events that should be copied, using this variable (by setting
+ *     it to `false`) will improve performance.
  * @returns {NodeCollection}
  */
 NodePrototype.clone = function(withDataAndEvents, deepWithDataAndEvents) {
@@ -3518,16 +3621,20 @@ NodePrototype.clone = function(withDataAndEvents, deepWithDataAndEvents) {
 };
 
 /**
- * @summary Gets the first node that matches the selector by testing the node itself and traversing up through its ancestors in the DOM tree.
+ * @summary
+ * Gets the first node that matches the selector by testing the node itself
+ * and traversing up through its ancestors in the DOM tree.
  * 
  * @description
- * __Note:__ Unlike jQuery, there is no version of this function where you can provide a "context" element, whose children that match
- * the input CSS selector will be searched for a match. This is because it is very easy to get the matching children of an element
- * yourself using {@linkcode Element#QSA|Element#QSA()} or {@linkcode Element#find|Element#find()} and you may find that one of
- * these functions suits your needs better than the other.
+ * __Note:__ Unlike jQuery, there is no version of this function where you can provide a "context" element,
+ * whose children that match the input CSS selector will be searched for a match. This is because it is very
+ * easy to get the matching children of an element yourself using {@linkcode Element#QSA|Element#QSA()} or
+ * {@linkcode Element#find|Element#find()} and you may find that one of these functions suits your needs
+ * better than the other.
  * 
  * @function Node#closest
- * @param {String|Node|Node[]} selector - A CSS selector, a node, or a collection of nodes used to match the node and its parents against.
+ * @param {String|Node|Node[]} selector - A CSS selector, a node, or a collection of nodes
+ *     used to match the node and its parents against.
  * @returns {?Node} - The first node that matches the selector.
  */
 NodePrototype.closest = function(selector) {
@@ -3564,7 +3671,7 @@ NodePrototype.closest = function(selector) {
  * 
  * @function Node#contents
  * @returns {NodeCollection}
- * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.childNodes | Node.childNodes - Web API Interfaces | MDN}
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.childNodes|Node.childNodes - Web API Interfaces | MDN}
  */
 NodePrototype.contents = function(justChildNodes) { // Parameter for internal use; used by NodeCollection#contents
 	var iframeContent = this.contentDocument,
@@ -3573,7 +3680,8 @@ NodePrototype.contents = function(justChildNodes) { // Parameter for internal us
 };
 
 /**
- * Get the node's immediately following sibling element. If a selector is provided, it retrieves the next sibling only if it matches that selector.
+ * Get the node's immediately following sibling element. If a selector is provided,
+ * it retrieves the next sibling only if it matches that selector.
  * 
  * @function Node#next
  * @param {String} [selector] - A CSS selector to match the next sibling against.
@@ -3596,7 +3704,7 @@ NodePrototype.nextAll = getGetDirElementsFunc(nextElementSibling);
  * 
  * @function Node#nextUntil
  * @param {String|Element|Node[]} [selector] - A CSS selector, an element, or a collection of nodes used to indicate
- * where to stop matching following sibling elements.
+ *     where to stop matching following sibling elements.
  * @param {String} [filter] - A CSS selector used to filter the returned set of elements.
  * @returns {NodeCollection} - The set of following sibling elements in order beginning with the closest sibling.
  */
@@ -3613,7 +3721,7 @@ function removeSelectorHandler(selectorHandlers, selector, handler) {
 		if (handler) {
 			for (var i = 0; i < handlers.length; i++) {
 				if (handlers[i].f === handler) {
-					handlers.splice(i--, 1); // Use i-- so that i has the same value when the loop completes and i++ happens
+					handlers.splice(i--, 1); // Use i-- so i has the same value when the loop completes and i++ happens
 				}
 			}
 		} else {
@@ -3633,19 +3741,19 @@ function removeSelectorHandler(selectorHandlers, selector, handler) {
  * @function Node#off
  * @param {String} events - One or more space-separated event types, such as "click" or "click keypress".
  * @param {String} [selector] - A selector which should match the one originally passed to `.on()`
- * when attaching event handlers.
+ *     when attaching event handlers.
  * @param {Function} [handler] - A handler function previously attached for the event(s),
- * or the special value `false` (see `Node#on()`).
+ *     or the special value `false` (see `Node#on()`).
  * @see {@link http://api.jquery.com/off/#off-events-selector-handler|.off() | jQuery API Documentation}
  */
 /**
  * Removes one or more event handlers set by `.on()` or `.one()`.
  * 
  * @function Node#off
- * @param {Object} events - An object where the string keys represent one or more space-separated
- * event types and the values represent handler functions previously attached for the event(s).
+ * @param {Object} events - An object where the string keys represent one or more space-separated event
+ *     types and the values represent handler functions previously attached for the event(s).
  * @param {String} [selector] - A selector which should match the one originally passed to `.on()`
- * when attaching event handlers.
+ *     when attaching event handlers.
  * @see {@link http://api.jquery.com/off/#off-events-selector|.off() | jQuery API Documentation}
  */
 /**
@@ -3734,7 +3842,7 @@ function nodeEventHandler(eventObject, extraParameters) {
 		eType = eventObject.type,
 		selectorHandlers = _this._$E_[eType],
 		selectorHandlersCopy = {},
-		selectors = keys(selectorHandlers).remove(''), // Don't want the selector for non-delegated handlers in the array
+		selectors = keys(selectorHandlers).remove(''), // Don't want the selector for non-delegated handlers
 		numSelectors = selectors.length,
 		i = 0,
 		selector,
@@ -3746,7 +3854,8 @@ function nodeEventHandler(eventObject, extraParameters) {
 	}
 
 	/*
-	 * @param {{f: function, d: *, o: boolean}} handlerObject - The object containing the handler data that was set in `.on()`
+	 * @param {{f: function, d: *, o: boolean}} handlerObject - The object containing the handler data
+	 *     that was set in `.on()`
 	 */
 	function callHandlerOnTarget(handlerObject) {
 		eventObject.data = handlerObject.d; // Set data in the event object before calling the handler
@@ -3786,7 +3895,8 @@ function nodeEventHandler(eventObject, extraParameters) {
 		} while ((target = target.parentNode) !== _this && !eventObject.propagationStopped);
 	}
 
-	// If there are non-delegated handlers and propagation has not been stopped, call the handlers on the current element
+	// If there are non-delegated handlers and propagation has not been stopped,
+	// call the handlers on the current element
 	selectorHandlers = selectorHandlers[selector = ''];
 	if (selectorHandlers && !eventObject.propagationStopped) {
 		target = _this;
@@ -3800,36 +3910,42 @@ function nodeEventHandler(eventObject, extraParameters) {
 /**
  * @summary Attaches an event handler function for one or more events to the node.
  *  
- * @description Check out [jQuery's documentation](http://api.jquery.com/on/) for details.
+ * @description
+ * Check out [jQuery's documentation](http://api.jquery.com/on/) for details.
  * There are only a couple minor differences:
  * 1. Firebolt does not offer event namespacing.
- * 2. The native [Event](https://developer.mozilla.org/en-US/docs/Web/API/Event) object is passed to the handler (with an
- * added `data` property, and if propagation is stopped, there will be a `propagationStopped` property set to `true`).
+ * 2. The native [Event](https://developer.mozilla.org/en-US/docs/Web/API/Event) object is passed to the handler
+ *    (with an added `data` property, and if propagation is stopped, there will be a `propagationStopped` property
+ *    set to `true`).
  * 
  * @function Node#on
  * @param {String} events - One or more space-separated event types, such as "click" or "click keypress".
- * @param {String} [selector] - A selector string to filter the descendants of the selected elements that trigger the event.
- * If the selector is `null` or omitted, the event is always triggered when it reaches the selected element.
+ * @param {String} [selector] - A selector string to filter the descendants of the selected elements
+ *     that trigger the event. If the selector is `null` or omitted, the event is always triggered
+ *     when it reaches the selected element.
  * @param {*} [data] - Data to be passed to the handler in `eventObject.data` when an event is triggered.
- * @param {Function} handler(eventObject) - A function to execute when the event is triggered.
- * Inside the function, `this` will refer to the node the event was triggered on. The value
- * `false` is also allowed as a shorthand for a function that simply does `return false`.
+ * @param {Function} handler(eventObject) - A function to execute when the event is triggered. Inside the
+ *     function, `this` will refer to the node the event was triggered on. The value `false` is also
+ *     allowed as a shorthand for a function that simply does `return false`.
  * @see {@link http://api.jquery.com/on/#on-events-selector-data-handler|.on() | jQuery API Documentation}
  */
 /**
  * @summary Attaches an event handler function for one or more events to the node.
  *  
- * @description Check out [jQuery's documentation](http://api.jquery.com/on/) for details.
+ * @description
+ * Check out [jQuery's documentation](http://api.jquery.com/on/) for details.
  * There are only a couple minor differences:
  * 1. Firebolt does not offer event namespacing.
- * 2. The native [Event](https://developer.mozilla.org/en-US/docs/Web/API/Event) object is passed to the handler (with an
- * added `data` property, and if propagation is stopped, there will be a `propagationStopped` property set to `true`).
+ * 2. The native [Event](https://developer.mozilla.org/en-US/docs/Web/API/Event) object is passed to the handler
+ *    (with an added `data` property, and if propagation is stopped, there will be a `propagationStopped`
+ *    property set to `true`).
  * 
  * @function Node#on
  * @param {Object} events - An object where the string keys represent one or more space-separated
  * event types and the values represent handler functions to be called for the event(s).
- * @param {String} [selector] - A selector string to filter the descendants of the selected elements that trigger the event.
- * If the selector is `null` or omitted, the event is always triggered when it reaches the selected element.
+ * @param {String} [selector] - A selector string to filter the descendants of the selected elements
+ *     that trigger the event. If the selector is `null` or omitted, the event is always triggered
+ *     when it reaches the selected element.
  * @param {*} [data] - Data to be passed to the handler in `eventObject.data` when an event is triggered.
  * @see {@link http://api.jquery.com/on/#on-events-selector-data|.on() | jQuery API Documentation}
  */
@@ -3930,7 +4046,7 @@ NodePrototype.parents = getGetDirElementsFunc('parentElement');
  * 
  * @function Node#parentsUntil
  * @param {String|Element|Node[]} [selector] - A CSS selector, an element, or a collection of nodes used to indicate
- * where to stop matching ancestor elements.
+ *     where to stop matching ancestor elements.
  * @param {String} [filter] - A CSS selector used to filter the returned set of elements.
  * @returns {NodeCollection} - The set of the node's ancestors, ordered from the immediate parent on up.
  */
@@ -3940,7 +4056,8 @@ NodePrototype.parentsUntil = getGetDirElementsFunc('parentElement', 0);
  * Prepends content to the beginning of the node.
  * 
  * @function Node#prependWith
- * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
+ * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or
+ *     collections of nodes to insert.
  * @throws {HierarchyRequestError} This node must implement the {@link ParentNode} interface.
  */
 NodePrototype.prependWith = getNodePutOrWithFunction(prepend);
@@ -3949,13 +4066,15 @@ NodePrototype.prependWith = getNodePutOrWithFunction(prepend);
  * Prepends this node to the beginning of the target element(s).
  * 
  * @function Node#prependTo
- * @param {String|ParentNode|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes to which this node will be prepended.
+ * @param {String|ParentNode|NodeCollection} target - A specific node, collection of nodes, or a selector to find
+ *     a set of nodes to which this node will be prepended.
  * @throws {HierarchyRequestError} The target(s) must implement the {@link ParentNode} interface.
  */
 NodePrototype.prependTo = getNodeInsertingFunction(prepend);
 
 /**
- * Get the node's immediately preceeding sibling element. If a selector is provided, it retrieves the previous sibling only if it matches that selector.
+ * Get the node's immediately preceeding sibling element. If a selector is provided,
+ * it retrieves the previous sibling only if it matches that selector.
  * 
  * @function Node#prev
  * @param {String} [selector] - A CSS selector to match the previous sibling against.
@@ -3978,7 +4097,7 @@ NodePrototype.prevAll = getGetDirElementsFunc(previousElementSibling);
  * 
  * @function Node#prevUntil
  * @param {String|Element|Node[]} [selector] - A CSS selector, an element, or a collection of nodes used to indicate
- * where to stop matching preceeding sibling elements.
+ *     where to stop matching preceeding sibling elements.
  * @param {String} [filter] - A CSS selector used to filter the returned set of elements.
  * @returns {NodeCollection} - The set of preceeding sibling elements in order beginning with the closest sibling.
  */
@@ -3988,8 +4107,9 @@ NodePrototype.prevUntil = getGetDirElementsFunc(previousElementSibling, 0);
  * Inserts this node directly after the specified target(s).
  * 
  * @function Node#putAfter
- * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes after which this node will be inserted.
- * @throws {TypeError} The target node(s) must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
+ * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find
+ *     a set of nodes after which this node will be inserted.
+ * @throws {TypeError} The target node(s) must have a {@link ParentNode}.
  */
 NodePrototype.putAfter = getNodeInsertingFunction(insertAfter);
 
@@ -3997,8 +4117,9 @@ NodePrototype.putAfter = getNodeInsertingFunction(insertAfter);
  * Inserts this node directly before the specified target(s).
  * 
  * @function Node#putBefore
- * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes after which this node will be inserted.
- * @throws {TypeError} The target node(s) must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
+ * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find
+ *     a set of nodes after which this node will be inserted.
+ * @throws {TypeError} The target node(s) must have a {@link ParentNode}.
  */
 NodePrototype.putBefore = getNodeInsertingFunction(insertBefore);
 
@@ -4006,8 +4127,9 @@ NodePrototype.putBefore = getNodeInsertingFunction(insertBefore);
  * Replace the target with this node.
  * 
  * @function Node#replaceAll
- * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes to be replaced by this node.
- * @throws {TypeError} The target node(s) must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
+ * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find
+ *     a set of nodes to be replaced by this node.
+ * @throws {TypeError} The target node(s) must have a {@link ParentNode}.
  */
 NodePrototype.replaceAll = getNodeInsertingFunction(replaceWith);
 
@@ -4015,8 +4137,9 @@ NodePrototype.replaceAll = getNodeInsertingFunction(replaceWith);
  * Replace the node with some other content.
  * 
  * @function Node#replaceWith
- * @param {...(String|Node|NodeCollection)} content - A specific node, a collection of nodes, or some HTML to replace the subject node.
- * @throws {TypeError} The subject node must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
+ * @param {...(String|Node|NodeCollection)} content - A specific node, a collection of nodes,
+ *     or some HTML to replace the subject node.
+ * @throws {TypeError} The subject node must have a {@link ParentNode}.
  */
 NodePrototype.replaceWith = getNodePutOrWithFunction(replaceWith);
 
@@ -4038,8 +4161,7 @@ NodePrototype.remove = function() {
  * @function Node#siblings
  * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
  * @returns {NodeCollection} - The set of the node's ancestors, ordered from the immediate parent on up.
- * @throws {TypeError} The subject node must have a
- * {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode | ParentNode}.
+ * @throws {TypeError} The subject node must have a {@link ParentNode}.
  */
 NodePrototype.siblings = function(selector) {
 	return NodePrototype.childElements.call(this.parentNode, selector).remove(this);
@@ -4050,13 +4172,14 @@ NodePrototype.siblings = function(selector) {
  * 
  * __Note:__ Consider using the native `textContent` property instead of this function.
  * 
- * __Warning #1:__ There is a known bug where `<body>` elements will have an empty string as the `text` property instead
- * of this function due to browsers continuing to implement a deprecated API on the HTMLBodyElement prototype. Please use the native
- * `textContent` property to get and set the text content of `<body>` elements instead of attempting to use this function.
+ * __Warning #1:__ There is a known bug where `<body>` elements will have an empty string as the `text` property
+ * instead of this function due to browsers continuing to implement a deprecated API on the HTMLBodyElement prototype.
+ * Please use the native `textContent` property to get and set the text content of `<body>` elements instead of
+ * attempting to use this function.
  * 
- * __Warning #2:__ `<script>` elements have a `text` property with the exact same functionality as the `textContent` property
- * that cannot be overwritten. Please use the native `text` property or the `textContent` property to get and set the text
- * content of `<script>` elements instead of attempting to use this function.
+ * __Warning #2:__ `<script>` elements have a `text` property with the exact same functionality as the `textContent`
+ * property that cannot be overwritten. Please use the native `text` property or the `textContent` property to get
+ * and set the text content of `<script>` elements instead of attempting to use this function.
  * 
  * @function Node#text
  * @returns {String} The node's text content.
@@ -4068,17 +4191,18 @@ NodePrototype.siblings = function(selector) {
  * @description
  * __Note:__ Consider using the native `textContent` property instead of this function.
  * 
- * __Warning #1:__ There is a known bug where `<body>` elements will have an empty string as the `text` property instead
- * of this function due to browsers continuing to implement a deprecated API on the HTMLBodyElement prototype. Please use the native
- * `textContent` property to get and set the text content of `<body>` elements instead of attempting to use this function.
+ * __Warning #1:__ There is a known bug where `<body>` elements will have an empty string as the `text` property
+ * instead of this function due to browsers continuing to implement a deprecated API on the HTMLBodyElement prototype.
+ * Please use the native `textContent` property to get and set the text content of `<body>` elements instead of
+ * attempting to use this function.
  * 
- * __Warning #2:__ `<script>` elements have a `text` property with the exact same functionality as the `textContent` property
- * that cannot be overwritten. Please use the native `text` property or the `textContent` property to get and set the text
- * content of `<script>` elements instead of attempting to use this function.
+ * __Warning #2:__ `<script>` elements have a `text` property with the exact same functionality as the `textContent`
+ * property that cannot be overwritten. Please use the native `text` property or the `textContent` property to get
+ * and set the text content of `<script>` elements instead of attempting to use this function.
  * 
  * @function Node#text
  * @param {String} text - The text or content that will be converted to a string to be set as the node's text content.
- * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.textContent | Node.textContent - Web API Interfaces | MDN}
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.textContent|Node.textContent - Web API Interfaces | MDN}
  */
 NodePrototype.text = function(text) {
 	if (text === _undefined) {
@@ -4095,14 +4219,16 @@ NodePrototype.text = function(text) {
  * 
  * @function Node#trigger
  * @param {String} eventType - A string containing a JavaScript event type, such as "click" or "submit".
- * @param {*} extraParameters - Additional parameters that will be passed as the second argument to the triggered event handler(s).
+ * @param {*} extraParameters - Additional parameters that will be passed as the second argument to the
+ *     triggered event handler(s).
  */
 /**
  * Uses the input Event object to trigger the specified event on the node.
  * 
  * @function Node#trigger
- * @param {Event} event - An {@link https://developer.mozilla.org/en-US/docs/Web/API/Event | Event} object.
- * @param {*} extraParameters - Additional parameters that will be passed as the second argument to the triggered event handler(s).
+ * @param {Event} event - An {@link https://developer.mozilla.org/en-US/docs/Web/API/Event|Event} object.
+ * @param {*} extraParameters - Additional parameters that will be passed as the second argument to the
+ *     triggered event handler(s).
  */
 NodePrototype.trigger = function(event, extraParameters) {
 	if (typeofString(event)) {
@@ -4122,15 +4248,17 @@ NodePrototype.trigger = function(event, extraParameters) {
  * @description
  * The `.triggerHandler()` method behaves similarly to `.trigger()`, with the following exceptions:
  * 
- * + The `.triggerHandler()` method does not cause the default behavior of an event to occur (such as a form submission or button click).
- * + Events triggered with `.triggerHandler()` do not bubble up the DOM hierarchy; if they are not handled by the target node directly,
- *   they do nothing.
- * + Instead of returning the node, `.triggerHandler()` returns whatever value was returned by the last handler it caused to be executed.
- *   If no handlers are triggered, it returns `undefined`.
+ * + The `.triggerHandler()` method does not cause the default behavior of an event to occur
+ *   (such as a form submission or button click).
+ * + Events triggered with `.triggerHandler()` do not bubble up the DOM hierarchy;
+ *   if they are not handled by the target node directly, they do nothing.
+ * + Instead of returning the node, `.triggerHandler()` returns whatever value was returned by the
+ *   last handler it caused to be executed. If no handlers are triggered, it returns `undefined`.
  * 
  * @function Node#triggerHandler
  * @param {String} eventType - A string containing a JavaScript event type, such as "click" or "submit".
- * @param {*} extraParameters - Additional parameters that will be passed as the second argument to the triggered event handler(s).
+ * @param {*} extraParameters - Additional parameters that will be passed as the second argument to the
+ *    triggered event handler(s).
  */
 NodePrototype.triggerHandler = function(event, extraParameters) {
 	// Only trigger handlers if there are event handlers saved to the node
@@ -4194,7 +4322,8 @@ NodePrototype.wrapWith = function(wrappingElement) {
 
 /**
  * @class ParentNode
- * @classdesc Interface implemented by {@link https://developer.mozilla.org/en-US/docs/Web/API/Element|Element},
+ * @classdesc
+ * Interface implemented by {@link https://developer.mozilla.org/en-US/docs/Web/API/Element|Element},
  * {@link https://developer.mozilla.org/en-US/docs/Web/API/Document|Document}, and
  * {@link https://developer.mozilla.org/en-US/docs/Web/API/DocumentFragment|DocumentFragment} objects.
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/ParentNode|ParentNode - Web API Interfaces | MDN}
@@ -4206,7 +4335,7 @@ NodePrototype.wrapWith = function(wrappingElement) {
 //#region ======================== NodeCollection ============================
 
 /**
- * Same constructor as {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array | Array}.
+ * Same constructor as {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array|Array}.
  * 
  * @class NodeCollection
  * @mixes Array
@@ -4264,15 +4393,16 @@ iframe.remove(); // Remove the iframe that was used to subclass Array
 });
 
 /**
- * @summary Adds the queried elements to a copy of the existing collection (if they are not already in the collection)
+ * @summary
+ * Adds the queried elements to a copy of the existing collection (if they are not already in the collection)
  * and returns the result.
  * 
  * @description
- * Do not assume that this method appends the nodes to the existing collection in the order they are passed to the method
- * (that's what `concat` is for). When all nodes are members of the same document, the resulting collection will be sorted
- * in document order; that is, in order of each node's appearance in the document. If the collection consists of nodes
- * from different documents or ones not in any document, the sort order is undefined (but nodes in the collection that are
- * in the same document will still be in document order).
+ * Do not assume that this method appends the nodes to the existing collection in the order they are passed to the
+ * method (that's what `concat` is for). When all nodes are members of the same document, the resulting collection
+ * will be sorted in document order; that is, in order of each node's appearance in the document. If the collection
+ * consists of nodes from different documents or ones not in any document, the sort order is undefined (but nodes in
+ * the collection that are in the same document will still be in document order).
  * 
  * @function NodeCollection#add
  * @param {String} selector - A CSS selector to use to find elements to add to the collection.
@@ -4286,7 +4416,8 @@ iframe.remove(); // Remove the iframe that was used to subclass Array
  * @returns {NodeCollection} The result adding the elements created with the HTML to current collection.
  */
 /**
- * @summary Adds the node to a copy of the existing collection (if it is not already in the collection) and returns the result.
+ * @summary
+ * Adds the node to a copy of the existing collection (if it is not already in the collection) and returns the result.
  * 
  * @description
  * Do not assume that this method appends the node to the existing collection (that is what `push` is for).
@@ -4303,11 +4434,11 @@ iframe.remove(); // Remove the iframe that was used to subclass Array
  * @summary Returns the union of the current collection of nodes and the input one.
  * 
  * @description
- * Do not assume that this method appends the nodes to the existing collection in the order they are passed to the method
- * (that's what `concat` is for). When all nodes are members of the same document, the resulting collection will be sorted
- * in document order; that is, in order of each node's appearance in the document. If the collection consists of nodes
- * from different documents or ones not in any document, the sort order is undefined (but nodes in the collection that are
- * in the same document will still be in document order).
+ * Do not assume that this method appends the nodes to the existing collection in the order they are passed to the
+ * method (that's what `concat` is for). When all nodes are members of the same document, the resulting collection
+ * will be sorted in document order; that is, in order of each node's appearance in the document. If the collection
+ * consists of nodes from different documents or ones not in any document, the sort order is undefined (but nodes
+ * in the collection that are in the same document will still be in document order).
  * 
  * @function NodeCollection#add
  * @param {NodeCollection|NodeList|HTMLCollection|Node[]} nodes
@@ -4330,8 +4461,9 @@ NodeCollectionPrototype.add = function(input) {
 /**
  * Alias of {@link NodeCollection#afterPut} provided for similarity with jQuery.
  * 
- * Note that Firebolt does not define a method called "after" for {@link Node}. This is because the DOM Living Standard has defined
- * a native function called `after` for the {@link http://dom.spec.whatwg.org/#interface-childnode|ChildNode Interface} that
+ * Note that Firebolt does not define a method called "after" for {@link Node}. This is
+ * because the DOM Living Standard has defined a native function called `after` for the
+ * {@link http://dom.spec.whatwg.org/#interface-childnode|ChildNode Interface} that
  * does not function in the same way as `.afterPut()`.
  * 
  * @function NodeCollection#after
@@ -4341,9 +4473,10 @@ NodeCollectionPrototype.add = function(input) {
  * Inserts content after each node in the collection.
  * 
  * @function NodeCollection#afterPut
- * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
+ * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or
+ *     collections of nodes to insert.
  * @throws {TypeError|NoModificationAllowedError} The subject collection of nodes must only contain nodes that have a
- * {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode | ParentNode}.
+ *     {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
  */
 NodeCollectionPrototype.afterPut = NodeCollectionPrototype.after = getNodeCollectionPutOrWithFunction(insertAfter);
 
@@ -4351,31 +4484,34 @@ NodeCollectionPrototype.afterPut = NodeCollectionPrototype.after = getNodeCollec
  * @summary Performs a custom animation of a set of CSS properties.
  * 
  * @description
- * Just like NodeCollection#css, CSS properties must be specified the same way they would be in a style sheet since Firebolt
- * does not append "px" to input numeric values (i.e. 1 != 1px).
+ * Just like NodeCollection#css, CSS properties must be specified the same way they would be in a style sheet
+ * since Firebolt does not append "px" to input numeric values (i.e. 1 != 1px).
  * 
  * Unlike jQuery, an object that specifies different easing types for different properties is not supported.
  * (Should it be supported? [Tell me why](https://github.com/woollybogger/Firebolt/issues).)
  * However, relative properties (indicated with `+=` or `-=`) and the `toggle` indicator are supported.
  * 
- * For more `easing` options, use Firebolt's [easing extension](https://github.com/woollybogger/firebolt-extensions/tree/master/easing)
+ * For more `easing` options, use Firebolt's
+ * [easing extension](https://github.com/woollybogger/firebolt-extensions/tree/master/easing)
  * (or just grab some functions from it and use them as the `easing` parameter).
  * 
  * @function NodeCollection#animate
  * @param {Object} properties - An object of CSS properties and values that the animation will move toward.
  * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
- * @param {String} [easing="swing"] - A string indicating which easing function to use for the transition. The string can be any
- * [CSS transition timing function](https://developer.mozilla.org/en-US/docs/Web/CSS/transition-timing-function) or "swing".
+ * @param {String} [easing="swing"] - Indicates which easing function to use for the transition. The string can be any
+ *     [CSS transition timing function](https://developer.mozilla.org/en-US/docs/Web/CSS/transition-timing-function)
+ *     or "swing".
  * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
- * refer to the element that was animated.
- * @see {@link http://api.jquery.com/animate/ | .animate() | jQuery API Documentation}
+ *     refer to the element that was animated.
+ * @see {@link http://api.jquery.com/animate/|.animate() | jQuery API Documentation}
  */
 
 /**
  * Appends each node in this collection to the end of the specified target(s).
  * 
  * @function NodeCollection#appendTo
- * @param {String|ParentNode|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes to which each node will be appended.
+ * @param {String|ParentNode|NodeCollection} target - A specific node, collection of nodes,
+ *     or a selector to find a set of nodes to which each node will be appended.
  * @throws {HierarchyRequestError} The target(s) must implement the {@link ParentNode} interface.
  */
 NodeCollectionPrototype.appendTo = getNodeCollectionPutToOrReplaceAllFunction('appendWith');
@@ -4383,8 +4519,9 @@ NodeCollectionPrototype.appendTo = getNodeCollectionPutToOrReplaceAllFunction('a
 /**
  * Alias of {@link NodeCollection#appendWith} provided for similarity with jQuery.
  * 
- * Note that Firebolt does not define a method called "append" for {@link Node}. This is because the DOM Living Standard has defined
- * a native function called `append` for the {@link http://dom.spec.whatwg.org/#interface-parentnode|ParentNode Interface} that
+ * Note that Firebolt does not define a method called "append" for {@link Node}. This is
+ * because the DOM Living Standard has defined a native function called `append` for the
+ * {@link http://dom.spec.whatwg.org/#interface-parentnode|ParentNode Interface} that
  * does not function in the same way as `.appendWith()`.
  * 
  * @function NodeCollection#append
@@ -4394,7 +4531,8 @@ NodeCollectionPrototype.appendTo = getNodeCollectionPutToOrReplaceAllFunction('a
  * Appends content to the end of each element in the collection.
  * 
  * @function NodeCollection#appendWith
- * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
+ * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or
+ *     collections of nodes to insert.
  * @throws {HierarchyRequestError} The nodes in the collection must implement the {@link ParentNode} interface.
  */
 NodeCollectionPrototype.appendWith = NodeCollectionPrototype.append = getNodeCollectionPutOrWithFunction(append);
@@ -4426,9 +4564,10 @@ NodeCollectionPrototype.attr = getFirstSetEachElement(HTMLElementPrototype.attr,
 /**
  * Alias of {@link NodeCollection#beforePut} provided for similarity with jQuery.
  * 
- * Note that Firebolt does not define a method called "before" for {@link Node}. This is because the DOM Living Standard has defined
- * a native function called `before` for the {@link http://dom.spec.whatwg.org/#interface-childnode|ChildNode Interface} that
- * does not function in the same way as `.beforePut()`.
+ * Note that Firebolt does not define a method called "before" for {@link Node}. This is
+ * because the DOM Living Standard has defined a native function called `before` for the
+ * {@link http://dom.spec.whatwg.org/#interface-childnode|ChildNode Interface} that does
+ * not function in the same way as `.beforePut()`.
  * 
  * @function NodeCollection#before
  * @see NodeCollection#beforePut
@@ -4437,14 +4576,16 @@ NodeCollectionPrototype.attr = getFirstSetEachElement(HTMLElementPrototype.attr,
  * Inserts content before each node in the collection.
  * 
  * @function NodeCollection#beforePut
- * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
+ * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or
+ *     collections of nodes to insert.
  * @throws {TypeError|NoModificationAllowedError} The subject collection of nodes must only contain nodes that have a
- * {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
+ *     {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
  */
 NodeCollectionPrototype.beforePut = NodeCollectionPrototype.before = getNodeCollectionPutOrWithFunction(insertBefore);
 
 /**
- * Calls {@linkcode https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement.blur | HTMLElement#blur()} on each element in the collection.
+ * Calls {@linkcode https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement.blur|HTMLElement#blur()}
+ * on each element in the collection.
  * 
  * @function NodeCollection#blur
  */
@@ -4456,6 +4597,8 @@ NodeCollectionPrototype.beforePut = NodeCollectionPrototype.before = getNodeColl
  * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
  * @returns {NodeCollection} The set of children, sorted in document order.
  */
+NodeCollectionPrototype.childElements =
+
 /**
  * Alias for {@linkcode NodeCollection#childElements|NodeCollection#childElements()}.
  * 
@@ -4463,10 +4606,11 @@ NodeCollectionPrototype.beforePut = NodeCollectionPrototype.before = getNodeColl
  * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
  * @returns {NodeCollection} The set of children, sorted in document order.
  */
-NodeCollectionPrototype.children = NodeCollectionPrototype.childElements = getGetDirElementsFunc(HTMLElementPrototype.childElements, sortDocOrder);
+NodeCollectionPrototype.children = getGetDirElementsFunc(HTMLElementPrototype.childElements, sortDocOrder);
 
 /**
- * Calls {@linkcode https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement.click | HTMLElement#click()} on each element in the collection.
+ * Calls {@linkcode https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement.click|HTMLElement#click()}
+ * on each element in the collection.
  * 
  * @function NodeCollection#click
  */
@@ -4474,14 +4618,17 @@ NodeCollectionPrototype.children = NodeCollectionPrototype.childElements = getGe
 /**
  * Create a deep copy of the collection of nodes.
  * 
- * __ProTip:__ If you want a shallow copy of the collection, use `.toNC()` (even thought that's mainly a NodeList function,
- * NodeCollections also have it in their prototype) or pass the collection into `NodeCollection.from()`.
+ * __ProTip:__ If you want a shallow copy of the collection, use `.toNC()` (even though
+ * that's mainly a NodeList function, NodeCollections also have it in their prototype)
+ * or pass the collection into `NodeCollection.from()`.
  * 
  * @function NodeCollection#clone
- * @param {Boolean} [withDataAndEvents=false] - A boolean indicating if each node's data and events should be copied over to its clone.
- * @param {Boolean} [deepWithDataAndEvents=value of withDataAndEvents] - If `false`, data and events for the descendants of the cloned nodes will
- * not be copied over. If cloning with data and events and you know the descendants do not have any data or events that should be copied, using
- * this variable (by setting it to `false`) will improve performance.
+ * @param {Boolean} [withDataAndEvents=false] - A boolean indicating if each node's data and events
+ *     should be copied over to its clone.
+ * @param {Boolean} [deepWithDataAndEvents=value of withDataAndEvents] - If `false`, data and events
+ *     for the descendants of the cloned nodes will not be copied over. If cloning with data and events
+ *     and you know the descendants do not have any data or events that should be copied, using this
+ *     variable (by setting it to `false`) will improve performance.
  * @returns {NodeCollection}
  */
 NodeCollectionPrototype.clone = function(withDataAndEvents, deepWithDataAndEvents) {
@@ -4501,13 +4648,15 @@ NodeCollectionPrototype.clone = function(withDataAndEvents, deepWithDataAndEvent
  * and traversing up through its ancestors in the DOM tree.
  * 
  * @description
- * __Note:__ Unlike jQuery, there is no version of this function where you can provide a "context" element, whose children that match
- * the input CSS selector will be searched for a match. This is because it is very easy to get the matching children of an element
- * yourself using {@linkcode Element#QSA|Element#QSA()} or {@linkcode Element#find|Element#find()} and you may find that one of
- * these functions suits your needs better than the other.
+ * __Note:__ Unlike jQuery, there is no version of this function where you can provide a "context" element
+ * whose children that match the input CSS selector will be searched for a match. This is because it is very
+ * easy to get the matching children of an element yourself using {@linkcode Element#QSA|Element#QSA()} or
+ * {@linkcode Element#find|Element#find()} and you may find that one of these functions suits your needs
+ * better than the other.
  * 
  * @function NodeCollection#closest
- * @param {String|Node|Node[]} selector - A CSS selector, a node, or a collection of nodes used to match the node and its parents against.
+ * @param {String|Node|Node[]} selector - A CSS selector, a node, or a collection of nodes used to match
+ *     the node and its parents against.
  * @returns {Node[]} - A collection of "closest" nodes.
  */
 NodeCollectionPrototype.closest = function(selector) {
@@ -4553,18 +4702,20 @@ NodeCollectionPrototype.contents = function() {
  * @returns {String} The value of the specifed style property.
  */
 /**
- * Gets an object of property-value pairs for the input array of CSS properties for the first element in the collection.
+ * Gets an object of property-value pairs for the input array of CSS properties
+ * for the first element in the collection.
  * 
  * @function NodeCollection#css
  * @param {String[]} propertyNames - An array of one or more CSS property names.
- * @returns {Object.<String, String>} An object of property-value pairs where the values are the computed style values of the input properties.
+ * @returns {Object.<String, String>} An object of property-value pairs where the values are
+ *     the computed style values of the input properties.
  */
 /**
  * Sets the specified style property for each element in the collection.
  * 
- * __Note:__ Unlike jQuery, if the passed in value is a number, it will not be converted to a string with `'px'` appended to it
- * to it prior to setting the CSS value. This helps keep the library small and fast and will force your code to be more obvious
- * as to how it is changing the element's style (which is a good thing).
+ * __Note:__ Unlike jQuery, if the passed in value is a number, it will not be converted to a string with `'px'`
+ * appended to it to it prior to setting the CSS value. This helps keep the library small and fast and will
+ * force your code to be more obvious as to how it is changing the element's style (which is a good thing).
  * 
  * @function NodeCollection#css
  * @param {String} propertyName - The name of the style property to set.
@@ -4590,7 +4741,8 @@ NodeCollectionPrototype.css = getFirstSetEachElement(HTMLElementPrototype.css, f
  * @returns {Object} The element's stored data object.
  */
 /**
- * Get the value at the named data store for the first element as set by .data(key, value) or by an HTML5 data-* attribute.
+ * Get the value at the named data store for the first element as set by
+ * `.data(key, value)` or by an HTML5 data-* attribute.
  * 
  * @function NodeCollection#data
  * @param {String} key - The name of the stored data.
@@ -4624,10 +4776,11 @@ NodeCollectionPrototype.data = getFirstSetEachElement(ElementPrototype.data, fun
  * 
  * @function NodeCollection#fadeIn
  * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
- * @param {String} [easing="swing"] - A string indicating which easing function to use for the transition. The string can be any
- * [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp) or "swing".
+ * @param {String} [easing="swing"] - Indicates which easing function to use for the transition. The string can be any
+ *     [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp)
+ *     or "swing".
  * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
- * refer to the element that was animated.
+ *     refer to the element that was animated.
  */
 
 /**
@@ -4635,10 +4788,11 @@ NodeCollectionPrototype.data = getFirstSetEachElement(ElementPrototype.data, fun
  * 
  * @function NodeCollection#fadeOut
  * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
- * @param {String} [easing="swing"] - A string indicating which easing function to use for the transition. The string can be any
- * [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp) or "swing".
+ * @param {String} [easing="swing"] - Indicates which easing function to use for the transition. The string can be any
+ *     [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp)
+ *     or "swing".
  * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
- * refer to the element that was animated.
+ *     refer to the element that was animated.
  */
 
 /**
@@ -4646,10 +4800,11 @@ NodeCollectionPrototype.data = getFirstSetEachElement(ElementPrototype.data, fun
  * 
  * @function NodeCollection#fadeToggle
  * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
- * @param {String} [easing="swing"] - A string indicating which easing function to use for the transition. The string can be any
- * [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp) or "swing".
+ * @param {String} [easing="swing"] - Indicates which easing function to use for the transition. The string can be any
+ *     [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp)
+ *     or "swing".
  * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
- * refer to the element that was animated.
+ *     refer to the element that was animated.
  */
 
 /**
@@ -4665,9 +4820,9 @@ NodeCollectionPrototype.data = getFirstSetEachElement(ElementPrototype.data, fun
  * (If you want to filter against another set of elements, use the {@linkcode Array#intersect|intersect} function.)
  * 
  * @function NodeCollection#filter
- * @param {Function} function(value, index, collection) - A function used as a test for each element in the collection.
+ * @param {Function} function(value,index,collection) - A function used as a test for each element in the collection.
  * @returns {NodeCollection}
- * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter | Array#filter() - JavaScript | MDN}
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter|Array#filter() - JavaScript | MDN}
  */
 NodeCollectionPrototype.filter = function(selector) {
 	return ncFilter.call(this, 
@@ -4678,12 +4833,15 @@ NodeCollectionPrototype.filter = function(selector) {
 };
 
 /**
- * Gets the descendants of each element in the collection, filtered by a selector, collection of elements, or a single element.
+ * Gets the descendants of each element in the collection, filtered by a selector, collection of elements,
+ * or a single element.
  * 
  * @function NodeCollection#find
- * @param {String|Element|Element[]} selector - A CSS selector, a collection of elements, or a single element used to match descendant elements against.
+ * @param {String|Element|Element[]} selector - A CSS selector, a collection of elements, or a single element
+ *     used to match descendant elements against.
  * @returns {NodeList|NodeCollection}
- * @throws {TypeError} This error is thrown when the collection contains elements that do not have a `querySelectorAll()` function.
+ * @throws {TypeError} This error is thrown when the collection contains elements that do not have a
+ *     `querySelectorAll()` function.
  */
 NodeCollectionPrototype.find = getGetDirElementsFunc(ElementPrototype.find, sortDocOrder);
 
@@ -4694,7 +4852,8 @@ NodeCollectionPrototype.find = getGetDirElementsFunc(ElementPrototype.find, sort
  */
 
 /**
- * Calls {@linkcode https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement.focus | HTMLElement#focus()} on each element in the collection.
+ * Calls {@linkcode https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement.focus|HTMLElement#focus()}
+ * on each element in the collection.
  * 
  * @function NodeCollection#focus
  */
@@ -4723,7 +4882,8 @@ NodeCollectionPrototype.html = getFirstSetEachElement(HTMLElementPrototype.html,
 });
 
 /**
- * Returns the `index`th item in the collection. If `index` is greater than or equal to the number of nodes in the list, this returns `null`.
+ * Returns the `index`th item in the collection. If `index` is greater than or
+ * equal to the number of nodes in the list, this returns `null`.
  * 
  * @function NodeCollection#item
  * @param {Number} index
@@ -4749,7 +4909,8 @@ NodeCollectionPrototype.item = function(index) {
  */
 
 /**
- * Get the each node's immediately following sibling element. If a selector is provided, it retrieves the next sibling only if it matches that selector.
+ * Get the each node's immediately following sibling element. If a selector is provided,
+ * it retrieves the next sibling only if it matches that selector.
  * 
  * @function NodeCollection#next
  * @param {String} [selector] - A CSS selector to match the next sibling against.
@@ -4767,8 +4928,8 @@ NodeCollectionPrototype.next = getNextOrPrevFunc(nextElementSibling);
 NodeCollectionPrototype.nextAll = getGetDirElementsFunc(HTMLElementPrototype.nextAll, sortDocOrder);
 
 /**
- * Gets the following siblings of each node in the collection, up to but not including the elements matched by the selector,
- * DOM node, or node in a collection.
+ * Gets the following siblings of each node in the collection, up to but not including the elements matched by the
+ * selector, DOM node, or node in a collection.
  * 
  * @function NodeCollection#nextUntil
  * @param {String|Element|Node[]} [selector] - A CSS selector, an element, or a collection of nodes used to indicate
@@ -4783,17 +4944,20 @@ NodeCollectionPrototype.nextUntil = getGetDirElementsFunc(HTMLElementPrototype.n
  * 
  * @function NodeCollection#off
  * @param {String} events - One or more space-separated event types, such as "click" or "click keypress".
- * @param {String} [selector] - A selector which should match the one originally passed to `.on()` when attaching event handlers.
- * @param {Function} [handler] - A handler function previously attached for the event(s), or the special value `false` (see `NodeCollection#on()`).
+ * @param {String} [selector] - A selector which should match the one originally passed to `.on()` when
+ *     attaching event handlers.
+ * @param {Function} [handler] - A handler function previously attached for the event(s), or the special
+ *     value `false` (see `NodeCollection#on()`).
  * @see {@link http://api.jquery.com/off/#off-events-selector-handler|.off() | jQuery API Documentation}
  */
 /**
  * Removes one or more event handlers set by `.on()` or `.one()`.
  * 
  * @function NodeCollection#off
- * @param {Object} events - An object where the string keys represent one or more space-separated event types and the values represent
- * handler functions previously attached for the event(s).
- * @param {String} [selector] - A selector which should match the one originally passed to `.on()` when attaching event handlers.
+ * @param {Object} events - An object where the string keys represent one or more space-separated event
+ *     types and the values represent handler functions previously attached for the event(s).
+ * @param {String} [selector] - A selector which should match the one originally passed to `.on()` when
+ *     attaching event handlers.
  * @see {@link http://api.jquery.com/off/#off-events-selector|.off() | jQuery API Documentation}
  */
 /**
@@ -4808,7 +4972,8 @@ NodeCollectionPrototype.off = callOnEach(NodePrototype.off);
  * Gets the current coordinates of the first element in the collection relative to the document.
  * 
  * @function NodeCollection#offset
- * @returns {{top: Number, left: Number}} An object containing the coordinates detailing the element's distance from the top and left of the document.
+ * @returns {{top: Number, left: Number}} An object containing the coordinates detailing the element's
+ *     distance from the top and left of the document.
  * @see HTMLElement#offset
  */
 /**
@@ -4825,40 +4990,48 @@ NodeCollectionPrototype.offset = getFirstSetEachElement(HTMLElementPrototype.off
 /**
  * @summary Attaches an event handler function for one or more events to each node in the collection.
  *  
- * @description Check out [jQuery's documentation](http://api.jquery.com/on/) for details. There are only a couple minor differences:
+ * @description
+ * Check out [jQuery's documentation](http://api.jquery.com/on/) for details.
+ * There are only a couple minor differences:
  * 1. Firebolt does not offer event namespacing.
- * 2. The native [Event](https://developer.mozilla.org/en-US/docs/Web/API/Event) object is passed to the handler (with an added
- * `data` property, and if propagation is stopped, there will be a `propagationStopped` property set to `true`).
+ * 2. The native [Event](https://developer.mozilla.org/en-US/docs/Web/API/Event) object is passed to
+ *    the handler (with an added `data` property, and if propagation is stopped, there will be a
+ *    `propagationStopped` property set to `true`).
  * 
  * @function NodeCollection#on
  * @param {String} events - One or more space-separated event types, such as "click" or "click keypress".
- * @param {String} [selector] - A selector string to filter the descendants of the selected elements that trigger the event.
- * If the selector is `null` or omitted, the event is always triggered when it reaches the selected element.
+ * @param {String} [selector] - A selector string to filter the descendants of the selected elements that trigger the
+ *     event. If the selector is `null` or omitted, the event is always triggered when it reaches the selected element.
  * @param {*} [data] - Data to be passed to the handler in `eventObject.data` when an event is triggered.
- * @param {Function} handler(eventObject) - A function to execute when the event is triggered. Inside the function, `this` will refer to
- * the node the event was triggered on. The value `false` is also allowed as a shorthand for a function that simply does `return false`.
+ * @param {Function} handler(eventObject) - A function to execute when the event is triggered.
+ *     Inside the function, `this` will refer to the node the event was triggered on. The value
+ *     `false` is also allowed as a shorthand for a function that simply does `return false`.
  * @see {@link http://api.jquery.com/on/#on-events-selector-data-handler|.on() | jQuery API Documentation}
  */
 /**
  * @summary Attaches an event handler function for one or more events to each node in the collection.
  *  
- * @description Check out [jQuery's documentation](http://api.jquery.com/on/) for details. There are only a couple minor differences:
+ * @description
+ * Check out [jQuery's documentation](http://api.jquery.com/on/) for details.
+ * There are only a couple minor differences:
  * 1. Firebolt does not offer event namespacing.
- * 2. The native [Event](https://developer.mozilla.org/en-US/docs/Web/API/Event) object is passed to the handler (with an added
- * `data` property, and if propagation is stopped, there will be a `propagationStopped` property set to `true`).
+ * 2. The native [Event](https://developer.mozilla.org/en-US/docs/Web/API/Event) object is passed to
+ *    the handler (with an added `data` property, and if propagation is stopped, there will be a
+ *    `propagationStopped` property set to `true`).
  * 
  * @function NodeCollection#on
- * @param {Object} events - An object where the string keys represent one or more space-separated event types and the values represent
- * handler functions to be called for the event(s).
- * @param {String} [selector] - A selector string to filter the descendants of the selected elements that trigger the event.
- * If the selector is `null` or omitted, the event is always triggered when it reaches the selected element.
+ * @param {Object} events - An object where the string keys represent one or more space-separated event types and the
+ *     values represent handler functions to be called for the event(s).
+ * @param {String} [selector] - A selector string to filter the descendants of the selected elements that trigger the
+ *     event. If the selector is `null` or omitted, the event is always triggered when it reaches the selected element.
  * @param {*} [data] - Data to be passed to the handler in `eventObject.data` when an event is triggered.
  * @see {@link http://api.jquery.com/on/#on-events-selector-data|.on() | jQuery API Documentation}
  */
 NodeCollectionPrototype.on = callOnEach(NodePrototype.on);
 
 /**
- * Attaches a handler to an event for each node in the collection. The handler is executed at most once per node, per event type.  
+ * Attaches a handler to an event for each node in the collection. The handler is executed at most once per node, per
+ * event type.  
  * Exactly the same as `NodeCollection#on()` except the event handler is removed after it executes for the first time.
  * 
  * @function NodeCollection#one
@@ -4869,7 +5042,8 @@ NodeCollectionPrototype.on = callOnEach(NodePrototype.on);
  * @see {@link http://api.jquery.com/one/#one-events-selector-data-handler|.one() | jQuery API Documentation}
  */
 /**
- * Attaches a handler to an event for each node in the collection. The handler is executed at most once per node, per event type.  
+ * Attaches a handler to an event for each node in the collection. The handler is executed at most once per node, per
+ * event type.  
  * Exactly the same as `NodeCollection#on()` except the event handler is removed after it executes for the first time.
  * 
  * @function NodeCollection#one
@@ -4885,7 +5059,8 @@ NodeCollectionPrototype.one = callOnEach(NodePrototype.one);
  * 
  * @function NodeCollection#parent
  * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
- * @returns {NodeCollection} - The set of parents. Unlike the `.parents()` function, this set may include Document and DocumentFragment nodes.
+ * @returns {NodeCollection} - The set of parents. Unlike the `.parents()` function, this
+ *     set may include Document and DocumentFragment nodes.
  */
 NodeCollectionPrototype.parent = function(selector) {
 	var nc = new NodeCollection(),
@@ -4917,7 +5092,7 @@ NodeCollectionPrototype.parents = getGetDirElementsFunc(HTMLElementPrototype.par
  * 
  * @function NodeCollection#parentsUntil
  * @param {String|Element|Node[]} [selector] - A CSS selector, an element, or a collection of nodes used to indicate
- * where to stop matching ancestor elements.
+ *     where to stop matching ancestor elements.
  * @param {String} [filter] - A CSS selector used to filter the returned set of elements.
  * @returns {NodeCollection} - The set of ancestors, sorted in reverse document order.
  */
@@ -4926,8 +5101,9 @@ NodeCollectionPrototype.parentsUntil = getGetDirElementsFunc(HTMLElementPrototyp
 /**
  * Alias of {@link NodeCollection#prependWith} provided for similarity with jQuery.
  * 
- * Note that Firebolt does not define a method called "prepend" for {@link Node}. This is because the DOM Living Standard has defined
- * a native function called `prepend` for the {@link http://dom.spec.whatwg.org/#interface-parentnode|ParentNode Interface} that
+ * Note that Firebolt does not define a method called "prepend" for {@link Node}. This is
+ * because the DOM Living Standard has defined a native function called `prepend` for the
+ * {@link http://dom.spec.whatwg.org/#interface-parentnode|ParentNode Interface} that
  * does not function in the same way as `.prependWith()`.
  * 
  * @function NodeCollection#prepend
@@ -4937,7 +5113,8 @@ NodeCollectionPrototype.parentsUntil = getGetDirElementsFunc(HTMLElementPrototyp
  * Prepends content to the beginning of each element in the collection.
  * 
  * @function NodeCollection#prependWith
- * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or collections of nodes to insert.
+ * @param {...(String|Node|NodeCollection)} content - One or more HTML strings, nodes, or
+ *     collections of nodes to insert.
  * @throws {HierarchyRequestError} The nodes in the collection must implement the {@link ParentNoded} interface.
  */
 NodeCollectionPrototype.prependWith = NodeCollectionPrototype.prepend = getNodeCollectionPutOrWithFunction(prepend);
@@ -4946,13 +5123,15 @@ NodeCollectionPrototype.prependWith = NodeCollectionPrototype.prepend = getNodeC
  * Prepends each node in this collection to the beginning of the specified target(s).
  * 
  * @function NodeCollection#prependTo
- * @param {String|ParentNode|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes to which each node will be prepended.
+ * @param {String|ParentNode|NodeCollection} target - A specific node, collection of nodes, or a selector to find
+ *     a set of nodes to which each node will be prepended.
  * @throws {HierarchyRequestError} The target(s) must implement the {@link ParentNode} interface.
  */
 NodeCollectionPrototype.prependTo = getNodeCollectionPutToOrReplaceAllFunction('prependWith');
 
 /**
- * Get the each node's immediately preceeding sibling element. If a selector is provided, it retrieves the previous sibling only if it matches that selector.
+ * Get the each node's immediately preceeding sibling element. If a selector is provided,
+ * it retrieves the previous sibling only if it matches that selector.
  * 
  * @function NodeCollection#prev
  * @param {String} [selector] - A CSS selector to match the previous sibling against.
@@ -4970,8 +5149,8 @@ NodeCollectionPrototype.prev = getNextOrPrevFunc(previousElementSibling);
 NodeCollectionPrototype.prevAll = getGetDirElementsFunc(HTMLElementPrototype.prevAll, sortRevDocOrder);
 
 /**
- * Gets the preceeding siblings of each node in the collection, up to but not including the elements matched by the selector,
- * DOM node, or node in a collection.
+ * Gets the preceeding siblings of each node in the collection, up to but not including
+ * the elements matched by the selector, DOM node, or node in a collection.
  * 
  * @function NodeCollection#prevUntil
  * @param {String|Element|Node[]} [selector] - A CSS selector, an element, or a collection of nodes used to indicate
@@ -5009,19 +5188,23 @@ NodeCollectionPrototype.prop = getFirstSetEachElement(HTMLElementPrototype.prop,
  * Inserts each node in this collection directly after the specified target(s).
  * 
  * @function NodeCollection#putAfter
- * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes after which each node will be inserted.
- * @throws {TypeError} The target node(s) must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
+ * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find
+ *     a set of nodes after which each node will be inserted.
+ * @throws {TypeError} The target node(s) must have a {@link ParentNode}.
  */
-NodeCollectionPrototype.putAfter = NodeCollectionPrototype.insertAfter = getNodeCollectionPutToOrReplaceAllFunction('afterPut');
+NodeCollectionPrototype.putAfter =
+NodeCollectionPrototype.insertAfter = getNodeCollectionPutToOrReplaceAllFunction('afterPut');
 
 /**
  * Inserts each node in this collection directly before the specified target(s).
  * 
- * @function NodeCollection#insertBefore
- * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes before which each node will be inserted.
- * @throws {TypeError} The target node(s) must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
+ * @function NodeCollection#putBefore
+ * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find
+ *     a set of nodes before which each node will be inserted.
+ * @throws {TypeError} The target node(s) must have a {@link ParentNode}.
  */
-NodeCollectionPrototype.putBefore = NodeCollectionPrototype.insertBefore = getNodeCollectionPutToOrReplaceAllFunction('beforePut');
+NodeCollectionPrototype.putBefore =
+NodeCollectionPrototype.insertBefore = getNodeCollectionPutToOrReplaceAllFunction('beforePut');
 
 /**
  * Removes nodes in the collection from the DOM tree.
@@ -5079,9 +5262,9 @@ NodeCollectionPrototype.remove = function(selector) {
  * Replace the target with the nodes in this collection.
  * 
  * @function NodeCollection#replaceAll
- * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find a set of nodes to be replaced
- * by the nodes in this collection.
- * @throws {TypeError} The target node(s) must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
+ * @param {String|Node|NodeCollection} target - A specific node, collection of nodes, or a selector to find
+ *     a set of nodes to be replaced by the nodes in this collection.
+ * @throws {TypeError} The target node(s) must have a {@link ParentNode}.
  */
 NodeCollectionPrototype.replaceAll = getNodeCollectionPutToOrReplaceAllFunction('replaceWith');
 
@@ -5089,9 +5272,10 @@ NodeCollectionPrototype.replaceAll = getNodeCollectionPutToOrReplaceAllFunction(
  * Replace each node in the collection with some other content.
  * 
  * @function NodeCollection#replaceWith
- * @param {...(String|Node|NodeCollection)} content - A specific node, a collection of nodes, or some HTML to replace each node in the collection.
- * @throws {TypeError|NoModificationAllowedError} The subject collection of nodes must only contain nodes that have a
- * {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
+ * @param {...(String|Node|NodeCollection)} content - A specific node, a collection of nodes,
+ *     or some HTML to replace each node in the collection.
+ * @throws {TypeError|NoModificationAllowedError} The subject collection of nodes must only contain nodes
+ *     that have a {@link ParentNode}.
  */
 NodeCollectionPrototype.replaceWith = getNodeCollectionPutOrWithFunction(replaceWith);
 
@@ -5105,7 +5289,8 @@ NodeCollectionPrototype.replaceWith = getNodeCollectionPutOrWithFunction(replace
  * directly on it (see {@link HTMLElement#serialize}).
  * 
  * @function NodeCollection#serialize
- * @returns {String} A URL-encoded string of the elements' serialized values or an empty string if no element could be successfully serialized.
+ * @returns {String} A URL-encoded string of the elements' serialized values or an empty string if no element
+ *     could be successfully serialized.
  * @throws {TypeError} Each element in the collection must be an HTMLElement.
  * @see HTMLElement#serialize
  * @see {@link http://api.jquery.com/serialize/|.serialize() | jQuery API Documentation}
@@ -5137,7 +5322,7 @@ NodeCollectionPrototype.serialize = function() {
  * @function NodeCollection#siblings
  * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
  * @returns {NodeCollection} The set of siblings, sorted in document order.
- * @throws {TypeError} The target node(s) must have a {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
+ * @throws {TypeError} The target node(s) must have a {@link ParentNode}.
  */
 NodeCollectionPrototype.siblings = getGetDirElementsFunc(HTMLElementPrototype.siblings, sortDocOrder);
 
@@ -5146,10 +5331,11 @@ NodeCollectionPrototype.siblings = getGetDirElementsFunc(HTMLElementPrototype.si
  * 
  * @function NodeCollection#slideDown
  * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
- * @param {String} [easing="swing"] - A string indicating which easing function to use for the transition. The string can be any
- * [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp) or "swing".
+ * @param {String} [easing="swing"] - Indicates which easing function to use for the transition. The string can be any
+ *     [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp)
+ *     or "swing".
  * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
- * refer to the element that was animated.
+ *     refer to the element that was animated.
  */
 
 /**
@@ -5157,10 +5343,11 @@ NodeCollectionPrototype.siblings = getGetDirElementsFunc(HTMLElementPrototype.si
  * 
  * @function NodeCollection#slideToggle
  * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
- * @param {String} [easing="swing"] - A string indicating which easing function to use for the transition. The string can be any
- * [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp) or "swing".
+ * @param {String} [easing="swing"] - Indicates which easing function to use for the transition. The string can be any
+ *     [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp)
+ *     or "swing".
  * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
- * refer to the element that was animated.
+ *     refer to the element that was animated.
  */
 
 /**
@@ -5168,10 +5355,11 @@ NodeCollectionPrototype.siblings = getGetDirElementsFunc(HTMLElementPrototype.si
  * 
  * @function NodeCollection#slideUp
  * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
- * @param {String} [easing="swing"] - A string indicating which easing function to use for the transition. The string can be any
- * [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp) or "swing".
+ * @param {String} [easing="swing"] - Indicates which easing function to use for the transition. The string can be any
+ *     [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp)
+ *     or "swing".
  * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
- * refer to the element that was animated.
+ *     refer to the element that was animated.
  */
 
 /**
@@ -5198,7 +5386,8 @@ NodeCollectionPrototype.siblings = getGetDirElementsFunc(HTMLElementPrototype.si
  * Sets the text content of each node in the list.
  * 
  * @function NodeCollection#text
- * @param {String|*} text - The text or content that will be converted to a string to be set as each nodes' text content.
+ * @param {String|*} text - The text or content that will be converted to a
+ *     string to be set as each nodes' text content.
  */
 NodeCollectionPrototype.text = function(text) {
 	var len = this.length,
@@ -5222,7 +5411,7 @@ NodeCollectionPrototype.text = function(text) {
  * Shows each element in the collection if it is hidden or hides it if it is currently showing.
  * 
  * @function NodeCollection#toggle
- * @param {Boolean} [showOrHide] - A Boolean indicating whether to show or hide the elements (`true` => show, `false` => hide).
+ * @param {Boolean} [showOrHide] - Indicates whether to show or hide the elements (`true` => show, `false` => hide).
  * @see HTMLElement#hide
  * @see HTMLElement#show
  */
@@ -5232,7 +5421,7 @@ NodeCollectionPrototype.text = function(text) {
  * 
  * @function NodeCollection#toggleClass
  * @param {String} className - The class to be toggled for each element in the collection.
- * @param {Boolean} [addOrRemove] - A Boolean indicating whether to add or remove the class (`true` => add, `false` => remove).
+ * @param {Boolean} [addOrRemove] - Indicates whether to add or remove the class (`true` => add, `false` => remove).
  */
 
 /**
@@ -5259,14 +5448,16 @@ NodeCollectionPrototype.toNC = function() {
  * 
  * @function NodeCollection#trigger
  * @param {String} eventType - A string containing a JavaScript event type, such as "click" or "submit".
- * @param {*} extraParameters - Additional parameters that will be passed as the second argument to the triggered event handler(s).
+ * @param {*} extraParameters - Additional parameters that will be passed as the second argument to the
+ *     triggered event handler(s).
  */
 /**
  * Uses the input Event object to trigger the specified event on each node in the collection.
  * 
  * @function NodeCollection#trigger
  * @param {Event} event - An {@link https://developer.mozilla.org/en-US/docs/Web/API/Event | Event} object.
- * @param {*} extraParameters - Additional parameters that will be passed as the second argument to the triggered event handler(s).
+ * @param {*} extraParameters - Additional parameters that will be passed as the second argument to the
+ *     triggered event handler(s).
  */
 NodeCollectionPrototype.trigger = callOnEach(NodePrototype.trigger);
 
@@ -5276,16 +5467,18 @@ NodeCollectionPrototype.trigger = callOnEach(NodePrototype.trigger);
  * @description
  * The `.triggerHandler()` method behaves similarly to `.trigger()`, with the following exceptions:
  * 
- * + The `.triggerHandler()` method does not cause the default behavior of an event to occur (such as a form submission or button click).
+ * + The `.triggerHandler()` method does not cause the default behavior of an event to occur
+ *   (such as a form submission or button click).
  * + While `.trigger()` will operate on all nodes in the collection, `.triggerHandler()` only affects the first node.
- * + Events triggered with `.triggerHandler()` do not bubble up the DOM hierarchy; if they are not handled by the target node directly,
- *   they do nothing.
- * + Instead of returning the node, `.triggerHandler()` returns whatever value was returned by the last handler it caused to be executed.
- *   If no handlers are triggered, it returns `undefined`.
+ * + Events triggered with `.triggerHandler()` do not bubble up the DOM hierarchy;
+ *   if they are not handled by the target node directly, they do nothing.
+ * + Instead of returning the node, `.triggerHandler()` returns whatever value was returned by the
+ *   last handler it caused to be executed. If no handlers are triggered, it returns `undefined`.
  * 
  * @function NodeCollection#triggerHandler
  * @param {String} eventType - A string containing a JavaScript event type, such as "click" or "submit".
- * @param {*} extraParameters - Additional parameters that will be passed as the second argument to the triggered event handler(s).
+ * @param {*} extraParameters - Additional parameters that will be passed as the second argument to the
+ *     triggered event handler(s).
  */
 NodeCollectionPrototype.triggerHandler = function(eventType, extraParameters) {
 	return this[0] && this[0].triggerHandler(eventType, extraParameters);
@@ -5308,8 +5501,9 @@ NodeCollectionPrototype.unwrap = function() {
 };
 
 /**
- * Retrieves the current value of the first element in the collection. If the element is a `<select>` element, `null` is returned if
- * none of its options are selected and an array of selected options is returned if the element's `multiple` attribute is present.
+ * Retrieves the current value of the first element in the collection. If the element is a `<select>` element,
+ * `null` is returned if none of its options are selected, and an array of selected options is returned if the
+ * element's `multiple` attribute is present.
  * 
  * @function NodeCollection#val
  * @returns {String|Array|null} The first element's value.
@@ -5321,13 +5515,15 @@ NodeCollectionPrototype.unwrap = function() {
  * @param {String} value - The value to give to each element.
  */
 /**
- * Checks each element in the collection if its current value is in the input array of values and deselects it otherwise
- * (only `<input>` elements with type `checkbox` or `radio`).  
- * If an element is a `<select>` element, all of its options with a value matching one in the input array of values will be selected
- * and all others deselected. If the select element does not allow multiple selection, only the first matching element is selected.
+ * Checks each element in the collection if its current value is in the input array of values
+ * and deselects it otherwise (only `<input>` elements with type `checkbox` or `radio`).  
+ * If an element is a `<select>` element, all of its options with a value matching one in the
+ * input array of values will be selected and all others deselected. If the `<select>` element
+ * does not allow multiple selection, only the first matching element is selected.
  * 
  * @function NodeCollection#val
- * @param {String[]} values - The array of values used to determine if each element (or its options) should be checked (or selected).
+ * @param {String[]} values - The array of values used to determine if each element (or its options)
+ *     should be checked (or selected).
  */
 NodeCollectionPrototype.val = function(value) {
 	// Get first
@@ -5397,7 +5593,8 @@ NodeCollectionPrototype.wrapWith = function(wrappingElement) {
  * @classdesc
  * The HTML DOM NodeList interface. Represents a collection of DOM Nodes.
  * 
- * NodeLists have <u>almost</u> the exact same API as {@link NodeCollection}, so there are a few caveats to take note of:
+ * NodeLists have <u>almost</u> the exact same API as {@link NodeCollection},
+ * so there are a few caveats to take note of:
  * 
  * <u>__1.__</u>
  * Unlike NodeCollections, NodeLists are immutable and therefore do not have any of the following functions:
@@ -5441,7 +5638,7 @@ NodeCollectionPrototype.wrapWith = function(wrappingElement) {
  * This is because these functions will or may alter live NodeLists, as seen in this example:
  * 
  * ```javascript
- * var blueThings = $CLS('blue');  // If you're unfamiliar with Firebolt, $CLS is Firebolt's alias for document.getElementsByClassName
+ * var blueThings = $CLS('blue');  // ($CLS is Firebolt's alias for document.getElementsByClassName)
  * console.log(blueThings.length); // -> 10 (for example)
  * 
  * var ncBlueThings = blueThings.removeClass('blue');
@@ -5472,10 +5669,11 @@ NodeCollectionPrototype.wrapWith = function(wrappingElement) {
  * with the added benefits of being mutable and static (not live).
  * 
  * <u>__4.__</u>
- * Passing a NodeList (or HTMLCollection) as a parameter to the `NodeCollection#concat()` function will add the NodeList itself to
- * the collection instead of merging in its elements. This is because NodeLists and HTMLCollections don't directly inherit from
- * NodeCollection/Array (they are merely given some of their functions), so they are treated as objects instead of arrays. A simple
- * way to fix this is to call `.toNC()` on the NodeList/HTMLCollection when passing it as a parameter to `concat` like so:
+ * Passing a NodeList (or HTMLCollection) as a parameter to the `NodeCollection#concat()` function will add
+ * the NodeList itself to the collection instead of merging in its elements. This is because NodeLists and
+ * HTMLCollections don't directly inherit from NodeCollection/Array (they are merely given some of their
+ * functions), so they are treated as objects instead of arrays. A simple way to fix this is to call
+ * `.toNC()` on the NodeList/HTMLCollection when passing it as a parameter to `concat` like so:
  * 
  * ```javascript
  * var nodes = $QSA('div.special'),
@@ -5486,17 +5684,19 @@ NodeCollectionPrototype.wrapWith = function(wrappingElement) {
  * 
  * @class NodeList
  * @see NodeCollection
- * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/NodeList | NodeList - Web API Interfaces | MDN}
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/NodeList|NodeList - Web API Interfaces | MDN}
  */
 
 /* Give NodeLists and HTMLCollections many of the same prototype functions as NodeCollections */
 Object.getOwnPropertyNames(NodeCollectionPrototype)
-	.diff('clear length pop push shift splice unshift'.split(' ')) // These properties should not be added to the NodeList prototype
+	.diff('clear length pop push shift splice unshift'.split(' ')) // These properties should not be added
 	.forEach(function(methodName) {
 		if (!NodeListPrototype[methodName]) {
 			var method = NodeCollectionPrototype[methodName];
-			HTMLCollectionPrototype[methodName] = NodeListPrototype[methodName] = rgxDifferentNL.test(methodName) ? function() {
-				return method.apply(ncFrom(this), arguments); // Convert to a NodeCollection first, then apply the method
+
+			HTMLCollectionPrototype[methodName] = NodeListPrototype[methodName] =
+			rgxDifferentNL.test(methodName) ? function() {
+				return method.apply(ncFrom(this), arguments); // Convert to a NodeCollection, then apply the method
 			} : method; // Else directly copy the method
 		}
 	});
@@ -5544,12 +5744,14 @@ NodeListPrototype.uniq = HTMLCollectionPrototype.uniq = NodeCollectionPrototype.
  */
 
 /**
- * Returns a string representation of the number padded with leading 0s so that the string's length is at least equal to length.
- * Takes an optional radix argument which specifies the base to use for conversion.
+ * Returns a string representation of the number padded with leading 0s so that
+ * the string's length is at least equal to length. Takes an optional radix
+ * argument which specifies the base to use for conversion.
  * 
  * @function Number#toPaddedString
  * @param {Number} length - The minimum length for the resulting string.
- * @param {Number} [radix=10] - Defines which base to use for representing the numeric value. Must be an integer between 2 and 36.
+ * @param {Number} [radix=10] - Defines which base to use for representing the numeric value.
+ *     Must be an integer between 2 and 36.
  * @example
  * (255).toPaddedString(4);     // "0255"
  * (255).toPaddedString(4, 16); // "00ff"
@@ -5655,7 +5857,8 @@ prototypeExtensions = {
 	},
 
 	/**
-	 * HTML-encodes the string by converting HTML special characters to their entity equivalents and returns the result.
+	 * HTML-encodes the string by converting HTML special characters to their
+	 * entity equivalents and returns the result.
 	 * 
 	 * @example
 	 * '<img src="//somesite.com" />'.escapeHTML();  // -> '&lt;img src="//somesite.com" /&gt;'
@@ -5681,7 +5884,8 @@ prototypeExtensions = {
 	},
 
 	/**
-	 * HTML-decodes the string by converting entities of HTML special characters to their normal form and returns the result.
+	 * HTML-decodes the string by converting entities of HTML special
+	 * characters to their normal form and returns the result.
 	 * 
 	 * @example
 	 * '&lt;img src="//somesite.com" /&gt;'.unescapeHTML();  // -> '<img src="//somesite.com" />'
@@ -5797,9 +6001,9 @@ definePrototypeExtensionsOn(StringPrototype, prototypeExtensions);
 
 //#region ========================= Browser Fixes ============================
 
-// Fix the `nextElementSibling` and `previousElementSibling` properties for ChildNodes in browsers than only support them on Elements
 if (Firebolt.text()[nextElementSibling] === _undefined) {
-
+	// Fix the `nextElementSibling` and `previousElementSibling` properties for ChildNodes
+	// in browsers than only support them on Elements
 	[CharacterData[prototype], DocumentType[prototype]].forEach(function(proto) {
 		defineProperty(proto, nextElementSibling, {
 			get: function() {
@@ -5816,21 +6020,19 @@ if (Firebolt.text()[nextElementSibling] === _undefined) {
 			}
 		});
 	});
-
 }
 
-// Fix the parentElement property for Nodes in browsers than only support it on Element
 if (document.parentElement === _undefined) {
-
+	// Fix the parentElement property for Nodes in browsers than only support it on Element
 	defineProperty(NodePrototype, 'parentElement', {
 		get: function() {
 			var parent = this.parentNode;
 			return parent && isNodeElement(parent) ? parent : null;
 		}
 	});
-
 }
 
 //#endregion Browser Compatibility and Speed Boosters
 
-})(self, document, Array, Object, decodeURIComponent, encodeURIComponent, getComputedStyle, parseFloat, setTimeout, clearTimeout); //self === window
+})(self, document, Array, Object, decodeURIComponent, encodeURIComponent,
+   getComputedStyle, parseFloat, setTimeout, clearTimeout);
