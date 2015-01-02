@@ -37,7 +37,10 @@ window.readyTestVal = 0;
 Firebolt.ready(function() {
 	window.readyTestVal = 1;
 });
-if (window.readyTestVal !== 0) {
+Firebolt.ready(function() {
+	window.readyTestVal2 = window.readyTestVal === 1;
+});
+if (window.readyTestVal !== 0 || ('readyTestVal2' in window)) {
 	QUnit.test('Firebolt.ready()', function(assert) {
 		assert.ok(false, 'A function passed to Firebolt.ready() was called before the document became ready!');
 	});

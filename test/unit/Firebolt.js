@@ -535,9 +535,11 @@ QUnit.test('parseHTML', function(assert) {
 });
 
 QUnit.test('ready', function(assert) {
-	assert.expect(2);
+	assert.expect(3);
 
-	assert.strictEqual(window.readyTestVal, 1, 'The test value is changed to 1 when the page is ready.');
+	assert.strictEqual(window.readyTestVal, 1, 'Calls a callback when the page is ready.');
+
+	assert.strictEqual(window.readyTestVal2, true, 'Calls multiple callbacks in order when the page is ready.');
 
 	Firebolt.ready(function() {
 		window.readyTestVal = 2;
