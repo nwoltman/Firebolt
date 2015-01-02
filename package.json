@@ -33,7 +33,8 @@
     "grunt-jsonlint": "1.0.4",
     "grunt-saucelabs": "8.4.1",
     "gzip-js": "0.3.2",
-    "load-grunt-tasks": "2.0.0"
+    "load-grunt-tasks": "2.0.0",
+    "qunitjs": "1.16.0"
   },
   "scripts": {
     "build": "npm install && grunt build",
