@@ -125,7 +125,7 @@ module.exports = function(grunt) {
 
     uglify: {
       options: {
-        banner: '/*! Firebolt v<%= pkg.version %> | (c)2014 Nathan Woltman | fireboltjs.com/license */',
+        banner: '/*! Firebolt v<%= pkg.version %> | (c)2014-2015 Nathan Woltman | fireboltjs.com/license */',
         sourceMap: true,
         sourceMapName: 'dist/firebolt.min.map'
       },
