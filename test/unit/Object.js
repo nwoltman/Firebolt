@@ -3,7 +3,7 @@
  */
 
 // References for Resharper
-/// <reference path="../qunit/qunit.js"/>
+/// <reference path="../node_modules/qunitjs/qunit/qunit.js"/>
 /// <reference path="../../src/firebolt.js"/>
 
 QUnit.module('Object');
