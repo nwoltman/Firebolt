@@ -52,6 +52,7 @@ if (window.readyTestVal !== 0 || ('readyTestVal2' in window)) {
 	'AJAX',
 	'Element',
 	'Firebolt',
+	'Function',
 	'NodeCollection',
 	'NodeList',
 	'Number',
