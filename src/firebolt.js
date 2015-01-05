@@ -2527,12 +2527,12 @@ Firebolt.text = function(text) {
  * window.alert.delay(2000, ['alert!']); // Waits 2 seconds, then opens an alert that says "alert!"
  * 
  * @example <caption>Set a timeout for a function but cancel it before it can be called:</caption>
- * var callbackObject = window.alert.delay(2000, ['alert!']); // Sets the alert to be called in 2 seconds
- *                                                            // and saves a reference to the returned object
- * callbackObject.callback === window.alert; // -> true (just to show what `callback` in the callback object is set to)
+ * var ref = window.alert.delay(2000, ['alert!']); // Sets the alert to be called in 2 seconds and
+ *                                                 // saves a reference to the returned object
+ * ref.fn === window.alert; // -> true (just to show what `fn` in the reference object is set to)
  * 
  * //----- Before 2 seconds ellapses -----
- * callbackObject.cancel(); // Prevents the alert function from being called
+ * ref.cancel(); // Prevents the alert function from being called
  * 
  * @function Function#delay
  * @param {Number} delay - The number of milliseconds to wait before calling the functions.
@@ -2541,13 +2541,31 @@ Firebolt.text = function(text) {
  *     the function. Defaults to the object returned by this function. If `thisArg` is an Array, `args`
  *     must be present (but may be `null`).
  * @returns {Object} An object with the following properties:
- * + `callback` - The function this method was called upon.
- * + `hasExecuted` - A Boolean, initialized to `false`, that is set to `true` when the delayed function executes.
- * + `execute` - A function that, when called, will execute the function immediately and cancel the
- *   timeout so it is not called again by the browser. To prevent the timeout from being cancelled,
- *   call this function with the parameter `false`.
- * + `cancel` - A function that, when called, will cancel the timeout to prevent the function from
- *   being executed (if it hasn't been already).
+ *     <dl>
+ *       <dt>fn</dt>
+ *       <dd>
+ *         Type: {@link Function}<br>
+ *         The function on which this method was called.
+ *       </dd>
+ *       <dt>hasExecuted</dt>
+ *       <dd>
+ *         Type: Boolean<br>
+ *         A Boolean, initialized to `false`, that is set to `true` when the delayed function executes.
+ *       </dd>
+ *       <dt>exec</dt>
+ *       <dd>
+ *         Type: {@link Function}(Boolean cancel)<br>
+ *         A function that, when called, will execute the function immediately and cancel the timeout
+ *         so it is not called again by the browser. To prevent the timeout from being cancelled,
+ *         call this function with the parameter `false`.
+ *       </dd>
+ *       <dt>cancel</dt>
+ *       <dd>
+ *         Type: {@link Function}<br>
+ *         A function that, when called, will cancel the timeout to prevent the function from
+ *         being executed (if it hasn't been already).
+ *       </dd>
+ *     </dl>
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Window.setTimeout|window.setTimeout - Web API Interfaces | MDN}
  */
 
@@ -2559,11 +2577,12 @@ Firebolt.text = function(text) {
  *     console.log('stuff');
  * }
  * 
- * var callbackObject = logStuff.every(2000); // Logs "stuff" to the console and every 2 seconds
- * callbackObject.callback === logStuff;      // -> true (just to show what `callback` in the callback object is set to)
+ * var ref = logStuff.every(2000); // Logs "stuff" to the console and every 2 seconds
+ *                                 // and saves a reference to the returned object
+ * ref.fn === logStuff; // -> true (just to show what `fn` in the reference object is set to)
  * 
  * //----- Later -----
- * callbackObject.clear();  // Stops the logging calls
+ * ref.cancel(); // Stops the logging calls
  * 
  * @function Function#every
  * @param {Number} delay - The number of milliseconds to wait between function calls.
@@ -2572,12 +2591,30 @@ Firebolt.text = function(text) {
  *     the function. Defaults to the object returned by this function. If `thisArg` is an Array, `args`
  *     must be present (but may be `null`).
  * @returns {Object} An object with the following properties:
- * + `callback` - The function this method was called upon.
- * + `hasExecuted` - A Boolean, inialized to `false`, that is set to `true` each time the function executes.
- * + `execute` - A function that, when called, will execute the function immediately and cancel the
- *   interval so the function will stop being called. To prevent the interval from being cancelled,
- *   call this function with the parameter `false`.
- * + `cancel` - A function that, when called, will cancel the interval so the function will stop being called.
+ *     <dl>
+ *       <dt>fn</dt>
+ *       <dd>
+ *         Type: {@link Function}<br>
+ *         The function on which this method was called.
+ *       </dd>
+ *       <dt>hasExecuted</dt>
+ *       <dd>
+ *         Type: Boolean<br>
+ *         A Boolean, inialized to `false`, that is set to `true` each time the function executes.
+ *       </dd>
+ *       <dt>exec</dt>
+ *       <dd>
+ *         Type: {@link Function}(Boolean cancel)<br>
+ *         A function that, when called, will execute the function immediately and cancel the interval
+ *         so the function will stop being called. To prevent the interval from being cancelled, call
+ *         this function with the parameter `false`.
+ *       </dd>
+ *       <dt>cancel</dt>
+ *       <dd>
+ *         Type: {@link Function}<br>
+ *         A function that, when called, will cancel the interval so the function will stop being called.
+ *       </dd>
+ *     </dl>
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Window.setInterval|window.setInterval - Web API Interfaces | MDN}
  */
 
@@ -2586,29 +2623,28 @@ Firebolt.text = function(text) {
  */
 function getTimingFunction(setTiming, clearTiming) {
 	return function(delay, args, thisArg) {
-		var
-			fn = this,
+		var fn = this;
 
-			callback = function() {
-				fn.apply(thisArg, args);
-				callbackObject.hasExecuted = true;
-			},
+		var callback = function() {
+			fn.apply(thisArg, args);
+			callbackObject.hasExecuted = true;
+		};
 
-			clearRef = setTiming(callback, delay),
+		var clearRef = setTiming(callback, delay);
 
-			callbackObject = {
-				callback: fn,
-				hasExecuted: false,
-				execute: function(cancel) {
-					if (cancel !== false) {
-						clearTiming(clearRef);
-					}
-					callback();
-				},
-				cancel: function() {
+		var callbackObject = {
+			fn: fn,
+			hasExecuted: false,
+			exec: function(cancel) {
+				if (cancel !== false) {
 					clearTiming(clearRef);
 				}
-			};
+				callback();
+			},
+			cancel: function() {
+				clearTiming(clearRef);
+			}
+		};
 
 		thisArg = thisArg || !isArray(args) && args || callbackObject;
 
