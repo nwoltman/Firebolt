@@ -9,16 +9,12 @@
 QUnit.module('Function.prototype');
 
 QUnit.test('delay', function(assert) {
-	assert.expect(17);
+	assert.expect(16);
 
 	var args = ['a', 2, {arg: 3}];
 
 	var done1 = assert.async();
-	var then = Date.now();
 	var ref1 = (function fn() {
-		var elapsed = Date.now() - then;
-		assert.ok(Math.abs(elapsed - 50) < 18, 'Delays the function approximately the specified amount of time');
-
 		assert.deepEqual(Array.from(arguments), args,
 			'Applies the specified arguments to the function when `thisArg` is not specified.');
 
