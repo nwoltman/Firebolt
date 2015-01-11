@@ -4359,11 +4359,12 @@ NodePrototype.replaceWith = getNodePutOrWithFunction(replaceWith);
  * Removes this node from the DOM.
  * 
  * @function Node#remove
- * @returns void (`undefined`)
+ * @returns `undefined`
  */
 NodePrototype.remove = function() {
-	if (this.parentNode) {
-		this.parentNode.removeChild(this);
+	var parent = this.parentNode;
+	if (parent) {
+		parent.removeChild(this);
 	}
 };
 
