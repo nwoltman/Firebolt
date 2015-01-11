@@ -10,9 +10,12 @@ QUnit.module('Firebolt');
 
 QUnit.test('Firebolt', function(assert) {
 	var selectors = {
-		ID: '#qunit',
+		id: '#qunit',
+		nonExistantId: '#fake',
 		tagName: 'div',
+		nonExistantTagName: 'fake',
 		className: '.class1',
+		nonExistantClassName: '.fake',
 		multipleClassNames: '.class1.first',
 		attribute: '[src]',
 		randomQuerySelector: 'body > div, script'
@@ -34,7 +37,7 @@ QUnit.test('Firebolt', function(assert) {
 		var expected = document.querySelectorAll(selector);
 
 		assert.ok(result instanceof NodeCollection,
-			'Returns a NodeCollections when selecting elements by ' + selectorType + '.');
+			'Returns a NodeCollection when selecting elements by ' + selectorType + '.');
 
 		assert.ok(arrayLikesAreEqual(result, expected), 'Correctly selects elements by ' + selectorType + '.');
 	}
