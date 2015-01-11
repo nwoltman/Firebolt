@@ -89,7 +89,7 @@ module.exports = function(grunt) {
       full: {
         options: {
           browsers: sauceBrowsers,
-          build: process.env.TRAVIS_JOB_ID,
+          build: Date.now(), // Use `Date.now()` instead of `process.env.TRAVIS_JOB_ID` so every build run is unique
           concurrency: 3,
           tags: ['master', 'full'],
           testname: 'Firebolt QUnit full test',
