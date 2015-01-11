@@ -12,8 +12,9 @@ module.exports = function (grunt) {
 
     // Delete all files in the dist folder
     fs.readdirSync('dist').forEach(function(file) {
-      fs.unlink('dist/' + file);
+      fs.unlinkSync('dist/' + file);
     });
+
     grunt.log.ok('Cleaned dist folder.');
   });
 
