@@ -55,7 +55,7 @@ if (window.readyTestVal !== 0 || ('readyTestVal2' in window)) {
 	'Function',
 	'Globals',
 	'NodeCollection',
-	'NodeList',
+	'NodeList_HTMLCollection',
 	'Number',
 	'Object',
 	'String'
