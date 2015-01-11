@@ -21,6 +21,32 @@ QUnit.test('$$', function(assert) {
 		'Acts as an alias for document.getElementById');
 });
 
+QUnit.test('$1', function(assert) {
+	var selectors = {
+		id: '#qunit',
+		nonExistantId: '#fake',
+		tagName: 'div',
+		nonExistantTagName: 'fake',
+		className: '.class1',
+		nonExistantClassName: '.fake',
+		multipleClassNames: '.class1.first',
+		attribute: '[src]',
+		randomQuerySelector: 'body > div, script'
+	};
+
+	for (var selectorType in selectors) {
+		var selector = selectors[selectorType];
+		var result = window.$1(selector);
+		var expected = document.querySelector(selector);
+
+		assert.equal(result, expected, 'Correctly selects an element by ' + selectorType + '.');
+	}
+
+	var element = window.$1('<div>content</div><p>hmm<span>col</span></p>');
+	assert.ok(element instanceof HTMLDivElement && element.parentNode === null,
+		'Creates a single element when the first character in the string is a "<".');
+});
+
 QUnit.test('$CLS', function(assert) {
 	assert.equal(window.$CLS('class1'), document.getElementsByClassName('class1'),
 		'Acts as an alias for document.getElementsByClassName');
