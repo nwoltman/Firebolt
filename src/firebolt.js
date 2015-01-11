@@ -1,6 +1,6 @@
 /*!
  * Firebolt core file
- * @version 0.11.0
+ * @version 0.12.0
  * @author Nathan Woltman
  * @copyright 2014-2015 Nathan Woltman
  * @license MIT https://github.com/woollybogger/Firebolt/blob/master/LICENSE.txt
@@ -1397,16 +1397,11 @@ ElementPrototype.removeProp = function(propertyName) {
  * Returns a list of the elements either found in the DOM that match the passed in CSS selector or
  * created by passing an HTML string.
  * 
- * __Note #1:__ Unlike jQuery, only a document may be passed as the `context` variable. This is
- * because there are several ways to select elements with an element as the root for the selection.
- * Check out the {@link Element} interface and look at functions like {@linkcode Element#find|.find()},
- * {@linkcode Element#QSA|.QSA()}, {@linkcode Element#TAG|.TAG()}, etc.
+ * __Note #1:__ This function will only consider the input string an HTML string if the first character of the
+ * string is the opening tag character ("<"). If you want to parse an HTML string that does not begin with
+ * "<", use {@linkcode Firebolt.parseHTML|$.parseHTML()});
  * 
- * __Note #2:__ This function will only consider the input string an HTML string if the first character of the
- * string is the opening tag character (`<`). If you want to parse an HTML string that does not begin with an
- * element, use {@linkcode Firebolt.parseHTML|$.parseHTML()});
- * 
- * __Note #3:__ Since Firebolt does not use Sizzle as a CSS selector engine, only standard CSS selectors may be used.
+ * __Note #2:__ Since Firebolt does not use Sizzle as a CSS selector engine, only standard CSS selectors may be used.
  * 
  * __ProTip:__ When creating a single element, it's a better idea to use the {@linkcode Firebolt.elem|$.elem()}
  * function since it maps directly to the native `document.createElement()` function (making it much faster) and
@@ -1415,25 +1410,20 @@ ElementPrototype.removeProp = function(propertyName) {
  * @example
  * Firebolt('div, span');   // Returns a NodeCollection of all div and span elements
  * $('button.btn-success'); // Returns a NodeCollection of all button elements with the class "btn-success"
- * $('<p>content</p><br>'); // Creates DOM nodes and returns them in a NodeCollection (in this case [<p>content</p>, <br>])
+ * $('<p>content</p><br>'); // Creates DOM nodes and returns them in a NodeCollection ([<p>content</p>, <br>])
  * $.elem('div');           // Calls Firebolt's method to create a new div element 
  * 
  * @global
  * @variation 2
  * @function Firebolt
  * @param {String} string - A CSS selector string or an HTML string.
- * @param {ParentNode} [context=document] - A node to serve as the context when selecting or creating elements.
- *     Only a DOM Document may be used as the `context` argument when creating elements.
  * @returns {NodeCollection} A NodeCollection of selected elements or newly created elements.
  * @throws {SyntaxError} When the passed in string is not an HTML string (does not start with the "<" character)
  *     and is an invalid CSS selector.
  */
-function Firebolt(selector, context) {
+function Firebolt(selector) {
 	var firstChar = selector[0];
-
-	if (context) {
-		return firstChar === '<' ? parseHTML(selector, context, 1) : ncFrom(context.querySelectorAll(selector));
-	}
+	var nc, el; // Used in selecting elements by ID
 
 	if (firstChar === '.') { // Check for a single class name
 		if (!rgxNotClass.test(selector)) {
@@ -1441,14 +1431,14 @@ function Firebolt(selector, context) {
 		}
 	} else if (firstChar === '#') { // Check for a single ID
 		if (!rgxNotId.test(selector)) {
-			context = new NodeCollection(); // Use the unused context argument to be the NodeCollection
-			if (selector = getElementById(selector.slice(1))) { // Reuse the selector argument to be the element
-				context[0] = selector;
+			nc = new NodeCollection();
+			if (el = getElementById(selector.slice(1))) {
+				nc[0] = el;
 			}
-			return context;
+			return nc;
 		}
 	} else if (firstChar === '<') { // Check if the string is a HTML string
-		return parseHTML(selector, document, 1); // Pass in 1 to tell parseHTML to detach the nodes from their parent
+		return parseHTML(selector);
 	} else if (!rgxNotTag.test(selector)) { // Check for a single tag name
 		return ncFrom(getElementsByTagName(selector));
 	}
@@ -2150,7 +2140,9 @@ function createFragment() {
 			fragment.appendChild(item);
 		} else {
 			if (typeofString(item)) {
-				item = parseHTML(item);
+				// Pass in the 1 to tell parseHTML it doesn't need to detach the returned nodes
+				// from their creation container (because this function will do that)
+				item = parseHTML(item, document, 0, 1);
 			}
 
 			if (len = item.length) {
@@ -2371,10 +2363,12 @@ function serialize(obj, prefix, traditional) {
  * @function Firebolt.parseHTML
  * @param {String} html - HTML string to be parsed.
  * @param {Document} [context=document] - A DOM Document to serve as the context in which the nodes will be created.
- * @returns {NodeCollection} The collection of created nodes.
+ * @param {Boolean} [single] - If truthy, returns only a single Node instead of a NodeCollection. If this parameter
+ *     is specified, you must also pass in a value for `context` (but it can just be falsy to use the default value).
+ * @returns {NodeCollection|Node} The collection of created nodes (or single Node if `single` was truthy).
  */
 Firebolt.parseHTML = parseHTML;
-function parseHTML(html, context, detachNodes, single) {
+function parseHTML(html, context, single, /*INTERNAL*/ doNotDetachNodes) {
 	var elem;
 	context = context || document;
 
@@ -2407,7 +2401,7 @@ function parseHTML(html, context, detachNodes, single) {
 
 	html = elem.childNodes;
 
-	return detachNodes ? ncFrom(html).remove() : html;
+	return doNotDetachNodes ? html : ncFrom(html).remove();
 }
 
 /**
@@ -2710,18 +2704,12 @@ Firebolt._GET(); // Just call the function to update the global $_GET object
  * @global
  * @function $1
  * @param {String} string - A CSS selector string or an HTML string.
- * @param {ParentNode} [context=document] - A node to serve as the context when selecting or creating elements.
- *     Only a DOM Document may be used as the `context` argument when creating elements.
  * @returns {?Element} - The selected element (or `null` if no element matched the selector) or the created element.
  * @throws {SyntaxError} When the passed in string is not an HTML string (does not start with the "<" character)
  *     and is an invalid CSS selector.
  */
-window.$1 = function(selector, context) {
+window.$1 = function(selector) {
 	var firstChar = selector[0];
-
-	if (context) {
-		return firstChar === '<' ? parseHTML(selector, context, 1, 1) : context.querySelector(selector);
-	}
 
 	if (firstChar === '.') { // Check for a single class name
 		if (!rgxNotClass.test(selector)) {
@@ -2732,7 +2720,7 @@ window.$1 = function(selector, context) {
 			return getElementById(selector.slice(1));
 		}
 	} else if (firstChar === '<') { // Check if the string is a HTML string
-		return parseHTML(selector, document, 1, 1); // The second 1 tells parseHTML to return only one node
+		return parseHTML(selector, document, 1); // The 1 tells parseHTML to return only one node
 	} else if (!rgxNotTag.test(selector)) { // Check for a single tag name
 		return getElementsByTagName(selector)[0];
 	}

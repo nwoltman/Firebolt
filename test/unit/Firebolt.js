@@ -8,6 +8,42 @@
 
 QUnit.module('Firebolt');
 
+QUnit.test('Firebolt', function(assert) {
+	var selectors = {
+		ID: '#qunit',
+		tagName: 'div',
+		className: '.class1',
+		multipleClassNames: '.class1.first',
+		attribute: '[src]',
+		randomQuerySelector: 'body > div, script'
+	};
+
+	function arrayLikesAreEqual(a, b) {
+		if (a.length !== b.length) return false;
+
+		for (var i = 0; i < a.length; i++) {
+			if (a[i] !== b[i]) return false;
+		}
+
+		return true;
+	}
+
+	for (var selectorType in selectors) {
+		var selector = selectors[selectorType];
+		var result = Firebolt(selector);
+		var expected = document.querySelectorAll(selector);
+
+		assert.ok(result instanceof NodeCollection,
+			'Returns a NodeCollections when selecting elements by ' + selectorType + '.');
+
+		assert.ok(arrayLikesAreEqual(result, expected), 'Correctly selects elements by ' + selectorType + '.');
+	}
+
+	var elements = Firebolt('<div>content</div><p>hmm<span>col</span></p>');
+	assert.ok(elements[0] instanceof HTMLDivElement && elements[0].parentNode === null,
+		'Creates elements when the first character in the string is a "<".');
+});
+
 QUnit.test('_GET', function(assert) {
 	/* global $_GET */
 	assert.strictEqual(Firebolt._GET(), $_GET, 'Creates and returns the global $_GET object.');
@@ -525,13 +561,21 @@ QUnit.test('parseHTML', function(assert) {
 
 	elements = Firebolt.parseHTML('<p>para</p><br/>', iframe.contentDocument);
 	assert.ok(elements.length === 2
-		&& elements[0].ownerDocument === iframe.contentDocument
-		&& elements[1].ownerDocument === iframe.contentDocument,
+	          && elements[0].ownerDocument === iframe.contentDocument
+	          && elements[1].ownerDocument === iframe.contentDocument,
 		'Can make multiple elements in the context of another document.');
 
 	element = Firebolt.parseHTML('<script>window.parseHTMLTestVal=9</script>')[0];
 	fixture.appendChild(element);
 	assert.ok(window.parseHTMLTestVal != 9, 'Created scripts are not evaluated.');
+
+	assert.ok(Firebolt.parseHTML('<div>content</div><p><br></p>', null, true) instanceof HTMLDivElement,
+		'Returns a single node when the `single` parameter is truthy.');
+
+	element = Firebolt.parseHTML('<p>para</p>random text', iframe.contentDocument, 1);
+	assert.ok(element instanceof iframe.contentWindow.HTMLParagraphElement
+	          && element.ownerDocument === iframe.contentDocument,
+		'Can make and return a single node in the context of another document.');
 });
 
 QUnit.test('ready', function(assert) {
