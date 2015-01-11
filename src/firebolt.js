@@ -5428,7 +5428,7 @@ NodeCollectionPrototype.remove = function(selector) {
 	var nodes = selector ? this.filter(selector) : this,
 		i = 0;
 	for (; i < nodes.length; i++) {
-		nodes[i].remove();
+		NodePrototype.remove.call(nodes[i]);
 	}
 
 	return this;
