@@ -53,6 +53,7 @@ if (window.readyTestVal !== 0 || ('readyTestVal2' in window)) {
 	'Element',
 	'Firebolt',
 	'Function',
+	'Globals',
 	'NodeCollection',
 	'NodeList',
 	'Number',
