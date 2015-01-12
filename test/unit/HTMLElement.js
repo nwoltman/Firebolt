@@ -46,3 +46,45 @@ QUnit.test('addClass', function(assert) {
 		assert.equal(element.className, test.expectedResult, '#' + (i + 1));
 	}
 });
+
+QUnit.test('removeClass', function(assert) {
+	var element = document.createElement('div');
+	var tests = [
+		// #1
+		{originalClass: '', classToRemove: 'class', expectedResult: ''},
+
+		// #2
+		{originalClass: 'class', classToRemove: 'class', expectedResult: ''},
+
+		// #3
+		{originalClass: 'one two', classToRemove: 'one', expectedResult: 'two'},
+
+		// #4
+		{originalClass: 'one two', classToRemove: 'two', expectedResult: 'one'},
+
+		// #5
+		{originalClass: 'one two', classToRemove: 'three', expectedResult: 'one two'},
+
+		// #6
+		{originalClass: 'one two', classToRemove: 'two three', expectedResult: 'one'},
+
+		// #7
+		{originalClass: 'one two', classToRemove: 'three one', expectedResult: 'two'},
+
+		// #8
+		{originalClass: 'one two', classToRemove: 'one two', expectedResult: ''},
+
+		// #9
+		{originalClass: 'one two', classToRemove: 'two one', expectedResult: ''},
+
+		// #10
+		{originalClass: 'one two', classToRemove: 'three four', expectedResult: 'one two'}
+	];
+
+	for (var i = 0; i < tests.length; i++) {
+		var test = tests[i];
+		element.className = test.originalClass;
+		element.removeClass(test.classToRemove);
+		assert.equal(element.className, test.expectedResult, '#' + (i + 1));
+	}
+});
