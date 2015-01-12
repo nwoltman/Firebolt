@@ -2824,16 +2824,7 @@ window.$NAME = function(name) {
  */
 
 /**
- * @summary Adds the specified class(es) to the element.
- * 
- * @description
- * __Note:__ Unlike jQuery, the format of the space-separated classes required by Firebolt is strict.
- * Each class must name be separated by only a single space character and there cannot be whitespace
- * at the beginning or end of the string.
- * ```javascript
- * element.addClass('one  two').removeClass('three '); // Bad syntax
- * element.addClass('one two').removeClass('three');   // Correct syntax
- * ```
+ * Adds the specified class(es) to the element.
  * 
  * @function HTMLElement#addClass
  * @param {String} className - One or more classes separated by a single space to be
@@ -2846,14 +2837,22 @@ HTMLElementPrototype.addClass = function(value) {
 		// Only need to determine which classes should be added if this element's className has a value
 		if (this.className) {
 			var newClasses = value.split(' '),
-				i = 0;
+				changed = 0,
+				i = 0,
+				clazz;
 
 			value = this.className; // Reuse the value argument to build the new class name
 
 			for (; i < newClasses.length; i++) {
-				if (!this.hasClass(newClasses[i])) {
-					value += ' ' + newClasses[i];
+				clazz = newClasses[i];
+				if (clazz && !this.hasClass(clazz)) {
+					value += ' ' + clazz;
+					changed = 1;
 				}
+			}
+
+			if (!changed) { // Avoid DOM manipulation if the class name will not be changed
+				return this;
 			}
 		}
 
@@ -3291,10 +3290,10 @@ HTMLElementPrototype.finish = function() {
  * @param {String} className - A string containing a single class name.
  * @returns {Boolean} `true` if the class name is in the element's class list; else `false`.
  */
-HTMLElementPrototype.hasClass = iframe.classList ? (iframe.classList.add('a', 'b'),
+HTMLElementPrototype.hasClass = iframe.classList ?
 	function(className) {
 		return this.classList.contains(className);
-	})
+	}
 	: function(className) { // A function for browsers that don't support the `classList` property
 		return new RegExp('(?:^|\\s)' + className + '(?:\\s|$)').test(this.className);
 	};
@@ -3396,53 +3395,38 @@ HTMLElementPrototype.offset = function(coordinates) {
 HTMLElementPrototype.prependWith = getHTMLElementAfterPutOrPrependWith('afterbegin', prepend);
 
 /**
- * @summary Removes the specified class(es) or all classes from the element.
- * 
- * @description
- * __Note:__ Unlike jQuery, the format of the space-separated classes required by Firebolt is strict.
- * Each class must be separated by only a single space character and there cannot be whitespace at
- * the beginning or end of the string.
- * ```javascript
- * element.addClass('one  two').removeClass('three '); // Bad syntax
- * element.addClass('one two').removeClass('three');   // Correct syntax
- * ```
+ * Removes the specified class(es) or all classes from the element.
  * 
  * @function HTMLElement#removeClass
  * @param {String} [className] - One or more classes separated by a single space
  *     to be removed from the element's class attribute.
  */
-HTMLElementPrototype.removeClass = iframe.className.length !== 3 || webkitNotIOS ?
-	// Browser compatibility (IE and other old browsers) and speed boost for non-iOS WebKit browsers
-	function(value) {
+HTMLElementPrototype.removeClass = function(value) {
+	if (this.className) { // Can only remove classes if there are classes to remove
 		if (value === _undefined) {
 			this.className = ''; // Remove all classes
 		} else {
 			var remClasses = value.split(' '),
 				curClasses = this.className.split(rgxSpaceChars),
+				classesLeft = 0,
 				i = 0;
 
 			value = '';
 			for (; i < curClasses.length; i++) {
-				if (curClasses[i] && remClasses.indexOf(curClasses[i]) < 0) {
+				if (remClasses.indexOf(curClasses[i]) < 0) {
 					value += (value ? ' ' : '') + curClasses[i];
+					++classesLeft;
 				}
 			}
 
-			this.className = value;
+			if (classesLeft < curClasses.length) { // Only manipulate the DOM if the class name will be changed
+				this.className = value;
+			}
 		}
-
-		return this;
 	}
-	// All other browsers
-	: function(value) {
-		if (value === _undefined) {
-			this.className = ''; // Remove all classes
-		} else {
-			this.classList.remove.apply(this.classList, value.split(' '));
-		}
-	
-		return this;
-	};
+
+	return this;
+};
 
 /**
  * Encode a form element or form control element as a string for submission in an HTTP request.
