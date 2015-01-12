@@ -136,7 +136,7 @@ function cssMath(curVal, changeVal, type, element, property) {
 		curVal = 0;
 	}
 
-	return curVal + type; //i.e. 1.5 + "em" -> "1.5em"
+	return curVal + type; // i.e. 1.5 + "em" -> "1.5em"
 }
 
 /*
@@ -2895,8 +2895,8 @@ HTMLElementPrototype.afterPut = getHTMLElementAfterPutOrPrependWith('afterend', 
  * @param {String} [easing="swing"] - Indicates which easing function to use for the transition. The string can be any
  *     [CSS transition timing function](https://developer.mozilla.org/en-US/docs/Web/CSS/transition-timing-function)
  *     or "swing".
- * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
- *     refer to the element that was animated.
+ * @param {Function} [complete()] - A function to call once the animation is complete.
+ *     Inside the function, `this` will refer to the element that was animated.
  * @see {@link http://api.jquery.com/animate/|.animate() | jQuery API Documentation}
  */
 HTMLElementPrototype.animate = function(properties, duration, easing, complete) {
@@ -3713,7 +3713,7 @@ HTMLSelectElement[prototype].val = function(value) {
 		}
 
 		// Else return the currently selected value or null
-		//(If multiple is true, this.value will be an empty string so null will be returned)
+		// (If multiple is true, this.value will be an empty string so null will be returned)
 		return this.value || null;
 	}
 	
@@ -4576,7 +4576,7 @@ NodePrototype.wrapWith = function(wrappingElement) {
  * <br />
  */
 var
-	//<iframe> Array subclassing
+	// <iframe> Array subclassing
 	NodeCollection = window.NodeCollection = window.NC = documentHead.appendChild(iframe).contentWindow.Array,
 
 	// Extend NodeCollection's prototype with the Array functions
