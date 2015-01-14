@@ -107,7 +107,7 @@ module.exports = function(grunt) {
       },
       custom: {
         options: {
-          browsers: [ ['OS X 10.8', 'iPhone', '6.0'] ],
+          browsers: [ ['OS X 10.8', 'iPhone', '5.1'] ],
           concurrency: 1,
           tags: ['master', 'custom'],
           testname: 'Firebolt QUnit custom test',

@@ -41,11 +41,11 @@ QUnit.test('afterPut', function(assert) {
 	assert.ok(element.nextSibling === nodes[0] && element.nextSibling.nextSibling === nodes[1],
 		'Can put a collection of nodes after the element.');
 
-	element.afterPut('<div>a</div><span>b</span>');
+	element.afterPut('<div>a</div><p>b</p>');
 	var a = element.nextSibling;
 	var b = a.nextSibling;
 	assert.ok(a instanceof HTMLDivElement && a.textContent === 'a'
-	          && b instanceof HTMLSpanElement && b.textContent === 'b',
+	          && b instanceof HTMLParagraphElement && b.textContent === 'b',
 		'Can put an HTML string after the element.');
 
 	element.afterPut('<div></div>', [a, b], node);
@@ -69,11 +69,11 @@ QUnit.test('appendWith', function(assert) {
 	assert.ok(element.lastChild === nodes[1] && element.lastChild.previousSibling === nodes[0],
 		'Can append a collection of nodes to the element.');
 
-	element.appendWith('<div>a</div><span>b</span>');
+	element.appendWith('<div>a</div><p>b</p>');
 	var b = element.lastChild;
 	var a = b.previousSibling;
 	assert.ok(a instanceof HTMLDivElement && a.textContent === 'a'
-	          && b instanceof HTMLSpanElement && b.textContent === 'b',
+	          && b instanceof HTMLParagraphElement && b.textContent === 'b',
 		'Can append an HTML string to the element.');
 
 	element.appendWith('<div></div>', [a, b], node);
@@ -98,11 +98,11 @@ QUnit.test('beforePut', function(assert) {
 	assert.ok(element.previousSibling === nodes[1] && element.previousSibling.previousSibling === nodes[0],
 		'Can put a collection of nodes before the element.');
 
-	element.beforePut('<div>a</div><span>b</span>');
+	element.beforePut('<div>a</div><p>b</p>');
 	var b = element.previousSibling;
 	var a = b.previousSibling;
 	assert.ok(a instanceof HTMLDivElement && a.textContent === 'a'
-	          && b instanceof HTMLSpanElement && b.textContent === 'b',
+	          && b instanceof HTMLParagraphElement && b.textContent === 'b',
 		'Can put an HTML string before the element.');
 
 	element.beforePut('<div></div>', [a, b], node);
@@ -222,11 +222,11 @@ QUnit.test('prependWith', function(assert) {
 	assert.ok(element.firstChild === nodes[0] && element.firstChild.nextSibling === nodes[1],
 		'Can prepend the element with a collection of nodes.');
 
-	element.prependWith('<div>a</div><span>b</span>');
+	element.prependWith('<div>a</div><p>b</p>');
 	var a = element.firstChild;
 	var b = a.nextSibling;
 	assert.ok(a instanceof HTMLDivElement && a.textContent === 'a'
-	          && b instanceof HTMLSpanElement && b.textContent === 'b',
+	          && b instanceof HTMLParagraphElement && b.textContent === 'b',
 		'Can prepend the element with an HTML string.');
 
 	element.prependWith('<div></div>', [a, b], node);

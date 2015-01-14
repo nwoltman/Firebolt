@@ -8,7 +8,6 @@
   "unused": true,
   "predef": [
     "HTMLCollection",
-    "HTMLSpanElement",
     "Firebolt",
     "NodeCollection",
     "QUnit"
