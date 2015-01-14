@@ -210,6 +210,34 @@ QUnit.test('matches', function(assert) {
 	}
 });
 
+QUnit.test('prependWith', function(assert) {
+	var element = document.getElementById('qunit-fixture');
+
+	var node = document.createElement('span');
+	element.prependWith(node);
+	assert.equal(element.firstChild, node, 'Can prepend the element with a single node.');
+
+	var nodes = [document.createElement('p'), document.createTextNode('text')];
+	element.prependWith(nodes);
+	assert.ok(element.firstChild === nodes[0] && element.firstChild.nextSibling === nodes[1],
+		'Can prepend the element with a collection of nodes.');
+
+	element.prependWith('<div>a</div><span>b</span>');
+	var a = element.firstChild;
+	var b = a.nextSibling;
+	assert.ok(a instanceof HTMLDivElement && a.textContent === 'a'
+	          && b instanceof HTMLSpanElement && b.textContent === 'b',
+		'Can prepend the element with an HTML string.');
+
+	element.prependWith('<div></div>', [a, b], node);
+	var w = element.firstChild;
+	var x = w.nextSibling;
+	var y = x.nextSibling;
+	var z = y.nextSibling;
+	assert.ok(w instanceof HTMLDivElement && !w.textContent && x === a && y === b && z === node,
+		'Can prepend the element with several arguments of different types.');
+});
+
 QUnit.test('prop', function(assert) {
 	var el = document.createElement('div');
 
