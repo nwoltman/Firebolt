@@ -49,6 +49,26 @@ QUnit.test('afterPut', function(assert) {
 		'Can put an HTML string after the element.');
 });
 
+QUnit.test('appendWith', function(assert) {
+	var element = document.getElementById('qunit-fixture');
+
+	var node = document.createElement('span');
+	element.appendWith(node);
+	assert.equal(element.lastChild, node, 'Can append a single node to the element.');
+
+	var nodes = [document.createElement('p'), document.createTextNode('text')];
+	element.appendWith(nodes);
+	assert.ok(element.lastChild === nodes[1] && element.lastChild.previousSibling === nodes[0],
+		'Can append a collection of nodes to the element.');
+
+	element.appendWith('<div>a</div><span>b</span>');
+	var b = element.lastChild;
+	var a = b.previousSibling;
+	assert.ok(a instanceof HTMLDivElement && a.textContent === 'a'
+	          && b instanceof HTMLSpanElement && b.textContent === 'b',
+		'Can append an HTML string to the element.');
+});
+
 QUnit.test('attr', function(assert) {
 	var el = document.createElement('div');
 
