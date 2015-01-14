@@ -62,27 +62,6 @@ QUnit.test('addClass', function(assert) {
 	}
 });
 
-QUnit.test('afterPut', function(assert) {
-	var element = document.createElement('div');
-	document.getElementById('qunit-fixture').appendChild(element);
-
-	var node = document.createElement('span');
-	element.afterPut(node);
-	assert.equal(element.nextSibling, node, 'Can put a single node after the element.');
-
-	var nodes = [document.createElement('p'), document.createTextNode('text')];
-	element.afterPut(nodes);
-	assert.ok(element.nextSibling === nodes[0] && element.nextSibling.nextSibling === nodes[1],
-		'Can put a collection of nodes after the element.');
-
-	element.afterPut('<div>a</div><span>b</span>');
-	var a = element.nextSibling;
-	var b = a.nextSibling;
-	assert.ok(a instanceof HTMLDivElement && a.textContent === 'a'
-	          && b instanceof HTMLSpanElement && b.textContent === 'b',
-		'Can put an HTML string after the element.');
-});
-
 QUnit.test('removeClass', function(assert) {
 	var element = document.createElement('div');
 	var tests = [

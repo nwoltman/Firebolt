@@ -281,7 +281,7 @@ function getGetDirElementsFunc(direction, sorter) {
 		};
 }
 
-function getHTMLElementAfterPutOrPrependWith(htmlLocation, inserter) {
+function getElementAfterPutOrPrependWith(htmlLocation, inserter) {
 	return function() {
 		var i = arguments.length - 1,
 			arg;
@@ -1136,6 +1136,44 @@ ElementPrototype.QS = ElementPrototype.querySelector;
  */
 ElementPrototype.QSA = ElementPrototype.querySelectorAll;
 
+/*
+ * More performant version of Node#afterPut for Elements.
+ * @see Node#afterPut
+ */
+ElementPrototype.afterPut = getElementAfterPutOrPrependWith('afterend', insertAfter);
+
+/*
+ * More performant version of Node#appendWith for Elements.
+ * @see Node#appendWith
+ */
+ElementPrototype.appendWith = function() {
+	for (var i = 0, arg; i < arguments.length; i++) {
+		if (typeofString(arg = arguments[i])) {
+			this.insertAdjacentHTML('beforeend', arg);
+		} else {
+			this.appendChild(isNode(arg) ? arg : createFragment(arg));
+		}
+	}
+
+	return this;
+};
+
+/*
+ * More performant version of Node#beforePut for Elements.
+ * @see Node#beforePut
+ */
+ElementPrototype.beforePut = function() {
+	for (var i = 0, arg; i < arguments.length; i++) {
+		if (typeofString(arg = arguments[i])) {
+			this.insertAdjacentHTML('beforebegin', arg);
+		} else {
+			insertBefore(isNode(arg) ? arg : createFragment(arg), this);
+		}
+	}
+
+	return this;
+};
+
 /**
  * Gets the value of the element's specified attribute.
  * 
@@ -1232,6 +1270,32 @@ ElementPrototype.data = function(key, value) {
 };
 
 /**
+ * Removes all of the element's child nodes.
+ * 
+ * @example
+ * // HTML (before)
+ * // <div id="mydiv">
+ * //   <span>Inside Span</span>
+ * //   Some Text
+ * // </div>
+ * 
+ * // JavaScript
+ * $ID('mydiv').empty();
+ *
+ * // HTML (after)
+ * // <div id="mydiv"></div>
+ * 
+ * @function Element#empty
+ */
+ElementPrototype.empty = function() {
+	while (this.firstChild) {
+		this.removeChild(this.firstChild);
+	}
+
+	return this;
+};
+
+/**
  * Gets the descendants of the element, filtered by a selector.
  * 
  * __Note:__ The main difference between when this function and `Element#querySelectorAll()` (or Firebolt's
@@ -1288,6 +1352,31 @@ ElementPrototype.find = function(selector) {
 };
 
 /**
+ * Gets the element's inner HTML.
+ * 
+ * @function Element#html
+ * @returns {String} The element's inner HTML.
+ */
+/**
+ * Sets the element's inner HTML.
+ * 
+ * __ProTip:__ Quite often, this function is used to set the text contents of elements. However, if the text being
+ * set does not (or should not) contain any actual HTML, the {@linkcode Node#text|Node#text()} function should be
+ * used instead as it will be faster and also prevent unwanted HTML from being injected into the page.
+ * 
+ * @function Element#html
+ * @param {String} htmlString
+ */
+ElementPrototype.html = function(htmlString) {
+	if (htmlString === _undefined) {
+		return this.innerHTML; // Get
+	}
+	this.innerHTML = htmlString; // Set
+
+	return this;
+};
+
+/**
  * Determines if the element matches the specified CSS selector.
  * 
  * @function Element#matches
@@ -1299,6 +1388,12 @@ ElementPrototype.matches = ElementPrototype.matches ||
                            ElementPrototype.mozMatchesSelector ||
                            ElementPrototype.msMatchesSelector ||
                            ElementPrototype.oMatchesSelector;
+
+/*
+ * More performant version of Node#prependWith for Elements.
+ * @see Node#prependWith
+ */
+ElementPrototype.prependWith = getElementAfterPutOrPrependWith('afterbegin', prepend);
 
 /**
  * Gets the value of the element's specified property.
@@ -2863,12 +2958,6 @@ HTMLElementPrototype.addClass = function(value) {
 	return this;
 };
 
-/*
- * More performant version of Node#afterPut for HTMLElements.
- * @see Node#afterPut
- */
-HTMLElementPrototype.afterPut = getHTMLElementAfterPutOrPrependWith('afterend', insertAfter);
-
 /**
  * @summary Performs a custom animation of a set of CSS properties.
  * 
@@ -3086,38 +3175,6 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 	return _this;
 };
 
-/*
- * More performant version of Node#appendWith for HTMLElements.
- * @see Node#appendWith
- */
-HTMLElementPrototype.appendWith = function() {
-	for (var i = 0, arg; i < arguments.length; i++) {
-		if (typeofString(arg = arguments[i])) {
-			this.insertAdjacentHTML('beforeend', arg);
-		} else {
-			this.appendChild(isNode(arg) ? arg : createFragment(arg));
-		}
-	}
-
-	return this;
-};
-
-/*
- * More performant version of Node#beforePut for HTMLElements.
- * @see Node#beforePut
- */
-HTMLElementPrototype.beforePut = function() {
-	for (var i = 0, arg; i < arguments.length; i++) {
-		if (typeofString(arg = arguments[i])) {
-			this.insertAdjacentHTML('beforebegin', arg);
-		} else {
-			insertBefore(isNode(arg) ? arg : createFragment(arg), this);
-		}
-	}
-
-	return this;
-};
-
 /**
  * Gets the value of the specified style property.
  * 
@@ -3196,32 +3253,6 @@ HTMLElementPrototype.css = function(prop, value) {
 	}
 
 	return _this;
-};
-
-/**
- * Removes all of the element's child nodes.
- * 
- * @example
- * // HTML (before)
- * // <div id="mydiv">
- * //     <span>Inside Span</span>
- * //     Some Text
- * // </div>
- * 
- * // JavaScript
- * $ID('mydiv').empty();
- *
- * // HTML (after)
- * // <div id="mydiv"></div>
- * 
- * @function HTMLElement#empty
- */
-HTMLElementPrototype.empty = function() {
-	while (this.firstChild) {
-		this.removeChild(this.firstChild);
-	}
-
-	return this;
 };
 
 /**
@@ -3311,31 +3342,6 @@ HTMLElementPrototype.hide = function() {
 };
 
 /**
- * Gets the element's inner HTML.
- * 
- * @function HTMLElement#html
- * @returns {String} The element's inner HTML.
- */
-/**
- * Sets the element's inner HTML.
- * 
- * __ProTip:__ Quite often, this function is used to set the text contents of elements. However, if the text
- * being set does not (or should not) contain any actual HTML, the `Node#text()` function should be used
- * instead as it will be faster and also prevent unwanted HTML from being injected into the page.
- * 
- * @function HTMLElement#html
- * @param {String} innerHTML - An HTML string.
- */
-HTMLElementPrototype.html = function(innerHTML) {
-	if (innerHTML === _undefined) {
-		return this.innerHTML; // Get
-	}
-	this.innerHTML = innerHTML; // Set
-
-	return this;
-};
-
-/**
  * Gets the element's current coordinates relative to the document.
  * 
  * @example
@@ -3387,12 +3393,6 @@ HTMLElementPrototype.offset = function(coordinates) {
 		})
 		: {top: top, left: left};
 };
-
-/*
- * More performant version of Node#prependWith for HTMLElements.
- * @see Node#prependWith
- */
-HTMLElementPrototype.prependWith = getHTMLElementAfterPutOrPrependWith('afterbegin', prepend);
 
 /**
  * Removes the specified class(es) or all classes from the element.
