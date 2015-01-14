@@ -47,6 +47,14 @@ QUnit.test('afterPut', function(assert) {
 	assert.ok(a instanceof HTMLDivElement && a.textContent === 'a'
 	          && b instanceof HTMLSpanElement && b.textContent === 'b',
 		'Can put an HTML string after the element.');
+
+	element.afterPut('<div></div>', [a, b], node);
+	var w = element.nextSibling;
+	var x = w.nextSibling;
+	var y = x.nextSibling;
+	var z = y.nextSibling;
+	assert.ok(w instanceof HTMLDivElement && !w.textContent && x === a && y === b && z === node,
+		'Can put several arguments of different types after the element.');
 });
 
 QUnit.test('appendWith', function(assert) {
@@ -67,6 +75,43 @@ QUnit.test('appendWith', function(assert) {
 	assert.ok(a instanceof HTMLDivElement && a.textContent === 'a'
 	          && b instanceof HTMLSpanElement && b.textContent === 'b',
 		'Can append an HTML string to the element.');
+
+	element.appendWith('<div></div>', [a, b], node);
+	var z = element.lastChild;
+	var y = z.previousSibling;
+	var x = y.previousSibling;
+	var w = x.previousSibling;
+	assert.ok(w instanceof HTMLDivElement && !w.textContent && x === a && y === b && z === node,
+		'Can append several arguments of different types to the element.');
+});
+
+QUnit.test('beforePut', function(assert) {
+	var element = document.createElement('div');
+	document.getElementById('qunit-fixture').appendChild(element);
+
+	var node = document.createElement('span');
+	element.beforePut(node);
+	assert.equal(element.previousSibling, node, 'Can put a single node before the element.');
+
+	var nodes = [document.createElement('p'), document.createTextNode('text')];
+	element.beforePut(nodes);
+	assert.ok(element.previousSibling === nodes[1] && element.previousSibling.previousSibling === nodes[0],
+		'Can put a collection of nodes before the element.');
+
+	element.beforePut('<div>a</div><span>b</span>');
+	var b = element.previousSibling;
+	var a = b.previousSibling;
+	assert.ok(a instanceof HTMLDivElement && a.textContent === 'a'
+	          && b instanceof HTMLSpanElement && b.textContent === 'b',
+		'Can put an HTML string before the element.');
+
+	element.beforePut('<div></div>', [a, b], node);
+	var z = element.previousSibling;
+	var y = z.previousSibling;
+	var x = y.previousSibling;
+	var w = x.previousSibling;
+	assert.ok(w instanceof HTMLDivElement && !w.textContent && x === a && y === b && z === node,
+		'Can put several arguments of different types before the element.');
 });
 
 QUnit.test('attr', function(assert) {
