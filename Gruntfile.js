@@ -144,7 +144,7 @@ module.exports = function(grunt) {
         cache: 'build/.sizecache.json',
         compress: {
           gz: function(contents) {
-            return require('gzip-js').zip(contents, {}).length;
+            return require('gzip-js').zip(contents).length;
           }
         }
       }
