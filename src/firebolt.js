@@ -281,23 +281,6 @@ function getGetDirElementsFunc(direction, sorter) {
 		};
 }
 
-function getElementAfterPutOrPrependWith(htmlLocation, inserter) {
-	return function() {
-		var i = arguments.length - 1,
-			arg;
-
-		for (; i >= 0; i--) {
-			if (typeofString(arg = arguments[i])) {
-				this.insertAdjacentHTML(htmlLocation, arg);
-			} else {
-				inserter(isNode(arg) ? arg : createFragment(arg), this);
-			}
-		}
-
-		return this;
-	};
-}
-
 /*
  * Returns a function for Node#next(), Node#prev(), NodeCollection#next(), or NodeCollection#prev().
  * 
@@ -1140,7 +1123,20 @@ ElementPrototype.QSA = ElementPrototype.querySelectorAll;
  * More performant version of Node#afterPut for Elements.
  * @see Node#afterPut
  */
-ElementPrototype.afterPut = getElementAfterPutOrPrependWith('afterend', insertAfter);
+ElementPrototype.afterPut = function() {
+	var i = arguments.length - 1,
+		arg;
+
+	for (; i >= 0; i--) {
+		if (typeofString(arg = arguments[i])) {
+			this.insertAdjacentHTML('afterend', arg);
+		} else {
+			insertAfter(isNode(arg) ? arg : createFragment(arg), this);
+		}
+	}
+
+	return this;
+};
 
 /*
  * More performant version of Node#appendWith for Elements.
@@ -1393,7 +1389,20 @@ ElementPrototype.matches = ElementPrototype.matches ||
  * More performant version of Node#prependWith for Elements.
  * @see Node#prependWith
  */
-ElementPrototype.prependWith = getElementAfterPutOrPrependWith('afterbegin', prepend);
+ElementPrototype.prependWith = function() {
+	var i = arguments.length - 1,
+		arg;
+
+	for (; i >= 0; i--) {
+		if (typeofString(arg = arguments[i])) {
+			this.insertAdjacentHTML('afterbegin', arg);
+		} else {
+			prepend(isNode(arg) ? arg : createFragment(arg), this);
+		}
+	}
+
+	return this;
+};
 
 /**
  * Gets the value of the element's specified property.
