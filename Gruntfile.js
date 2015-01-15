@@ -90,7 +90,7 @@ module.exports = function(grunt) {
         options: {
           browsers: sauceBrowsers,
           build: Date.now(), // Use `Date.now()` instead of `process.env.TRAVIS_JOB_ID` so every build run is unique
-          concurrency: 3,
+          sauceConfig: {'video-upload-on-pass': false, 'record-logs': false},
           tags: ['master', 'full'],
           testname: 'Firebolt QUnit full test',
           urls: [qunitTestsUrl]
