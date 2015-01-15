@@ -165,6 +165,16 @@ QUnit.test('data', function(assert) {
 	Firebolt.data = data;
 });
 
+QUnit.test('empty', function(assert) {
+	var element = document.getElementById('qunit-fixture');
+
+	element.innerHTML = '<div>\n  <p>para<span>graph</span></p> text?\n</div>\n<ul><li>list</li></ul>';
+
+	assert.equal(element.empty(), element, 'Returns the element.');
+
+	assert.strictEqual(element.firstChild, null, 'Removes all of the element\'s contents.')
+});
+
 QUnit.test('find', function(assert) {
 	assert.expect(4);
 
