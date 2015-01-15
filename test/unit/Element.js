@@ -172,7 +172,7 @@ QUnit.test('empty', function(assert) {
 
 	assert.equal(element.empty(), element, 'Returns the element.');
 
-	assert.strictEqual(element.firstChild, null, 'Removes all of the element\'s contents.')
+	assert.strictEqual(element.firstChild, null, 'Removes all of the element\'s contents.');
 });
 
 QUnit.test('find', function(assert) {
@@ -199,6 +199,19 @@ QUnit.test('find', function(assert) {
 	catch (e) {
 		assert.strictEqual(div.id, 'testId2', "Does not alter the element's id property when an error occurs.");
 	} 
+});
+
+QUnit.test('html', function(assert) {
+	var element = document.getElementById('qunit-fixture');
+	var htmlString = '<div>\n  <p>para<span>graph</span></p> text?\n</div>\n<ul><li>list</li></ul>'; 
+
+	assert.equal(element.html(htmlString), element, 'Returns the element.');
+
+	assert.strictEqual(element.innerHTML, htmlString,
+		'Directly sets the element\'s inner HTML to the specified string.');
+
+	element.removeChild(element.lastChild); // To prove it can return something other than what it was input
+	assert.strictEqual(element.html(), element.innerHTML, 'Directly returns the element\'s inner HTML string.');
 });
 
 QUnit.test('matches', function(assert) {
