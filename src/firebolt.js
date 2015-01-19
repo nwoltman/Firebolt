@@ -207,11 +207,11 @@ function getFirstSetEachElement(fn, isSetter) {
  * Returns a function that creates a set of elements in a certain direction around
  * a given node (i.e. parents, children, siblings, find -> all descendants).
  * 
- * @param {Function|String} direction - A function or name of a function that retrieves elements for a single node.
+ * @param {Function} getDirectionElement - A function that retrieves an element or elements for a single node.
  * @param {Function|Number} [sorter] - A function used to sort the union of multiple sets of returned elements.
  *     If sorter == 0, return an 'until' Node function.
  */
-function getGetDirElementsFunc(direction, sorter) {
+function getGetDirElementsFunc(getDirectionElement, sorter) {
 	if (sorter) {
 		// For NodeCollection.prototype
 		return function() {
@@ -219,14 +219,14 @@ function getGetDirElementsFunc(direction, sorter) {
 
 			// Simple and speedy for one node
 			if (len === 1) {
-				return direction.apply(this[0], arguments);
+				return getDirectionElement.apply(this[0], arguments);
 			}
 
 			// Build a list of NodeCollections
 			var collections = [],
 				i = 0;
 			for (; i < len; i++) {
-				collections[i] = direction.apply(this[i], arguments);
+				collections[i] = getDirectionElement.apply(this[i], arguments);
 			}
 
 			// Union the collections so that the result contains unique elements and return the sorted result
@@ -255,7 +255,7 @@ function getGetDirElementsFunc(direction, sorter) {
 
 			// Traverse all nodes in the direction and add them (or if there is a selector the ones that match it)
 			// to the NodeCollection until the `stop()` function returns `true`
-			while ((node = node[direction]) && !stop()) {
+			while ((node = getDirectionElement(node)) && !stop()) {
 				if (!filter || node.matches(filter)) {
 					push1(nc, node);
 				}
@@ -271,7 +271,7 @@ function getGetDirElementsFunc(direction, sorter) {
 
 			// Traverse all nodes in the direction and add them (or if there is a selector the ones that match it)
 			// to the NodeCollection
-			while (node = node[direction]) {
+			while (node = getDirectionElement(node)) {
 				if (!selector || node.matches(selector)) {
 					push1(nc, node);
 				}
@@ -284,21 +284,22 @@ function getGetDirElementsFunc(direction, sorter) {
 /*
  * Returns a function for Node#next(), Node#prev(), NodeCollection#next(), or NodeCollection#prev().
  * 
+ * @param {Function} getDirElementSibling - Either `getNextElementSibling` or `getPreviousElementSibling`.
  * @param {Boolean} [forNode=false] - If truthy, returns the function for Node.prototype,
  *     otherwise the function for NodeCollection.prototype is returned.
  */
-function getNextOrPrevFunc(dirElementSibling, forNode) {
+function getNextOrPrevFunc(getDirElementSibling, forNode) {
 	return forNode
 		? function(selector) {
-			var sibling = this[dirElementSibling];
-			return (!selector || sibling && sibling.matches(selector)) && sibling || null;
+			var sibling = getDirElementSibling(this);
+			return (!selector || sibling && sibling.matches(selector)) ? sibling : null;
 		}
 		: function(selector) {
 			var nc = new NodeCollection(),
 				i = 0,
 				sibling;
 			for (; i < this.length; i++) {
-				sibling = this[i][dirElementSibling];
+				sibling = getDirElementSibling(this[i]);
 				if (sibling && (!selector || sibling.matches(selector))) {
 					push1(nc, sibling);
 				}
@@ -566,12 +567,39 @@ function typeofString(value) {
 }
 
 var
-	/* Browser/Engine detection */
+	// Browser/Engine detection
 	isIE = document.documentMode,
 	isIOS = /^iP/.test(navigator.platform), // iPhone, iPad, iPod
 	usesWebkit = window.webkitURL,
 	webkitNotIOS = usesWebkit && !isIOS,
 	usesGecko = window.mozInnerScreenX != _undefined,
+
+	// Some browser compatibility functions
+	characterData = document.createTextNode(''),
+	getNextElementSibling = (characterData.nextElementSibling === _undefined)
+		? function(el) {
+			while ((el = el.nextSibling) && el.nodeType !== 1);
+			return el;
+		}
+		: function(el) {
+			return el.nextElementSibling;
+		},
+	getPreviousElementSibling = (characterData.previousElementSibling === _undefined)
+		? function(el) {
+			while ((el = el.previousSibling) && el.nodeType !== 1);
+			return el;
+		}
+		: function(el) {
+			return el.previousElementSibling;
+		},
+	getParentElement = (characterData.parentElement === _undefined)
+		? function(el) {
+			el = el.parentNode;
+			return el && isNodeElement(el) ? el : null;
+		}
+		: function(el) {
+			return el.parentElement;
+		},
 
 	/*
 	 * Determines if an item is a Node.
@@ -586,8 +614,6 @@ var
 		},
 
 	// Property strings
-	nextElementSibling = 'nextElementSibling',
-	previousElementSibling = 'previousElementSibling',
 	prototype = 'prototype',
 
 	// Prototype references
@@ -3852,7 +3878,7 @@ NodePrototype.closest = function(selector) {
 
 	if (typeofString(selector)) {
 		// If the node is not an element, skip to its parent element
-		node = isNodeElement(node) ? node : node.parentElement;
+		node = isNodeElement(node) ? node : getParentElement(node);
 
 		// Search the node's parent elements until one matches the selector or there are no more parents
 		while (node && !node.matches(selector)) {
@@ -3892,7 +3918,7 @@ NodePrototype.contents = function(justChildNodes) { // Parameter for internal us
  * @param {String} [selector] - A CSS selector to match the next sibling against.
  * @returns {?Element}
  */
-NodePrototype.next = getNextOrPrevFunc(nextElementSibling, 1);
+NodePrototype.next = getNextOrPrevFunc(getNextElementSibling, 1);
 
 /**
  * Gets all following siblings of the node, optionally filtered by a selector.
@@ -3901,7 +3927,7 @@ NodePrototype.next = getNextOrPrevFunc(nextElementSibling, 1);
  * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
  * @returns {NodeCollection} The set of following sibling elements in order beginning with the closest sibling.
  */
-NodePrototype.nextAll = getGetDirElementsFunc(nextElementSibling);
+NodePrototype.nextAll = getGetDirElementsFunc(getNextElementSibling);
 
 /**
  * Gets the node's following siblings, up to but not including the element matched by the selector, DOM node,
@@ -3913,7 +3939,7 @@ NodePrototype.nextAll = getGetDirElementsFunc(nextElementSibling);
  * @param {String} [filter] - A CSS selector used to filter the returned set of elements.
  * @returns {NodeCollection} - The set of following sibling elements in order beginning with the closest sibling.
  */
-NodePrototype.nextUntil = getGetDirElementsFunc(nextElementSibling, 0);
+NodePrototype.nextUntil = getGetDirElementsFunc(getNextElementSibling, 0);
 
 /* 
  * Used by Node#off
@@ -4243,7 +4269,7 @@ NodePrototype.one = function(events, selector, data, handler) {
  * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
  * @returns {NodeCollection} - The set of the node's ancestors, ordered from the immediate parent on up.
  */
-NodePrototype.parents = getGetDirElementsFunc('parentElement');
+NodePrototype.parents = getGetDirElementsFunc(getParentElement);
 
 /**
  * Gets the node's ancestors, up to but not including the element matched by the selector, DOM node,
@@ -4255,7 +4281,7 @@ NodePrototype.parents = getGetDirElementsFunc('parentElement');
  * @param {String} [filter] - A CSS selector used to filter the returned set of elements.
  * @returns {NodeCollection} - The set of the node's ancestors, ordered from the immediate parent on up.
  */
-NodePrototype.parentsUntil = getGetDirElementsFunc('parentElement', 0);
+NodePrototype.parentsUntil = getGetDirElementsFunc(getParentElement, 0);
 
 /**
  * Prepends content to the beginning of the node.
@@ -4285,7 +4311,7 @@ NodePrototype.prependTo = getNodeInsertingFunction(prepend);
  * @param {String} [selector] - A CSS selector to match the previous sibling against.
  * @returns {?Element}
  */
-NodePrototype.prev = getNextOrPrevFunc(previousElementSibling, 1);
+NodePrototype.prev = getNextOrPrevFunc(getPreviousElementSibling, 1);
 
 /**
  * Gets all preceeding siblings of the node, optionally filtered by a selector.
@@ -4294,7 +4320,7 @@ NodePrototype.prev = getNextOrPrevFunc(previousElementSibling, 1);
  * @param {String} [selector] - A CSS selector used to filter the returned set of elements.
  * @returns {NodeCollection} The set of preceeding sibling elements in order beginning with the closest sibling.
  */
-NodePrototype.prevAll = getGetDirElementsFunc(previousElementSibling);
+NodePrototype.prevAll = getGetDirElementsFunc(getPreviousElementSibling);
 
 /**
  * Gets the node's preceeding siblings, up to but not including the element matched by the selector, DOM node,
@@ -4306,7 +4332,7 @@ NodePrototype.prevAll = getGetDirElementsFunc(previousElementSibling);
  * @param {String} [filter] - A CSS selector used to filter the returned set of elements.
  * @returns {NodeCollection} - The set of preceeding sibling elements in order beginning with the closest sibling.
  */
-NodePrototype.prevUntil = getGetDirElementsFunc(previousElementSibling, 0);
+NodePrototype.prevUntil = getGetDirElementsFunc(getPreviousElementSibling, 0);
 
 /**
  * Inserts this node directly after the specified target(s).
@@ -5122,7 +5148,7 @@ NodeCollectionPrototype.item = function(index) {
  * @param {String} [selector] - A CSS selector to match the next sibling against.
  * @returns {NodeCollection} The collection of sibling elements.
  */
-NodeCollectionPrototype.next = getNextOrPrevFunc(nextElementSibling);
+NodeCollectionPrototype.next = getNextOrPrevFunc(getNextElementSibling);
 
 /**
  * Gets all following siblings of each node in the collection, optionally filtered by a selector.
@@ -5343,7 +5369,7 @@ NodeCollectionPrototype.prependTo = getNodeCollectionPutToOrReplaceAllFunction('
  * @param {String} [selector] - A CSS selector to match the previous sibling against.
  * @returns {NodeCollection} The collection of sibling elements.
  */
-NodeCollectionPrototype.prev = getNextOrPrevFunc(previousElementSibling);
+NodeCollectionPrototype.prev = getNextOrPrevFunc(getPreviousElementSibling);
 
 /**
  * Gets all preceeding siblings of each node in the collection, optionally filtered by a selector.
@@ -6203,42 +6229,6 @@ if (!StringPrototype.startsWith) {
 definePrototypeExtensionsOn(StringPrototype, prototypeExtensions);
 
 //#endregion String
-
-
-//#region ========================= Browser Fixes ============================
-
-if (Firebolt.text()[nextElementSibling] === _undefined) {
-	// Fix the `nextElementSibling` and `previousElementSibling` properties for ChildNodes
-	// in browsers than only support them on Elements
-	[CharacterData[prototype], DocumentType[prototype]].forEach(function(proto) {
-		defineProperty(proto, nextElementSibling, {
-			get: function() {
-				var sibling = this;
-				while ((sibling = sibling.nextSibling) && sibling.nodeType !== 1);
-				return sibling;
-			}
-		});
-		defineProperty(proto, previousElementSibling, {
-			get: function() {
-				var sibling = this;
-				while ((sibling = sibling.previousSibling) && sibling.nodeType !== 1);
-				return sibling;
-			}
-		});
-	});
-}
-
-if (document.parentElement === _undefined) {
-	// Fix the parentElement property for Nodes in browsers than only support it on Element
-	defineProperty(NodePrototype, 'parentElement', {
-		get: function() {
-			var parent = this.parentNode;
-			return parent && isNodeElement(parent) ? parent : null;
-		}
-	});
-}
-
-//#endregion Browser Compatibility and Speed Boosters
 
 })(self, document, Array, Object, decodeURIComponent, encodeURIComponent,
    getComputedStyle, parseFloat, setTimeout, clearTimeout);
