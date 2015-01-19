@@ -246,7 +246,7 @@ function getGetDirElementsFunc(direction, sorter) {
 					}
 					: until && until.length // Until Node[] contains the current node
 						? function() {
-							return until.contains(node);
+							return until.indexOf(node) >= 0;
 						}
 						// Until nodes are equal (or if `until.length === 0`, this will always return false)
 						: function() {
@@ -3683,7 +3683,7 @@ HTMLElementPrototype.val = function(value) {
 	}
 
 	// Check or uncheck this depending on if this element's value is in the array of values to check
-	this.checked = value.contains(this.value);
+	this.checked = value.indexOf(this.value) >= 0;
 
 	return this;
 };
@@ -3716,7 +3716,7 @@ HTMLSelectElement[prototype].val = function(value) {
 		// Select or deselect each option depending on if its value is in the array of values to check.
 		// Break once an option is selected if this select element does not allow multiple selection.
 		for (; i < options.length; i++) {
-			if ((options[i].selected = value.contains(options[i].value)) && !multiple) break;
+			if ((options[i].selected = value.indexOf(options[i].value) >= 0) && !multiple) break;
 		}
 	}
 
@@ -6059,7 +6059,7 @@ prototypeExtensions = {
 	 * url = url.appendParams('a=1&b=2'); // -> "www.google.com?lang=en&a=1&b=2"
 	 */
 	appendParams: function(params) {
-		return this + (this.contains('?') ? '&' : '?') + params;
+		return this + (this.indexOf('?') >= 0 ? '&' : '?') + params;
 	},
 
 	/**
