@@ -3905,7 +3905,11 @@ NodePrototype.closest = function(selector) {
 };
 
 /**
- * Gets the child nodes of the element as a {@link NodeCollection}.
+ * @summary Gets the child nodes of the element as a {@link NodeCollection}.
+ * 
+ * @description
+ * This method can also be used to get the content document of an iframe,
+ * if the iframe has permission to access its content document.
  * 
  * __ProTip:__ If you don't need the child nodes in a NodeCollection, you should access them using the native
  * `childNodes` property (which is a {@link NodeList}).
@@ -3914,10 +3918,16 @@ NodePrototype.closest = function(selector) {
  * @returns {NodeCollection}
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.childNodes|Node.childNodes - Web API Interfaces | MDN}
  */
-NodePrototype.contents = function(justChildNodes) { // Parameter for internal use; used by NodeCollection#contents
-	var iframeContent = this.contentDocument,
-		childNodes = this.childNodes;
-	return iframeContent ? new NodeCollection(iframeContent) : justChildNodes ? childNodes : ncFrom(childNodes);
+NodePrototype.contents = function(/*INTERNAL*/ nc) {
+	var node = this.firstChild || this.contentDocument;
+	nc = nc || new NodeCollection();
+
+	while (node) {
+		push1(nc, node);
+		node = node.nextSibling;
+	}
+
+	return nc;
 };
 
 /**
@@ -4928,9 +4938,9 @@ NodeCollectionPrototype.contents = function() {
 		i = 0;
 
 	for (; i < this.length; i++) {
-		// Call Node#contents on the current node, passing in a truthy value so it doesn't
-		// bother making a NodeCollection out of the childNodes before returning
-		array_push.apply(nc, NodePrototype.contents.call(this[i], 1));
+		// Call Node#contents() on the current node, passing in the
+		// NodeCollection so the nodes are added directly to it
+		NodePrototype.contents.call(this[i], nc);
 	}
 
 	return nc;
