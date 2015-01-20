@@ -3398,35 +3398,44 @@ HTMLElementPrototype.hide = function() {
  * @param {{top: Number, left: Number}} coordinates - An object containing the properties `top` and `left`,
  *     which are numbers indicating the new top and left coordinates for the element.
  */
-HTMLElementPrototype.offset = function(coordinates) {
-	var el = this,
-		top = 0,
-		left = 0;
+HTMLElementPrototype.offset = function getOffset(coordinates) {
+	var offset = {
+		left: 0,
+		top: 0
+	};
 
+	// Set
 	if (coordinates) {
-		// If the element's position is absolute or fixed, the coordinates can be directly set
-		var position = this.css('position');
-		if (position[0] === 'a' || position[0] === 'f') {
-			return this.css({top: coordinates.top, left: coordinates.left});
+		// First check if the element has absolute or fixed positioning.
+		// If it doesn't, extra measures need to be taken to set its coordinates.
+		var position = getComputedStyle(this).position;
+
+		if (position[0] !== 'a' && position[0] !== 'f') {
+			// Reset the element's top and left values so relative coordinates can be calculated
+			this.style.left = 0;
+			this.style.top = 0;
+
+			offset = getOffset.call(this);
+
+			// Give the element relative positioning
+			this.style.position = 'relative';
 		}
 
-		// Otherwise, reset the element's top and left values so relative coordinates can be calculated
-		this.css({top: 0, left: 0});
+		// Set the element's coordinates
+		this.style.left = coordinates.left - offset.left + 'px';
+		this.style.top = coordinates.top - offset.top + 'px';
+
+		return this;
 	}
 
-	// Calculate the element's current offset
+	// Get
+	var el = this;
 	do {
-		top += el.offsetTop;
-		left += el.offsetLeft;
+		offset.left += el.offsetLeft;
+		offset.top += el.offsetTop;
 	} while (el = el.offsetParent);
 
-	// Set the element's coordinates with relative positioning or return the calculated coordinates
-	return coordinates ? this.css({
-			position: 'relative',
-			top: 0 - top + coordinates.top,
-			left: 0 - left + coordinates.left
-		})
-		: {top: top, left: left};
+	return offset;
 };
 
 /**
