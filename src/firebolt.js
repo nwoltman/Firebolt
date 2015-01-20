@@ -6142,24 +6142,6 @@ prototypeExtensions = {
 
 /* Add ES6 functions to String.prototype */
 
-if (!StringPrototype.contains) {
-	/**
-	 * Determines whether the passed in string is in the current string.
-	 *
-	 * @function String#contains
-	 * @param {String} searchString - The string to be searched for.
-	 * @param {Number} [position=0] - The position in this string at which to begin the search.
-	 * @returns {Boolean} `true` if this string contains the search string; else `false`.
-	 * @example
-	 * var str = "Winter is coming.";
-	 * alert( str.contains(" is ") );    // true
-	 * alert( str.contains("summer") );  // false
-	 */
-	prototypeExtensions.contains = function(searchString, position) {
-		return this.toString().indexOf(searchString, position) >= 0;
-	};
-}
-
 if (!StringPrototype.endsWith) {
 	/**
 	 * Determines if a string ends with the characters of another string.
@@ -6180,6 +6162,25 @@ if (!StringPrototype.endsWith) {
 			strLen = str.length;
 		position = (position < strLen ? position : strLen) - searchString.length;
 		return position >= 0 && str.indexOf(searchString, position) === position;
+	};
+}
+
+if (!StringPrototype.includes) {
+	/**
+	 * Determines whether the passed in string is in the current string.
+	 * 
+	 * @example
+	 * var str = "Winter is coming.";
+	 * alert( str.includes(" is ") );    // true
+	 * alert( str.includes("summer") );  // false
+	 *
+	 * @function String#includes
+	 * @param {String} searchString - The string to be searched for.
+	 * @param {Number} [position=0] - The position in this string at which to begin the search.
+	 * @returns {Boolean} `true` if this string contains the search string, `false` otherwise.
+	 */
+	prototypeExtensions.includes = function(searchString, position) {
+		return this.toString().indexOf(searchString, position) >= 0;
 	};
 }
 

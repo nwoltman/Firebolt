@@ -19,25 +19,6 @@ QUnit.test('appendParams', function(assert) {
 		'Correctly appends parameters to a url that already has a query string.');
 });
 
-QUnit.test('contains', function(assert) {
-	var str = 'Winter is coming.';
-
-	// True
-	assert.strictEqual(str.contains(' is '), true, 'Reports that a substring is in the string.');
-
-	assert.strictEqual(str.contains('Wint'), true, 'Reports that the beginning of the string is in the string.');
-
-	assert.strictEqual(str.contains(' coming.'), true, 'Reports that the end of the string is in the string.');
-
-	assert.strictEqual(str.contains(str), true, 'Reports that the string contains itself');
-
-	// False
-	assert.strictEqual(str.contains('Summer is'), false, 'Reports that a non-substring is not in the string.');
-
-	assert.strictEqual(str.contains(' is ', 7), false,
-		'Reports that a substring is not in the string if the `position` parameter is a large enough value.');
-});
-
 QUnit.test('endsWith', function(assert) {
 	var str = 'Who am I, Gamling?';
 
@@ -64,6 +45,25 @@ QUnit.test('escapeHTML', function(assert) {
 		'Escapes "<", ">", and "&".');
 
 	assert.equal('  a& \n\t  '.escapeHTML(), '  a&amp; \n\t  ', 'Preserves whitespace.');
+});
+
+QUnit.test('includes', function(assert) {
+	var str = 'Winter is coming.';
+
+	// True
+	assert.strictEqual(str.includes(' is '), true, 'Reports that a substring is in the string.');
+
+	assert.strictEqual(str.includes('Wint'), true, 'Reports that the beginning of the string is in the string.');
+
+	assert.strictEqual(str.includes(' coming.'), true, 'Reports that the end of the string is in the string.');
+
+	assert.strictEqual(str.includes(str), true, 'Reports that the string includes itself.');
+
+	// False
+	assert.strictEqual(str.includes('Summer is'), false, 'Reports that a non-substring is not in the string.');
+
+	assert.strictEqual(str.includes(' is ', 7), false,
+		'Reports that a substring is not in the string if the `position` parameter is a large enough value.');
 });
 
 QUnit.test('repeat', function(assert) {
