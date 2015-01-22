@@ -164,7 +164,7 @@ module.exports = function(grunt) {
   grunt.registerTask('build:clean', ['tasks.cleandist']);
   grunt.registerTask('build:basic', ['copy', 'uglify']);
   grunt.registerTask('build', ['lint', 'build:clean', 'build:basic', 'compare_size']);
-  grunt.registerTask('release', ['build', 'tasks.release']);
+  grunt.registerTask('release', ['build', 'tasks.package_release', 'tasks.gen_changelog']);
 
   // Only connect to Sauce if the user has Sauce credentials
   if (process.env.SAUCE_USERNAME && process.env.SAUCE_ACCESS_KEY) {
