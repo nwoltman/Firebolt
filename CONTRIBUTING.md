@@ -29,7 +29,7 @@ git checkout -b my-branch-name -t origin/master
 
 ### Code
 
-Please attempt to match the code style already in the code base. Some things to note are that single quotes (`'`) are used for strings, browser code (in `src/` and `test/`) is indented with tab characters with a tab width of 4 spaces, and Node code is indented with spaces with a tab width of 2 spaces.
+Please attempt to match the code style already in the code base. Some things to note are that single quotes (`'`) are used for strings, browser code (in `src/` and `test/`) is indented with tab characters with a tab width of 4 spaces, and Node code (in `Gruntfile.js` and `build/`) is indented with spaces with a tab width of 2 spaces.
 
 When fixing bugs and adding features, when appropriate please:
 
@@ -82,6 +82,12 @@ grunt test     # runs a single test (without Sauce credentials this is the same 
 grunt fulltest # runs tests on all browsers configured in the Gruntfile
 ```
 
+You can also test a particular browser by modifying the `custom` object inside the `saucelabs-qunit` configuration object in `Gruntfile.js` and then running:
+
+```sh
+grunt customtest
+```
+
 
 ### Commit
 
@@ -90,7 +96,7 @@ First, make sure you have [configured git](https://help.github.com/articles/set-
 Writing good commit logs is important. A commit log should describe what changed and why.
 Follow these guidelines when writing one:
 
-1. The first line should be 50 characters or less and contain a short description of the change prefixed with the name of the changed subsystem (e.g. "src: Refactor Firebolt.data()").
+1. The first line should be 67 characters or less and contain a short description of the change prefixed with the name of the changed subsystem (e.g. "src: Refactor Firebolt.data()").
 2. Keep the second line blank.
 3. The rest is a more detailed description of the commit and is written in either prose or list-format.
 
