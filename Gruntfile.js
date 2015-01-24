@@ -160,7 +160,7 @@ module.exports = function(grunt) {
 
   // --- Register tasks ---
   grunt.registerTask('lint', ['jsonlint', 'jshint']);
-  grunt.registerTask('dev', ['lint', 'connect:local']);
+  grunt.registerTask('dev', ['connect:local']);
   grunt.registerTask('build:clean', ['tasks.cleandist']);
   grunt.registerTask('build:basic', ['copy', 'uglify']);
   grunt.registerTask('build', ['lint', 'build:clean', 'build:basic', 'compare_size']);
@@ -168,14 +168,18 @@ module.exports = function(grunt) {
 
   // Only connect to Sauce if the user has Sauce credentials
   if (process.env.SAUCE_USERNAME && process.env.SAUCE_ACCESS_KEY) {
-    grunt.registerTask('test', ['lint', 'connect:temp', 'saucelabs-qunit:basic']);
-    grunt.registerTask('fulltest', ['lint', 'connect:temp', 'saucelabs-qunit:full']);
+    grunt.registerTask('test', ['connect:temp', 'saucelabs-qunit:basic']);
+    grunt.registerTask('fulltest', ['connect:temp', 'saucelabs-qunit:full']);
     grunt.registerTask('customtest', ['connect:temp', 'saucelabs-qunit:custom']);
-  } else {
-    grunt.registerTask('test', ['lint', 'connect:local']); // Same as dev
-    grunt.registerTask('fulltest', ['tasks.nofulltest']);
-  }
 
-  // Default: do a release build and run all tests
-  grunt.registerTask('default', ['release', 'connect:temp', 'saucelabs-qunit:full']);
+    // Default: do a release build and run all tests
+    grunt.registerTask('default', ['release', 'fulltest']);
+
+  } else {
+    grunt.registerTask('test', ['connect:local']); // Same as dev
+    grunt.registerTask('fulltest', ['tasks.nofulltest']);
+
+    // Default for no Sauce credentials: just do a release build
+    grunt.registerTask('default', ['release']);
+  }
 };
