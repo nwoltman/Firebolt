@@ -6215,7 +6215,7 @@ if (!StringPrototype.repeat) {
 		if (!isFinite(count) || count < 0) {
 			throw new RangeError('Invalid count value');
 		}
-		// Thanks to V8 for the algorithm: https://github.com/v8/v8-git-mirror/blob/master/src/harmony-string.js#L27
+
 		var str = this.toString(),
 			retStr = '';
 		for (;;) {
