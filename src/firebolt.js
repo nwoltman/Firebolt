@@ -2419,15 +2419,6 @@ function isPlainObject(obj) {
 }
 
 /**
- * Indicates if the user is on a touchscreen device.
- * 
- * @constant
- * @memberOf Firebolt
- * @property {Boolean} isTouchDevice - `true` if the user is on a touchscreen device; else `false`.
- */
-Firebolt.isTouchDevice = 'ontouchstart' in window || 'onmsgesturechange' in window;
-
-/**
  * Creates a serialized representation of an array or object, suitable for use in a URL query string or Ajax request.  
  * Unlike jQuery, arrays will be serialized like objects when `traditional` is not `true`, with the indices of
  * the array becoming the keys of the query string parameters.
