@@ -730,7 +730,6 @@ var
 	TOGGLE = 'toggle',
 
 	/* Misc */
-	documentHead = document.head, // The document's <head> element
 	iframe = createElement('iframe'), // Used for subclassing Array and determining default CSS values
 
 	/* CSS */
@@ -1910,7 +1909,7 @@ Firebolt.ajax = function(url, settings) {
 		xhr = {
 			send: function() {
 				// Append the script to the head of the document to load it
-				documentHead.appendChild(script);
+				document.head.appendChild(script);
 			},
 			abort: function() {
 				textStatus = 'abort';
@@ -2355,7 +2354,7 @@ Firebolt.getScript = function(url, success) {
  * @param {String} code - The JavaScript code to execute.
  */
 Firebolt.globalEval = function(code) {
-	documentHead.appendChild(
+	document.head.appendChild(
 		createElement('script').prop('text', code)
 	).remove();
 };
@@ -3518,7 +3517,7 @@ HTMLElementPrototype.show = function() {
 		// Add an element of the same type as this element to the iframe's body
 		// to figure out what the default display value should be
 		inlineStyle.display = getComputedStyle(
-			documentHead.appendChild(iframe).contentDocument.body.appendChild(
+			document.head.appendChild(iframe).contentDocument.body.appendChild(
 				iframe.contentDocument.createElement(this.tagName)
 			)
 		).display;
@@ -4607,7 +4606,7 @@ NodePrototype.wrapWith = function(wrappingElement) {
  */
 var
 	// <iframe> Array subclassing
-	NodeCollection = window.NodeCollection = window.NC = documentHead.appendChild(iframe).contentWindow.Array,
+	NodeCollection = window.NodeCollection = window.NC = document.head.appendChild(iframe).contentWindow.Array,
 
 	// Extend NodeCollection's prototype with the Array functions
 	NodeCollectionPrototype = extend(NodeCollection[prototype], prototypeExtensions, getTypedArrayFunctions(NodeCollection)),
