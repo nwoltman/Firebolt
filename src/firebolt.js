@@ -6038,36 +6038,30 @@ Object.each = function(obj, callback) {
 };
 
 /**
- * Gets the passed in object's JavaScript [[class]].
+ * @summary Gets an object's JavaScript [[class]].
+ * 
+ * @description
+ * __Note:__ For certain objects, the [[class]] name may be inconsistent between
+ * browsers (mainly just the `window` and `document` objects). The only objects
+ * that are guaranteed to produce consistent results are those that are defined
+ * in the ECMAScript specification, but modern browsers are consistent enough
+ * that this function will produce consistent output for most inputs.
  * 
  * @example
  * Object.getClassOf([]);       // -> "Array"
  * Object.getClassOf({});       // -> "Object"
- * Object.getClassOf(window);   // -> "Window"
  * Object.getClassOf('string'); // -> "String"
  * Object.getClassOf(/^.+reg/); // -> "RegExp"
- * Object.getClassOf(document.querySelectorAll('div')); // -> "NodeList"
+ * Object.getClassOf(window);   // -> "Window" or "global"
+ * Object.getClassOf(document.body.childNodes); // -> "NodeList"
  * 
  * @function Object.getClassOf
- * @param {*} obj - The object whose class will be retrieved.
- * @returns String - The passed in object's class name.
+ * @param {*} obj - Any object/value.
+ * @returns {String} The passed in object's [[class]] name.
  */
 Object.getClassOf = getClassOf;
-function getClassOf(value) {
-	if (value === _undefined) {
-		return 'Undefined';
-	}
-	if (value === null) {
-		return 'Null';
-	}
-	if ((value = specialElementsMap.toString.call(value).slice(8, -1)) == 'global' ||
-		value == 'DOMWindow') { // 'DOMWindow' check is specifically for iOS 5.1
-		return 'Window';
-	}
-	if (value == 'Document') {
-		return 'HTMLDocument';
-	}
-	return value;
+function getClassOf(obj) {
+	return Object.prototype.toString.call(obj).slice(8, -1);
 }
 
 //#endregion Object
