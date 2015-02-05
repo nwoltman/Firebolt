@@ -6,22 +6,21 @@ module.exports = function(grunt) {
     'Windows 7': {
       chrome: ['38', '39'],
       firefox: ['34', '35'],
-      opera: ['12'],
       'internet explorer': ['9', '10', '11']
     },
     'OS X 10.8': {
-      iPhone: ['5.1'],
       safari: ['6']
     },
     'OS X 10.9': {
-      iPhone: ['8.1'],
       safari: ['7']
     },
     'OS X 10.10': {
+      iphone: ['5.1', '8.1'],
       safari: ['8']
     },
     Linux: {
-      android: ['4.0', '4.4']
+      android: ['4.0', '4.4'],
+      opera: ['12.15']
     }
   };
 
