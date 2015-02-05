@@ -496,13 +496,13 @@ function sanitizeCssPropName(name) {
 }
 
 /*
- * Takes in an Array constructor and creates a partial ES6 shim for the `.from()` function,
- * setting it on the constructor if it does not already exist, then returns that function.
+ * Takes in an Array constructor and polyfills Array.from() and Array.of() if they
+ * do not already exist and returns the polyfilled version of Array.from().
  * 
  * @param {function} - The Array or NodeCollection constructor function.
  * @returns {function} - The created `from` function.
  */
-function setAndGetArrayFromFunction(constructor) {
+function setArrayStaticsAndGetFromFunction(constructor) {
 	function from(arrayLike) {
 		var len = arrayLike.length,
 			array = new constructor(len),
@@ -514,6 +514,18 @@ function setAndGetArrayFromFunction(constructor) {
 
 		return array;
 	}
+
+	constructor.of = constructor.of || function() {
+		var len = arguments.length,
+			array = new constructor(len),
+			i = 0;
+
+		for (; i < len; i++) {
+			array[i] = arguments[i];
+		}
+
+		return array;
+	};
 
 	constructor.from = constructor.from || from;
 
@@ -629,7 +641,7 @@ var
 
 	// Helpers
 	isArray = Array.isArray,
-	arrayFrom = setAndGetArrayFromFunction(Array),
+	arrayFrom = setArrayStaticsAndGetFromFunction(Array),
 	array_push = ArrayPrototype.push,
 	stopPropagation = EventPrototype.stopPropagation,
 	defineProperty = Object.defineProperty,
@@ -760,7 +772,7 @@ var
  * @summary Creates a new Array instance from an array-like object.
  * 
  * @description
- * This is a partial shim for the ES6-defined
+ * This is a partial polyfill for the ES6-defined
  * {@linkcode https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/from|Array.from()}
  * function that only accepts array-like objects and does not support the optional `mapFn` or `thisArg` arguments.
  * 
@@ -772,6 +784,19 @@ var
  * @param {Object} arrayLike - An array-like object to convert to an array.
  * @returns {Array}
  */
+
+ /**
+  * @summary Creates a new Array instance with a variable number of arguments.
+  * 
+  * @description
+  * This is a complete polyfill for the ES6-defined
+  * {@linkcode https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/of|Array.of()}
+  * for browsers that have not implemented it function yet.
+  * 
+  * @function Array.of
+  * @param {...*} elementN - Elements with which to populate the new array.
+  * @returns {Array}
+  */
 
 prototypeExtensions = {
 	/**
@@ -4611,8 +4636,8 @@ var
 	// Extend NodeCollection's prototype with the Array functions
 	NodeCollectionPrototype = extend(NodeCollection[prototype], prototypeExtensions, getTypedArrayFunctions(NodeCollection)),
 
-	// Set and get the NodeCollection.from function (gets the custom function and not the native one even if it exists)
-	ncFrom = setAndGetArrayFromFunction(NodeCollection),
+	// Polyfill NodeCollection.from() and .of() and get the custom version of .from()
+	ncFrom = setArrayStaticsAndGetFromFunction(NodeCollection),
 
 	// Save a reference to the original filter function for use later on
 	ncFilter = NodeCollectionPrototype.filter;
