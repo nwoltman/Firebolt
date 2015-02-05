@@ -504,7 +504,7 @@ function sanitizeCssPropName(name) {
  */
 function setArrayStaticsAndGetFromFunction(constructor) {
 	function from(arrayLike) {
-		var len = arrayLike.length,
+		var len = arrayLike.length || 0,
 			array = new constructor(len),
 			i = 0;
 

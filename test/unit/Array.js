@@ -6,9 +6,28 @@
 /// <reference path="../node_modules/qunitjs/qunit/qunit.js"/>
 /// <reference path="../../src/firebolt.js"/>
 
-QUnit.module('Array.prototype');
+QUnit.module('Array');
 
-QUnit.test('clean', function(assert) {
+QUnit.test('.from', function(assert) {
+	var arrayLike = {0: 'a', 1: 'b', length: 2};
+	var result = Array.from(arrayLike);
+
+	assert.ok(Array.isArray(result) && result.constructor === Array, 'Returns a true array.');
+	assert.ok(result.length === 2 && result[0] === 'a' && result[1] === 'b',
+		'Correctly creates an array from the input array-like object.');
+
+	assert.strictEqual(Array.from(1).length, 0, 'Creates an empty array when passed a non-object.');
+
+	assert.throws(function() {
+		Array.from();
+	}, TypeError, 'Throws a type error when the `arrayLike` argument is undefined.');
+
+	assert.throws(function() {
+		Array.from(null);
+	}, TypeError, 'Throws a type error when the `arrayLike` argument is null.');
+});
+
+QUnit.test('#clean', function(assert) {
 	function isClean(array) {
 		return array.every(function(item) {
 			return !Firebolt.isEmpty(item);
@@ -32,7 +51,7 @@ QUnit.test('clean', function(assert) {
 		'Returns a clone of an array with no empty items.');
 });
 
-QUnit.test('clear', function(assert) {
+QUnit.test('#clear', function(assert) {
 	var array = [1, 2, 3];
 
 	array.clear();
@@ -42,7 +61,7 @@ QUnit.test('clear', function(assert) {
 		'Items are no longer in the array (the indices where the items used to be are now undefined).');
 });
 
-QUnit.test('clone', function(assert) {
+QUnit.test('#clone', function(assert) {
 	var origArray = [1, 99, '', {}, ['a', 'b'], false, /regex/],
 		clonedArray = origArray.clone();
 
@@ -50,7 +69,7 @@ QUnit.test('clone', function(assert) {
 	assert.deepEqual(clonedArray, origArray, 'Cloned array contains the same items as the original array.');
 });
 
-QUnit.test('contains', function(assert) {
+QUnit.test('#contains', function(assert) {
 	var array = ['a', 'b'];
 
 	assert.ok(array.contains('a'), 'Correctly reports that an item in the array is in fact in the array.');
@@ -59,7 +78,7 @@ QUnit.test('contains', function(assert) {
 	assert.ok(!array.contains(1), 'Correctly reports that an item not in the array is not in the array.');
 });
 
-QUnit.test('diff', function(assert) {
+QUnit.test('#diff', function(assert) {
 	var array = [1, 2, 3, 4, 5, 2];
 
 	assert.deepEqual(array.diff(), array, 'Returns a clone when called with no parameters.');
@@ -75,7 +94,7 @@ QUnit.test('diff', function(assert) {
 	})(1, 2, 5), [3, 4], 'Correctly performs a set difference when given an array-like object as input.');
 });
 
-QUnit.test('each', function(assert) {
+QUnit.test('#each', function(assert) {
 	assert.expect(9);
 
 	var seen,
@@ -115,7 +134,7 @@ QUnit.test('each', function(assert) {
 	assert.equal(i, document.styleSheets.length, 'Iteration over document.styleSheets');
 });
 
-QUnit.test('equals', function(assert) {
+QUnit.test('#equals', function(assert) {
 	var array = [1, 2, 3];
 
 	assert.ok(array.equals(array), 'Reports that an array equals itself.');
@@ -136,7 +155,7 @@ QUnit.test('equals', function(assert) {
 	assert.throws(array.equals, TypeError, 'Throws a TypeError when executed with undefined input.');
 });
 
-QUnit.test('get', function(assert) {
+QUnit.test('#get', function(assert) {
 	var array = ['a', 'b', 'c'];
 
 	assert.ok(array.get(0) === 'a', 'Get first item with positive index.');
@@ -149,7 +168,7 @@ QUnit.test('get', function(assert) {
 	assert.ok(array.get(-4) === undefined, 'Get no item with out-of-range negative index.');
 });
 
-QUnit.test('intersect', function(assert) {
+QUnit.test('#intersect', function(assert) {
 	var array = [1, 2, 3];
 
 	assert.deepEqual(array.intersect(), array, 'Returns a clone when called with no parameters.');
@@ -165,7 +184,7 @@ QUnit.test('intersect', function(assert) {
 	})(5, 2, 1), [1, 2], 'Correctly performs a set intersection when given an array-like object as input.');
 });
 
-QUnit.test('remove', function(assert) {
+QUnit.test('#remove', function(assert) {
 	var array = [1, 2, 3, 3, 4, 3];
 
 	var retArray = array.remove(2);
@@ -179,7 +198,7 @@ QUnit.test('remove', function(assert) {
 	assert.deepEqual(array.remove(1, 4), [], 'Removes all instances of each input value.');
 });
 
-QUnit.test('union', function(assert) {
+QUnit.test('#union', function(assert) {
 	var array = [1, 2, 3];
 
 	assert.deepEqual(array.union(), array, 'Returns a clone when called with no parameters.');
@@ -195,7 +214,7 @@ QUnit.test('union', function(assert) {
 	})(2, 3, 4, 5), [1, 2, 3, 4, 5], 'Correctly performs a set union when given an array-like object as input.');
 });
 
-QUnit.test('uniq', function(assert) {
+QUnit.test('#uniq', function(assert) {
 	assert.deepEqual([1, 2, 3, 0].uniq(), [1, 2, 3, 0],
 		'Returns a clone when called on an array that already contains unique elements.');
 
@@ -209,7 +228,7 @@ QUnit.test('uniq', function(assert) {
 		'Returns a unique set when called on a sorted array with duplicates and the `isSorted` parameter is `true`.');
 });
 
-QUnit.test('without', function(assert) {
+QUnit.test('#without', function(assert) {
 	var array = [1, 2, 3, 3, 4, 3];
 
 	var retArray = array.without(2);
