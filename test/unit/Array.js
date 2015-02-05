@@ -27,6 +27,15 @@ QUnit.test('.from', function(assert) {
 	}, TypeError, 'Throws a type error when the `arrayLike` argument is null.');
 });
 
+QUnit.test('.of', function(assert) {
+	var result = Array.of(1, 'a', null);
+
+	assert.ok(Array.isArray(result) && result.constructor === Array, 'Returns a true array.');
+	assert.deepEqual(result, [1, 'a', null], 'Correctly creates an array from the input arguments.');
+
+	assert.deepEqual(Array.of(), [], 'Returns an empty array when called with no arguments.');
+});
+
 QUnit.test('#clean', function(assert) {
 	function isClean(array) {
 		return array.every(function(item) {
