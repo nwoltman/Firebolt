@@ -397,7 +397,7 @@ function getNodePutOrWithFunction(inserter) {
 }
 
 /*
- * Takes in the input from `.wrap()` or `.wrapInner()` and returns a new
+ * Takes in the input from `.wrapWith()` or `.wrapInner()` and returns a new
  * element (or null/undefined) to be the wrapping element.
  */
 function getWrappingElement(input) {
@@ -3220,7 +3220,7 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
  * Sets the specified style property.
  * 
  * __Note:__ Unlike jQuery, if the passed in value is a number, it will not be converted to a string with `'px'`
- * appended to it to it prior to setting the CSS value. This helps keep the library small and fast and will force
+ * appended to it prior to setting the CSS value. This helps keep the library small and fast and will force
  * your code to be more obvious as to how it is changing the element's style (which is a good thing).
  * 
  * @function HTMLElement#css
@@ -4701,17 +4701,6 @@ NodeCollectionPrototype.add = function(input) {
  */
 
 /**
- * Alias of {@link NodeCollection#afterPut} provided for similarity with jQuery.
- * 
- * Note that Firebolt does not define a method called "after" for {@link Node}. This is
- * because the DOM Living Standard has defined a native function called `after` for the
- * {@link http://dom.spec.whatwg.org/#interface-childnode|ChildNode Interface} that
- * does not function in the same way as `.afterPut()`.
- * 
- * @function NodeCollection#after
- * @see NodeCollection#afterPut
- */
-/**
  * Inserts content after each node in the collection.
  * 
  * @function NodeCollection#afterPut
@@ -4720,7 +4709,7 @@ NodeCollectionPrototype.add = function(input) {
  * @throws {TypeError|NoModificationAllowedError} The subject collection of nodes must only contain nodes that have a
  *     {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
  */
-NodeCollectionPrototype.afterPut = NodeCollectionPrototype.after = getNodeCollectionPutOrWithFunction(insertAfter);
+NodeCollectionPrototype.afterPut = getNodeCollectionPutOrWithFunction(insertAfter);
 
 /**
  * @summary Performs a custom animation of a set of CSS properties.
@@ -4759,17 +4748,6 @@ NodeCollectionPrototype.afterPut = NodeCollectionPrototype.after = getNodeCollec
 NodeCollectionPrototype.appendTo = getNodeCollectionPutToOrReplaceAllFunction('appendWith');
 
 /**
- * Alias of {@link NodeCollection#appendWith} provided for similarity with jQuery.
- * 
- * Note that Firebolt does not define a method called "append" for {@link Node}. This is
- * because the DOM Living Standard has defined a native function called `append` for the
- * {@link http://dom.spec.whatwg.org/#interface-parentnode|ParentNode Interface} that
- * does not function in the same way as `.appendWith()`.
- * 
- * @function NodeCollection#append
- * @see NodeCollection#appendWith
- */
-/**
  * Appends content to the end of each element in the collection.
  * 
  * @function NodeCollection#appendWith
@@ -4777,7 +4755,7 @@ NodeCollectionPrototype.appendTo = getNodeCollectionPutToOrReplaceAllFunction('a
  *     collections of nodes to insert.
  * @throws {HierarchyRequestError} The nodes in the collection must implement the {@link ParentNode} interface.
  */
-NodeCollectionPrototype.appendWith = NodeCollectionPrototype.append = getNodeCollectionPutOrWithFunction(append);
+NodeCollectionPrototype.appendWith = getNodeCollectionPutOrWithFunction(append);
 
 /**
  * Gets the value of the specified attribute of the first element in the collection.
@@ -4804,17 +4782,6 @@ NodeCollectionPrototype.attr = getFirstSetEachElement(HTMLElementPrototype.attr,
 });
 
 /**
- * Alias of {@link NodeCollection#beforePut} provided for similarity with jQuery.
- * 
- * Note that Firebolt does not define a method called "before" for {@link Node}. This is
- * because the DOM Living Standard has defined a native function called `before` for the
- * {@link http://dom.spec.whatwg.org/#interface-childnode|ChildNode Interface} that does
- * not function in the same way as `.beforePut()`.
- * 
- * @function NodeCollection#before
- * @see NodeCollection#beforePut
- */
-/**
  * Inserts content before each node in the collection.
  * 
  * @function NodeCollection#beforePut
@@ -4823,7 +4790,7 @@ NodeCollectionPrototype.attr = getFirstSetEachElement(HTMLElementPrototype.attr,
  * @throws {TypeError|NoModificationAllowedError} The subject collection of nodes must only contain nodes that have a
  *     {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.parentNode|ParentNode}.
  */
-NodeCollectionPrototype.beforePut = NodeCollectionPrototype.before = getNodeCollectionPutOrWithFunction(insertBefore);
+NodeCollectionPrototype.beforePut = getNodeCollectionPutOrWithFunction(insertBefore);
 
 /**
  * Calls {@linkcode https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement.blur|HTMLElement#blur()}
@@ -4956,8 +4923,8 @@ NodeCollectionPrototype.contents = function() {
  * Sets the specified style property for each element in the collection.
  * 
  * __Note:__ Unlike jQuery, if the passed in value is a number, it will not be converted to a string with `'px'`
- * appended to it to it prior to setting the CSS value. This helps keep the library small and fast and will
- * force your code to be more obvious as to how it is changing the element's style (which is a good thing).
+ * appended to it prior to setting the CSS value. This helps keep the library small and fast and will force
+ * your code to be more obvious as to how it is changing the element's style (which is a good thing).
  * 
  * @function NodeCollection#css
  * @param {String} propertyName - The name of the style property to set.
@@ -5135,20 +5102,6 @@ NodeCollectionPrototype.html = getFirstSetEachElement(HTMLElementPrototype.html,
 NodeCollectionPrototype.item = function(index) {
 	return this[index] || null;
 };
-
-/**
- * Alias of {@link NodeCollection#putAfter} provided for similarity with jQuery.
- * 
- * @function NodeCollection#insertAfter
- * @see NodeCollection#putAfter
- */
-
-/**
- * Alias of {@link NodeCollection#putBefore} provided for similarity with jQuery.
- * 
- * @function NodeCollection#insertBefore
- * @see NodeCollection#putBefore
- */
 
 /**
  * Get the each node's immediately following sibling element. If a selector is provided,
@@ -5341,17 +5294,6 @@ NodeCollectionPrototype.parents = getGetDirElementsFunc(HTMLElementPrototype.par
 NodeCollectionPrototype.parentsUntil = getGetDirElementsFunc(HTMLElementPrototype.parentsUntil, sortRevDocOrder);
 
 /**
- * Alias of {@link NodeCollection#prependWith} provided for similarity with jQuery.
- * 
- * Note that Firebolt does not define a method called "prepend" for {@link Node}. This is
- * because the DOM Living Standard has defined a native function called `prepend` for the
- * {@link http://dom.spec.whatwg.org/#interface-parentnode|ParentNode Interface} that
- * does not function in the same way as `.prependWith()`.
- * 
- * @function NodeCollection#prepend
- * @see NodeCollection#prependWith
- */
-/**
  * Prepends content to the beginning of each element in the collection.
  * 
  * @function NodeCollection#prependWith
@@ -5359,7 +5301,7 @@ NodeCollectionPrototype.parentsUntil = getGetDirElementsFunc(HTMLElementPrototyp
  *     collections of nodes to insert.
  * @throws {HierarchyRequestError} The nodes in the collection must implement the {@link ParentNoded} interface.
  */
-NodeCollectionPrototype.prependWith = NodeCollectionPrototype.prepend = getNodeCollectionPutOrWithFunction(prepend);
+NodeCollectionPrototype.prependWith = getNodeCollectionPutOrWithFunction(prepend);
 
 /**
  * Prepends each node in this collection to the beginning of the specified target(s).
@@ -5434,8 +5376,7 @@ NodeCollectionPrototype.prop = getFirstSetEachElement(HTMLElementPrototype.prop,
  *     a set of nodes after which each node will be inserted.
  * @throws {TypeError} The target node(s) must have a {@link ParentNode}.
  */
-NodeCollectionPrototype.putAfter =
-NodeCollectionPrototype.insertAfter = getNodeCollectionPutToOrReplaceAllFunction('afterPut');
+NodeCollectionPrototype.putAfter = getNodeCollectionPutToOrReplaceAllFunction('afterPut');
 
 /**
  * Inserts each node in this collection directly before the specified target(s).
@@ -5445,8 +5386,7 @@ NodeCollectionPrototype.insertAfter = getNodeCollectionPutToOrReplaceAllFunction
  *     a set of nodes before which each node will be inserted.
  * @throws {TypeError} The target node(s) must have a {@link ParentNode}.
  */
-NodeCollectionPrototype.putBefore =
-NodeCollectionPrototype.insertBefore = getNodeCollectionPutToOrReplaceAllFunction('beforePut');
+NodeCollectionPrototype.putBefore = getNodeCollectionPutToOrReplaceAllFunction('beforePut');
 
 /**
  * Removes nodes in the collection from the DOM tree.
@@ -5801,12 +5741,6 @@ NodeCollectionPrototype.wrapInner = function(wrappingElement) {
 };
 
 /**
- * A jQuery-reminiscent alias for {@linkcode NodeCollection#wrapWith}.
- * 
- * @function NodeCollection#wrap
- * @param {String|Element|Element[]) wrappingElement
- */
-/**
  * Wrap an HTML structure around each node in the collection.
  * 
  * @function NodeCollection#wrapWith
@@ -5815,7 +5749,6 @@ NodeCollectionPrototype.wrapInner = function(wrappingElement) {
  *     specify the wrapping structure.
  * @throws {TypeError} The target node(s) must have a {@link ParentNode}.
  */
-NodeCollectionPrototype.wrap =
 NodeCollectionPrototype.wrapWith = function(wrappingElement) {
 	if (wrappingElement = getWrappingElement(wrappingElement)) {
 		for (var i = 0; i < this.length; i++) {
@@ -5855,16 +5788,16 @@ NodeCollectionPrototype.wrapWith = function(wrappingElement) {
  * The following functions return the NodeCollection equivalent of the NodeList instead of
  * the NodeList itself:
  * 
- * + afterPut / after
- * + appendWith / append
+ * + afterPut
+ * + appendWith
  * + appendTo
- * + beforePut / before
+ * + beforePut
  * + copyWithin (ES6 browsers only)
  * + each
  * + fill (ES6 browsers only)
- * + putAfter / insertAfter
- * + putBefore / insertBefore
- * + prependWith / prepend
+ * + putAfter
+ * + putBefore
+ * + prependWith
  * + prependTo
  * + remove
  * + removeClass
@@ -5874,7 +5807,7 @@ NodeCollectionPrototype.wrapWith = function(wrappingElement) {
  * + sort
  * + toggleClass
  * + unwrap
- * + wrapWith / wrap
+ * + wrapWith
  * + wrapInner
  * 
  * This is because these functions will or may alter live NodeLists, as seen in this example:

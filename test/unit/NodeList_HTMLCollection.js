@@ -10,18 +10,18 @@ QUnit.module('NodeList.prototype');
 
 QUnit.test('has correct functions', function(assert) {
 	var differentFuncs = [
-			'afterPut', 'after',
-			'appendWith', 'append',
+			'afterPut',
+			'appendWith',
 			'appendTo',
-			'beforePut', 'before',
+			'beforePut',
 			'concat',
 			'copyWithin',
 			'each',
 			'fill',
-			'prependWith', 'prepend',
+			'prependWith',
 			'prependTo',
-			'putAfter', 'insertAfter',
-			'putBefore', 'insertBefore',
+			'putAfter',
+			'putBefore',
 			'remove',
 			'removeClass',
 			'replaceAll',
@@ -31,7 +31,7 @@ QUnit.test('has correct functions', function(assert) {
 			'toggleClass',
 			'unwrap',
 			'wrapInner',
-			'wrapWith', 'wrap'
+			'wrapWith',
 		];
 
 	Object.keys(NodeList.prototype)
