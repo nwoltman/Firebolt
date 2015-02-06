@@ -4030,8 +4030,7 @@ function removeSelectorHandler(selectorHandlers, selector, handler) {
  * @function Node#off
  * @see {@link http://api.jquery.com/off/#off|.off() | jQuery API Documentation}
  */
-NodePrototype.off = off;
-function off(events, selector, handler) {
+NodePrototype.off = function off(events, selector, handler) {
 	var eventHandlers = this._$E_,
 		eventType,
 		selectorHandlers,
@@ -4094,7 +4093,7 @@ function off(events, selector, handler) {
 	}
 
 	return this;
-}
+};
 
 /* Slightly alter the Event#stopPropagation() method for more convenient use in Node#on() */
 EventPrototype.stopPropagation = function() {
@@ -4137,7 +4136,7 @@ function nodeEventHandler(eventObject, extraParameters) {
 
 		// Remove the handler if it should only occur once
 		if (handlerObject.o) {
-			off.call(_this, eType, selector, handlerObject.f);
+			NodePrototype.off.call(_this, eType, selector, handlerObject.f);
 			handlerObject.o = 0; // Make the "one" specifier falsy so this if statement won't try to remove it again
 		}
 	}
@@ -4217,8 +4216,7 @@ function nodeEventHandler(eventObject, extraParameters) {
  * @param {*} [data] - Data to be passed to the handler in `eventObject.data` when an event is triggered.
  * @see {@link http://api.jquery.com/on/#on-events-selector-data|.on() | jQuery API Documentation}
  */
-NodePrototype.on = on;
-function on(events, selector, data, handler, /*INTERNAL*/ one) {
+NodePrototype.on = function on(events, selector, data, handler, /*INTERNAL*/ one) {
 	var eventHandlers = this._$E_ || (this._$E_ = {}),
 		selectorIsString = typeofString(selector),
 		selectorHandlers,
@@ -4261,7 +4259,7 @@ function on(events, selector, data, handler, /*INTERNAL*/ one) {
 				selectorHandlers = selectorHandlers[selector] || (selectorHandlers[selector] = []);
 
 				// Add the user-input handler and data to the array of handlers
-				push1(selectorHandlers, {f: handler, d: data, o: one});
+				push1(selectorHandlers, { f: handler, d: data, o: one });
 			}
 		}
 	} else {
@@ -4272,7 +4270,7 @@ function on(events, selector, data, handler, /*INTERNAL*/ one) {
 	}
 
 	return this;
-}
+};
 
 /**
  * Attaches a handler to an event for the node. The handler is executed at most once per event type.  
@@ -4296,7 +4294,7 @@ function on(events, selector, data, handler, /*INTERNAL*/ one) {
  * @see {@link http://api.jquery.com/one/#one-events-selector-data|.one() | jQuery API Documentation}
  */
 NodePrototype.one = function(events, selector, data, handler) {
-	return on.call(this, events, selector, data, handler, 1);
+	return NodePrototype.on.call(this, events, selector, data, handler, 1);
 };
 
 /**
