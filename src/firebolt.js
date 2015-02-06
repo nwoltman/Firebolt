@@ -65,7 +65,7 @@ function copyDataAndEvents(nodeA, nodeB, doNotCopyChildNodes) {
 	// Data
 	if (data) {
 		// Use Firebolt.data in case the node was created in a different window
-		extendDeep(Firebolt.data(nodeB), data);
+		extend(true, Firebolt.data(nodeB), data);
 	}
 
 	/* From this point on, the `data` variable is reused as the counter (or property name) in loops */
@@ -73,7 +73,7 @@ function copyDataAndEvents(nodeA, nodeB, doNotCopyChildNodes) {
 	// Events
 	if (events) {
 		// Copy event data and set the handler for each type of event
-		nodeB._$E_ = extendDeep({}, events);
+		nodeB._$E_ = extend(true, {}, events);
 		for (data in events) {
 			nodeB.addEventListener(data, nodeEventHandler);
 		}
@@ -1875,7 +1875,7 @@ Firebolt.ajax = function(url, settings) {
 	}
 
 	// Merge the passed in settings object with the default values
-	settings = extendDeep({}, ajaxSettings, settings);
+	settings = extend(true, {}, ajaxSettings, settings);
 
 	url = settings.url;
 
@@ -2062,7 +2062,7 @@ Firebolt.ajax = function(url, settings) {
  *     All options are optional.
  */
 Firebolt.ajaxSetup = function(options) {
-	return extendDeep(ajaxSettings, options);
+	return extend(true, ajaxSettings, options);
 };
 
 /**
@@ -2219,56 +2219,47 @@ Firebolt.expando = 'FB' + Date.now() + 1 / Math.random();
  * @returns {Object} The `target` object.
  */
 Firebolt.extend = extend;
-function extend(target) {
+function extend() {
 	var numArgs = arguments.length,
+		target = arguments[0],
 		i = 1,
-		arg,
-		key;
-
-	if (numArgs < 2) {
-		return extend(NodeCollectionPrototype, target);
-	}
-
-	if (target === true) { // Do a deep extend
-		target = (numArgs > 2) ? arguments[i++] : NodeCollectionPrototype;
-		for (; i < numArgs; i++) {
-			extendDeep(target, arguments[i]);
-		}
-	} else {               // Do a shallow extend
-		for (; i < numArgs; i++) {
-			arg = arguments[i];
-			for (key in arg) {
-				if (arg[key] !== _undefined) {
-					target[key] = arg[key];
-				}
-			}
-		}
-	}
-
-	return target;
-}
-
-function extendDeep(target) {
-	var i = 1,
 		arg,
 		key,
 		val,
 		curval;
 
-	// Extend the target object, extending recursively if the new value is a plain object or array
-	for (; i < arguments.length; i++) {
-		arg = arguments[i];
+	if (target === true) { // Do a deep extend
+		target = (numArgs > 2) ? arguments[i++] : NodeCollectionPrototype;
+		for (; i < numArgs; i++) {
+			arg = arguments[i];
 
-		for (key in arg) {
-			curval = target[key];
-			val = arg[key];
+			for (key in arg) {
+				val = arg[key];
+				curval = target[key];
 
-			// If the values are not already the same and the new value is not the
-			// target (prevents endless recursion), set the new value on the target
-			if (curval !== val && val !== target) {
-				target[key] = isArray(val) ? extendDeep(isArray(curval) ? curval : [], val)     // Deep-extend arrays
-					: isPlainObject(val) ? extendDeep(isPlainObject(curval) ? curval : {}, val) // Deep-extend plain objects
+				// If the values are already the same or the new value is the target,
+				// do not set the new value on the target
+				if (curval === val || val === target)
+					continue;
+
+				target[key] = isArray(val) ? extend(true, isArray(curval) ? curval : [], val)     // Deep-extend arrays
+					: isPlainObject(val) ? extend(true, isPlainObject(curval) ? curval : {}, val) // Deep-extend plain objects
 					: val; // Else just copy the value into the target
+			}
+		}
+	} else { // Do a shallow extend
+		if (numArgs < 2) {
+			target = NodeCollectionPrototype;
+			i = 0;
+		}
+
+		for (; i < numArgs; i++) {
+			arg = arguments[i];
+			for (key in arg) {
+				val = arg[key];
+				if (val !== _undefined) {
+					target[key] = val;
+				}
 			}
 		}
 	}
