@@ -75,11 +75,6 @@ QUnit.test('includes', function(assert) {
 
 	assert.strictEqual(str.includes.call(123, '4'), false,
 		'Works (false version) when called on a non-string.');
-
-	// Throw
-	assert.throws(function() {
-		str.includes.call(null, 'a');
-	}, TypeError, 'Throws a TypeError when called on null or undefined.');
 });
 
 QUnit.test('repeat', function(assert) {
@@ -101,25 +96,11 @@ QUnit.test('repeat', function(assert) {
 	// Test for throwing errors
 	assert.throws(function() {
 		str.repeat(-1);
-	}, RangeError, 'Thows a RangeError when given a negative number as input.');
+	}, RangeError, 'Throws a RangeError when given a negative number as input.');
 
 	assert.throws(function() {
 		str.repeat(1/0);
-	}, RangeError, 'Thows a RangeError when given infinity as input.');
-
-
-	/* The following tests will only work if the browser supports strict mode */
-
-	var strict = (function() { 'use strict'; return !this; })();
-	if (!strict) return; // Return if strict mode is not supported
-
-	assert.throws(function() {
-		String.prototype.repeat.call(null);
-	}, TypeError, 'Throws a TypeError when called on null.');
-
-	assert.throws(function() {
-		String.prototype.repeat.call(undefined);
-	}, TypeError, 'Throws a TypeError when called on undefined.');
+	}, RangeError, 'Throws a RangeError when given infinity as input.');
 });
 
 QUnit.test('startsWith', function(assert) {

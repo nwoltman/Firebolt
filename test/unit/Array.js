@@ -184,10 +184,6 @@ QUnit.test('#includes', function(assert) {
 	var includes = Array.prototype.includes;
 	assert.ok(includes.call(arrayLike, 'b') === true && includes.call(arrayLike, 'c') === false,
 		'Works when called on array-like objects.');
-
-	assert.throws(function() {
-		includes.call(null, 1);
-	}, TypeError, 'Throws a TypeError when called on null or undefined.');
 });
 
 QUnit.test('#intersect', function(assert) {
