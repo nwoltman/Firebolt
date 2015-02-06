@@ -4,6 +4,7 @@ node_js:
   - '0.10'
 before_script:
   - npm install -g grunt-cli
+  - git fetch --tags
 env:
   global:
   - secure: bTkTM3i7CVGW5bv1KCb3LggHNgYI9/wCybN3CZv+hhKPBED5HEvCmqQUVD+M1/yWe8PWx6BFRJEA80C/OsnMBLxI5okpydMZLOffxLe5psZtKA7iNWsPL61gyIVvpzIdo4NydkjXEmtB5kER+aIxYeqNeSWA7jAoo7O2zVtE5W8=
