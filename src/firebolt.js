@@ -2196,70 +2196,51 @@ function createElement(tagName, attributes) {
 Firebolt.expando = 'FB' + Date.now() + 1 / Math.random();
 
 /**
- * @summary Extend the {@link NodeCollection} prototype.
- * 
- * @description __Warning:__ Providing `false` for the `deep` argument is not supported.
- * 
- * @function Firebolt.extend
- * @variation 1
- * @param {Boolean} [deep] - If `true`, the merge becomes recursive (performs a deep copy).
- * @param {Object} object - An object with properties to add to `NodeCollection.prototype`.
- * @returns {Object} Returns `NodeCollection.prototype`.
- */
-/**
  * @summary Merge the contents of one or more objects into the first object.
  * 
  * @description __Warning:__ Providing `false` for the `deep` argument is not supported.
  * 
  * @function Firebolt.extend
- * @variation 2
  * @param {Boolean} [deep] - If `true`, the merge becomes recursive (performs a deep copy).
  * @param {Object} target - The object that will receive the new properties.
- * @param {...Object} object - One or more objects whose properties will be added to the `target` object.
+ * @param {...Object} objectN - One or more objects whose properties will be added to the `target` object.
  * @returns {Object} The `target` object.
  */
 Firebolt.extend = extend;
 function extend() {
-	var numArgs = arguments.length,
-		target = arguments[0],
+	var deep = (arguments[0] === true),
 		i = 1,
+		target = arguments[deep ? i++ : 0],
 		arg,
 		key,
 		val,
 		curval;
 
-	if (target === true) { // Do a deep extend
-		target = (numArgs > 2) ? arguments[i++] : NodeCollectionPrototype;
-		for (; i < numArgs; i++) {
-			arg = arguments[i];
+	for (; i < arguments.length; i++) {
+		arg = arguments[i];
 
-			for (key in arg) {
-				val = arg[key];
+		for (key in arg) {
+			val = arg[key];
+			if (val === _undefined)
+				continue;
+
+			if (deep) {
 				curval = target[key];
 
-				// If the values are already the same or the new value is the target,
-				// do not set the new value on the target
-				if (curval === val || val === target)
-					continue;
-
-				target[key] = isArray(val) ? extend(true, isArray(curval) ? curval : [], val)     // Deep-extend arrays
-					: isPlainObject(val) ? extend(true, isPlainObject(curval) ? curval : {}, val) // Deep-extend plain objects
-					: val; // Else just copy the value into the target
-			}
-		}
-	} else { // Do a shallow extend
-		if (numArgs < 2) {
-			target = NodeCollectionPrototype;
-			i = 0;
-		}
-
-		for (; i < numArgs; i++) {
-			arg = arguments[i];
-			for (key in arg) {
-				val = arg[key];
-				if (val !== _undefined) {
-					target[key] = val;
+				// If the values are not already the same and the new value is not the
+				// target (prevents endless recursion), set the new value on the target
+				if (curval !== val && val !== target) {
+					// Deep-extend arrays and plain objects
+					if (isArray(val)) {
+						target[key] = extend(true, isArray(curval) ? curval : [], val);
+					} else if (isPlainObject(val)) {
+						target[key] = extend(true, isPlainObject(curval) ? curval : {}, val);
+					} else {
+						target[key] = val;
+					}
 				}
+			} else {
+				target[key] = val;
 			}
 		}
 	}

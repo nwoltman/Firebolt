@@ -148,7 +148,7 @@ QUnit.test('elem', function(assert) {
 });
 
 QUnit.test('extend', function(assert) {
-	assert.expect(32);
+	assert.expect(30);
 
 	var empty, optionsWithLength, optionsWithDate, MyKlass,
 		customObject, optionsWithCustomObject, MyNumber, ret,
@@ -268,20 +268,6 @@ QUnit.test('extend', function(assert) {
 	var result = Firebolt.extend(true, {}, initial);
 	assert.deepEqual(result, initial, 'The [result] and [initial] have equal shape and values');
 	assert.ok(!Array.isArray(result.object), 'result.object was not paved with an empty array');
-
-	// Extend NodeCollection.prototype
-	Firebolt.extend({res: result});
-	assert.ok(NodeCollection.prototype.res === result,
-		'Extends NodeCollection.prototype when called with only one parameter.');
-
-	// Deep-extend NodeCollection.prototype
-	Firebolt.extend(true, {rez: result});
-	assert.deepEqual(NodeCollection.prototype.rez, initial,
-		'Deep-extends NodeCollection.prototype when called with only `true` and another parameter.');
-
-	// Clean up that last two tests
-	NodeCollection.prototype.res = undefined;
-	NodeCollection.prototype.rez = undefined;
 });
 
 QUnit.test('frag', function(assert) {
