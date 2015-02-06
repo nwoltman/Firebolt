@@ -4223,7 +4223,12 @@ NodePrototype.on = function on(events, selector, data, handler, /*INTERNAL*/ one
 		eventType,
 		i;
 
-	if (typeofString(events)) {
+	if (typeofObject(events)) {
+		// Call this function for each event and event handler in the object
+		for (i in events) {
+			on.call(this, i, selector, data, events[i], one);
+		}
+	} else {
 		events = events.split(' ');
 
 		// Organize arguments into their proper places
@@ -4261,11 +4266,6 @@ NodePrototype.on = function on(events, selector, data, handler, /*INTERNAL*/ one
 				// Add the user-input handler and data to the array of handlers
 				push1(selectorHandlers, { f: handler, d: data, o: one });
 			}
-		}
-	} else {
-		// Call this function for each event and event handler in the object
-		for (i in events) {
-			on.call(this, i, selector, data, events[i], one);
 		}
 	}
 
