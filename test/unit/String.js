@@ -51,19 +51,35 @@ QUnit.test('includes', function(assert) {
 	var str = 'Winter is coming.';
 
 	// True
-	assert.strictEqual(str.includes(' is '), true, 'Reports that a substring is in the string.');
+	assert.strictEqual(str.includes(' is '), true,
+		'Reports that a substring is in the string.');
 
-	assert.strictEqual(str.includes('Wint'), true, 'Reports that the beginning of the string is in the string.');
+	assert.strictEqual(str.includes('Wint'), true,
+		'Reports that the beginning of the string is in the string.');
 
-	assert.strictEqual(str.includes(' coming.'), true, 'Reports that the end of the string is in the string.');
+	assert.strictEqual(str.includes(' coming.'), true,
+		'Reports that the end of the string is in the string.');
 
-	assert.strictEqual(str.includes(str), true, 'Reports that the string includes itself.');
+	assert.strictEqual(str.includes(str), true,
+		'Reports that the string includes itself.');
+
+	assert.strictEqual(str.includes.call(123, '3'), true,
+		'Works (true version) when called on a non-string.');
 
 	// False
-	assert.strictEqual(str.includes('Summer is'), false, 'Reports that a non-substring is not in the string.');
+	assert.strictEqual(str.includes('Summer is'), false,
+		'Reports that a non-substring is not in the string.');
 
 	assert.strictEqual(str.includes(' is ', 7), false,
 		'Reports that a substring is not in the string if the `position` parameter is a large enough value.');
+
+	assert.strictEqual(str.includes.call(123, '4'), false,
+		'Works (false version) when called on a non-string.');
+
+	// Throw
+	assert.throws(function() {
+		str.includes.call(null, 'a');
+	}, TypeError, 'Throws a TypeError when called on null or undefined.');
 });
 
 QUnit.test('repeat', function(assert) {

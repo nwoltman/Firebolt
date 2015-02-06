@@ -6134,8 +6134,8 @@ if (!StringPrototype.includes) {
 	 * @param {Number} [position=0] - The position in this string at which to begin the search.
 	 * @returns {Boolean} `true` if this string contains the search string, `false` otherwise.
 	 */
-	prototypeExtensions.includes = function(searchString, position) {
-		return this.toString().indexOf(searchString, position) >= 0;
+	prototypeExtensions.includes = function() {
+		return StringPrototype.indexOf.apply(this, arguments) >= 0;
 	};
 }
 
