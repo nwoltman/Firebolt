@@ -78,15 +78,6 @@ QUnit.test('#clone', function(assert) {
 	assert.deepEqual(clonedArray, origArray, 'Cloned array contains the same items as the original array.');
 });
 
-QUnit.test('#contains', function(assert) {
-	var array = ['a', 'b'];
-
-	assert.ok(array.contains('a'), 'Correctly reports that an item in the array is in fact in the array.');
-	assert.ok(array.contains('b'), 'Correctly reports that an item in the array is in fact in the array.');
-	assert.ok(!array.contains('c'), 'Correctly reports that an item not in the array is not in the array.');
-	assert.ok(!array.contains(1), 'Correctly reports that an item not in the array is not in the array.');
-});
-
 QUnit.test('#diff', function(assert) {
 	var array = [1, 2, 3, 4, 5, 2];
 
@@ -175,6 +166,28 @@ QUnit.test('#get', function(assert) {
 	assert.ok(array.get(-2) === 'b', 'Get middle item with negative index.');
 	assert.ok(array.get(-3) === 'a', 'Get first item with negative index.');
 	assert.ok(array.get(-4) === undefined, 'Get no item with out-of-range negative index.');
+});
+
+QUnit.test('#includes', function(assert) {
+	var array = ['a', 'b'];
+
+	assert.strictEqual(array.includes('a'), true,
+		'Correctly reports that an item in the array is in the array.');
+
+	assert.strictEqual(array.includes('c'), false,
+		'Correctly reports that an item not in the array is not in the array.');
+
+	assert.strictEqual(array.includes(), false,
+		'Returns `false` when called with no arguments.');
+
+	var arrayLike = {0: 'a', 1: 'b', length: 2};
+	var includes = Array.prototype.includes;
+	assert.ok(includes.call(arrayLike, 'b') === true && includes.call(arrayLike, 'c') === false,
+		'Works when called on array-like objects.');
+
+	assert.throws(function() {
+		includes.call(null, 1);
+	}, TypeError, 'Throws a TypeError when called on null or undefined.');
 });
 
 QUnit.test('#intersect', function(assert) {

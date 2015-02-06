@@ -819,16 +819,6 @@ prototypeExtensions = {
 	},
 
 	/**
-	 * Determines if the input item is in the array.
-	 * 
-	 * @function Array#contains
-	 * @returns {Boolean} `true` if the item is in the array, `false` otherwise.
-	 */
-	contains: ArrayPrototype.contains || function(e) {
-		return this.indexOf(e) >= 0;
-	},
-
-	/**
 	 * @summary Executes a function on each item in the array.
 	 * 
 	 * @description
@@ -903,6 +893,18 @@ prototypeExtensions = {
 	 */
 	get: function(index) {
 		return this[index < 0 ? index + this.length : index];
+	},
+
+	/**
+	 * Determines if the array includes a certain element.
+	 * 
+	 * @function Array#includes
+	 * @param {*} searchElement - The element to search for.
+	 * @param {Number} [fromIndex=0] - The index in this array at which to begin the search.
+	 * @returns {Boolean} `true` if the item is in the array, `false` otherwise.
+	 */
+	includes: ArrayPrototype.includes || function() {
+		return ArrayPrototype.indexOf.apply(this, arguments) >= 0;
 	},
 
 	/**
