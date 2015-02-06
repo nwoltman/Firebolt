@@ -270,6 +270,11 @@ QUnit.test('extend', function(assert) {
 	assert.ok(!Array.isArray(result.object), 'result.object was not paved with an empty array');
 });
 
+QUnit.test('fn', function(assert) {
+	assert.strictEqual(Firebolt.fn, NodeCollection.prototype,
+		'Firebolt.fn is an alias for NodeCollection.prototype');
+});
+
 QUnit.test('frag', function(assert) {
 	var fragment = Firebolt.frag(),
 		nodes,

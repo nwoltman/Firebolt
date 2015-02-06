@@ -1543,6 +1543,8 @@ ElementPrototype.removeProp = function(propertyName) {
  * The Firebolt namespace object and selector function. Can also be referenced by the synonyms `FB`
  * and `$` (if `$` has not already been defined).
  * @namespace Firebolt
+ * 
+ * @property {Object} fn - Alias for `{@link NodeCollection}.prototype`.
  */
 
 /**
@@ -4601,35 +4603,36 @@ NodePrototype.wrapWith = function(wrappingElement) {
  * allowing for function chaining.  
  * <br />
  */
-var
-	// <iframe> Array subclassing
-	NodeCollection = window.NodeCollection = window.NC = document.head.appendChild(iframe).contentWindow.Array,
+var NodeCollection = window.NodeCollection = window.NC =
+		document.head.appendChild(iframe).contentWindow.Array; // <iframe> Array subclassing
 
-	// Extend NodeCollection's prototype with the Array functions
-	NodeCollectionPrototype = extend(NodeCollection[prototype], prototypeExtensions, getTypedArrayFunctions(NodeCollection)),
+// Extend NodeCollection's prototype with the Array functions and save a reference to it
+var NodeCollectionPrototype = Firebolt.fn =
+		extend(NodeCollection[prototype], prototypeExtensions, getTypedArrayFunctions(NodeCollection));
 
-	// Polyfill NodeCollection.from() and .of() and get the custom version of .from()
-	ncFrom = setArrayStaticsAndGetFromFunction(NodeCollection),
+// Polyfill NodeCollection.from() and .of() and get the custom version of .from()
+var ncFrom = setArrayStaticsAndGetFromFunction(NodeCollection);
 
-	// Save a reference to the original filter function for use later on
-	ncFilter = NodeCollectionPrototype.filter;
+var ncFilter = NodeCollectionPrototype.filter;
 
 iframe.remove(); // Remove the iframe that was used to subclass Array
 
 /* Add a bunch of functions by calling the HTMLElement version on each element in the collection */
-('addClass animate blur click empty fadeIn fadeOut fadeToggle '
-+ 'finish focus hide removeAttr removeClass removeData removeProp '
-+ 'show slideDown slideToggle slideUp stop toggle toggleClass').split(' ').forEach(function(fnName) {
-	var fn = HTMLElementPrototype[fnName];
-	NodeCollectionPrototype[fnName] = function() {
-		for (var i = 0, len = this.length; i < len; i++) {
-			if (isNodeElement(this[i])) {
-				fn.apply(this[i], arguments);
+('addClass animate blur click empty fadeIn fadeOut fadeToggle ' +
+ 'finish focus hide removeAttr removeClass removeData removeProp ' +
+ 'show slideDown slideToggle slideUp stop toggle toggleClass')
+	.split(' ')
+	.forEach(function(fnName) {
+		var fn = HTMLElementPrototype[fnName];
+		NodeCollectionPrototype[fnName] = function() {
+			for (var i = 0, len = this.length; i < len; i++) {
+				if (isNodeElement(this[i])) {
+					fn.apply(this[i], arguments);
+				}
 			}
-		}
-		return this;
-	};
-});
+			return this;
+		};
+	});
 
 /**
  * @summary
