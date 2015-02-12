@@ -1,7 +1,6 @@
 {
   "browser": true,
   "eqnull": true,
-  "indent": 4,
   "laxbreak": true,
   "newcap": false,
   "undef": true,

@@ -17,7 +17,7 @@
  * Function for appending a node to a reference node.
  */
 function append(newNode, refNode) {
-	refNode.appendChild(newNode);
+  refNode.appendChild(newNode);
 }
 
 /*
@@ -28,26 +28,26 @@ function append(newNode, refNode) {
  * @this An enumerable object such as Array or NodeList.
  */
 function callOnEach(fn) {
-	return function() {
-		for (var i = 0, len = this.length; i < len; i++) {
-			fn.apply(this[i], arguments);
-		}
-		return this;
-	};
+  return function() {
+    for (var i = 0, len = this.length; i < len; i++) {
+      fn.apply(this[i], arguments);
+    }
+    return this;
+  };
 }
 
 /*
  * Returns a camelized version of a string
  */
 function camelize(str) {
-	return str.replace(rgxCamelizables, camelizer);
+  return str.replace(rgxCamelizables, camelizer);
 }
 
 /*
  * Pre-defined so that an anonymous function does not need to be created each time camelize() is called.
  */
 function camelizer(match, p1) {
-	return p1 ? p1.toUpperCase() : '';
+  return p1 ? p1.toUpperCase() : '';
 }
 
 /*
@@ -59,35 +59,35 @@ function camelizer(match, p1) {
  * @param {!Boolean} doNotCopyChildNodes - Inidicates if data and events for child notes should not be copied.
  */
 function copyDataAndEvents(nodeA, nodeB, doNotCopyChildNodes) {
-	var data = nodeA[Firebolt.expando],
-		events = nodeA._$E_;
+  var data = nodeA[Firebolt.expando],
+    events = nodeA._$E_;
 
-	// Data
-	if (data) {
-		// Use Firebolt.data in case the node was created in a different window
-		extend(true, Firebolt.data(nodeB), data);
-	}
+  // Data
+  if (data) {
+    // Use Firebolt.data in case the node was created in a different window
+    extend(true, Firebolt.data(nodeB), data);
+  }
 
-	/* From this point on, the `data` variable is reused as the counter (or property name) in loops */
+  /* From this point on, the `data` variable is reused as the counter (or property name) in loops */
 
-	// Events
-	if (events) {
-		// Copy event data and set the handler for each type of event
-		nodeB._$E_ = extend(true, {}, events);
-		for (data in events) {
-			nodeB.addEventListener(data, nodeEventHandler);
-		}
-	}
+  // Events
+  if (events) {
+    // Copy event data and set the handler for each type of event
+    nodeB._$E_ = extend(true, {}, events);
+    for (data in events) {
+      nodeB.addEventListener(data, nodeEventHandler);
+    }
+  }
 
-	// Copy data and events for child nodes
-	if (!doNotCopyChildNodes && (nodeA = nodeA.childNodes)) {
-		nodeB = nodeB.childNodes;
+  // Copy data and events for child nodes
+  if (!doNotCopyChildNodes && (nodeA = nodeA.childNodes)) {
+    nodeB = nodeB.childNodes;
 
-		// The nodeA and nodeB variables are now the childNodes NodeLists of the original nodes
-		for (data = 0; data < nodeA.length; data++) {
-			copyDataAndEvents(nodeA[data], nodeB[data]);
-		}
-	}
+    // The nodeA and nodeB variables are now the childNodes NodeLists of the original nodes
+    for (data = 0; data < nodeA.length; data++) {
+      copyDataAndEvents(nodeA[data], nodeB[data]);
+    }
+  }
 }
 
 /*
@@ -96,17 +96,17 @@ function copyDataAndEvents(nodeA, nodeB, doNotCopyChildNodes) {
  * @param {String} eventType - The name of the type of event (such as "click").
  */
 function createEventObject(eventType, event) { // Declaring `event` in the parameters to save a var declaration
-	if (Event.length) { // Use the modern Event constructor
-		event = new Event(eventType, {
-			bubbles: true,
-			cancelable: true
-		});
-	} else { // Use the deprecated document.createEvent() + event.initEvent() method
-		event = document.createEvent('Event');
-		event.initEvent(eventType, true, true);
-	}
+  if (Event.length) { // Use the modern Event constructor
+    event = new Event(eventType, {
+      bubbles: true,
+      cancelable: true
+    });
+  } else { // Use the deprecated document.createEvent() + event.initEvent() method
+    event = document.createEvent('Event');
+    event.initEvent(eventType, true, true);
+  }
 
-	return event;
+  return event;
 }
 
 /*
@@ -121,42 +121,42 @@ function createEventObject(eventType, event) { // Declaring `event` in the param
  * @param {String} property - The name of the CSS property being changed.
  */
 function cssMath(curVal, changeVal, type, element, property) {
-	if (type == 'em') {
-		curVal /= parseFloat(getComputedStyle(element).fontSize);
-	} else if (type == 'pt') {
-		curVal *= 0.75; // Close enough (who uses pt anyway?)
-	} else if (type == '%') {
-		curVal *= 100 / parseFloat(getComputedStyle(element.parentNode)[property]);
-	}
+  if (type == 'em') {
+    curVal /= parseFloat(getComputedStyle(element).fontSize);
+  } else if (type == 'pt') {
+    curVal *= 0.75; // Close enough (who uses pt anyway?)
+  } else if (type == '%') {
+    curVal *= 100 / parseFloat(getComputedStyle(element.parentNode)[property]);
+  }
 
-	curVal += changeVal; // Add the change value (which may be negative)
+  curVal += changeVal; // Add the change value (which may be negative)
 
-	// Convert invalid negative values to 0
-	if (curVal < 0 && /^height|width|padding|opacity/.test(property)) {
-		curVal = 0;
-	}
+  // Convert invalid negative values to 0
+  if (curVal < 0 && /^height|width|padding|opacity/.test(property)) {
+    curVal = 0;
+  }
 
-	return curVal + type; // i.e. 1.5 + "em" -> "1.5em"
+  return curVal + type; // i.e. 1.5 + "em" -> "1.5em"
 }
 
 /*
  * Returns a dasherized version of a camel case string
  */
 function dasherize(str) {
-	return str.replace(rgxDasherizables, '-$&').toLowerCase();
+  return str.replace(rgxDasherizables, '-$&').toLowerCase();
 }
 
 /*
  * Uses Object.defineProperty to define the values in the prototypeExtension object on the passed in prototype object
  */
 function definePrototypeExtensionsOn(proto, extensions) {
-	for (var prop in extensions) {
-		defineProperty(proto, prop, {
-			value: extensions[prop],
-			configurable: true,
-			writable: true
-		});
-	}
+  for (var prop in extensions) {
+    defineProperty(proto, prop, {
+      value: extensions[prop],
+      configurable: true,
+      writable: true
+    });
+  }
 }
 
 /*
@@ -165,9 +165,9 @@ function definePrototypeExtensionsOn(proto, extensions) {
  * @param {function} fn - The function to be called on the document.
  */
 function getElementSelectionFunction(fn) {
-	return isIOS ? function(selector) {
-		return fn.call(document, selector);
-	} : fn.bind(document);
+  return isIOS ? function(selector) {
+    return fn.call(document, selector);
+  } : fn.bind(document);
 }
 
 /*
@@ -179,28 +179,28 @@ function getElementSelectionFunction(fn) {
  *     element should be returned.
  */
 function getFirstSetEachElement(fn, isSetter) {
-	return function(firstArg) {
-		var items = this,
-			len = items.length,
-			i = 0;
+  return function(firstArg) {
+    var items = this,
+      len = items.length,
+      i = 0;
 
-		if (!isSetter(arguments.length, firstArg)) {
-			// Set each
-			for (; i < len; i++) {
-				if (isNodeElement(items[i])) {
-					fn.apply(items[i], arguments);
-				}
-			}
-			return items;
-		}
+    if (!isSetter(arguments.length, firstArg)) {
+      // Set each
+      for (; i < len; i++) {
+        if (isNodeElement(items[i])) {
+          fn.apply(items[i], arguments);
+        }
+      }
+      return items;
+    }
 
-		// Get first
-		for (; i < len; i++) {
-			if (isNodeElement(items[i])) {
-				return fn.call(items[i], firstArg); // Only need first arg for getting
-			}
-		}
-	};
+    // Get first
+    for (; i < len; i++) {
+      if (isNodeElement(items[i])) {
+        return fn.call(items[i], firstArg); // Only need first arg for getting
+      }
+    }
+  };
 }
 
 /*
@@ -212,73 +212,73 @@ function getFirstSetEachElement(fn, isSetter) {
  *     If sorter == 0, return an 'until' Node function.
  */
 function getGetDirElementsFunc(getDirectionElement, sorter) {
-	if (sorter) {
-		// For NodeCollection.prototype
-		return function() {
-			var len = this.length;
+  if (sorter) {
+    // For NodeCollection.prototype
+    return function() {
+      var len = this.length;
 
-			// Simple and speedy for one node
-			if (len === 1) {
-				return getDirectionElement.apply(this[0], arguments);
-			}
+      // Simple and speedy for one node
+      if (len === 1) {
+        return getDirectionElement.apply(this[0], arguments);
+      }
 
-			// Build a list of NodeCollections
-			var collections = [],
-				i = 0;
-			for (; i < len; i++) {
-				collections[i] = getDirectionElement.apply(this[i], arguments);
-			}
+      // Build a list of NodeCollections
+      var collections = [],
+        i = 0;
+      for (; i < len; i++) {
+        collections[i] = getDirectionElement.apply(this[i], arguments);
+      }
 
-			// Union the collections so that the result contains unique elements and return the sorted result
-			return ArrayPrototype.union.apply(NodeCollectionPrototype, collections).sort(sorter);
-		};
-	}
+      // Union the collections so that the result contains unique elements and return the sorted result
+      return ArrayPrototype.union.apply(NodeCollectionPrototype, collections).sort(sorter);
+    };
+  }
 
-	// For Node.prototype
-	return sorter === 0
-		// nextUntil, prevUntil, parentsUntil
-		? function(until, filter) {
-			var nc = new NodeCollection(),
-				node = this,
-				stop = typeofString(until) // Until match by CSS selector
-					? function() {
-						return node.matches(until);
-					}
-					: until && until.length // Until Node[] contains the current node
-						? function() {
-							return until.indexOf(node) >= 0;
-						}
-						// Until nodes are equal (or if `until.length === 0`, this will always return false)
-						: function() {
-							return node === until;
-						};
+  // For Node.prototype
+  return sorter === 0
+    // nextUntil, prevUntil, parentsUntil
+    ? function(until, filter) {
+      var nc = new NodeCollection(),
+        node = this,
+        stop = typeofString(until) // Until match by CSS selector
+          ? function() {
+            return node.matches(until);
+          }
+          : until && until.length // Until Node[] contains the current node
+            ? function() {
+              return until.indexOf(node) >= 0;
+            }
+            // Until nodes are equal (or if `until.length === 0`, this will always return false)
+            : function() {
+              return node === until;
+            };
 
-			// Traverse all nodes in the direction and add them (or if there is a selector the ones that match it)
-			// to the NodeCollection until the `stop()` function returns `true`
-			while ((node = getDirectionElement(node)) && !stop()) {
-				if (!filter || node.matches(filter)) {
-					push1(nc, node);
-				}
-			}
+      // Traverse all nodes in the direction and add them (or if there is a selector the ones that match it)
+      // to the NodeCollection until the `stop()` function returns `true`
+      while ((node = getDirectionElement(node)) && !stop()) {
+        if (!filter || node.matches(filter)) {
+          push1(nc, node);
+        }
+      }
 
-			return nc;
-		}
+      return nc;
+    }
 
-		// nextAll, prevAll, parents
-		: function(selector) {
-			var nc = new NodeCollection(),
-				node = this;
+    // nextAll, prevAll, parents
+    : function(selector) {
+      var nc = new NodeCollection(),
+        node = this;
 
-			// Traverse all nodes in the direction and add them (or if there is a selector the ones that match it)
-			// to the NodeCollection
-			while (node = getDirectionElement(node)) {
-				if (!selector || node.matches(selector)) {
-					push1(nc, node);
-				}
-			}
+      // Traverse all nodes in the direction and add them (or if there is a selector the ones that match it)
+      // to the NodeCollection
+      while (node = getDirectionElement(node)) {
+        if (!selector || node.matches(selector)) {
+          push1(nc, node);
+        }
+      }
 
-			return nc;
-		};
+      return nc;
+    };
 }
 
 /*
@@ -289,23 +289,23 @@ function getGetDirElementsFunc(getDirectionElement, sorter) {
  *     otherwise the function for NodeCollection.prototype is returned.
  */
 function getNextOrPrevFunc(getDirElementSibling, forNode) {
-	return forNode
-		? function(selector) {
-			var sibling = getDirElementSibling(this);
-			return (!selector || sibling && sibling.matches(selector)) ? sibling : null;
-		}
-		: function(selector) {
-			var nc = new NodeCollection(),
-				i = 0,
-				sibling;
-			for (; i < this.length; i++) {
-				sibling = getDirElementSibling(this[i]);
-				if (sibling && (!selector || sibling.matches(selector))) {
-					push1(nc, sibling);
-				}
-			}
-			return nc;
-		};
+  return forNode
+    ? function(selector) {
+      var sibling = getDirElementSibling(this);
+      return (!selector || sibling && sibling.matches(selector)) ? sibling : null;
+    }
+    : function(selector) {
+      var nc = new NodeCollection(),
+        i = 0,
+        sibling;
+      for (; i < this.length; i++) {
+        sibling = getDirElementSibling(this[i]);
+        if (sibling && (!selector || sibling.matches(selector))) {
+          push1(nc, sibling);
+        }
+      }
+      return nc;
+    };
 }
 
 /* 
@@ -314,47 +314,47 @@ function getNextOrPrevFunc(getDirElementSibling, forNode) {
  * @param {Function} inserter(newNode, refNode) - The function that performs the insertion.
  */
 function getNodeCollectionPutOrWithFunction(inserter) {
-	return function(nc, addClones) {
-		// Determine if this function was called by a function created with `getNodeCollectionPutToOrReplaceAllFunction()`
-		addClones = addClones === 0;
+  return function(nc, addClones) {
+    // Determine if this function was called by a function created with `getNodeCollectionPutToOrReplaceAllFunction()`
+    addClones = addClones === 0;
 
-		var len = this.length,
-			i = 1,
-			fragment,
-			clone;
+    var len = this.length,
+      i = 1,
+      fragment,
+      clone;
 
-		// Only create the DocumentFragment and do insertions if this NodeCollection isn't empty
-		if (len) {
-			fragment = addClones ? createFragment(nc) : createFragment.apply(this, arguments);
-			for (; i < len; i++) {
-				clone = fragment.cloneNode(true);
-				if (addClones) {
-					array_push.apply(nc, clone.childNodes);
-				}
-				inserter(clone, this[i]);
-			}
-			inserter(fragment, this[0]); // The first node always gets the original fragment
-		}
+    // Only create the DocumentFragment and do insertions if this NodeCollection isn't empty
+    if (len) {
+      fragment = addClones ? createFragment(nc) : createFragment.apply(this, arguments);
+      for (; i < len; i++) {
+        clone = fragment.cloneNode(true);
+        if (addClones) {
+          array_push.apply(nc, clone.childNodes);
+        }
+        inserter(clone, this[i]);
+      }
+      inserter(fragment, this[0]); // The first node always gets the original fragment
+    }
 
-		return this;
-	};
+    return this;
+  };
 }
 
 /* Returns the function body for NodeCollection#[appendTo, putAfter, putBefore, prependTo, replaceAll] */
 function getNodeCollectionPutToOrReplaceAllFunction(funcName) {
-	var NodeInserter = NodePrototype[funcName];
+  var NodeInserter = NodePrototype[funcName];
 
-	return function(target) {
-		var copy = ncFrom(this);
+  return function(target) {
+    var copy = ncFrom(this);
 
-		if (typeofString(target)) {
-			Firebolt(target)[funcName](copy, 0); // Pass in 0 to tell the function to add clones to the copy
-		} else {
-			NodeInserter.call(target, copy);
-		}
+    if (typeofString(target)) {
+      Firebolt(target)[funcName](copy, 0); // Pass in 0 to tell the function to add clones to the copy
+    } else {
+      NodeInserter.call(target, copy);
+    }
 
-		return copy;
-	};
+    return copy;
+  };
 }
 
 /* 
@@ -363,24 +363,24 @@ function getNodeCollectionPutToOrReplaceAllFunction(funcName) {
  * @param {Function} inserter(newNode, refNode) - The function that performs the insertion.
  */
 function getNodeInsertingFunction(inserter) {
-	return function(target) {
-		if (typeofString(target)) {
-			target = Firebolt(target);
-		} else if (isNode(target)) {
-			inserter(this, target);
-			return this;
-		}
+  return function(target) {
+    if (typeofString(target)) {
+      target = Firebolt(target);
+    } else if (isNode(target)) {
+      inserter(this, target);
+      return this;
+    }
 
-		var i = target.length;
-		if (i--) {
-			for (; i > 0; i--) {
-				inserter(this.cloneNode(true), target[i]);
-			}
-			inserter(this, target[0]);
-		}
+    var i = target.length;
+    if (i--) {
+      for (; i > 0; i--) {
+        inserter(this.cloneNode(true), target[i]);
+      }
+      inserter(this, target[0]);
+    }
 
-		return this;
-	};
+    return this;
+  };
 }
 
 /* 
@@ -389,11 +389,11 @@ function getNodeInsertingFunction(inserter) {
  * @param {Function} inserter(newNode, refNode) - The function that performs the insertion.
  */
 function getNodePutOrWithFunction(inserter) {
-	return function() {
-		inserter(createFragment.apply(this, arguments), this);
+  return function() {
+    inserter(createFragment.apply(this, arguments), this);
 
-		return this;
-	};
+    return this;
+  };
 }
 
 /*
@@ -401,37 +401,37 @@ function getNodePutOrWithFunction(inserter) {
  * element (or null/undefined) to be the wrapping element.
  */
 function getWrappingElement(input) {
-	if (typeofString(input)) {
-		input = $1(input);
-	} else if (!input.nodeType) { // Element[]
-		input = input[0];
-	}
+  if (typeofString(input)) {
+    input = $1(input);
+  } else if (!input.nodeType) { // Element[]
+    input = input[0];
+  }
 
-	return input && input.cloneNode(true);
+  return input && input.cloneNode(true);
 }
 
 /*
  * Takes in a wrapping element and returns its deepest first element child (or itself if it has no child elements).
  */
 function getWrappingInnerElement(wrapper) {
-	while (wrapper.firstElementChild) {
-		wrapper = wrapper.firstElementChild;
-	}
-	return wrapper;
+  while (wrapper.firstElementChild) {
+    wrapper = wrapper.firstElementChild;
+  }
+  return wrapper;
 }
 
 /*
  * Function for inserting a node after a reference node.
  */
 function insertAfter(newNode, refNode) {
-	refNode.parentNode.insertBefore(newNode, refNode.nextSibling);
+  refNode.parentNode.insertBefore(newNode, refNode.nextSibling);
 }
 
 /*
  * Function for inserting a node before a reference node.
  */
 function insertBefore(newNode, refNode) {
-	refNode.parentNode.insertBefore(newNode, refNode);
+  refNode.parentNode.insertBefore(newNode, refNode);
 }
 
 /*
@@ -440,7 +440,7 @@ function insertBefore(newNode, refNode) {
  * (useful in places where the computed style object has already been retrieved).
  */
 function isDisplayNone(element, styleObject) {
-	return (styleObject || getComputedStyle(element)).display == 'none';
+  return (styleObject || getComputedStyle(element)).display == 'none';
 }
 
 /*
@@ -450,14 +450,14 @@ function isDisplayNone(element, styleObject) {
  * @returns {Boolean}
  */
 function isNodeElement(node) {
-	return node.nodeType === 1;
+  return node.nodeType === 1;
 }
 
 /*
- * Prepends a node to a reference node. 
+ * Prepends a node to a reference node.
  */
 function prepend(newNode, refNode) {
-	refNode.insertBefore(newNode, refNode.firstChild);
+  refNode.insertBefore(newNode, refNode.firstChild);
 }
 
 /*
@@ -467,32 +467,32 @@ function prepend(newNode, refNode) {
  * @param {*} value - The value to append to the array.
  */
 function push1(array, value) {
-	array[array.length] = value;
+  array[array.length] = value;
 }
 
 /*
  * Replaces a reference node with a new node.
  */
 function replaceWith(newNode, refNode) {
-	refNode.parentNode.replaceChild(newNode, refNode);
+  refNode.parentNode.replaceChild(newNode, refNode);
 }
 
 /*
  * Simply returns `false`. For use in Node#on/off
  */
 function returnFalse() {
-	return false;
+  return false;
 }
 
 function sanitizeCssPropName(name) {
-	// Camelize the property name and check if it exists on the saved iframe's style object
-	name = camelize(name);
-	if (name in iframe.style) {
-		return name;
-	}
+  // Camelize the property name and check if it exists on the saved iframe's style object
+  name = camelize(name);
+  if (name in iframe.style) {
+    return name;
+  }
 
-	// The camelized input property name is not supported, so make the vendor name
-	return cssVendorPrefix + name[0].toUpperCase() + name.slice(1);
+  // The camelized input property name is not supported, so make the vendor name
+  return cssVendorPrefix + name[0].toUpperCase() + name.slice(1);
 }
 
 /*
@@ -503,33 +503,33 @@ function sanitizeCssPropName(name) {
  * @returns {function} - The created `from` function.
  */
 function setArrayStaticsAndGetFromFunction(constructor) {
-	function from(arrayLike) {
-		var len = arrayLike.length || 0,
-			array = new constructor(len),
-			i = 0;
+  function from(arrayLike) {
+    var len = arrayLike.length || 0,
+      array = new constructor(len),
+      i = 0;
 
-		for (; i < len; i++) {
-			array[i] = arrayLike[i];
-		}
+    for (; i < len; i++) {
+      array[i] = arrayLike[i];
+    }
 
-		return array;
-	}
+    return array;
+  }
 
-	constructor.of = constructor.of || function() {
-		var len = arguments.length,
-			array = new constructor(len),
-			i = 0;
+  constructor.of = constructor.of || function() {
+    var len = arguments.length,
+      array = new constructor(len),
+      i = 0;
 
-		for (; i < len; i++) {
-			array[i] = arguments[i];
-		}
+    for (; i < len; i++) {
+      array[i] = arguments[i];
+    }
 
-		return array;
-	};
+    return array;
+  };
 
-	constructor.from = constructor.from || from;
+  constructor.from = constructor.from || from;
 
-	return from;
+  return from;
 }
 
 /*
@@ -537,25 +537,25 @@ function setArrayStaticsAndGetFromFunction(constructor) {
  * the attribute if the value is `null` or `undefined`.
  */
 function setAttribute(element, key, value) {
-	if (value != _undefined) {
-		element.setAttribute(key, value);
-	} else {
-		element.removeAttribute(key);
-	}
+  if (value != _undefined) {
+    element.setAttribute(key, value);
+  } else {
+    element.removeAttribute(key);
+  }
 }
 
 function sortDocOrder(a, b) {
-	b = a.compareDocumentPosition(b);
-	return b & 4 ? -1 // Node a should come first
-		: b & 1 ? 0   // Nodes are in different documents
-		: 1;          // Else node b should come first
+  b = a.compareDocumentPosition(b);
+  return b & 4 ? -1 // Node a should come first
+       : b & 1 ? 0  // Nodes are in different documents
+       : 1;         // Else node b should come first
 }
 
 function sortRevDocOrder(a, b) {
-	b = a.compareDocumentPosition(b);
-	return b & 2 ? -1 // Node b should come first
-		: b & 1 ? 0   // Nodes are in different documents
-		: 1;          // Else node a should come first
+  b = a.compareDocumentPosition(b);
+  return b & 2 ? -1 // Node b should come first
+       : b & 1 ? 0  // Nodes are in different documents
+       : 1;         // Else node a should come first
 }
 
 /*
@@ -563,198 +563,198 @@ function sortRevDocOrder(a, b) {
  * Returns the string if parsing results in an error.
  */
 function tryParseJson(json) {
-	try {
-		return JSON.parse(json);
-	}
-	catch (e) {
-		return json;
-	}
+  try {
+    return JSON.parse(json);
+  }
+  catch (e) {
+    return json;
+  }
 }
 
 function typeofObject(value) {
-	return typeof value == 'object';
+  return typeof value == 'object';
 }
 
 function typeofString(value) {
-	return typeof value == 'string';
+  return typeof value == 'string';
 }
 
 var
-	// Browser/Engine detection
-	isIE = document.documentMode,
-	isIOS = /^iP/.test(navigator.platform), // iPhone, iPad, iPod
-	usesWebkit = window.webkitURL,
-	webkitNotIOS = usesWebkit && !isIOS,
-	usesGecko = window.mozInnerScreenX != _undefined,
+  // Browser/Engine detection
+  isIE = document.documentMode,
+  isIOS = /^iP/.test(navigator.platform), // iPhone, iPad, iPod
+  usesWebkit = window.webkitURL,
+  webkitNotIOS = usesWebkit && !isIOS,
+  usesGecko = window.mozInnerScreenX != _undefined,
 
-	// Some browser compatibility functions
-	characterData = document.createTextNode(''),
-	getNextElementSibling = (characterData.nextElementSibling === _undefined)
-		? function(el) {
-			while ((el = el.nextSibling) && el.nodeType !== 1);
-			return el;
-		}
-		: function(el) {
-			return el.nextElementSibling;
-		},
-	getPreviousElementSibling = (characterData.previousElementSibling === _undefined)
-		? function(el) {
-			while ((el = el.previousSibling) && el.nodeType !== 1);
-			return el;
-		}
-		: function(el) {
-			return el.previousElementSibling;
-		},
-	getParentElement = (characterData.parentElement === _undefined)
-		? function(el) {
-			el = el.parentNode;
-			return el && isNodeElement(el) ? el : null;
-		}
-		: function(el) {
-			return el.parentElement;
-		},
+  // Some browser compatibility functions
+  characterData = document.createTextNode(''),
+  getNextElementSibling = (characterData.nextElementSibling === _undefined)
+    ? function(el) {
+      while ((el = el.nextSibling) && el.nodeType !== 1);
+      return el;
+    }
+    : function(el) {
+      return el.nextElementSibling;
+    },
+  getPreviousElementSibling = (characterData.previousElementSibling === _undefined)
+    ? function(el) {
+      while ((el = el.previousSibling) && el.nodeType !== 1);
+      return el;
+    }
+    : function(el) {
+      return el.previousElementSibling;
+    },
+  getParentElement = (characterData.parentElement === _undefined)
+    ? function(el) {
+      el = el.parentNode;
+      return el && isNodeElement(el) ? el : null;
+    }
+    : function(el) {
+      return el.parentElement;
+    },
 
-	/*
-	 * Determines if an item is a Node.
-	 * Gecko's instanceof Node is faster (but might want to check if that's because it caches previous calls).
-	 */
-	isNode = usesGecko
-		? function(obj) {
-			return obj instanceof Node;
-		}
-		: function(obj) {
-			return obj && obj.nodeType;
-		},
+  /*
+   * Determines if an item is a Node.
+   * Gecko's instanceof Node is faster (but might want to check if that's because it caches previous calls).
+   */
+  isNode = usesGecko
+    ? function(obj) {
+      return obj instanceof Node;
+    }
+    : function(obj) {
+      return obj && obj.nodeType;
+    },
 
-	// Property strings
-	prototype = 'prototype',
+  // Property strings
+  prototype = 'prototype',
 
-	// Prototype references
-	ArrayPrototype = Array[prototype],
-	ElementPrototype = Element[prototype],
-	EventPrototype = Event[prototype],
-	HTMLElementPrototype = HTMLElement[prototype],
-	NodePrototype = Node[prototype],
-	NodeListPrototype = NodeList[prototype],
-	HTMLCollectionPrototype = HTMLCollection[prototype],
-	StringPrototype = String[prototype],
+  // Prototype references
+  ArrayPrototype = Array[prototype],
+  ElementPrototype = Element[prototype],
+  EventPrototype = Event[prototype],
+  HTMLElementPrototype = HTMLElement[prototype],
+  NodePrototype = Node[prototype],
+  NodeListPrototype = NodeList[prototype],
+  HTMLCollectionPrototype = HTMLCollection[prototype],
+  StringPrototype = String[prototype],
 
-	// Helpers
-	isArray = Array.isArray,
-	arrayFrom = setArrayStaticsAndGetFromFunction(Array),
-	array_push = ArrayPrototype.push,
-	stopPropagation = EventPrototype.stopPropagation,
-	defineProperty = Object.defineProperty,
-	keys = Object.keys,
+  // Helpers
+  isArray = Array.isArray,
+  arrayFrom = setArrayStaticsAndGetFromFunction(Array),
+  array_push = ArrayPrototype.push,
+  stopPropagation = EventPrototype.stopPropagation,
+  defineProperty = Object.defineProperty,
+  keys = Object.keys,
 
-	// Local + global selector funtions
-	getElementById = window.$$ = window.$ID =
-		webkitNotIOS ? function(id) {
-			return document.getElementById(id);
-		} : getElementSelectionFunction(document.getElementById),
+  // Local + global selector funtions
+  getElementById = window.$$ = window.$ID =
+    webkitNotIOS ? function(id) {
+      return document.getElementById(id);
+    } : getElementSelectionFunction(document.getElementById),
 
-	getElementsByClassName = window.$CLS =
-		webkitNotIOS ? function(className) {
-			return document.getElementsByClassName(className);
-		} : getElementSelectionFunction(document.getElementsByClassName),
+  getElementsByClassName = window.$CLS =
+    webkitNotIOS ? function(className) {
+      return document.getElementsByClassName(className);
+    } : getElementSelectionFunction(document.getElementsByClassName),
 
-	getElementsByTagName = window.$TAG =
-		webkitNotIOS ? function(tagName) {
-			return document.getElementsByTagName(tagName);
-		} : getElementSelectionFunction(document.getElementsByTagName),
+  getElementsByTagName = window.$TAG =
+    webkitNotIOS ? function(tagName) {
+      return document.getElementsByTagName(tagName);
+    } : getElementSelectionFunction(document.getElementsByTagName),
 
-	querySelector = window.$QS =
-		webkitNotIOS ? function(selector) {
-			return document.querySelector(selector);
-		} : getElementSelectionFunction(document.querySelector),
+  querySelector = window.$QS =
+    webkitNotIOS ? function(selector) {
+      return document.querySelector(selector);
+    } : getElementSelectionFunction(document.querySelector),
 
-	querySelectorAll = window.$QSA =
-		webkitNotIOS ? function(selector) {
-			return document.querySelectorAll(selector);
-		} : getElementSelectionFunction(document.querySelectorAll),
+  querySelectorAll = window.$QSA =
+    webkitNotIOS ? function(selector) {
+      return document.querySelectorAll(selector);
+    } : getElementSelectionFunction(document.querySelectorAll),
 
 
-	/* Pre-built RegExps */
+  /* Pre-built RegExps */
 
-	rgxDataType = /\b(?:xml|json)\b|script\b/, // Matches an AJAX data type in Content-Type header
+  rgxDataType = /\b(?:xml|json)\b|script\b/, // Matches an AJAX data type in Content-Type header
 
-	rgxNotId = /[ .,>:[+~\t-\f]/, // Matches other characters that cannot be in an id selector
+  rgxNotId = /[ .,>:[+~\t-\f]/, // Matches other characters that cannot be in an id selector
 
-	rgxNotClass = /[ #,>:[+~\t-\f]/, // Matches other characters that cannot be in a class selector
+  rgxNotClass = /[ #,>:[+~\t-\f]/, // Matches other characters that cannot be in a class selector
 
-	rgxAllDots = /\./g,
+  rgxAllDots = /\./g,
 
-	rgxNotTag = /[^A-Za-z]/, // Matches a CSS selector that is not selecting by a single tag
+  rgxNotTag = /[^A-Za-z]/, // Matches a CSS selector that is not selecting by a single tag
 
-	rgxFirstTag = /<\w+/, // Matches the first tag in an HTML string
+  rgxFirstTag = /<\w+/, // Matches the first tag in an HTML string
 
-	rgxSingleTag = /^<[A-Za-z]+\/?>$/, // Matches a single HTML tag such as "<div/>"
+  rgxSingleTag = /^<[A-Za-z]+\/?>$/, // Matches a single HTML tag such as "<div/>"
 
-	rgxSpaceChars = /[ \t-\f]+/, // From W3C http://www.w3.org/TR/html5/single-page.html#space-character
+  rgxSpaceChars = /[ \t-\f]+/, // From W3C http://www.w3.org/TR/html5/single-page.html#space-character
 
-	rgxFormButton = /button|file|reset|submit/, // Matches input element types that are buttons
+  rgxFormButton = /button|file|reset|submit/, // Matches input element types that are buttons
 
-	rgxCheckable = /checkbox|radio/, // Matches checkbox or radio input element types
+  rgxCheckable = /checkbox|radio/, // Matches checkbox or radio input element types
 
-	rgxCamelizables = isIE ? /^-+|-+([a-z])/g : /-+([a-z])/g, // Matches dashed parts of CSS property names
+  rgxCamelizables = isIE ? /^-+|-+([a-z])/g : /-+([a-z])/g, // Matches dashed parts of CSS property names
 
-	rgxDasherizables = /[A-Z]/g, // Matches capitol letters in a camel case string
+  rgxDasherizables = /[A-Z]/g, // Matches capitol letters in a camel case string
 
-	// Matches strings that look like numbers but should remain as strings. Used in Firebolt.data()
-	rgxNoParse = /^\d+(?:[^\d.]|\..*\D|\..*0$)/,
+  // Matches strings that look like numbers but should remain as strings. Used in Firebolt.data()
+  rgxNoParse = /^\d+(?:[^\d.]|\..*\D|\..*0$)/,
 
-	// Matches a CSS string value up to the units (i.e. matches up to the last number before 'px' or '%')
-	rgxUpToUnits = /.*\d/,
+  // Matches a CSS string value up to the units (i.e. matches up to the last number before 'px' or '%')
+  rgxUpToUnits = /.*\d/,
 
-	// Determines if the function is different for NodeLists
-	rgxDifferentNL = /^(?:af|ap|be|conc|cop|ea|fill|ins|prep|pu|rep|rev|sor|toggleC)|wrap|remove(?:Class)?$/,
+  // Determines if the function is different for NodeLists
+  rgxDifferentNL = /^(?:af|ap|be|conc|cop|ea|fill|ins|prep|pu|rep|rev|sor|toggleC)|wrap|remove(?:Class)?$/,
 
-	/* Needed for parsing HTML */
-	optData = [1, '<select multiple>', '</select>'],
-	tableData = [1, '<table>', '</table>'],
-	cellData = [3, '<table><tbody><tr>', '</tr></tbody></table>'],
-	specialElementsMap = {
-		'<option': optData,
-		'<optgroup': optData,
-		'<thead': tableData,
-		'<tbody': tableData,
-		'<tfoot': tableData,
-		'<colgroup': tableData,
-		'<caption': tableData,
-		'<tr': [2, '<table><tbody>', '</tbody></table>'],
-		'<col': [2, '<table><colgroup>', '</colgroup></table>'],
-		'<td': cellData,
-		'<th': cellData
-	},
+  /* Needed for parsing HTML */
+  optData = [1, '<select multiple>', '</select>'],
+  tableData = [1, '<table>', '</table>'],
+  cellData = [3, '<table><tbody><tr>', '</tr></tbody></table>'],
+  specialElementsMap = {
+    '<option': optData,
+    '<optgroup': optData,
+    '<thead': tableData,
+    '<tbody': tableData,
+    '<tfoot': tableData,
+    '<colgroup': tableData,
+    '<caption': tableData,
+    '<tr': [2, '<table><tbody>', '</tbody></table>'],
+    '<col': [2, '<table><colgroup>', '</colgroup></table>'],
+    '<td': cellData,
+    '<th': cellData
+  },
 
-	/* AJAX */
-	timestamp = Date.now(),
-	ajaxSettings = {
-		async: true,
-		isLocal: /^(?:file|.*-extension|widget):/.test(location.href),
-		type: 'GET',
-		url: location.href
-	},
+  /* AJAX */
+  timestamp = Date.now(),
+  ajaxSettings = {
+    async: true,
+    isLocal: /^(?:file|.*-extension|widget):/.test(location.href),
+    type: 'GET',
+    url: location.href
+  },
 
-	/* Animations */
-	ANIMATION_DEFAULT_DURATION = 400,
-	ANIMATION_DEFAULT_EASING = 'swing',
-	TOGGLE = 'toggle',
+  /* Animations */
+  ANIMATION_DEFAULT_DURATION = 400,
+  ANIMATION_DEFAULT_EASING = 'swing',
+  TOGGLE = 'toggle',
 
-	/* Misc */
-	iframe = createElement('iframe'), // Used for subclassing Array and determining default CSS values
+  /* Misc */
+  iframe = createElement('iframe'), // Used for subclassing Array and determining default CSS values
 
-	/* CSS */
-	cssVendorPrefix = usesWebkit ? 'webkit'
-					: usesGecko ? 'Moz'
-					: isIE ? 'ms'
-					: 'O',
-	cssTransitionKey = sanitizeCssPropName('transition'),
-	noCssTransitionSupport = iframe.style[cssTransitionKey] === _undefined,
+  /* CSS */
+  cssVendorPrefix = usesWebkit ? 'webkit'
+                  : usesGecko ? 'Moz'
+                  : isIE ? 'ms'
+                  : 'O',
+  cssTransitionKey = sanitizeCssPropName('transition'),
+  noCssTransitionSupport = iframe.style[cssTransitionKey] === _undefined,
 
-	/* Events */
-	transitionendEventName = cssTransitionKey + (cssTransitionKey[0] === 'w' ? 'End' : 'end'),
-	readyCallbacks = [],
+  /* Events */
+  transitionendEventName = cssTransitionKey + (cssTransitionKey[0] === 'w' ? 'End' : 'end'),
+  readyCallbacks = [],
 
 //#endregion Private
 
@@ -799,322 +799,322 @@ var
   */
 
 prototypeExtensions = {
-	/**
-	 * Removes all elements from the array.
-	 * 
-	 * @function Array#clear
-	 */
-	clear: function() {
-		this.length = 0;
-	},
+  /**
+   * Removes all elements from the array.
+   * 
+   * @function Array#clear
+   */
+  clear: function() {
+    this.length = 0;
+  },
 
-	/**
-	 * Returns a duplicate of the array.
-	 * 
-	 * @function Array#clone
-	 * @returns {Array} A shallow copy of the array.
-	 */
-	clone: function() {
-		return arrayFrom(this);
-	},
+  /**
+   * Returns a duplicate of the array.
+   * 
+   * @function Array#clone
+   * @returns {Array} A shallow copy of the array.
+   */
+  clone: function() {
+    return arrayFrom(this);
+  },
 
-	/**
-	 * @summary Executes a function on each item in the array.
-	 * 
-	 * @description
-	 * A generic iterator function is similar to `Array#forEach()` but with the following differences:
-	 * 
-	 * 1. `this` always refers to the current item in the iteration (the `value` argument to the callback).
-	 * 2. Returning `false` in the callback will cancel the iteration (similar to a `break` statement).
-	 * 3. The array is returned to allow for function chaining.
-	 * 
-	 * @function Array#each
-	 * @param {function(*, Number, Array)} callback(value,index,array) - A function to be executed on each
-	 *                                                                   item in the array.
-	 * @returns {Array} this
-	 */
-	each: function(callback) {
-		var i = 0;
+  /**
+   * @summary Executes a function on each item in the array.
+   * 
+   * @description
+   * A generic iterator function is similar to `Array#forEach()` but with the following differences:
+   * 
+   * 1. `this` always refers to the current item in the iteration (the `value` argument to the callback).
+   * 2. Returning `false` in the callback will cancel the iteration (similar to a `break` statement).
+   * 3. The array is returned to allow for function chaining.
+   * 
+   * @function Array#each
+   * @param {function(*, Number, Array)} callback(value,index,array) - A function to be executed on each
+   *                                                                   item in the array.
+   * @returns {Array} this
+   */
+  each: function(callback) {
+    var i = 0;
 
-		while (i < this.length && callback.call(this[i], this[i], i++, this) !== false);
+    while (i < this.length && callback.call(this[i], this[i], i++, this) !== false);
 
-		return this;
-	},
+    return this;
+  },
 
-	/**
-	 * Determines if the arrays are equal by doing a shallow comparison of their elements using strict equality.
-	 * 
-	 * __Note:__ The order of elements in the arrays DOES matter. The elements must be found in the same order
-	 * for the arrays to be considered equal.
-	 * 
-	 * @example
-	 * var array = [1, 2, 3];
-	 * 
-	 * array.equals(array);     // -> true
-	 * array.equals([1, 2, 3]); // -> true
-	 * array.equals([3, 2, 1]); // -> false
-	 * 
-	 * @function Array#equals
-	 * @param {Array} array - Array or array-like object.
-	 * @returns {Boolean} `true` if the arrays are equal, `false` otherwise.
-	 * @throws {TypeError} Throws an error if the input value is `null` or `undefined`.
-	 */
-	equals: function(array) {
-		// Only need to check contents if the input array is not the same as this array
-		if (this !== array) {
-			if (this.length !== array.length) {
-				return false;
-			}
+  /**
+   * Determines if the arrays are equal by doing a shallow comparison of their elements using strict equality.
+   * 
+   * __Note:__ The order of elements in the arrays DOES matter. The elements must be found in the same order
+   * for the arrays to be considered equal.
+   * 
+   * @example
+   * var array = [1, 2, 3];
+   * 
+   * array.equals(array);     // -> true
+   * array.equals([1, 2, 3]); // -> true
+   * array.equals([3, 2, 1]); // -> false
+   * 
+   * @function Array#equals
+   * @param {Array} array - Array or array-like object.
+   * @returns {Boolean} `true` if the arrays are equal, `false` otherwise.
+   * @throws {TypeError} Throws an error if the input value is `null` or `undefined`.
+   */
+  equals: function(array) {
+    // Only need to check contents if the input array is not the same as this array
+    if (this !== array) {
+      if (this.length !== array.length) {
+        return false;
+      }
 
-			for (var i = 0; i < array.length; i++) {
-				if (this[i] !== array[i]) {
-					return false;
-				}
-			}
-		}
+      for (var i = 0; i < array.length; i++) {
+        if (this[i] !== array[i]) {
+          return false;
+        }
+      }
+    }
 
-		return true;
-	},
+    return true;
+  },
 
-	/**
-	 * Retrieve an item in the array.
-	 * 
-	 * @example
-	 * var array = [1, 2, 3];
-	 * array.get(0);  // 1
-	 * array.get(1);  // 2
-	 * array.get(-1); // 3
-	 * array.get(-2); // 2
-	 * array.get(5);  // undefined
-	 * 
-	 * @function Array#get
-	 * @param {Number} index - A zero-based integer indicating which item to retrieve.
-	 * @returns {*} The item at the specified index.
-	 */
-	get: function(index) {
-		return this[index < 0 ? index + this.length : index];
-	},
+  /**
+   * Retrieve an item in the array.
+   * 
+   * @example
+   * var array = [1, 2, 3];
+   * array.get(0);  // 1
+   * array.get(1);  // 2
+   * array.get(-1); // 3
+   * array.get(-2); // 2
+   * array.get(5);  // undefined
+   * 
+   * @function Array#get
+   * @param {Number} index - A zero-based integer indicating which item to retrieve.
+   * @returns {*} The item at the specified index.
+   */
+  get: function(index) {
+    return this[index < 0 ? index + this.length : index];
+  },
 
-	/**
-	 * Determines if the array includes a certain element.
-	 * 
-	 * @function Array#includes
-	 * @param {*} searchElement - The element to search for.
-	 * @param {Number} [fromIndex=0] - The index in this array at which to begin the search.
-	 * @returns {Boolean} `true` if the item is in the array, `false` otherwise.
-	 */
-	includes: ArrayPrototype.includes || function() {
-		return ArrayPrototype.indexOf.apply(this, arguments) >= 0;
-	},
+  /**
+   * Determines if the array includes a certain element.
+   * 
+   * @function Array#includes
+   * @param {*} searchElement - The element to search for.
+   * @param {Number} [fromIndex=0] - The index in this array at which to begin the search.
+   * @returns {Boolean} `true` if the item is in the array, `false` otherwise.
+   */
+  includes: ArrayPrototype.includes || function() {
+    return ArrayPrototype.indexOf.apply(this, arguments) >= 0;
+  },
 
-	/**
-	 * Removes all occurrences of the passed in items from the array if they exist in the array.
-	 * 
-	 * @example
-	 * var array = [1, 2, 3, 3, 4, 3, 5];
-	 * array.remove(1);    // -> [2, 3, 3, 4, 3, 5]
-	 * array.remove(3);    // -> [2, 4, 5]
-	 * array.remove(2, 5); // -> [4]
-	 * 
-	 * @function Array#remove
-	 * @param {...*} *items - Items to remove from the array.
-	 * @returns {Array} A reference to the array (so it's chainable).
-	 */
-	remove: function() {
-		for (var i = 0, remIndex; i < arguments.length; i++) {
-			while ((remIndex = this.indexOf(arguments[i])) >= 0) {
-				this.splice(remIndex, 1);
-			}
-		}
+  /**
+   * Removes all occurrences of the passed in items from the array if they exist in the array.
+   * 
+   * @example
+   * var array = [1, 2, 3, 3, 4, 3, 5];
+   * array.remove(1);    // -> [2, 3, 3, 4, 3, 5]
+   * array.remove(3);    // -> [2, 4, 5]
+   * array.remove(2, 5); // -> [4]
+   * 
+   * @function Array#remove
+   * @param {...*} *items - Items to remove from the array.
+   * @returns {Array} A reference to the array (so it's chainable).
+   */
+  remove: function() {
+    for (var i = 0, remIndex; i < arguments.length; i++) {
+      while ((remIndex = this.indexOf(arguments[i])) >= 0) {
+        this.splice(remIndex, 1);
+      }
+    }
 
-		return this;
-	},
+    return this;
+  },
 
-	/**
-	 * Returns an array containing every distinct item that is in either this array or the input array(s).
-	 * 
-	 * @example
-	 * [1, 2, 3].union([2, 3, 4, 5]); // -> [1, 2, 3, 4, 5]
-	 * 
-	 * @function Array#union
-	 * @param {...Array} *arrays - A variable number of arrays or array-like objects.
-	 * @returns {Array} An array that is the union of this array and the input array(s).
-	 */
-	union: function() {
-		var union = this.uniq(),
-			i = 0,
-			j,
-			array;
+  /**
+   * Returns an array containing every distinct item that is in either this array or the input array(s).
+   * 
+   * @example
+   * [1, 2, 3].union([2, 3, 4, 5]); // -> [1, 2, 3, 4, 5]
+   * 
+   * @function Array#union
+   * @param {...Array} *arrays - A variable number of arrays or array-like objects.
+   * @returns {Array} An array that is the union of this array and the input array(s).
+   */
+  union: function() {
+    var union = this.uniq(),
+      i = 0,
+      j,
+      array;
 
-		for (; i < arguments.length; i++) {
-			array = arguments[i];
-			for (j = 0; j < array.length; j++) {
-				if (union.indexOf(array[j]) < 0) {
-					push1(union, array[j]);
-				}
-			}
-		}
+    for (; i < arguments.length; i++) {
+      array = arguments[i];
+      for (j = 0; j < array.length; j++) {
+        if (union.indexOf(array[j]) < 0) {
+          push1(union, array[j]);
+        }
+      }
+    }
 
-		return union;
-	}
+    return union;
+  }
 };
 
 function getTypedArrayFunctions(constructor) {
-	return {
-		/**
-		 * Returns a copy of the array with all "empty" items (as defined by {@linkcode Firebolt.isEmpty}) removed.
-		 * 
-		 * @function Array#clean
-		 * @returns {Array} A clean copy of the array.
-		 * @see Firebolt.isEmpty
-		 */
-		clean: function() {
-			var cleaned = new constructor(),
-				i = 0;
+  return {
+    /**
+     * Returns a copy of the array with all "empty" items (as defined by {@linkcode Firebolt.isEmpty}) removed.
+     * 
+     * @function Array#clean
+     * @returns {Array} A clean copy of the array.
+     * @see Firebolt.isEmpty
+     */
+    clean: function() {
+      var cleaned = new constructor(),
+        i = 0;
 
-			for (; i < this.length; i++) {
-				if (!Firebolt.isEmpty(this[i])) {
-					push1(cleaned, this[i]);
-				}
-			}
+      for (; i < this.length; i++) {
+        if (!Firebolt.isEmpty(this[i])) {
+          push1(cleaned, this[i]);
+        }
+      }
 
-			return cleaned;
-		},
+      return cleaned;
+    },
 
-		/**
-		 * Returns a new array with all of the values of this array that are not in
-		 * any of the input arrays (performs a set difference).
-		 * 
-		 * @example
-		 * [1, 2, 3, 4, 5].diff([5, 2, 10]); // -> [1, 3, 4]
-		 * 
-		 * @function Array#diff
-		 * @param {...Array} *arrays - A variable number of arrays or array-like objects.
-		 * @returns {Array}
-		 */
-		diff: function() {
-			var difference = new constructor(),
-				i = 0,
-				j,
-				k,
-				item,
-				array;
+    /**
+     * Returns a new array with all of the values of this array that are not in
+     * any of the input arrays (performs a set difference).
+     * 
+     * @example
+     * [1, 2, 3, 4, 5].diff([5, 2, 10]); // -> [1, 3, 4]
+     * 
+     * @function Array#diff
+     * @param {...Array} *arrays - A variable number of arrays or array-like objects.
+     * @returns {Array}
+     */
+    diff: function() {
+      var difference = new constructor(),
+        i = 0,
+        j,
+        k,
+        item,
+        array;
 
-			next: for (; i < this.length; i++) {
-				item = this[i];
+      next: for (; i < this.length; i++) {
+        item = this[i];
 
-				for (j = 0; j < arguments.length; j++) {
-					array = arguments[j];
+        for (j = 0; j < arguments.length; j++) {
+          array = arguments[j];
 
-					for (k = 0; k < array.length; k++) {
-						if (array[k] === item) {
-							continue next;
-						}
-					}
-				}
+          for (k = 0; k < array.length; k++) {
+            if (array[k] === item) {
+              continue next;
+            }
+          }
+        }
 
-				// The item was not part of any of the input arrays so it can be added to the difference array
-				push1(difference, item);
-			}
+        // The item was not part of any of the input arrays so it can be added to the difference array
+        push1(difference, item);
+      }
 
-			return difference;
-		},
+      return difference;
+    },
 
-		/**
-		 * Performs a set intersection on this array and the input array(s).
-		 * 
-		 * @example
-		 * [1, 2, 3].intersect([2, 3, 4]); // -> [2, 3]
-		 * [1, 2, 3].intersect([101, 2, 50, 1], [2, 1]); // -> [1, 2]
-		 * 
-		 * @function Array#intersect
-		 * @param {...Array} *arrays - A variable number of arrays or array-like objects.
-		 * @returns {Array} An array that is the intersection of this array and the input array(s).
-		 */
-		intersect: function() {
-			var intersection = new constructor(),
-				i = 0,
-				j,
-				item;
+    /**
+     * Performs a set intersection on this array and the input array(s).
+     * 
+     * @example
+     * [1, 2, 3].intersect([2, 3, 4]); // -> [2, 3]
+     * [1, 2, 3].intersect([101, 2, 50, 1], [2, 1]); // -> [1, 2]
+     * 
+     * @function Array#intersect
+     * @param {...Array} *arrays - A variable number of arrays or array-like objects.
+     * @returns {Array} An array that is the intersection of this array and the input array(s).
+     */
+    intersect: function() {
+      var intersection = new constructor(),
+        i = 0,
+        j,
+        item;
 
-			next: for (; i < this.length; i++) {
-				// The current item can only be added if it is not already in the intersection
-				if (intersection.indexOf(item = this[i]) < 0) {
+      next: for (; i < this.length; i++) {
+        // The current item can only be added if it is not already in the intersection
+        if (intersection.indexOf(item = this[i]) < 0) {
 
-					// If the item is not in every input array, continue to the next item
-					for (j = 0; j < arguments.length; j++) {
-						if (ArrayPrototype.indexOf.call(arguments[j], item) < 0) {
-							continue next;
-						}
-					}
+          // If the item is not in every input array, continue to the next item
+          for (j = 0; j < arguments.length; j++) {
+            if (ArrayPrototype.indexOf.call(arguments[j], item) < 0) {
+              continue next;
+            }
+          }
 
-					push1(intersection, item);
-				}
-			}
+          push1(intersection, item);
+        }
+      }
 
-			return intersection;
-		},
+      return intersection;
+    },
 
-		/**
-		 * Returns a duplicate-free clone of the array.
-		 * 
-		 * @example
-		 * // Unsorted
-		 * [4, 2, 3, 2, 1, 4].uniq();     // -> [4, 2, 3, 1]
-		 * 
-		 * // Sorted
-		 * [1, 2, 2, 3, 4, 4].uniq();     // -> [1, 2, 3, 4]
-		 * [1, 2, 2, 3, 4, 4].uniq(true); // -> [1, 2, 3, 4] (but faster than on the previous line)
-		 * 
-		 * @function Array#uniq
-		 * @param {Boolean} [isSorted=false] - If the input array's contents are sorted and this is set to `true`,
-		 *     a faster algorithm will be used to create the unique array.
-		 * @returns {Array}
-		 */
-		uniq: function(isSorted) {
-			var unique = new constructor(),
-				i = 0;
+    /**
+     * Returns a duplicate-free clone of the array.
+     * 
+     * @example
+     * // Unsorted
+     * [4, 2, 3, 2, 1, 4].uniq();     // -> [4, 2, 3, 1]
+     * 
+     * // Sorted
+     * [1, 2, 2, 3, 4, 4].uniq();     // -> [1, 2, 3, 4]
+     * [1, 2, 2, 3, 4, 4].uniq(true); // -> [1, 2, 3, 4] (but faster than on the previous line)
+     * 
+     * @function Array#uniq
+     * @param {Boolean} [isSorted=false] - If the input array's contents are sorted and this is set to `true`,
+     *     a faster algorithm will be used to create the unique array.
+     * @returns {Array}
+     */
+    uniq: function(isSorted) {
+      var unique = new constructor(),
+        i = 0;
 
-			for (; i < this.length; i++) {
-				if (isSorted) {
-					if (this[i] !== this[i + 1]) {
-						push1(unique, this[i]);
-					}
-				} else if (unique.indexOf(this[i]) < 0) {
-					push1(unique, this[i]);
-				}
-			}
+      for (; i < this.length; i++) {
+        if (isSorted) {
+          if (this[i] !== this[i + 1]) {
+            push1(unique, this[i]);
+          }
+        } else if (unique.indexOf(this[i]) < 0) {
+          push1(unique, this[i]);
+        }
+      }
 
-			return unique;
-		},
+      return unique;
+    },
 
-		/**
-		 * Returns a copy of the current array without any elements from the input parameters.
-		 * 
-		 * @example
-		 * [1, 2, 3, 4].without(2, 4); // -> [1, 3]
-		 * 
-		 * @function Array#without
-		 * @param {...*} *items - Items to leave out of the returned array.
-		 * @returns {Array}
-		 */
-		without: function() {
-			var array = new constructor(),
-				i = 0,
-				j;
+    /**
+     * Returns a copy of the current array without any elements from the input parameters.
+     * 
+     * @example
+     * [1, 2, 3, 4].without(2, 4); // -> [1, 3]
+     * 
+     * @function Array#without
+     * @param {...*} *items - Items to leave out of the returned array.
+     * @returns {Array}
+     */
+    without: function() {
+      var array = new constructor(),
+        i = 0,
+        j;
 
-			next: for (; i < this.length; i++) {
-				for (j = 0; j < arguments.length; j++) {
-					if (arguments[j] === this[i]) {
-						continue next;
-					}
-				}
-				push1(array, this[i]);
-			}
+      next: for (; i < this.length; i++) {
+        for (j = 0; j < arguments.length; j++) {
+          if (arguments[j] === this[i]) {
+            continue next;
+          }
+        }
+        push1(array, this[i]);
+      }
 
-			return array;
-		}
-	};
+      return array;
+    }
+  };
 }
 
 // Define the properties on Array.prototype
@@ -1177,18 +1177,18 @@ ElementPrototype.QSA = ElementPrototype.querySelectorAll;
  * @see Node#afterPut
  */
 ElementPrototype.afterPut = function() {
-	var i = arguments.length - 1,
-		arg;
+  var i = arguments.length - 1,
+    arg;
 
-	for (; i >= 0; i--) {
-		if (typeofString(arg = arguments[i])) {
-			this.insertAdjacentHTML('afterend', arg);
-		} else {
-			insertAfter(isNode(arg) ? arg : createFragment(arg), this);
-		}
-	}
+  for (; i >= 0; i--) {
+    if (typeofString(arg = arguments[i])) {
+      this.insertAdjacentHTML('afterend', arg);
+    } else {
+      insertAfter(isNode(arg) ? arg : createFragment(arg), this);
+    }
+  }
 
-	return this;
+  return this;
 };
 
 /*
@@ -1196,15 +1196,15 @@ ElementPrototype.afterPut = function() {
  * @see Node#appendWith
  */
 ElementPrototype.appendWith = function() {
-	for (var i = 0, arg; i < arguments.length; i++) {
-		if (typeofString(arg = arguments[i])) {
-			this.insertAdjacentHTML('beforeend', arg);
-		} else {
-			this.appendChild(isNode(arg) ? arg : createFragment(arg));
-		}
-	}
+  for (var i = 0, arg; i < arguments.length; i++) {
+    if (typeofString(arg = arguments[i])) {
+      this.insertAdjacentHTML('beforeend', arg);
+    } else {
+      this.appendChild(isNode(arg) ? arg : createFragment(arg));
+    }
+  }
 
-	return this;
+  return this;
 };
 
 /*
@@ -1212,15 +1212,15 @@ ElementPrototype.appendWith = function() {
  * @see Node#beforePut
  */
 ElementPrototype.beforePut = function() {
-	for (var i = 0, arg; i < arguments.length; i++) {
-		if (typeofString(arg = arguments[i])) {
-			this.insertAdjacentHTML('beforebegin', arg);
-		} else {
-			insertBefore(isNode(arg) ? arg : createFragment(arg), this);
-		}
-	}
+  for (var i = 0, arg; i < arguments.length; i++) {
+    if (typeofString(arg = arguments[i])) {
+      this.insertAdjacentHTML('beforebegin', arg);
+    } else {
+      insertBefore(isNode(arg) ? arg : createFragment(arg), this);
+    }
+  }
 
-	return this;
+  return this;
 };
 
 /**
@@ -1254,19 +1254,19 @@ ElementPrototype.beforePut = function() {
  * @param {Object} attributes - An object of attribute-value pairs.
  */
 ElementPrototype.attr = function(attribute, value) {
-	if (arguments.length < 2) {
-		if (typeofString(attribute)) {
-			return this.getAttribute(attribute); // Get
-		}
+  if (arguments.length < 2) {
+    if (typeofString(attribute)) {
+      return this.getAttribute(attribute); // Get
+    }
 
-		for (var a in attribute) {
-			setAttribute(this, a, attribute[a]); // Set multiple
-		}
-	} else {
-		setAttribute(this, attribute, value); // Set single
-	}
+    for (var a in attribute) {
+      setAttribute(this, a, attribute[a]); // Set multiple
+    }
+  } else {
+    setAttribute(this, attribute, value); // Set single
+  }
 
-	return this;
+  return this;
 };
 
 /**
@@ -1315,7 +1315,7 @@ ElementPrototype.attr = function(attribute, value) {
  * @param {Object} obj - An object of key-value pairs to add to the element's stored data.
  */
 ElementPrototype.data = function(key, value) {
-	return Firebolt.data(this, key, value, 1); // Pass in 1 to tell the generic function the object is an element
+  return Firebolt.data(this, key, value, 1); // Pass in 1 to tell the generic function the object is an element
 };
 
 /**
@@ -1337,11 +1337,11 @@ ElementPrototype.data = function(key, value) {
  * @function Element#empty
  */
 ElementPrototype.empty = function() {
-	while (this.firstChild) {
-		this.removeChild(this.firstChild);
-	}
+  while (this.firstChild) {
+    this.removeChild(this.firstChild);
+  }
 
-	return this;
+  return this;
 };
 
 /**
@@ -1375,29 +1375,29 @@ ElementPrototype.empty = function() {
  * @returns {NodeCollection}
  */
 ElementPrototype.find = function(selector) {
-	if (typeofString(selector)) {
-		// Perform a rooted QSA (staight out of Secrets of the JavaScript Ninja, page 348)
-		var origID = this.id;
-		try {
-			return this.querySelectorAll(
-				// Must make this check for when this function is used by NodeCollection#find()
-				// because `this` may be a Document or DocumentFragment
-				isNodeElement(this) ? '#' + (this.id = 'root' + (timestamp++)) + ' ' + selector
-									: selector
-			);
-		}
-		catch (e) {
-			throw e;
-		}
-		finally {
-			this.id = origID;
-		}
-	}
+  if (typeofString(selector)) {
+    // Perform a rooted QSA (staight out of Secrets of the JavaScript Ninja, page 348)
+    var origID = this.id;
+    try {
+      return this.querySelectorAll(
+        // Must make this check for when this function is used by NodeCollection#find()
+        // because `this` may be a Document or DocumentFragment
+        isNodeElement(this) ? '#' + (this.id = 'root' + (timestamp++)) + ' ' + selector
+                  : selector
+      );
+    }
+    catch (e) {
+      throw e;
+    }
+    finally {
+      this.id = origID;
+    }
+  }
 
-	// Return the intersection of all of the element's descendants with the elements in the
-	// input collection or single element (in an array)
-	return NodeCollectionPrototype.intersect.call(this.querySelectorAll('*'),
-	                                              selector.nodeType ? [selector] : selector);
+  // Return the intersection of all of the element's descendants with the elements in the
+  // input collection or single element (in an array)
+  return NodeCollectionPrototype.intersect.call(this.querySelectorAll('*'),
+                                                selector.nodeType ? [selector] : selector);
 };
 
 /**
@@ -1417,12 +1417,12 @@ ElementPrototype.find = function(selector) {
  * @param {String} htmlString
  */
 ElementPrototype.html = function(htmlString) {
-	if (htmlString === _undefined) {
-		return this.innerHTML; // Get
-	}
-	this.innerHTML = htmlString; // Set
+  if (htmlString === _undefined) {
+    return this.innerHTML; // Get
+  }
+  this.innerHTML = htmlString; // Set
 
-	return this;
+  return this;
 };
 
 /**
@@ -1443,18 +1443,18 @@ ElementPrototype.matches = ElementPrototype.matches ||
  * @see Node#prependWith
  */
 ElementPrototype.prependWith = function() {
-	var i = arguments.length - 1,
-		arg;
+  var i = arguments.length - 1,
+    arg;
 
-	for (; i >= 0; i--) {
-		if (typeofString(arg = arguments[i])) {
-			this.insertAdjacentHTML('afterbegin', arg);
-		} else {
-			prepend(isNode(arg) ? arg : createFragment(arg), this);
-		}
-	}
+  for (; i >= 0; i--) {
+    if (typeofString(arg = arguments[i])) {
+      this.insertAdjacentHTML('afterbegin', arg);
+    } else {
+      prepend(isNode(arg) ? arg : createFragment(arg), this);
+    }
+  }
 
-	return this;
+  return this;
 };
 
 /**
@@ -1478,16 +1478,16 @@ ElementPrototype.prependWith = function() {
  * @param {Object} properties - An object of property-value pairs to set.
  */
 ElementPrototype.prop = function(prop, value) {
-	if (value === _undefined) {
-		if (typeofString(prop)) {
-			return this[prop]; // Get
-		}
-		extend(this, prop); // Set multiple
-	} else {
-		this[prop] = value; // Set single
-	}
+  if (value === _undefined) {
+    if (typeofString(prop)) {
+      return this[prop]; // Get
+    }
+    extend(this, prop); // Set multiple
+  } else {
+    this[prop] = value; // Set single
+  }
 
-	return this;
+  return this;
 };
 
 /**
@@ -1497,9 +1497,9 @@ ElementPrototype.prop = function(prop, value) {
  * @param {String} attribute - The name of the attribute to remove.
  */
 ElementPrototype.removeAttr = function(attribute) {
-	this.removeAttribute(attribute);
+  this.removeAttribute(attribute);
 
-	return this;
+  return this;
 };
 
 /**
@@ -1517,9 +1517,9 @@ ElementPrototype.removeAttr = function(attribute) {
  * @param {Array|String} [list] - An array or space-separated string naming the pieces of data to remove.
  */
 ElementPrototype.removeData = function(input) {
-	Firebolt.removeData(this, input);
+  Firebolt.removeData(this, input);
 
-	return this;
+  return this;
 };
 
 /**
@@ -1529,9 +1529,9 @@ ElementPrototype.removeData = function(input) {
  * @param {String} propertyName - The name of the property to remove.
  */
 ElementPrototype.removeProp = function(propertyName) {
-	delete this[propertyName];
+  delete this[propertyName];
 
-	return this;
+  return this;
 };
 
 //#endregion Element
@@ -1581,29 +1581,29 @@ ElementPrototype.removeProp = function(propertyName) {
  *     and is an invalid CSS selector.
  */
 function Firebolt(selector) {
-	var firstChar = selector[0];
-	var nc, el; // Used in selecting elements by ID
+  var firstChar = selector[0];
+  var nc, el; // Used in selecting elements by ID
 
-	if (firstChar === '.') { // Check for a single class name
-		if (!rgxNotClass.test(selector)) {
-			return ncFrom(getElementsByClassName(selector.slice(1).replace(rgxAllDots, ' ')));
-		}
-	} else if (firstChar === '#') { // Check for a single ID
-		if (!rgxNotId.test(selector)) {
-			nc = new NodeCollection();
-			if (el = getElementById(selector.slice(1))) {
-				nc[0] = el;
-			}
-			return nc;
-		}
-	} else if (firstChar === '<') { // Check if the string is a HTML string
-		return parseHTML(selector);
-	} else if (!rgxNotTag.test(selector)) { // Check for a single tag name
-		return ncFrom(getElementsByTagName(selector));
-	}
+  if (firstChar === '.') { // Check for a single class name
+    if (!rgxNotClass.test(selector)) {
+      return ncFrom(getElementsByClassName(selector.slice(1).replace(rgxAllDots, ' ')));
+    }
+  } else if (firstChar === '#') { // Check for a single ID
+    if (!rgxNotId.test(selector)) {
+      nc = new NodeCollection();
+      if (el = getElementById(selector.slice(1))) {
+        nc[0] = el;
+      }
+      return nc;
+    }
+  } else if (firstChar === '<') { // Check if the string is a HTML string
+    return parseHTML(selector);
+  } else if (!rgxNotTag.test(selector)) { // Check for a single tag name
+    return ncFrom(getElementsByTagName(selector));
+  }
 
-	// If we could not select by class name, ID, or tag name or parse HTML, use querySelectorAll
-	return ncFrom(querySelectorAll(selector));
+  // If we could not select by class name, ID, or tag name or parse HTML, use querySelectorAll
+  return ncFrom(querySelectorAll(selector));
 }
 
 /**
@@ -1616,17 +1616,17 @@ function Firebolt(selector) {
  * @see {@link http://www.php.net/manual/en/reserved.variables.get.php|PHP: $_GET - Manual}
  */
 Firebolt._GET = function() {
-	window.$_GET = {};
-	var params = location.search.slice(1).split('&'),
-		i = 0,
-		key_val;
-	for (; i < params.length; i++) {
-		key_val = params[i].split('=');
-		if (key_val[0]) {
-			$_GET[decodeURIComponent(key_val[0])] = decodeURIComponent(key_val[1] || '');
-		}
-	}
-	return $_GET;
+  window.$_GET = {};
+  var params = location.search.slice(1).split('&'),
+    i = 0,
+    key_val;
+  for (; i < params.length; i++) {
+    key_val = params[i].split('=');
+    if (key_val[0]) {
+      $_GET[decodeURIComponent(key_val[0])] = decodeURIComponent(key_val[1] || '');
+    }
+  }
+  return $_GET;
 };
 
 /**
@@ -1868,192 +1868,193 @@ Firebolt._GET = function() {
  *     (only for requests where the `dataType` is not "script").
  */
 Firebolt.ajax = function(url, settings) {
-	// Parameter processing
-	if (typeofString(url)) {
-		settings = settings || {};
-		settings.url = url;
-	} else {
-		settings = url;
-	}
+  // Parameter processing
+  if (typeofString(url)) {
+    settings = settings || {};
+    settings.url = url;
+  } else {
+    settings = url;
+  }
 
-	// Merge the passed in settings object with the default values
-	settings = extend(true, {}, ajaxSettings, settings);
+  // Merge the passed in settings object with the default values
+  settings = extend(true, {}, ajaxSettings, settings);
 
-	url = settings.url;
+  url = settings.url;
 
-	var beforeSend = settings.beforeSend,
-		complete = settings.complete || returnFalse,
-		dataType = settings.dataType,
-		error = settings.error || returnFalse,
-		success = settings.success || returnFalse,
-		timeout = settings.timeout,
-		type = settings.type.toUpperCase(),
-		data = settings.data,
-		textStatus,
-		xhr;
+  var beforeSend = settings.beforeSend,
+    complete = settings.complete || returnFalse,
+    dataType = settings.dataType,
+    error = settings.error || returnFalse,
+    success = settings.success || returnFalse,
+    timeout = settings.timeout,
+    type = settings.type.toUpperCase(),
+    data = settings.data,
+    textStatus,
+    xhr;
 
-	if (data) {
-		// Process data if necessary
-		if (isArray(data) || isPlainObject(data)) {
-			data = serialize(data, 0, settings.traditional);
-		}
+  if (data) {
+    // Process data if necessary
+    if (isArray(data) || isPlainObject(data)) {
+      data = serialize(data, 0, settings.traditional);
+    }
 
-		// If the request is not a POST request, append the data string to the URL
-		if (type != 'POST') {
-			url = url.appendParams(data);
-			data = _undefined; // Clear the data so it is not sent later on
-		}
-	}
+    // If the request is not a POST request, append the data string to the URL
+    if (type != 'POST') {
+      url = url.appendParams(data);
+      data = _undefined; // Clear the data so it is not sent later on
+    }
+  }
 
-	if (dataType == 'script' &&
-		(settings.crossDomain || url.indexOf('//') >= 0 && url.indexOf('//' + document.domain) < 0
-		 || settings.isLocal)) { // Set up an HTML script loader
-		// Prevent caching unless the user explicitly set cache to true
-		if (settings.cache !== true) {
-			url = url.appendParams('_=' + (timestamp++));
-		}
+  if (dataType == 'script' &&
+      (settings.crossDomain ||
+       url.indexOf('//') >= 0 && url.indexOf('//' + document.domain) < 0 ||
+       settings.isLocal)) { // Set up an HTML script loader
+    // Prevent caching unless the user explicitly set cache to true
+    if (settings.cache !== true) {
+      url = url.appendParams('_=' + (timestamp++));
+    }
 
-		var script = createElement('script').prop({
-			charset: settings.scriptCharset || '',
-			src: url,
-			onload: function() {
-				if (timeout) {
-					clearTimeout(timeout);
-				}
-				script.remove();
-				success(data, textStatus = 'success', xhr);
-				complete(xhr, textStatus);
-			},
-			onerror: function(e) {
-				if (timeout) {
-					clearTimeout(timeout);
-				}
-				script.remove();
-				error(xhr, textStatus = textStatus || 'error', e);
-				complete(xhr, textStatus);
-			}
-		});
+    var script = createElement('script').prop({
+      charset: settings.scriptCharset || '',
+      src: url,
+      onload: function() {
+        if (timeout) {
+          clearTimeout(timeout);
+        }
+        script.remove();
+        success(data, textStatus = 'success', xhr);
+        complete(xhr, textStatus);
+      },
+      onerror: function(e) {
+        if (timeout) {
+          clearTimeout(timeout);
+        }
+        script.remove();
+        error(xhr, textStatus = textStatus || 'error', e);
+        complete(xhr, textStatus);
+      }
+    });
 
-		// Create a sort-of XHR object
-		xhr = {
-			send: function() {
-				// Append the script to the head of the document to load it
-				document.head.appendChild(script);
-			},
-			abort: function() {
-				textStatus = 'abort';
-				script.onerror();
-			}
-		};
+    // Create a sort-of XHR object
+    xhr = {
+      send: function() {
+        // Append the script to the head of the document to load it
+        document.head.appendChild(script);
+      },
+      abort: function() {
+        textStatus = 'abort';
+        script.onerror();
+      }
+    };
 
-	} else { // Set up a true XHR
+  } else { // Set up a true XHR
 
-		xhr = extend(new XMLHttpRequest(), settings.xhrFields); // Create the XHR and give it settings
+    xhr = extend(new XMLHttpRequest(), settings.xhrFields); // Create the XHR and give it settings
 
-		// Override the requested MIME type in the XHR if there is one specified in the settings
-		if (settings.mimeType) {
-			xhr.overrideMimeType(settings.mimeType);
-		}
+    // Override the requested MIME type in the XHR if there is one specified in the settings
+    if (settings.mimeType) {
+      xhr.overrideMimeType(settings.mimeType);
+    }
 
-		// Prevent caching if necessary
-		if ((type == 'GET' || type == 'HEAD') && settings.cache === false) {
-			url = url.appendParams('_=' + (timestamp++));
-		}
+    // Prevent caching if necessary
+    if ((type == 'GET' || type == 'HEAD') && settings.cache === false) {
+      url = url.appendParams('_=' + (timestamp++));
+    }
 
-		// Open the request
-		xhr.open(type, url, settings.async, settings.username, settings.password);
+    // Open the request
+    xhr.open(type, url, settings.async, settings.username, settings.password);
 
-		var headers = settings.headers || {},
-			contentType = settings.contentType;
+    var headers = settings.headers || {},
+      contentType = settings.contentType;
 
-		// Set the content type header if there is data to submit or the user has specifed a particular content type
-		if (data || contentType) {
-			headers['Content-Type'] = contentType || 'application/x-www-form-urlencoded; charset=UTF-8';
-		}
+    // Set the content type header if there is data to submit or the user has specifed a particular content type
+    if (data || contentType) {
+      headers['Content-Type'] = contentType || 'application/x-www-form-urlencoded; charset=UTF-8';
+    }
 
-		// Set the request headers in the XHR
-		for (contentType in headers) { // Reuse the `contentType` variable
-			xhr.setRequestHeader(contentType, headers[contentType]);
-		}
+    // Set the request headers in the XHR
+    for (contentType in headers) { // Reuse the `contentType` variable
+      xhr.setRequestHeader(contentType, headers[contentType]);
+    }
 
-		// The main XHR function for when the request has loaded
-		xhr.onreadystatechange = function() {
-			if (xhr.readyState < 4) {
-				return;
-			}
+    // The main XHR function for when the request has loaded
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState < 4) {
+        return;
+      }
 
-			if (timeout) {
-				clearTimeout(timeout);
-			}
+      if (timeout) {
+        clearTimeout(timeout);
+      }
 
-			var statusCode = xhr.status;
+      var statusCode = xhr.status;
 
-			if (statusCode >= 200 && statusCode < 300 || statusCode === 304 ||
-			    settings.isLocal && xhr.responseText) { // Success
+      if (statusCode >= 200 && statusCode < 300 || statusCode === 304 ||
+          settings.isLocal && xhr.responseText) { // Success
 
-				if (statusCode === 204 || type == 'HEAD') { // If no content
-					textStatus = 'nocontent';
-				} else {
-					textStatus = 'success';
-				}
+        if (statusCode === 204 || type == 'HEAD') { // If no content
+          textStatus = 'nocontent';
+        } else {
+          textStatus = 'success';
+        }
 
-				try {
-					// Only need to process data of there is content
-					if (textStatus != 'nocontent') {
-						// If the data type has not been set, try to figure it out
-						if (!dataType) {
-							if ((dataType = rgxDataType.exec(xhr.getResponseHeader('Content-Type')))) {
-								dataType = dataType[0];
-							}
-						}
+        try {
+          // Only need to process data of there is content
+          if (textStatus != 'nocontent') {
+            // If the data type has not been set, try to figure it out
+            if (!dataType) {
+              if ((dataType = rgxDataType.exec(xhr.getResponseHeader('Content-Type')))) {
+                dataType = dataType[0];
+              }
+            }
 
-						// Set data based on the data type
-						if (dataType == 'xml') {
-							data = xhr.responseXML;
-						} else if (dataType == 'json') {
-							data = JSON.parse(xhr.responseText);
-						} else {
-							data = xhr.responseText;
+            // Set data based on the data type
+            if (dataType == 'xml') {
+              data = xhr.responseXML;
+            } else if (dataType == 'json') {
+              data = JSON.parse(xhr.responseText);
+            } else {
+              data = xhr.responseText;
 
-							if (dataType == 'script') {
-								Firebolt.globalEval(data);
-							}
-						}
-					} else {
-						data = '';
-					}
+              if (dataType == 'script') {
+                Firebolt.globalEval(data);
+              }
+            }
+          } else {
+            data = '';
+          }
 
-					success(data, textStatus, xhr); // Invoke the success callback
-				}
-				catch (e) {
-					error(xhr, textStatus = 'parsererror', e);
-				}
-			} else { // Error
-				if (textStatus != 'timeout') {
-					textStatus = xhr.readyState < 3 ? 'abort' : 'error';
-				}
-				error(xhr, textStatus);
-			}
+          success(data, textStatus, xhr); // Invoke the success callback
+        }
+        catch (e) {
+          error(xhr, textStatus = 'parsererror', e);
+        }
+      } else { // Error
+        if (textStatus != 'timeout') {
+          textStatus = xhr.readyState < 3 ? 'abort' : 'error';
+        }
+        error(xhr, textStatus);
+      }
 
-			complete(xhr, textStatus); // Invoke the complete callback
-		};
-	}
+      complete(xhr, textStatus); // Invoke the complete callback
+    };
+  }
 
-	if (beforeSend && beforeSend(xhr, settings) === false) {
-		return false; // Do not send the request
-	}
+  if (beforeSend && beforeSend(xhr, settings) === false) {
+    return false; // Do not send the request
+  }
 
-	// Set a timeout if there is one
-	if (timeout > 0) {
-		timeout = setTimeout(function() {
-			textStatus = 'timeout';
-			xhr.abort();
-		}, timeout);
-	}
+  // Set a timeout if there is one
+  if (timeout > 0) {
+    timeout = setTimeout(function() {
+      textStatus = 'timeout';
+      xhr.abort();
+    }, timeout);
+  }
 
-	xhr.send(data); // Send the request
+  xhr.send(data); // Send the request
 
-	return xhr;
+  return xhr;
 };
 
 /**
@@ -2064,7 +2065,7 @@ Firebolt.ajax = function(url, settings) {
  *     All options are optional.
  */
 Firebolt.ajaxSetup = function(options) {
-	return extend(true, ajaxSettings, options);
+  return extend(true, ajaxSettings, options);
 };
 
 /**
@@ -2112,63 +2113,63 @@ Firebolt.ajaxSetup = function(options) {
  * @returns {Object} The passed in object.
  */
 Firebolt.data = function(object, key, value, isElement) {
-	var expando = Firebolt.expando,
-		dataStore = object[expando];
+  var expando = Firebolt.expando,
+    dataStore = object[expando];
 
-	if (!dataStore) {
-		// Define the data store object at a non-enumerable property
-		defineProperty(object, expando, {
-			value: dataStore = {}
-		});
+  if (!dataStore) {
+    // Define the data store object at a non-enumerable property
+    defineProperty(object, expando, {
+      value: dataStore = {}
+    });
 
-		// If the object is an Element, try loading "data-*" attributes
-		if (isElement) {
-			var attributes = object.attributes,
-				dataAttributes = {},
-				i = 0,
-				attrib,
-				val;
+    // If the object is an Element, try loading "data-*" attributes
+    if (isElement) {
+      var attributes = object.attributes,
+        dataAttributes = {},
+        i = 0,
+        attrib,
+        val;
 
-			for (; i < attributes.length; i++) {
-				attrib = attributes[i];
-				if (attrib.name.startsWith('data-')) {
-					if (!rgxNoParse.test(val = attrib.value)) {
-						val = tryParseJson(val); // Try to parse the string into a native object
-					}
-					// Set the value in the data attributes object and data store
-					attrib = camelize(attrib.name.slice(5));
-					dataStore[attrib] = dataAttributes[attrib] = val;
-				}
-			}
+      for (; i < attributes.length; i++) {
+        attrib = attributes[i];
+        if (attrib.name.startsWith('data-')) {
+          if (!rgxNoParse.test(val = attrib.value)) {
+            val = tryParseJson(val); // Try to parse the string into a native object
+          }
+          // Set the value in the data attributes object and data store
+          attrib = camelize(attrib.name.slice(5));
+          dataStore[attrib] = dataAttributes[attrib] = val;
+        }
+      }
 
-			// Save the data attributes if there are any
-			if (!isEmptyObject(dataAttributes)) {
-				object._$DA_ = dataAttributes;
-			}
-		}
-	}
+      // Save the data attributes if there are any
+      if (!isEmptyObject(dataAttributes)) {
+        object._$DA_ = dataAttributes;
+      }
+    }
+  }
 
-	if (value === _undefined) {
-		if (typeofObject(key)) {
-			extend(dataStore, key); // Set multiple
-		} else {
-			if (key === _undefined) {
-				return dataStore; // Get the data store object
-			}
+  if (value === _undefined) {
+    if (typeofObject(key)) {
+      extend(dataStore, key); // Set multiple
+    } else {
+      if (key === _undefined) {
+        return dataStore; // Get the data store object
+      }
 
-			// Get the data at the specified name
-			if ((value = dataStore[key = camelize(key)]) === _undefined && object._$DA_) {
-				// Save the data-* attribute value to the data store and return it
-				return dataStore[key] = object._$DA_[key];
-			}
+      // Get the data at the specified name
+      if ((value = dataStore[key = camelize(key)]) === _undefined && object._$DA_) {
+        // Save the data-* attribute value to the data store and return it
+        return dataStore[key] = object._$DA_[key];
+      }
 
-			return value;
-		}
-	} else {
-		dataStore[camelize(key)] = value; // Set value
-	}
+      return value;
+    }
+  } else {
+    dataStore[camelize(key)] = value; // Set value
+  }
 
-	return object;
+  return object;
 };
 
 /*
@@ -2176,7 +2177,7 @@ Firebolt.data = function(object, key, value, isElement) {
  * The easing extension can be used to fill this out more.
  */
 Firebolt.easing = {
-	swing: 'cubic-bezier(.36,0,.64,1)' // Essentially the same as jQuery (curve is identical in WolframAlpha)
+  swing: 'cubic-bezier(.36,0,.64,1)' // Essentially the same as jQuery (curve is identical in WolframAlpha)
 };
 
 /**
@@ -2190,8 +2191,8 @@ Firebolt.easing = {
  */
 Firebolt.elem = createElement;
 function createElement(tagName, attributes) {
-	var el = document.createElement(tagName);
-	return attributes ? el.attr(attributes) : el;
+  var el = document.createElement(tagName);
+  return attributes ? el.attr(attributes) : el;
 }
 
 /* The key where Firebolt stores data using $.data() */
@@ -2210,44 +2211,44 @@ Firebolt.expando = 'FB' + Date.now() + 1 / Math.random();
  */
 Firebolt.extend = extend;
 function extend() {
-	var deep = (arguments[0] === true),
-		i = 1,
-		target = arguments[deep ? i++ : 0],
-		arg,
-		key,
-		val,
-		curval;
+  var deep = (arguments[0] === true),
+    i = 1,
+    target = arguments[deep ? i++ : 0],
+    arg,
+    key,
+    val,
+    curval;
 
-	for (; i < arguments.length; i++) {
-		arg = arguments[i];
+  for (; i < arguments.length; i++) {
+    arg = arguments[i];
 
-		for (key in arg) {
-			val = arg[key];
-			if (val === _undefined)
-				continue;
+    for (key in arg) {
+      val = arg[key];
+      if (val === _undefined)
+        continue;
 
-			if (deep) {
-				curval = target[key];
+      if (deep) {
+        curval = target[key];
 
-				// If the values are not already the same and the new value is not the
-				// target (prevents endless recursion), set the new value on the target
-				if (curval !== val && val !== target) {
-					// Deep-extend arrays and plain objects
-					if (isArray(val)) {
-						target[key] = extend(true, isArray(curval) ? curval : [], val);
-					} else if (isPlainObject(val)) {
-						target[key] = extend(true, isPlainObject(curval) ? curval : {}, val);
-					} else {
-						target[key] = val;
-					}
-				}
-			} else {
-				target[key] = val;
-			}
-		}
-	}
+        // If the values are not already the same and the new value is not the
+        // target (prevents endless recursion), set the new value on the target
+        if (curval !== val && val !== target) {
+          // Deep-extend arrays and plain objects
+          if (isArray(val)) {
+            target[key] = extend(true, isArray(curval) ? curval : [], val);
+          } else if (isPlainObject(val)) {
+            target[key] = extend(true, isPlainObject(curval) ? curval : {}, val);
+          } else {
+            target[key] = val;
+          }
+        }
+      } else {
+        target[key] = val;
+      }
+    }
+  }
 
-	return target;
+  return target;
 }
 
 /**
@@ -2260,39 +2261,39 @@ function extend() {
  */
 Firebolt.frag = createFragment;
 function createFragment() {
-	var fragment = document.createDocumentFragment(),
-		i = 0,
-		item,
-		len,
-		j;
+  var fragment = document.createDocumentFragment(),
+    i = 0,
+    item,
+    len,
+    j;
 
-	for (; i < arguments.length; i++) {
-		if (isNode(item = arguments[i])) {
-			fragment.appendChild(item);
-		} else {
-			if (typeofString(item)) {
-				// Pass in the 1 to tell parseHTML it doesn't need to detach the returned nodes
-				// from their creation container (because this function will do that)
-				item = parseHTML(item, document, 0, 1);
-			}
+  for (; i < arguments.length; i++) {
+    if (isNode(item = arguments[i])) {
+      fragment.appendChild(item);
+    } else {
+      if (typeofString(item)) {
+        // Pass in the 1 to tell parseHTML it doesn't need to detach the returned nodes
+        // from their creation container (because this function will do that)
+        item = parseHTML(item, document, 0, 1);
+      }
 
-			if (len = item.length) {
-				fragment.appendChild(item[0]);
-				if (item.length < len) { // If the item is a live NodeList/HTMLCollection
-					while (item.length) {
-						fragment.appendChild(item[0]);
-					}
-				} else {
-					for (j = 1; j < len; j++) {
-						fragment.appendChild(item[j]);
-					}
-				}
+      if (len = item.length) {
+        fragment.appendChild(item[0]);
+        if (item.length < len) { // If the item is a live NodeList/HTMLCollection
+          while (item.length) {
+            fragment.appendChild(item[0]);
+          }
+        } else {
+          for (j = 1; j < len; j++) {
+            fragment.appendChild(item[j]);
+          }
+        }
 
-			}
-		}
-	}
+      }
+    }
+  }
 
-	return fragment;
+  return fragment;
 }
 
 /**
@@ -2307,22 +2308,22 @@ function createFragment() {
  *     Default: Intelligent Guess (xml, json, script, or html).
  */
 Firebolt.get = function(url, data, success, dataType) {
-	// Organize arguments into their proper places
-	if (typeof data == 'function') {
-		dataType = dataType || success; // Using || because when getJSON is called dataType will have a value
-		success = data;
-		data = '';
-	} else if (typeofString(success)) {
-		dataType = success;
-		success = 0;
-	}
+  // Organize arguments into their proper places
+  if (typeof data == 'function') {
+    dataType = dataType || success; // Using || because when getJSON is called dataType will have a value
+    success = data;
+    data = '';
+  } else if (typeofString(success)) {
+    dataType = success;
+    success = 0;
+  }
 
-	return Firebolt.ajax({
-		url: url,
-		data: data,
-		success: success,
-		dataType: dataType
-	});
+  return Firebolt.ajax({
+    url: url,
+    data: data,
+    success: success,
+    dataType: dataType
+  });
 };
 
 /**
@@ -2334,7 +2335,7 @@ Firebolt.get = function(url, data, success, dataType) {
  * @param {Function} [success(data, textStatus, xhr)] - A callback function that is executed if the request succeeds.
  */
 Firebolt.getJSON = function(url, data, success) {
-	return Firebolt.get(url, data, success, 'json');
+  return Firebolt.get(url, data, success, 'json');
 };
 
 /**
@@ -2345,7 +2346,7 @@ Firebolt.getJSON = function(url, data, success) {
  * @param {Function} [success(data, textStatus, xhr)] - A callback function that is executed if the request succeeds.
  */
 Firebolt.getScript = function(url, success) {
-	return Firebolt.get(url, '', success, 'script');
+  return Firebolt.get(url, '', success, 'script');
 };
 
 /**
@@ -2355,9 +2356,9 @@ Firebolt.getScript = function(url, success) {
  * @param {String} code - The JavaScript code to execute.
  */
 Firebolt.globalEval = function(code) {
-	document.head.appendChild(
-		createElement('script').prop('text', code)
-	).remove();
+  document.head.appendChild(
+    createElement('script').prop('text', code)
+  ).remove();
 };
 
 /**
@@ -2368,7 +2369,7 @@ Firebolt.globalEval = function(code) {
  * @returns {Boolean} `true` if the object has stored Firebolt data; else `false`.
  */
 Firebolt.hasData = function(object) {
-	return !isEmptyObject(object[Firebolt.expando]);
+  return !isEmptyObject(object[Firebolt.expando]);
 };
 
 /**
@@ -2384,12 +2385,12 @@ Firebolt.hasData = function(object) {
  * @returns {Boolean} - `true` if the object is deemed empty, `false` otherwise.
  */
 Firebolt.isEmpty = function(value, className) {
-	return value == _undefined || (
-		isArray(value) || typeofString(value) ||
-		(className = getClassOf(value)) == 'NodeList' || className == 'HTMLCollection'
-			? !value.length
-			: className == 'Object' && isEmptyObject(value)
-	);
+  return value == _undefined || (
+    isArray(value) || typeofString(value) ||
+    (className = getClassOf(value)) == 'NodeList' || className == 'HTMLCollection'
+      ? !value.length
+      : className == 'Object' && isEmptyObject(value)
+  );
 };
 
 /**
@@ -2401,10 +2402,10 @@ Firebolt.isEmpty = function(value, className) {
  */
 Firebolt.isEmptyObject = isEmptyObject;
 function isEmptyObject(object) {
-	for (object in object) {
-		return false;
-	}
-	return true;
+  for (object in object) {
+    return false;
+  }
+  return true;
 }
 
 /**
@@ -2415,7 +2416,7 @@ function isEmptyObject(object) {
  */
 Firebolt.isPlainObject = isPlainObject;
 function isPlainObject(obj) {
-	return obj && (obj = obj.constructor) && obj.toString().trim().slice(9, 16) == 'Object(';
+  return obj && (obj = obj.constructor) && obj.toString().trim().slice(9, 16) == 'Object(';
 }
 
 /**
@@ -2429,49 +2430,49 @@ function isPlainObject(obj) {
  * @returns {String} The serialized string representation of the array or object.
  */
 Firebolt.param = function(obj, traditional) {
-	return serialize(obj, 0, traditional);
+  return serialize(obj, 0, traditional);
 };
 
 function serialize(obj, prefix, traditional) {
-	var queryString = '',
-		valueIsObject,
-		key,
-		value,
-		cur;
+  var queryString = '',
+    valueIsObject,
+    key,
+    value,
+    cur;
 
-	for (key in obj) {
-		value = obj[key];
-		if (typeof value == 'function') {
-			value = value();
-		}
-		if (value == _undefined) {
-			value = '';
-		}
+  for (key in obj) {
+    value = obj[key];
+    if (typeof value == 'function') {
+      value = value();
+    }
+    if (value == _undefined) {
+      value = '';
+    }
 
-		if (traditional) {
-			// Add the key
-			queryString += (queryString ? '&' : '') + encodeURIComponent(key);
+    if (traditional) {
+      // Add the key
+      queryString += (queryString ? '&' : '') + encodeURIComponent(key);
 
-			// Add the value
-			if (isArray(value)) {
-				for (cur = 0; cur < value.length; cur++) {
-					// Add key again for multiple array values
-					queryString += (cur ? '&' + encodeURIComponent(key) : '') +
-					               '=' + encodeURIComponent(value[cur] == _undefined ? '' : value[cur]);
-				}
-			} else {
-				queryString += '=' + encodeURIComponent(value);
-			}
-		} else if (!(valueIsObject = isArray(value) || getClassOf(value) == 'Object') || !isEmptyObject(value)) {
-			/* Inspired by: http://stackoverflow.com/questions/1714786/querystring-encoding-of-a-javascript-object */
-			cur = prefix ? prefix + '[' + key + ']' : key;
-			queryString += (queryString ? '&' : '') +
-			               (valueIsObject ? serialize(value, cur)
-			                              : encodeURIComponent(cur) + '=' + encodeURIComponent(value));
-		}
-	}
+      // Add the value
+      if (isArray(value)) {
+        for (cur = 0; cur < value.length; cur++) {
+          // Add key again for multiple array values
+          queryString += (cur ? '&' + encodeURIComponent(key) : '') +
+                         '=' + encodeURIComponent(value[cur] == _undefined ? '' : value[cur]);
+        }
+      } else {
+        queryString += '=' + encodeURIComponent(value);
+      }
+    } else if (!(valueIsObject = isArray(value) || getClassOf(value) == 'Object') || !isEmptyObject(value)) {
+      /* Inspired by: http://stackoverflow.com/questions/1714786/querystring-encoding-of-a-javascript-object */
+      cur = prefix ? prefix + '[' + key + ']' : key;
+      queryString += (queryString ? '&' : '') +
+                     (valueIsObject ? serialize(value, cur)
+                                    : encodeURIComponent(cur) + '=' + encodeURIComponent(value));
+    }
+  }
 
-	return queryString;
+  return queryString;
 }
 
 /**
@@ -2491,39 +2492,39 @@ function serialize(obj, prefix, traditional) {
  */
 Firebolt.parseHTML = parseHTML;
 function parseHTML(html, context, single, /*INTERNAL*/ doNotDetachNodes) {
-	var elem;
-	context = context || document;
+  var elem;
+  context = context || document;
 
-	// If the HTML is just a single element without attributes, using document.createElement is much faster
-	if (rgxSingleTag.test(html)) {
-		// Create a new element from the tag name, found by stripping "<" from the front and "/>" or ">" from the back
-		elem = context.createElement(
-			html.slice(1, html.length - (html[html.length - 2] === '/' ? 2 : 1))
-		);
-		return single ? elem : (html = new NodeCollection())[0] = elem, html;
-	}
+  // If the HTML is just a single element without attributes, using document.createElement is much faster
+  if (rgxSingleTag.test(html)) {
+    // Create a new element from the tag name, found by stripping "<" from the front and "/>" or ">" from the back
+    elem = context.createElement(
+      html.slice(1, html.length - (html[html.length - 2] === '/' ? 2 : 1))
+    );
+    return single ? elem : (html = new NodeCollection())[0] = elem, html;
+  }
 
-	// Parse the HTML, taking care to handle special elements
-	elem = context.createElement('body');
-	context = rgxFirstTag.exec(html);
-	if (context && (context = specialElementsMap[context[0]])) {
-		elem.innerHTML = context[1] + html + context[2];
-		context = context[0];
-		while (context--) {
-			elem = elem.firstChild;
-		}
-	} else {
-		elem.innerHTML = html;
-	}
+  // Parse the HTML, taking care to handle special elements
+  elem = context.createElement('body');
+  context = rgxFirstTag.exec(html);
+  if (context && (context = specialElementsMap[context[0]])) {
+    elem.innerHTML = context[1] + html + context[2];
+    context = context[0];
+    while (context--) {
+      elem = elem.firstChild;
+    }
+  } else {
+    elem.innerHTML = html;
+  }
 
-	if (single) {
-		// When returning a single element, it should always be removed from its creation parent
-		return elem.removeChild(elem.firstChild);
-	}
+  if (single) {
+    // When returning a single element, it should always be removed from its creation parent
+    return elem.removeChild(elem.firstChild);
+  }
 
-	html = elem.childNodes;
+  html = elem.childNodes;
 
-	return doNotDetachNodes ? html : ncFrom(html).remove();
+  return doNotDetachNodes ? html : ncFrom(html).remove();
 }
 
 /**
@@ -2538,23 +2539,23 @@ function parseHTML(html, context, single, /*INTERNAL*/ doNotDetachNodes) {
  *     Default: Intelligent Guess (xml, json, script, or html).
  */
 Firebolt.post = function(url, data, success, dataType) {
-	// Organize arguments into their proper places
-	if (typeof data == 'function') {
-		dataType = success;
-		success = data;
-		data = '';
-	} else if (typeofString(success)) {
-		dataType = success;
-		success = 0;
-	}
+  // Organize arguments into their proper places
+  if (typeof data == 'function') {
+    dataType = success;
+    success = data;
+    data = '';
+  } else if (typeofString(success)) {
+    dataType = success;
+    success = 0;
+  }
 
-	return Firebolt.ajax({
-		type: 'POST',
-		url: url,
-		data: data,
-		success: success,
-		dataType: dataType
-	});
+  return Firebolt.ajax({
+    type: 'POST',
+    url: url,
+    data: data,
+    success: success,
+    dataType: dataType
+  });
 };
 
 /**
@@ -2565,19 +2566,19 @@ Firebolt.post = function(url, data, success, dataType) {
  * @param {Function} callback - A function to execute once the DOM has been loaded.
  */
 Firebolt.ready = function(callback) {
-	if (readyCallbacks && document.readyState != 'complete') {
-		if (!readyCallbacks.length) {
-			document.addEventListener('DOMContentLoaded', function() {
-				for (var i = 0; i < readyCallbacks.length; i++) {
-					readyCallbacks[i]();
-				}
-				readyCallbacks = _undefined; // Undefine the callbacks array to indicate that the ready event has fired
-			});
-		}
-		readyCallbacks.push(callback);
-	} else {
-		callback();
-	}
+  if (readyCallbacks && document.readyState != 'complete') {
+    if (!readyCallbacks.length) {
+      document.addEventListener('DOMContentLoaded', function() {
+        for (var i = 0; i < readyCallbacks.length; i++) {
+          readyCallbacks[i]();
+        }
+        readyCallbacks = _undefined; // Undefine the callbacks array to indicate that the ready event has fired
+      });
+    }
+    readyCallbacks.push(callback);
+  } else {
+    callback();
+  }
 };
 
 /**
@@ -2597,21 +2598,21 @@ Firebolt.ready = function(callback) {
  * @param {Array|String} [list] - An array or space-separated string naming the pieces of data to remove.
  */
 Firebolt.removeData = function(object, list) {
-	var dataStore = object[Firebolt.expando],
-		i = 0;
+  var dataStore = object[Firebolt.expando],
+    i = 0;
 
-	// First make sure the data store object exists
-	if (dataStore) {
-		if (typeofString(list)) {
-			list = list.split(' ');
-		} else if (!list) {
-			list = keys(dataStore); // Select all items for removal
-		}
+  // First make sure the data store object exists
+  if (dataStore) {
+    if (typeofString(list)) {
+      list = list.split(' ');
+    } else if (!list) {
+      list = keys(dataStore); // Select all items for removal
+    }
 
-		for (; i < list.length; i++) {
-			delete dataStore[camelize(list[i])];
-		}
-	}
+    for (; i < list.length; i++) {
+      delete dataStore[camelize(list[i])];
+    }
+  }
 };
 
 /**
@@ -2622,7 +2623,7 @@ Firebolt.removeData = function(object, list) {
  * @returns {TextNode}
  */
 Firebolt.text = function(text) {
-	return document.createTextNode(text === _undefined ? '' : text);
+  return document.createTextNode(text === _undefined ? '' : text);
 };
 
 //#endregion Firebolt
@@ -2738,40 +2739,40 @@ Firebolt.text = function(text) {
  * Returns a convenience function for setting and clearing timeouts and intervals.
  */
 function getTimingFunction(setTiming, clearTiming) {
-	return function(delay, args, thisArg) {
-		var fn = this;
+  return function(delay, args, thisArg) {
+    var fn = this;
 
-		var callback = function() {
-			fn.apply(thisArg, args);
-			callbackObject.hasExecuted = true;
-		};
+    var callback = function() {
+      fn.apply(thisArg, args);
+      callbackObject.hasExecuted = true;
+    };
 
-		var clearRef = setTiming(callback, delay);
+    var clearRef = setTiming(callback, delay);
 
-		var callbackObject = {
-			fn: fn,
-			hasExecuted: false,
-			exec: function(cancel) {
-				if (cancel !== false) {
-					clearTiming(clearRef);
-				}
-				callback();
-			},
-			cancel: function() {
-				clearTiming(clearRef);
-			}
-		};
+    var callbackObject = {
+      fn: fn,
+      hasExecuted: false,
+      exec: function(cancel) {
+        if (cancel !== false) {
+          clearTiming(clearRef);
+        }
+        callback();
+      },
+      cancel: function() {
+        clearTiming(clearRef);
+      }
+    };
 
-		thisArg = thisArg || !isArray(args) && args || callbackObject;
+    thisArg = thisArg || !isArray(args) && args || callbackObject;
 
-		return callbackObject;
-	};
+    return callbackObject;
+  };
 }
 
 // Define the delay and every functions on the Function prototype
 definePrototypeExtensionsOn(Function[prototype], {
-	delay: getTimingFunction(setTimeout, clearTimeout),
-	every: getTimingFunction(setInterval, clearInterval)
+  delay: getTimingFunction(setTimeout, clearTimeout),
+  every: getTimingFunction(setInterval, clearInterval)
 });
 
 //#endregion Function
@@ -2784,7 +2785,7 @@ definePrototypeExtensionsOn(Function[prototype], {
  */
 window.FB = window.Firebolt = Firebolt;
 if (window.$ === _undefined) {
-	window.$ = Firebolt;
+  window.$ = Firebolt;
 }
 
 /**
@@ -2831,24 +2832,24 @@ Firebolt._GET(); // Just call the function to update the global $_GET object
  *     and is an invalid CSS selector.
  */
 window.$1 = function(selector) {
-	var firstChar = selector[0];
+  var firstChar = selector[0];
 
-	if (firstChar === '.') { // Check for a single class name
-		if (!rgxNotClass.test(selector)) {
-			return getElementsByClassName(selector.slice(1).replace(rgxAllDots, ' '))[0];
-		}
-	} else if (firstChar === '#') { // Check for a single id
-		if (!rgxNotId.test(selector)) {
-			return getElementById(selector.slice(1));
-		}
-	} else if (firstChar === '<') { // Check if the string is a HTML string
-		return parseHTML(selector, document, 1); // The 1 tells parseHTML to return only one node
-	} else if (!rgxNotTag.test(selector)) { // Check for a single tag name
-		return getElementsByTagName(selector)[0];
-	}
+  if (firstChar === '.') { // Check for a single class name
+    if (!rgxNotClass.test(selector)) {
+      return getElementsByClassName(selector.slice(1).replace(rgxAllDots, ' '))[0];
+    }
+  } else if (firstChar === '#') { // Check for a single id
+    if (!rgxNotId.test(selector)) {
+      return getElementById(selector.slice(1));
+    }
+  } else if (firstChar === '<') { // Check if the string is a HTML string
+    return parseHTML(selector, document, 1); // The 1 tells parseHTML to return only one node
+  } else if (!rgxNotTag.test(selector)) { // Check for a single tag name
+    return getElementsByTagName(selector)[0];
+  }
 
-	// If we could not select by class name, ID, or tag name or parse HTML, use querySelector
-	return querySelector(selector);
+  // If we could not select by class name, ID, or tag name or parse HTML, use querySelector
+  return querySelector(selector);
 };
 
 /**
@@ -2881,7 +2882,7 @@ window.$1 = function(selector) {
  * @returns {HTMLCollection|NodeList} A collection of elements with the specified name attribute.
  */
 window.$NAME = function(name) {
-	return document.getElementsByName(name);
+  return document.getElementsByName(name);
 };
 
 /**
@@ -2955,34 +2956,34 @@ window.$NAME = function(name) {
  *     a string and is truthy and the element does not have a `class` value at the time of invocation.
  */
 HTMLElementPrototype.addClass = function(value) {
-	if (value) {
-		// Only need to determine which classes should be added if this element's className has a value
-		if (this.className) {
-			var newClasses = value.split(' '),
-				changed = 0,
-				i = 0,
-				clazz;
+  if (value) {
+    // Only need to determine which classes should be added if this element's className has a value
+    if (this.className) {
+      var newClasses = value.split(' '),
+        changed = 0,
+        i = 0,
+        clazz;
 
-			value = this.className; // Reuse the value argument to build the new class name
+      value = this.className; // Reuse the value argument to build the new class name
 
-			for (; i < newClasses.length; i++) {
-				clazz = newClasses[i];
-				if (clazz && !this.hasClass(clazz)) {
-					value += ' ' + clazz;
-					changed = 1;
-				}
-			}
+      for (; i < newClasses.length; i++) {
+        clazz = newClasses[i];
+        if (clazz && !this.hasClass(clazz)) {
+          value += ' ' + clazz;
+          changed = 1;
+        }
+      }
 
-			if (!changed) { // Avoid DOM manipulation if the class name will not be changed
-				return this;
-			}
-		}
+      if (!changed) { // Avoid DOM manipulation if the class name will not be changed
+        return this;
+      }
+    }
 
-		// Set the new value
-		this.className = value;
-	}
+    // Set the new value
+    this.className = value;
+  }
 
-	return this;
+  return this;
 };
 
 /**
@@ -3015,191 +3016,191 @@ HTMLElementPrototype.addClass = function(value) {
  * @see {@link http://api.jquery.com/animate/|.animate() | jQuery API Documentation}
  */
 HTMLElementPrototype.animate = function(properties, duration, easing, complete) {
-	/* jshint expr:true */
+  /* jshint expr:true */
 
-	// Massage arguments into their proper places
-	if (duration === _undefined || typeof duration == 'function') {
-		complete = duration;
-		duration = ANIMATION_DEFAULT_DURATION;
-		easing = ANIMATION_DEFAULT_EASING;
-	} else if (typeofString(duration)) {
-		complete = easing;
-		easing = duration;
-		duration = ANIMATION_DEFAULT_DURATION;
-	} else if (!typeofString(easing)) {
-		complete = easing;
-		easing = ANIMATION_DEFAULT_EASING;
-	}
+  // Massage arguments into their proper places
+  if (duration === _undefined || typeof duration == 'function') {
+    complete = duration;
+    duration = ANIMATION_DEFAULT_DURATION;
+    easing = ANIMATION_DEFAULT_EASING;
+  } else if (typeofString(duration)) {
+    complete = easing;
+    easing = duration;
+    duration = ANIMATION_DEFAULT_DURATION;
+  } else if (!typeofString(easing)) {
+    complete = easing;
+    easing = ANIMATION_DEFAULT_EASING;
+  }
 
-	var _this = this,
-		i = 0,
-		propertyNames = keys(properties),
-		numProperties = propertyNames.length,
-		numChangingProps = numProperties,
-		inlineStyle = _this.style,
-		currentStyle = getComputedStyle(_this),
-		isCurrentDisplayNone = isDisplayNone(0, currentStyle),
-		valsToRestore = {},
-		cssIncrementProps,
-		framesLeft,
-		hideOnComplete,
-		sanitaryProp,
-		prop,
-		val,
-		temp;
+  var _this = this,
+    i = 0,
+    propertyNames = keys(properties),
+    numProperties = propertyNames.length,
+    numChangingProps = numProperties,
+    inlineStyle = _this.style,
+    currentStyle = getComputedStyle(_this),
+    isCurrentDisplayNone = isDisplayNone(0, currentStyle),
+    valsToRestore = {},
+    cssIncrementProps,
+    framesLeft,
+    hideOnComplete,
+    sanitaryProp,
+    prop,
+    val,
+    temp;
 
-	// Only perform the animation if there are properties to animate
-	if (numProperties) {
-		// The original transition style should be restored after the animation completes
-		valsToRestore[cssTransitionKey] = inlineStyle[cssTransitionKey];
+  // Only perform the animation if there are properties to animate
+  if (numProperties) {
+    // The original transition style should be restored after the animation completes
+    valsToRestore[cssTransitionKey] = inlineStyle[cssTransitionKey];
 
-		// Force the transition style to be 'none' in case the element already has a transition style
-		inlineStyle[cssTransitionKey] = 'none';
+    // Force the transition style to be 'none' in case the element already has a transition style
+    inlineStyle[cssTransitionKey] = 'none';
 
-		if (noCssTransitionSupport) {
-			framesLeft = parseInt(duration / 25); // Total animation frames = duration / frame period
-			cssIncrementProps = {};
-		}
+    if (noCssTransitionSupport) {
+      framesLeft = parseInt(duration / 25); // Total animation frames = duration / frame period
+      cssIncrementProps = {};
+    }
 
-		// Parse properties
-		for (; i < numProperties; i++) {
-			sanitaryProp = sanitizeCssPropName(prop = propertyNames[i]);
-			val = properties[prop];
+    // Parse properties
+    for (; i < numProperties; i++) {
+      sanitaryProp = sanitizeCssPropName(prop = propertyNames[i]);
+      val = properties[prop];
 
-			// Should set overflow to "hidden" when animating height or width properties
-			if ((prop == 'height' || prop == 'width') && valsToRestore.overflow === _undefined) {
-				valsToRestore.overflow = inlineStyle.overflow;
-				inlineStyle.overflow = 'hidden';
-			}
+      // Should set overflow to "hidden" when animating height or width properties
+      if ((prop == 'height' || prop == 'width') && valsToRestore.overflow === _undefined) {
+        valsToRestore.overflow = inlineStyle.overflow;
+        inlineStyle.overflow = 'hidden';
+      }
 
-			if (val == TOGGLE) {
-				if (isCurrentDisplayNone) {
-					if (isDisplayNone(0, currentStyle)) {
-						_this.show();
-					}
-					val = currentStyle[sanitaryProp];
-					valsToRestore[sanitaryProp] = inlineStyle[sanitaryProp];
-					inlineStyle[sanitaryProp] = 0;
-				} else {
-					val = 0;
-					valsToRestore[sanitaryProp] = inlineStyle[sanitaryProp];
-					hideOnComplete = 1;
-				}
-			} else if (val == 'auto') {
-				valsToRestore[sanitaryProp] = val; // Save value to be set on the element at the end of the transition
-				temp = inlineStyle[sanitaryProp];  // Save the current inline value of the property
-				inlineStyle[sanitaryProp] = val;   // Set the style to the input value ('auto')
-				val = _this.css(sanitaryProp);     // Get the computed style that will be used as the target value
-				                                   // (use .css in case the element is hidden)
-				inlineStyle[sanitaryProp] = temp;  // Restore the current inline value of the property
+      if (val == TOGGLE) {
+        if (isCurrentDisplayNone) {
+          if (isDisplayNone(0, currentStyle)) {
+            _this.show();
+          }
+          val = currentStyle[sanitaryProp];
+          valsToRestore[sanitaryProp] = inlineStyle[sanitaryProp];
+          inlineStyle[sanitaryProp] = 0;
+        } else {
+          val = 0;
+          valsToRestore[sanitaryProp] = inlineStyle[sanitaryProp];
+          hideOnComplete = 1;
+        }
+      } else if (val == 'auto') {
+        valsToRestore[sanitaryProp] = val; // Save value to be set on the element at the end of the transition
+        temp = inlineStyle[sanitaryProp];  // Save the current inline value of the property
+        inlineStyle[sanitaryProp] = val;   // Set the style to the input value ('auto')
+        val = _this.css(sanitaryProp);     // Get the computed style that will be used as the target value
+                                           // (use .css in case the element is hidden)
+        inlineStyle[sanitaryProp] = temp;  // Restore the current inline value of the property
 
-			} else if (val[1] === '=') { // "+=value" or "-=value"
-				val = cssMath(parseFloat(currentStyle[sanitaryProp]),
-				              parseFloat(val.replace('=', '')),
-				              val.replace(rgxUpToUnits, ''),
-				              _this,
-				              sanitaryProp);
-			}
+      } else if (val[1] === '=') { // "+=value" or "-=value"
+        val = cssMath(parseFloat(currentStyle[sanitaryProp]),
+                      parseFloat(val.replace('=', '')),
+                      val.replace(rgxUpToUnits, ''),
+                      _this,
+                      sanitaryProp);
+      }
 
-			properties[prop] = val; // Set the value back into the object of properties in case it changed
+      properties[prop] = val; // Set the value back into the object of properties in case it changed
 
-			// If the value is the same as the current value, decrement the number of properties that are changing
-			if ((val === 0 ? val + 'px' : val) === currentStyle[sanitaryProp]) {
-				numChangingProps--;
-			} 
+      // If the value is the same as the current value, decrement the number of properties that are changing
+      if ((val === 0 ? val + 'px' : val) === currentStyle[sanitaryProp]) {
+        numChangingProps--;
+      } 
 
-			if (noCssTransitionSupport) {
-				// The amount of linear change per frame = total change amount / num frames
-				// Where
-				// num frames = (newValue - currentValue) * framesLeft
-				// And
-				// currentValue = cssMath(currentValue + 0)
-				cssIncrementProps[sanitaryProp] = (
-					parseFloat(val) - parseFloat(
-					                      cssMath(parseFloat(currentStyle[sanitaryProp]),
-					                              0,
-					                              (val + '').replace(rgxUpToUnits, ''),
-					                              _this,
-					                              sanitaryProp)
-					                  )
-				) / framesLeft;
-			}
-		}
+      if (noCssTransitionSupport) {
+        // The amount of linear change per frame = total change amount / num frames
+        // Where
+        // num frames = (newValue - currentValue) * framesLeft
+        // And
+        // currentValue = cssMath(currentValue + 0)
+        cssIncrementProps[sanitaryProp] = (
+          parseFloat(val) - parseFloat(
+                              cssMath(parseFloat(currentStyle[sanitaryProp]),
+                                      0,
+                                      (val + '').replace(rgxUpToUnits, ''),
+                                      _this,
+                                      sanitaryProp)
+                            )
+        ) / framesLeft;
+      }
+    }
 
-		// Inline the element's current CSS styles
-		// (even if some properties were set to 0 in the loop because setting all at once here prevents bugs)
-		_this.css(_this.css(propertyNames));
+    // Inline the element's current CSS styles
+    // (even if some properties were set to 0 in the loop because setting all at once here prevents bugs)
+    _this.css(_this.css(propertyNames));
 
-		// Set the CSS transition style
-		inlineStyle[cssTransitionKey] = duration + 'ms ' + (Firebolt.easing[easing] || easing);
-		inlineStyle[cssTransitionKey + 'Property'] = propertyNames.map(dasherize).toString();
-		_this.offsetWidth; // Trigger reflow
+    // Set the CSS transition style
+    inlineStyle[cssTransitionKey] = duration + 'ms ' + (Firebolt.easing[easing] || easing);
+    inlineStyle[cssTransitionKey + 'Property'] = propertyNames.map(dasherize).toString();
+    _this.offsetWidth; // Trigger reflow
 
-		// Start the transition
-		if (noCssTransitionSupport) {
-			// Increment the CSS properties by their respective amounts each frame period
-			// until all frames have been rendered
-			(function renderFrame() {
-				for (prop in cssIncrementProps) {
-					inlineStyle[prop] = parseFloat(inlineStyle[prop]) + cssIncrementProps[prop] +
-					                    inlineStyle[prop].replace(rgxUpToUnits, '');
-				}
+    // Start the transition
+    if (noCssTransitionSupport) {
+      // Increment the CSS properties by their respective amounts each frame period
+      // until all frames have been rendered
+      (function renderFrame() {
+        for (prop in cssIncrementProps) {
+          inlineStyle[prop] = parseFloat(inlineStyle[prop]) + cssIncrementProps[prop] +
+                              inlineStyle[prop].replace(rgxUpToUnits, '');
+        }
 
-				if (--framesLeft) {
-					temp = setTimeout(renderFrame, 25);
-				} else {
-					_this.trigger(transitionendEventName);
-				}
-			})();
-		} else {
-			_this.css(properties); // Setting the CSS values starts the transition
-		}
+        if (--framesLeft) {
+          temp = setTimeout(renderFrame, 25);
+        } else {
+          _this.trigger(transitionendEventName);
+        }
+      })();
+    } else {
+      _this.css(properties); // Setting the CSS values starts the transition
+    }
 
-		// Set an event that cleans up the animation and calls the complete callback after the transition is done
-		_this.addEventListener(transitionendEventName, _this._$A_ = function onTransitionEnd(animationCompleted) {
-			// When multiple properties are being animated at once, there will be multiple transitionend events.
-			// Only continue if this is the last transitionend event or the animation was stopped early
-			if (!noCssTransitionSupport && animationCompleted && animationCompleted.propertyName && --numChangingProps)
-				return;
+    // Set an event that cleans up the animation and calls the complete callback after the transition is done
+    _this.addEventListener(transitionendEventName, _this._$A_ = function onTransitionEnd(animationCompleted) {
+      // When multiple properties are being animated at once, there will be multiple transitionend events.
+      // Only continue if this is the last transitionend event or the animation was stopped early
+      if (!noCssTransitionSupport && animationCompleted && animationCompleted.propertyName && --numChangingProps)
+        return;
 
-			// Immediately remove the event listener and delete its saved reference
-			_this.removeEventListener(transitionendEventName, onTransitionEnd);
-			delete _this._$A_;
+      // Immediately remove the event listener and delete its saved reference
+      _this.removeEventListener(transitionendEventName, onTransitionEnd);
+      delete _this._$A_;
 
-			if (!animationCompleted) {
-				// Get the current values of the CSS properties being animated
-				properties = _this.css(propertyNames);
-			}
+      if (!animationCompleted) {
+        // Get the current values of the CSS properties being animated
+        properties = _this.css(propertyNames);
+      }
 
-			if (noCssTransitionSupport) {
-				// End the frame rendering and set all the final CSS values
-				clearTimeout(temp);
-				_this.css(properties);
-			}
+      if (noCssTransitionSupport) {
+        // End the frame rendering and set all the final CSS values
+        clearTimeout(temp);
+        _this.css(properties);
+      }
 
-			// Force the animation to stop now by setting the transition style to 'none'
-			inlineStyle[cssTransitionKey] = 'none';
-			_this.offsetWidth; // Trigger reflow
+      // Force the animation to stop now by setting the transition style to 'none'
+      inlineStyle[cssTransitionKey] = 'none';
+      _this.offsetWidth; // Trigger reflow
 
-			// Restore any CSS properties that need to be restored
-			_this.css(valsToRestore);
+      // Restore any CSS properties that need to be restored
+      _this.css(valsToRestore);
 
-			if (!animationCompleted) {
-				// Set all the current CSS property values
-				_this.css(properties);
-			} else {
-				if (hideOnComplete) {
-					_this.hide();
-				}
+      if (!animationCompleted) {
+        // Set all the current CSS property values
+        _this.css(properties);
+      } else {
+        if (hideOnComplete) {
+          _this.hide();
+        }
 
-				if (complete) {
-					complete.call(_this);
-				}
-			}
-		});
-	}
+        if (complete) {
+          complete.call(_this);
+        }
+      }
+    });
+  }
 
-	return _this;
+  return _this;
 };
 
 /**
@@ -3238,48 +3239,48 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
  * @param {Object.<String, String|Number>} properties - An object of CSS property-values.
  */
 HTMLElementPrototype.css = function(prop, value) {
-	var _this = this, // Improves minification
-		computedStyle,
-		mustHide,
-		val;
+  var _this = this, // Improves minification
+    computedStyle,
+    mustHide,
+    val;
 
-	if (value === _undefined) {
-		// Temporarily use `val` to keep track if the input is an array
-		// (it will get set to the correct return value when needed)
-		if ((val = isArray(prop)) || typeofString(prop)) {
-			computedStyle = getComputedStyle(_this);
+  if (value === _undefined) {
+    // Temporarily use `val` to keep track if the input is an array
+    // (it will get set to the correct return value when needed)
+    if ((val = isArray(prop)) || typeofString(prop)) {
+      computedStyle = getComputedStyle(_this);
 
-			// If the element is not visible, it should be shown before reading its CSS values
-			mustHide = isDisplayNone(0, computedStyle) && _this.show();
+      // If the element is not visible, it should be shown before reading its CSS values
+      mustHide = isDisplayNone(0, computedStyle) && _this.show();
 
-			if (val) { // isArray
-				// Build an object with the values specified by the input array of properties
-				val = {};
-				for (value = 0; value < prop.length; value++) { // Reuse the value argument instead of a new var
-					val[prop[value]] = computedStyle[sanitizeCssPropName(prop[value])];
-				}
-			} else {
-				// Get the specified property
-				val = computedStyle[sanitizeCssPropName(prop)];
-			}
+      if (val) { // isArray
+        // Build an object with the values specified by the input array of properties
+        val = {};
+        for (value = 0; value < prop.length; value++) { // Reuse the value argument instead of a new var
+          val[prop[value]] = computedStyle[sanitizeCssPropName(prop[value])];
+        }
+      } else {
+        // Get the specified property
+        val = computedStyle[sanitizeCssPropName(prop)];
+      }
 
-			if (mustHide) {
-				_this.hide(); // Hide the element since it was shown temporarily to obtain style values
-			}
+      if (mustHide) {
+        _this.hide(); // Hide the element since it was shown temporarily to obtain style values
+      }
 
-			return val;
-		}
+      return val;
+    }
 
-		// Set all specifed properties
-		for (val in prop) {
-			_this.style[sanitizeCssPropName(val)] = prop[val];
-		}
-	} else {
-		// Set the specified property
-		_this.style[sanitizeCssPropName(prop)] = value;
-	}
+    // Set all specifed properties
+    for (val in prop) {
+      _this.style[sanitizeCssPropName(val)] = prop[val];
+    }
+  } else {
+    // Set the specified property
+    _this.style[sanitizeCssPropName(prop)] = value;
+  }
 
-	return _this;
+  return _this;
 };
 
 /**
@@ -3294,7 +3295,7 @@ HTMLElementPrototype.css = function(prop, value) {
  *     refer to the element that was animated.
  */
 HTMLElementPrototype.fadeIn = function(duration, easing, complete) {
-	return isDisplayNone(this) ? this.fadeToggle(duration, easing, complete) : this;
+  return isDisplayNone(this) ? this.fadeToggle(duration, easing, complete) : this;
 };
 
 /**
@@ -3309,7 +3310,7 @@ HTMLElementPrototype.fadeIn = function(duration, easing, complete) {
  *     refer to the element that was animated.
  */
 HTMLElementPrototype.fadeOut = function(duration, easing, complete) {
-	return isDisplayNone(this) ? this : this.fadeToggle(duration, easing, complete);
+  return isDisplayNone(this) ? this : this.fadeToggle(duration, easing, complete);
 };
 
 /**
@@ -3324,7 +3325,7 @@ HTMLElementPrototype.fadeOut = function(duration, easing, complete) {
  *     refer to the element that was animated.
  */
 HTMLElementPrototype.fadeToggle = function(duration, easing, complete) {
-	return this.animate({opacity: TOGGLE}, duration, easing, complete);
+  return this.animate({opacity: TOGGLE}, duration, easing, complete);
 };
 
 /**
@@ -3338,7 +3339,7 @@ HTMLElementPrototype.fadeToggle = function(duration, easing, complete) {
  * @function HTMLElement#finish
  */
 HTMLElementPrototype.finish = function() {
-	return this._$A_ ? this.trigger(transitionendEventName) : this;
+  return this._$A_ ? this.trigger(transitionendEventName) : this;
 };
 
 /**
@@ -3349,12 +3350,12 @@ HTMLElementPrototype.finish = function() {
  * @returns {Boolean} `true` if the class name is in the element's class list; else `false`.
  */
 HTMLElementPrototype.hasClass = iframe.classList ?
-	function(className) {
-		return this.classList.contains(className);
-	}
-	: function(className) { // A function for browsers that don't support the `classList` property
-		return new RegExp('(?:^|\\s)' + className + '(?:\\s|$)').test(this.className);
-	};
+  function(className) {
+    return this.classList.contains(className);
+  }
+  : function(className) { // A function for browsers that don't support the `classList` property
+    return new RegExp('(?:^|\\s)' + className + '(?:\\s|$)').test(this.className);
+  };
 
 /**
  * Hides the element by setting its display style to 'none'.
@@ -3362,10 +3363,10 @@ HTMLElementPrototype.hasClass = iframe.classList ?
  * @function HTMLElement#hide
  */
 HTMLElementPrototype.hide = function() {
-	this._$DS_ = this.style.display; // Save current display style
-	this.style.display = 'none';     // Hide the element by setting its display style to "none"
+  this._$DS_ = this.style.display; // Save current display style
+  this.style.display = 'none';     // Hide the element by setting its display style to "none"
 
-	return this;
+  return this;
 };
 
 /**
@@ -3391,43 +3392,43 @@ HTMLElementPrototype.hide = function() {
  *     which are numbers indicating the new top and left coordinates for the element.
  */
 HTMLElementPrototype.offset = function getOffset(coordinates) {
-	var offset = {
-		left: 0,
-		top: 0
-	};
+  var offset = {
+    left: 0,
+    top: 0
+  };
 
-	// Set
-	if (coordinates) {
-		// First check if the element has absolute or fixed positioning.
-		// If it doesn't, extra measures need to be taken to set its coordinates.
-		var position = getComputedStyle(this).position;
+  // Set
+  if (coordinates) {
+    // First check if the element has absolute or fixed positioning.
+    // If it doesn't, extra measures need to be taken to set its coordinates.
+    var position = getComputedStyle(this).position;
 
-		if (position[0] !== 'a' && position[0] !== 'f') {
-			// Reset the element's top and left values so relative coordinates can be calculated
-			this.style.left = 0;
-			this.style.top = 0;
+    if (position[0] !== 'a' && position[0] !== 'f') {
+      // Reset the element's top and left values so relative coordinates can be calculated
+      this.style.left = 0;
+      this.style.top = 0;
 
-			offset = getOffset.call(this);
+      offset = getOffset.call(this);
 
-			// Give the element relative positioning
-			this.style.position = 'relative';
-		}
+      // Give the element relative positioning
+      this.style.position = 'relative';
+    }
 
-		// Set the element's coordinates
-		this.style.left = coordinates.left - offset.left + 'px';
-		this.style.top = coordinates.top - offset.top + 'px';
+    // Set the element's coordinates
+    this.style.left = coordinates.left - offset.left + 'px';
+    this.style.top = coordinates.top - offset.top + 'px';
 
-		return this;
-	}
+    return this;
+  }
 
-	// Get
-	var el = this;
-	do {
-		offset.left += el.offsetLeft;
-		offset.top += el.offsetTop;
-	} while (el = el.offsetParent);
+  // Get
+  var el = this;
+  do {
+    offset.left += el.offsetLeft;
+    offset.top += el.offsetTop;
+  } while (el = el.offsetParent);
 
-	return offset;
+  return offset;
 };
 
 /**
@@ -3438,30 +3439,30 @@ HTMLElementPrototype.offset = function getOffset(coordinates) {
  *     to be removed from the element's class attribute.
  */
 HTMLElementPrototype.removeClass = function(value) {
-	if (this.className) { // Can only remove classes if there are classes to remove
-		if (value === _undefined) {
-			this.className = ''; // Remove all classes
-		} else {
-			var remClasses = value.split(' '),
-				curClasses = this.className.split(rgxSpaceChars),
-				classesLeft = 0,
-				i = 0;
+  if (this.className) { // Can only remove classes if there are classes to remove
+    if (value === _undefined) {
+      this.className = ''; // Remove all classes
+    } else {
+      var remClasses = value.split(' '),
+        curClasses = this.className.split(rgxSpaceChars),
+        classesLeft = 0,
+        i = 0;
 
-			value = '';
-			for (; i < curClasses.length; i++) {
-				if (remClasses.indexOf(curClasses[i]) < 0) {
-					value += (value ? ' ' : '') + curClasses[i];
-					++classesLeft;
-				}
-			}
+      value = '';
+      for (; i < curClasses.length; i++) {
+        if (remClasses.indexOf(curClasses[i]) < 0) {
+          value += (value ? ' ' : '') + curClasses[i];
+          ++classesLeft;
+        }
+      }
 
-			if (classesLeft < curClasses.length) { // Only manipulate the DOM if the class name will be changed
-				this.className = value;
-			}
-		}
-	}
+      if (classesLeft < curClasses.length) { // Only manipulate the DOM if the class name will be changed
+        this.className = value;
+      }
+    }
+  }
 
-	return this;
+  return this;
 };
 
 /**
@@ -3477,26 +3478,26 @@ HTMLElementPrototype.removeClass = function(value) {
  * @this HTMLFormElement|HTMLInputElement|HTMLSelectElement|HTMLTextAreaElement
  */
 HTMLElementPrototype.serialize = function() {
-	var type = this.type,
-		name = this.name,
-		value = this.val();
+  var type = this.type,
+    name = this.name,
+    value = this.val();
 
-	if (!name ||                                    // Doesn't have a name
-		this.disabled ||                            // Is disabled
-		value == _undefined ||                      // Is a <select> element and has no value or is not a form control
-		rgxFormButton.test(type) ||                 // Is a form button (button|file|reset|submit)
-		rgxCheckable.test(type) && !this.checked) { // Is a checkbox or radio button and is not checked
-		return '';
-	}
+  if (!name ||                                    // Doesn't have a name
+      this.disabled ||                            // Is disabled
+      value == _undefined ||                      // Is a <select> element and has no value or is not a form control
+      rgxFormButton.test(type) ||                 // Is a form button (button|file|reset|submit)
+      rgxCheckable.test(type) && !this.checked) { // Is a checkbox or radio button and is not checked
+    return '';
+  }
 
-	// Check if the value is a string because <select> elements may return an array of selected options
-	return typeofString(value) ? encodeURIComponent(name) + '=' + encodeURIComponent(value)
-							   : serialize( HTMLElementPrototype.prop.call({}, name, value) );
+  // Check if the value is a string because <select> elements may return an array of selected options
+  return typeofString(value) ? encodeURIComponent(name) + '=' + encodeURIComponent(value)
+                             : serialize( HTMLElementPrototype.prop.call({}, name, value) );
 };
 
 /* For form elements, return the serialization of its form controls */
 HTMLFormElement[prototype].serialize = function() {
-	return this.elements.serialize();
+  return this.elements.serialize();
 };
 
 /**
@@ -3508,24 +3509,24 @@ HTMLFormElement[prototype].serialize = function() {
  * @function HTMLElement#show
  */
 HTMLElementPrototype.show = function() {
-	var inlineStyle = this.style;
+  var inlineStyle = this.style;
 
-	if (isDisplayNone(0, inlineStyle)) {
-		inlineStyle.display = this._$DS_ || ''; // Use the saved display style or clear the display style
-	}
+  if (isDisplayNone(0, inlineStyle)) {
+    inlineStyle.display = this._$DS_ || ''; // Use the saved display style or clear the display style
+  }
 
-	if (isDisplayNone(this)) {
-		// Add an element of the same type as this element to the iframe's body
-		// to figure out what the default display value should be
-		inlineStyle.display = getComputedStyle(
-			document.head.appendChild(iframe).contentDocument.body.appendChild(
-				iframe.contentDocument.createElement(this.tagName)
-			)
-		).display;
-		iframe.remove(); // Remove the iframe from the document
-	}
+  if (isDisplayNone(this)) {
+    // Add an element of the same type as this element to the iframe's body
+    // to figure out what the default display value should be
+    inlineStyle.display = getComputedStyle(
+      document.head.appendChild(iframe).contentDocument.body.appendChild(
+        iframe.contentDocument.createElement(this.tagName)
+      )
+    ).display;
+    iframe.remove(); // Remove the iframe from the document
+  }
 
-	return this;
+  return this;
 };
 
 /**
@@ -3540,7 +3541,7 @@ HTMLElementPrototype.show = function() {
  *     refer to the element that was animated.
  */
 HTMLElementPrototype.slideDown = function(duration, easing, complete) {
-	return isDisplayNone(this) ? this.slideToggle(duration, easing, complete) : this;
+  return isDisplayNone(this) ? this.slideToggle(duration, easing, complete) : this;
 };
 
 /**
@@ -3555,13 +3556,13 @@ HTMLElementPrototype.slideDown = function(duration, easing, complete) {
  *     refer to the element that was animated.
  */
 HTMLElementPrototype.slideToggle = function(duration, easing, complete) {
-	return this.animate({
-		height: TOGGLE,
-		marginTop: TOGGLE,
-		marginBottom: TOGGLE,
-		paddingTop: TOGGLE,
-		paddingBottom: TOGGLE
-	}, duration, easing, complete);
+  return this.animate({
+    height: TOGGLE,
+    marginTop: TOGGLE,
+    marginBottom: TOGGLE,
+    paddingTop: TOGGLE,
+    paddingBottom: TOGGLE
+  }, duration, easing, complete);
 };
 
 /**
@@ -3576,7 +3577,7 @@ HTMLElementPrototype.slideToggle = function(duration, easing, complete) {
  *     refer to the element that was animated.
  */
 HTMLElementPrototype.slideUp = function(duration, easing, complete) {
-	return isDisplayNone(this) ? this : this.slideToggle(duration, easing, complete);
+  return isDisplayNone(this) ? this : this.slideToggle(duration, easing, complete);
 };
 
 /**
@@ -3594,11 +3595,11 @@ HTMLElementPrototype.slideUp = function(duration, easing, complete) {
  * @param {Boolean} [jumpToEnd=false] - A Boolean indicating whether to complete the current animation immediately.
  */
 HTMLElementPrototype.stop = function(jumpToEnd) {
-	if (this._$A_) {
-		this._$A_(jumpToEnd);
-	}
+  if (this._$A_) {
+    this._$A_(jumpToEnd);
+  }
 
-	return this;
+  return this;
 };
 
 /**
@@ -3610,13 +3611,13 @@ HTMLElementPrototype.stop = function(jumpToEnd) {
  * @see HTMLElement#show
  */
 HTMLElementPrototype.toggle = function(showOrHide) {
-	if (showOrHide === true) {
-		return this.show();
-	}
-	if (showOrHide === false) {
-		return this.hide();
-	}
-	return isDisplayNone(this) ? this.show() : this.hide();
+  if (showOrHide === true) {
+    return this.show();
+  }
+  if (showOrHide === false) {
+    return this.hide();
+  }
+  return isDisplayNone(this) ? this.show() : this.hide();
 };
 
 /**
@@ -3631,52 +3632,52 @@ HTMLElementPrototype.toggle = function(showOrHide) {
  * @param {Boolean} [addOrRemove] - Indicates whether to add or remove the class (`true` => add, `false` => remove).
  */
 HTMLElementPrototype.toggleClass = function(value, addOrRemove) {
-	if (addOrRemove === true) {
-		return this.addClass(value);
-	}
-	if (addOrRemove === false) {
-		return this.removeClass(value);
-	}
+  if (addOrRemove === true) {
+    return this.addClass(value);
+  }
+  if (addOrRemove === false) {
+    return this.removeClass(value);
+  }
 
-	var className = this.className;
+  var className = this.className;
 
-	if (className && value !== true) {
-		if (value) {
-			var curClasses = className.split(rgxSpaceChars),
-				togClasses = value.split(' '),
-				i = 0,
-				j;
+  if (className && value !== true) {
+    if (value) {
+      var curClasses = className.split(rgxSpaceChars),
+        togClasses = value.split(' '),
+        i = 0,
+        j;
 
-			// Find the symmetric difference between the current class names and the names to toggle
-			value = '';
-			for (; i < togClasses.length; i++) {
-				className = togClasses[i];
-				for (j = 0; j < curClasses.length; j++) {
-					if (curClasses[j] === className) {
-						togClasses[i] = curClasses[j] = null;
-					}
-				}
-				if (className = togClasses[i]) {
-					value += (value ? ' ' : '') + className;
-				}
-			}
-			for (i = 0; i < curClasses.length; i++) {
-				if (className = curClasses[i]) {
-					value += (value ? ' ' : '') + className;
-				}
-			}
-		} else {
-			this._$TC_ = className; // Save the element's current class name
-			value = ''; // Set to an empty string so the class name will be cleared
-		}
-	} else if (!value || value === true) {
-		// Retrieve the saved class name or an empty string if there is no saved class name
-		value = value !== false && this._$TC_ || (value ? className : '');
-	}
+      // Find the symmetric difference between the current class names and the names to toggle
+      value = '';
+      for (; i < togClasses.length; i++) {
+        className = togClasses[i];
+        for (j = 0; j < curClasses.length; j++) {
+          if (curClasses[j] === className) {
+            togClasses[i] = curClasses[j] = null;
+          }
+        }
+        if (className = togClasses[i]) {
+          value += (value ? ' ' : '') + className;
+        }
+      }
+      for (i = 0; i < curClasses.length; i++) {
+        if (className = curClasses[i]) {
+          value += (value ? ' ' : '') + className;
+        }
+      }
+    } else {
+      this._$TC_ = className; // Save the element's current class name
+      value = ''; // Set to an empty string so the class name will be cleared
+    }
+  } else if (!value || value === true) {
+    // Retrieve the saved class name or an empty string if there is no saved class name
+    value = value !== false && this._$TC_ || (value ? className : '');
+  }
 
-	this.className = value; // Set the new value
+  this.className = value; // Set the new value
 
-	return this;
+  return this;
 };
 
 /**
@@ -3704,50 +3705,50 @@ HTMLElementPrototype.toggleClass = function(value, addOrRemove) {
  *     should be checked (or selected).
  */
 HTMLElementPrototype.val = function(value) {
-	// If `value` is not an array with values to check
-	if (!isArray(value)) {
-		return this.prop('value', value);
-	}
+  // If `value` is not an array with values to check
+  if (!isArray(value)) {
+    return this.prop('value', value);
+  }
 
-	// Check or uncheck this depending on if this element's value is in the array of values to check
-	this.checked = value.indexOf(this.value) >= 0;
+  // Check or uncheck this depending on if this element's value is in the array of values to check
+  this.checked = value.indexOf(this.value) >= 0;
 
-	return this;
+  return this;
 };
 
 HTMLSelectElement[prototype].val = function(value) {
-	var multiple = this.multiple,
-		options = this.options,
-		i = 0;
+  var multiple = this.multiple,
+    options = this.options,
+    i = 0;
 
-	if (value === _undefined) {
-		// If multiple selection is allowed and there is at least one selected item, return an array of selected values
-		if (multiple && this.selectedIndex >= 0) {
-			value = [];
-			for (; i < options.length; i++) {
-				if (options[i].selected) {
-					push1(value, options[i].value);
-				}
-			}
-			return value;
-		}
+  if (value === _undefined) {
+    // If multiple selection is allowed and there is at least one selected item, return an array of selected values
+    if (multiple && this.selectedIndex >= 0) {
+      value = [];
+      for (; i < options.length; i++) {
+        if (options[i].selected) {
+          push1(value, options[i].value);
+        }
+      }
+      return value;
+    }
 
-		// Else return the currently selected value or null
-		// (If multiple is true, this.value will be an empty string so null will be returned)
-		return this.value || null;
-	}
-	
-	if (typeofString(value)) {
-		this.value = value;
-	} else {
-		// Select or deselect each option depending on if its value is in the array of values to check.
-		// Break once an option is selected if this select element does not allow multiple selection.
-		for (; i < options.length; i++) {
-			if ((options[i].selected = value.indexOf(options[i].value) >= 0) && !multiple) break;
-		}
-	}
+    // Else return the currently selected value or null
+    // (If multiple is true, this.value will be an empty string so null will be returned)
+    return this.value || null;
+  }
+  
+  if (typeofString(value)) {
+    this.value = value;
+  } else {
+    // Select or deselect each option depending on if its value is in the array of values to check.
+    // Break once an option is selected if this select element does not allow multiple selection.
+    for (; i < options.length; i++) {
+      if ((options[i].selected = value.indexOf(options[i].value) >= 0) && !multiple) break;
+    }
+  }
 
-	return this;
+  return this;
 };
 
 //#endregion HTMLElement
@@ -3813,21 +3814,21 @@ NodePrototype.beforePut = getNodePutOrWithFunction(insertBefore);
  * @returns {NodeCollection}
  */
 NodePrototype.childElements = function(selector) {
-	// Try to directly get the element's children, or else filter its child nodes to be only elements
-	var children = this.children || ncFilter.call(this.childNodes, isNodeElement);
+  // Try to directly get the element's children, or else filter its child nodes to be only elements
+  var children = this.children || ncFilter.call(this.childNodes, isNodeElement);
 
-	if (!selector) {
-		return ncFrom(children);
-	}
+  if (!selector) {
+    return ncFrom(children);
+  }
 
-	var nc = new NodeCollection(),
-		i = 0;
-	for (; i < children.length; i++) {
-		if (children[i].matches(selector)) {
-			push1(nc, children[i]);
-		}
-	}
-	return nc;
+  var nc = new NodeCollection(),
+    i = 0;
+  for (; i < children.length; i++) {
+    if (children[i].matches(selector)) {
+      push1(nc, children[i]);
+    }
+  }
+  return nc;
 };
 
 /**
@@ -3843,13 +3844,13 @@ NodePrototype.childElements = function(selector) {
  * @returns {NodeCollection}
  */
 NodePrototype.clone = function(withDataAndEvents, deepWithDataAndEvents) {
-	var clone = this.cloneNode(true);
+  var clone = this.cloneNode(true);
 
-	if (withDataAndEvents) {
-		copyDataAndEvents(this, clone, deepWithDataAndEvents === false);
-	}
+  if (withDataAndEvents) {
+    copyDataAndEvents(this, clone, deepWithDataAndEvents === false);
+  }
 
-	return clone;
+  return clone;
 };
 
 /**
@@ -3870,29 +3871,29 @@ NodePrototype.clone = function(withDataAndEvents, deepWithDataAndEvents) {
  * @returns {?Node} - The first node that matches the selector.
  */
 NodePrototype.closest = function(selector) {
-	var node = this;
+  var node = this;
 
-	if (selector.nodeType) {
-		// If the selector is a node and is an ancestor of this node, it is the closest
-		return selector.contains(node) ? selector : null;
-	}
+  if (selector.nodeType) {
+    // If the selector is a node and is an ancestor of this node, it is the closest
+    return selector.contains(node) ? selector : null;
+  }
 
-	if (typeofString(selector)) {
-		// If the node is not an element, skip to its parent element
-		node = isNodeElement(node) ? node : getParentElement(node);
+  if (typeofString(selector)) {
+    // If the node is not an element, skip to its parent element
+    node = isNodeElement(node) ? node : getParentElement(node);
 
-		// Search the node's parent elements until one matches the selector or there are no more parents
-		while (node && !node.matches(selector)) {
-			node = node.parentElement;
-		}
-	} else {
-		// Search the node's parent nodes until one is found in the collection or there are no more parents
-		while (node && selector.indexOf(node) < 0) {
-			node = node.parentNode;
-		}
-	}
+    // Search the node's parent elements until one matches the selector or there are no more parents
+    while (node && !node.matches(selector)) {
+      node = node.parentElement;
+    }
+  } else {
+    // Search the node's parent nodes until one is found in the collection or there are no more parents
+    while (node && selector.indexOf(node) < 0) {
+      node = node.parentNode;
+    }
+  }
 
-	return node;
+  return node;
 };
 
 /**
@@ -3910,15 +3911,15 @@ NodePrototype.closest = function(selector) {
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.childNodes|Node.childNodes - Web API Interfaces | MDN}
  */
 NodePrototype.contents = function(/*INTERNAL*/ nc) {
-	var node = this.firstChild || this.contentDocument;
-	nc = nc || new NodeCollection();
+  var node = this.firstChild || this.contentDocument;
+  nc = nc || new NodeCollection();
 
-	while (node) {
-		push1(nc, node);
-		node = node.nextSibling;
-	}
+  while (node) {
+    push1(nc, node);
+    node = node.nextSibling;
+  }
 
-	return nc;
+  return nc;
 };
 
 /**
@@ -3958,23 +3959,23 @@ NodePrototype.nextUntil = getGetDirElementsFunc(getNextElementSibling, 0);
  * Deletes the array of handlers if it is empty after handlers have been removed.
  */
 function removeSelectorHandler(selectorHandlers, selector, handler) {
-	var handlers = selectorHandlers[selector];
-	if (handlers) {
-		if (handler) {
-			for (var i = 0; i < handlers.length; i++) {
-				if (handlers[i].f === handler) {
-					handlers.splice(i--, 1); // Use i-- so i has the same value when the loop completes and i++ happens
-				}
-			}
-		} else {
-			handlers.clear();
-		}
+  var handlers = selectorHandlers[selector];
+  if (handlers) {
+    if (handler) {
+      for (var i = 0; i < handlers.length; i++) {
+        if (handlers[i].f === handler) {
+          handlers.splice(i--, 1); // Use i-- so i has the same value when the loop completes and i++ happens
+        }
+      }
+    } else {
+      handlers.clear();
+    }
 
-		if (!handlers.length) {
-			// The array of handlers is now empty so it can be deleted
-			delete selectorHandlers[selector];
-		}
-	}
+    if (!handlers.length) {
+      // The array of handlers is now empty so it can be deleted
+      delete selectorHandlers[selector];
+    }
+  }
 }
 
 /**
@@ -4005,147 +4006,147 @@ function removeSelectorHandler(selectorHandlers, selector, handler) {
  * @see {@link http://api.jquery.com/off/#off|.off() | jQuery API Documentation}
  */
 NodePrototype.off = function off(events, selector, handler) {
-	var eventHandlers = this._$E_,
-		eventType,
-		selectorHandlers,
-		sel,
-		i;
+  var eventHandlers = this._$E_,
+    eventType,
+    selectorHandlers,
+    sel,
+    i;
 
-	// Don't bother doing anything if there haven't been any Firebolt handlers set
-	if (eventHandlers) {
-		if (typeofObject(events)) {
-			// Call this function for each event and handler in the object
-			for (i in events) {
-				off.call(this, i, selector, events[i]);
-			}
-		} else {
-			// If events was passed in, remove those events, else remove all events
-			events = events ? events.split(' ') : keys(eventHandlers);
+  // Don't bother doing anything if there haven't been any Firebolt handlers set
+  if (eventHandlers) {
+    if (typeofObject(events)) {
+      // Call this function for each event and handler in the object
+      for (i in events) {
+        off.call(this, i, selector, events[i]);
+      }
+    } else {
+      // If events was passed in, remove those events, else remove all events
+      events = events ? events.split(' ') : keys(eventHandlers);
 
-			if (selector !== _undefined && !typeofString(selector)) {
-				// The handler was in the selector argument and there is no real selector argument
-				handler = selector;
-				selector = _undefined;
-			}
+      if (selector !== _undefined && !typeofString(selector)) {
+        // The handler was in the selector argument and there is no real selector argument
+        handler = selector;
+        selector = _undefined;
+      }
 
-			// If the handler is the value false, the handler should be a function that returns false
-			if (handler === false) {
-				handler = returnFalse;
-			}
+      // If the handler is the value false, the handler should be a function that returns false
+      if (handler === false) {
+        handler = returnFalse;
+      }
 
-			for (i = 0; i < events.length; i++) {
-				if (selectorHandlers = eventHandlers[eventType = events[i]]) {
-					// If a selector was provided, remove handlers for that particular selector
-					if (selector && selector !== '**') {
-						removeSelectorHandler(selectorHandlers, selector, handler);
-					} else {
-						// Remove handlers for all selectors
-						for (sel in selectorHandlers) {
-							// If `sel` is the non-delegate selector (is falsy), only remove the handler if the input
-							// selector does not exist (for if it did exist it would have to be '**', which is only
-							// for removing delegated handlers)
-							if (sel || !selector) {
-								removeSelectorHandler(selectorHandlers, sel, handler);
-							}
-						}
-					}
+      for (i = 0; i < events.length; i++) {
+        if (selectorHandlers = eventHandlers[eventType = events[i]]) {
+          // If a selector was provided, remove handlers for that particular selector
+          if (selector && selector !== '**') {
+            removeSelectorHandler(selectorHandlers, selector, handler);
+          } else {
+            // Remove handlers for all selectors
+            for (sel in selectorHandlers) {
+              // If `sel` is the non-delegate selector (is falsy), only remove the handler if the input
+              // selector does not exist (for if it did exist it would have to be '**', which is only
+              // for removing delegated handlers)
+              if (sel || !selector) {
+                removeSelectorHandler(selectorHandlers, sel, handler);
+              }
+            }
+          }
 
-					// If there are no more selectors left, the object for the current event can be deleted
-					// and the event listener must be removed
-					if (isEmptyObject(selectorHandlers)) {
-						delete eventHandlers[eventType];
-						this.removeEventListener(eventType, nodeEventHandler);
-					}
-				}
-			}
+          // If there are no more selectors left, the object for the current event can be deleted
+          // and the event listener must be removed
+          if (isEmptyObject(selectorHandlers)) {
+            delete eventHandlers[eventType];
+            this.removeEventListener(eventType, nodeEventHandler);
+          }
+        }
+      }
 
-			// If there are no handlers left for any events, delete the event handler store
-			if (isEmptyObject(eventHandlers)) {
-				this._$E_ = _undefined;
-			}
-		}
-	}
+      // If there are no handlers left for any events, delete the event handler store
+      if (isEmptyObject(eventHandlers)) {
+        this._$E_ = _undefined;
+      }
+    }
+  }
 
-	return this;
+  return this;
 };
 
 /* Slightly alter the Event#stopPropagation() method for more convenient use in Node#on() */
 EventPrototype.stopPropagation = function() {
-	this.propagationStopped = true;
-	stopPropagation.call(this);
+  this.propagationStopped = true;
+  stopPropagation.call(this);
 };
 EventPrototype.propagationStopped = false; // Set the default value on the Event prototype
 
 /* This is the function that will be invoked for each event type when a handler is set with Node#on() */
 function nodeEventHandler(eventObject, extraParameters) {
-	var _this = this,
-		target = eventObject.target,
-		eType = eventObject.type,
-		selectorHandlers = _this._$E_[eType],
-		selectorHandlersCopy = {},
-		selectors = keys(selectorHandlers).remove(''), // Don't want the selector for non-delegated handlers
-		numSelectors = selectors.length,
-		i = 0,
-		selector,
-		result;
+  var _this = this,
+    target = eventObject.target,
+    eType = eventObject.type,
+    selectorHandlers = _this._$E_[eType],
+    selectorHandlersCopy = {},
+    selectors = keys(selectorHandlers).remove(''), // Don't want the selector for non-delegated handlers
+    numSelectors = selectors.length,
+    i = 0,
+    selector,
+    result;
 
-	// If the extra parameters are not defined (by `.triggerHandler()`), perhaps they were defined by `.trigger()`
-	if (extraParameters === _undefined) {
-		extraParameters = eventObject._$P_;
-	}
+  // If the extra parameters are not defined (by `.triggerHandler()`), perhaps they were defined by `.trigger()`
+  if (extraParameters === _undefined) {
+    extraParameters = eventObject._$P_;
+  }
 
-	/*
-	 * @param {{f: function, d: *, o: boolean}} handlerObject - The object containing the handler data
-	 *     that was set in `.on()`
-	 */
-	function callHandlerOnTarget(handlerObject) {
-		eventObject.data = handlerObject.d; // Set data in the event object before calling the handler
+  /*
+   * @param {{f: function, d: *, o: boolean}} handlerObject - The object containing the handler data
+   *     that was set in `.on()`
+   */
+  function callHandlerOnTarget(handlerObject) {
+    eventObject.data = handlerObject.d; // Set data in the event object before calling the handler
 
-		result = handlerObject.f.call(target, eventObject, extraParameters); // Call the handler and store the result
+    result = handlerObject.f.call(target, eventObject, extraParameters); // Call the handler and store the result
 
-		if (result === false) {
-			eventObject.stopPropagation();
-			eventObject.preventDefault();
-		}
+    if (result === false) {
+      eventObject.stopPropagation();
+      eventObject.preventDefault();
+    }
 
-		// Remove the handler if it should only occur once
-		if (handlerObject.o) {
-			NodePrototype.off.call(_this, eType, selector, handlerObject.f);
-			handlerObject.o = 0; // Make the "one" specifier falsy so this if statement won't try to remove it again
-		}
-	}
+    // Remove the handler if it should only occur once
+    if (handlerObject.o) {
+      NodePrototype.off.call(_this, eType, selector, handlerObject.f);
+      handlerObject.o = 0; // Make the "one" specifier falsy so this if statement won't try to remove it again
+    }
+  }
 
-	// Only do delegated events if there are selectors that can be used to delegate events and if the target
-	// was not this element (since if it was this element there would be nothing to bubble up from)
-	if (numSelectors && target !== _this) {
-		// Build a copy of the selector handlers so they won't be altered if `.off()` is ever called
-		for (; i < numSelectors; i++) {
-			selectorHandlersCopy[selectors[i]] = arrayFrom(selectorHandlers[selectors[i]]);
-		}
+  // Only do delegated events if there are selectors that can be used to delegate events and if the target
+  // was not this element (since if it was this element there would be nothing to bubble up from)
+  if (numSelectors && target !== _this) {
+    // Build a copy of the selector handlers so they won't be altered if `.off()` is ever called
+    for (; i < numSelectors; i++) {
+      selectorHandlersCopy[selectors[i]] = arrayFrom(selectorHandlers[selectors[i]]);
+    }
 
-		// Call the handlers for each selector on each matching element
-		// up to the current element or until propagation is stopped
-		do {
-			if (isNodeElement(target)) {
-				for (i = 0; i < numSelectors; i++) {
-					if (target.matches(selector = selectors[i])) {
-						selectorHandlersCopy[selector].forEach(callHandlerOnTarget);
-					}
-				}
-			}
-		} while ((target = target.parentNode) !== _this && !eventObject.propagationStopped);
-	}
+    // Call the handlers for each selector on each matching element
+    // up to the current element or until propagation is stopped
+    do {
+      if (isNodeElement(target)) {
+        for (i = 0; i < numSelectors; i++) {
+          if (target.matches(selector = selectors[i])) {
+            selectorHandlersCopy[selector].forEach(callHandlerOnTarget);
+          }
+        }
+      }
+    } while ((target = target.parentNode) !== _this && !eventObject.propagationStopped);
+  }
 
-	// If there are non-delegated handlers and propagation has not been stopped,
-	// call the handlers on the current element
-	selectorHandlers = selectorHandlers[selector = ''];
-	if (selectorHandlers && !eventObject.propagationStopped) {
-		target = _this;
-		// Use a clone so the handlers array won't be altered if `off()` is ever called
-		arrayFrom(selectorHandlers).forEach(callHandlerOnTarget);
-	}
+  // If there are non-delegated handlers and propagation has not been stopped,
+  // call the handlers on the current element
+  selectorHandlers = selectorHandlers[selector = ''];
+  if (selectorHandlers && !eventObject.propagationStopped) {
+    target = _this;
+    // Use a clone so the handlers array won't be altered if `off()` is ever called
+    arrayFrom(selectorHandlers).forEach(callHandlerOnTarget);
+  }
 
-	return result;
+  return result;
 }
 
 /**
@@ -4191,59 +4192,59 @@ function nodeEventHandler(eventObject, extraParameters) {
  * @see {@link http://api.jquery.com/on/#on-events-selector-data|.on() | jQuery API Documentation}
  */
 NodePrototype.on = function on(events, selector, data, handler, /*INTERNAL*/ one) {
-	var eventHandlers = this._$E_ || (this._$E_ = {}),
-		selectorIsString = typeofString(selector),
-		selectorHandlers,
-		eventType,
-		i;
+  var eventHandlers = this._$E_ || (this._$E_ = {}),
+    selectorIsString = typeofString(selector),
+    selectorHandlers,
+    eventType,
+    i;
 
-	if (typeofObject(events)) {
-		// Call this function for each event and event handler in the object
-		for (i in events) {
-			on.call(this, i, selector, data, events[i], one);
-		}
-	} else {
-		events = events.split(' ');
+  if (typeofObject(events)) {
+    // Call this function for each event and event handler in the object
+    for (i in events) {
+      on.call(this, i, selector, data, events[i], one);
+    }
+  } else {
+    events = events.split(' ');
 
-		// Organize arguments into their proper places
-		if (handler === _undefined) {
-			if (data === _undefined) {
-				handler = selector; // The handler was in the selector argument
-			} else {
-				handler = data;     // The handler was in the data argument
-				data = selectorIsString ? _undefined : selector; // Data was undefined or was in the selector argument
-			}
-		}
+    // Organize arguments into their proper places
+    if (handler === _undefined) {
+      if (data === _undefined) {
+        handler = selector; // The handler was in the selector argument
+      } else {
+        handler = data;     // The handler was in the data argument
+        data = selectorIsString ? _undefined : selector; // Data was undefined or was in the selector argument
+      }
+    }
 
-		if (!selectorIsString) {
-			selector = ''; // Make the selector an empty string to be used as an object key
-		}
+    if (!selectorIsString) {
+      selector = ''; // Make the selector an empty string to be used as an object key
+    }
 
-		// If the handler is the value false, the handler should be a function that returns false
-		if (handler === false) {
-			handler = returnFalse;
-		}
+    // If the handler is the value false, the handler should be a function that returns false
+    if (handler === false) {
+      handler = returnFalse;
+    }
 
-		for (i = 0; i < events.length; i++) {
-			if (eventType = events[i]) { // Sanity check
-				selectorHandlers = eventHandlers[eventType]; // Get the selector handlers object for the event type
+    for (i = 0; i < events.length; i++) {
+      if (eventType = events[i]) { // Sanity check
+        selectorHandlers = eventHandlers[eventType]; // Get the selector handlers object for the event type
 
-				// If the object for the event doesn't exist, create it and add Firebolt's event function as a listener
-				if (!selectorHandlers) {
-					selectorHandlers = eventHandlers[eventType] = {};
-					this.addEventListener(eventType, nodeEventHandler);
-				}
+        // If the object for the event doesn't exist, create it and add Firebolt's event function as a listener
+        if (!selectorHandlers) {
+          selectorHandlers = eventHandlers[eventType] = {};
+          this.addEventListener(eventType, nodeEventHandler);
+        }
 
-				// Get the array of handlers for the selector or create it if it doesn't exist
-				selectorHandlers = selectorHandlers[selector] || (selectorHandlers[selector] = []);
+        // Get the array of handlers for the selector or create it if it doesn't exist
+        selectorHandlers = selectorHandlers[selector] || (selectorHandlers[selector] = []);
 
-				// Add the user-input handler and data to the array of handlers
-				push1(selectorHandlers, { f: handler, d: data, o: one });
-			}
-		}
-	}
+        // Add the user-input handler and data to the array of handlers
+        push1(selectorHandlers, {f: handler, d: data, o: one});
+      }
+    }
+  }
 
-	return this;
+  return this;
 };
 
 /**
@@ -4268,7 +4269,7 @@ NodePrototype.on = function on(events, selector, data, handler, /*INTERNAL*/ one
  * @see {@link http://api.jquery.com/one/#one-events-selector-data|.one() | jQuery API Documentation}
  */
 NodePrototype.one = function(events, selector, data, handler) {
-	return NodePrototype.on.call(this, events, selector, data, handler, 1);
+  return NodePrototype.on.call(this, events, selector, data, handler, 1);
 };
 
 /**
@@ -4390,10 +4391,10 @@ NodePrototype.replaceWith = getNodePutOrWithFunction(replaceWith);
  * @returns `undefined`
  */
 NodePrototype.remove = function() {
-	var parent = this.parentNode;
-	if (parent) {
-		parent.removeChild(this);
-	}
+  var parent = this.parentNode;
+  if (parent) {
+    parent.removeChild(this);
+  }
 };
 
 /**
@@ -4405,7 +4406,7 @@ NodePrototype.remove = function() {
  * @throws {TypeError} The subject node must have a {@link ParentNode}.
  */
 NodePrototype.siblings = function(selector) {
-	return NodePrototype.childElements.call(this.parentNode, selector).remove(this);
+  return NodePrototype.childElements.call(this.parentNode, selector).remove(this);
 };
 
 /**
@@ -4446,13 +4447,13 @@ NodePrototype.siblings = function(selector) {
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.textContent|Node.textContent - Web API Interfaces | MDN}
  */
 NodePrototype.text = function(text) {
-	if (text === _undefined) {
-		return this.textContent; // Get
-	}
+  if (text === _undefined) {
+    return this.textContent; // Get
+  }
 
-	this.textContent = text; // Set
+  this.textContent = text; // Set
 
-	return this;
+  return this;
 };
 
 /**
@@ -4472,15 +4473,15 @@ NodePrototype.text = function(text) {
  *     triggered event handler(s).
  */
 NodePrototype.trigger = function(event, extraParameters) {
-	if (typeofString(event)) {
-		event = createEventObject(event);
-	}
+  if (typeofString(event)) {
+    event = createEventObject(event);
+  }
 
-	event._$P_ = extraParameters;
+  event._$P_ = extraParameters;
 
-	this.dispatchEvent(event);
+  this.dispatchEvent(event);
 
-	return this;
+  return this;
 };
 
 /**
@@ -4502,8 +4503,8 @@ NodePrototype.trigger = function(event, extraParameters) {
  *    triggered event handler(s).
  */
 NodePrototype.triggerHandler = function(event, extraParameters) {
-	// Only trigger handlers if there are event handlers saved to the node
-	return this._$E_ && this._$E_[event] && nodeEventHandler.call(this, createEventObject(event), extraParameters);
+  // Only trigger handlers if there are event handlers saved to the node
+  return this._$E_ && this._$E_[event] && nodeEventHandler.call(this, createEventObject(event), extraParameters);
 };
 
 /**
@@ -4513,17 +4514,17 @@ NodePrototype.triggerHandler = function(event, extraParameters) {
  * @throws {TypeError} The subject node must have a {@link ParentNode}, which in turn must also have a ParentNode.
  */
 NodePrototype.unwrap = function() {
-	var parent = this.parentNode,
-		grandparent = parent.parentNode;
+  var parent = this.parentNode,
+    grandparent = parent.parentNode;
 
-	if (parent.nodeName != 'BODY') {
-		while (parent.firstChild) {
-			grandparent.insertBefore(parent.firstChild, parent);
-		}
-		grandparent.removeChild(parent);
-	}
+  if (parent.nodeName != 'BODY') {
+    while (parent.firstChild) {
+      grandparent.insertBefore(parent.firstChild, parent);
+    }
+    grandparent.removeChild(parent);
+  }
 
-	return this;
+  return this;
 };
 
 /**
@@ -4536,11 +4537,11 @@ NodePrototype.unwrap = function() {
  * @throws {HierarchyRequestError} The node must implement the {@link ParentNode} interface.
  */
 NodePrototype.wrapInner = function(wrappingElement) {
-	if (wrappingElement = getWrappingElement(wrappingElement)) {
-		this.appendChild(getWrappingInnerElement(wrappingElement).appendWith(this.childNodes));
-	}
+  if (wrappingElement = getWrappingElement(wrappingElement)) {
+    this.appendChild(getWrappingInnerElement(wrappingElement).appendWith(this.childNodes));
+  }
 
-	return this;
+  return this;
 };
 
 /**
@@ -4553,12 +4554,12 @@ NodePrototype.wrapInner = function(wrappingElement) {
  * @throws {TypeError} The subject node must have a {@link ParentNode}.
  */
 NodePrototype.wrapWith = function(wrappingElement) {
-	if (wrappingElement = getWrappingElement(wrappingElement)) {
-		replaceWith(wrappingElement, this);
-		getWrappingInnerElement(wrappingElement).appendChild(this);
-	}
+  if (wrappingElement = getWrappingElement(wrappingElement)) {
+    replaceWith(wrappingElement, this);
+    getWrappingInnerElement(wrappingElement).appendChild(this);
+  }
 
-	return this;
+  return this;
 };
 
 /**
@@ -4604,11 +4605,11 @@ NodePrototype.wrapWith = function(wrappingElement) {
  * <br />
  */
 var NodeCollection = window.NodeCollection = window.NC =
-		document.head.appendChild(iframe).contentWindow.Array; // <iframe> Array subclassing
+    document.head.appendChild(iframe).contentWindow.Array; // <iframe> Array subclassing
 
 // Extend NodeCollection's prototype with the Array functions and save a reference to it
 var NodeCollectionPrototype = Firebolt.fn =
-		extend(NodeCollection[prototype], prototypeExtensions, getTypedArrayFunctions(NodeCollection));
+    extend(NodeCollection[prototype], prototypeExtensions, getTypedArrayFunctions(NodeCollection));
 
 // Polyfill NodeCollection.from() and .of() and get the custom version of .from()
 var ncFrom = setArrayStaticsAndGetFromFunction(NodeCollection);
@@ -4621,18 +4622,18 @@ iframe.remove(); // Remove the iframe that was used to subclass Array
 ('addClass animate blur click empty fadeIn fadeOut fadeToggle ' +
  'finish focus hide removeAttr removeClass removeData removeProp ' +
  'show slideDown slideToggle slideUp stop toggle toggleClass')
-	.split(' ')
-	.forEach(function(fnName) {
-		var fn = HTMLElementPrototype[fnName];
-		NodeCollectionPrototype[fnName] = function() {
-			for (var i = 0, len = this.length; i < len; i++) {
-				if (isNodeElement(this[i])) {
-					fn.apply(this[i], arguments);
-				}
-			}
-			return this;
-		};
-	});
+  .split(' ')
+  .forEach(function(fnName) {
+    var fn = HTMLElementPrototype[fnName];
+    NodeCollectionPrototype[fnName] = function() {
+      for (var i = 0, len = this.length; i < len; i++) {
+        if (isNodeElement(this[i])) {
+          fn.apply(this[i], arguments);
+        }
+      }
+      return this;
+    };
+  });
 
 /**
  * @summary
@@ -4687,10 +4688,10 @@ iframe.remove(); // Remove the iframe that was used to subclass Array
  * @returns {NodeCollection} The result of adding the input nodes to the current collection.
  */
 NodeCollectionPrototype.add = function(input) {
-	return (
-		input.nodeType ? this.contains(input) ? ncFrom(this) : this.concat(input)
-		               : this.union(typeofString(input) ? Firebolt(input) : input)
-	).sort(sortDocOrder);
+  return (
+    input.nodeType ? this.contains(input) ? ncFrom(this) : this.concat(input)
+                   : this.union(typeofString(input) ? Firebolt(input) : input)
+  ).sort(sortDocOrder);
 };
 
 /**
@@ -4778,7 +4779,7 @@ NodeCollectionPrototype.appendWith = getNodeCollectionPutOrWithFunction(append);
  * @param {Object} attributes - An object of attribute-value pairs to set.
  */
 NodeCollectionPrototype.attr = getFirstSetEachElement(HTMLElementPrototype.attr, function(numArgs) {
-	return numArgs < 2;
+  return numArgs < 2;
 });
 
 /**
@@ -4841,15 +4842,15 @@ NodeCollectionPrototype.children = getGetDirElementsFunc(HTMLElementPrototype.ch
  * @returns {NodeCollection}
  */
 NodeCollectionPrototype.clone = function(withDataAndEvents, deepWithDataAndEvents) {
-	var len = this.length,
-		clone = new NodeCollection(len),
-		i = 0;
+  var len = this.length,
+    clone = new NodeCollection(len),
+    i = 0;
 
-	for (; i < len; i++) {
-		clone[i] = this[i].clone(withDataAndEvents, deepWithDataAndEvents);
-	}
+  for (; i < len; i++) {
+    clone[i] = this[i].clone(withDataAndEvents, deepWithDataAndEvents);
+  }
 
-	return clone;
+  return clone;
 };
 
 /**
@@ -4869,17 +4870,17 @@ NodeCollectionPrototype.clone = function(withDataAndEvents, deepWithDataAndEvent
  * @returns {Node[]} - A collection of "closest" nodes.
  */
 NodeCollectionPrototype.closest = function(selector) {
-	var nc = new NodeCollection(),
-		i = 0,
-		node;
+  var nc = new NodeCollection(),
+    i = 0,
+    node;
 
-	for (; i < this.length; i++) {
-		if ((node = this[i].closest(selector)) && nc.indexOf(node) < 0) {
-			push1(nc, node);
-		}
-	}
+  for (; i < this.length; i++) {
+    if ((node = this[i].closest(selector)) && nc.indexOf(node) < 0) {
+      push1(nc, node);
+    }
+  }
 
-	return nc;
+  return nc;
 };
 
 /**
@@ -4891,16 +4892,16 @@ NodeCollectionPrototype.closest = function(selector) {
  * @returns {NodeCollection} The collection of all the child nodes of the elements in the collection.
  */
 NodeCollectionPrototype.contents = function() {
-	var nc = new NodeCollection(),
-		i = 0;
+  var nc = new NodeCollection(),
+    i = 0;
 
-	for (; i < this.length; i++) {
-		// Call Node#contents() on the current node, passing in the
-		// NodeCollection so the nodes are added directly to it
-		NodePrototype.contents.call(this[i], nc);
-	}
+  for (; i < this.length; i++) {
+    // Call Node#contents() on the current node, passing in the
+    // NodeCollection so the nodes are added directly to it
+    NodePrototype.contents.call(this[i], nc);
+  }
 
-	return nc;
+  return nc;
 };
 
 /**
@@ -4940,7 +4941,7 @@ NodeCollectionPrototype.contents = function() {
  * @param {Object.<String, String|Number>} properties - An object of CSS property-values.
  */
 NodeCollectionPrototype.css = getFirstSetEachElement(HTMLElementPrototype.css, function(numArgs, firstArg) {
-	return isArray(firstArg) || numArgs < 2 && typeofString(firstArg);
+  return isArray(firstArg) || numArgs < 2 && typeofString(firstArg);
 });
 
 /**
@@ -4971,7 +4972,7 @@ NodeCollectionPrototype.css = getFirstSetEachElement(HTMLElementPrototype.css, f
  * @param {Object} obj - An object of key-value pairs to add to each element's stored data.
  */
 NodeCollectionPrototype.data = getFirstSetEachElement(ElementPrototype.data, function(numArgs, firstArg) {
-	return !numArgs || numArgs < 2 && typeofString(firstArg);
+  return !numArgs || numArgs < 2 && typeofString(firstArg);
 });
 
 /**
@@ -5034,11 +5035,11 @@ NodeCollectionPrototype.data = getFirstSetEachElement(ElementPrototype.data, fun
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter|Array#filter() - JavaScript | MDN}
  */
 NodeCollectionPrototype.filter = function(selector) {
-	return ncFilter.call(this, 
-		typeofString(selector)
-			? function(node) { return isNodeElement(node) && node.matches(selector); } // Use CSS string filter
-			: selector // Use given filter function
-	);
+  return ncFilter.call(this, 
+    typeofString(selector)
+      ? function(node) { return isNodeElement(node) && node.matches(selector); } // Use CSS string filter
+      : selector // Use given filter function
+  );
 };
 
 /**
@@ -5087,7 +5088,7 @@ NodeCollectionPrototype.find = getGetDirElementsFunc(ElementPrototype.find, sort
  * @param {String} innerHTML - An HTML string.
  */
 NodeCollectionPrototype.html = getFirstSetEachElement(HTMLElementPrototype.html, function(numArgs) {
-	return !numArgs;
+  return !numArgs;
 });
 
 /**
@@ -5100,7 +5101,7 @@ NodeCollectionPrototype.html = getFirstSetEachElement(HTMLElementPrototype.html,
  * @see http://www.w3.org/TR/DOM-Level-3-Core/core.html#ID-844377136
  */
 NodeCollectionPrototype.item = function(index) {
-	return this[index] || null;
+  return this[index] || null;
 };
 
 /**
@@ -5179,7 +5180,7 @@ NodeCollectionPrototype.off = callOnEach(NodePrototype.off);
  * which are numbers indicating the new top and left coordinates to set for each element.
  */
 NodeCollectionPrototype.offset = getFirstSetEachElement(HTMLElementPrototype.offset, function(numArgs) {
-	return !numArgs;
+  return !numArgs;
 });
 
 /**
@@ -5258,18 +5259,18 @@ NodeCollectionPrototype.one = callOnEach(NodePrototype.one);
  *     set may include Document and DocumentFragment nodes.
  */
 NodeCollectionPrototype.parent = function(selector) {
-	var nc = new NodeCollection(),
-		i = 0,
-		parent;
+  var nc = new NodeCollection(),
+    i = 0,
+    parent;
 
-	for (; i < this.length; i++) {
-		parent = this[i].parentNode;
-		if ((!selector || (isNodeElement(parent) && parent.matches(selector))) && nc.indexOf(parent) < 0) {
-			push1(nc, parent);
-		}
-	}
+  for (; i < this.length; i++) {
+    parent = this[i].parentNode;
+    if ((!selector || (isNodeElement(parent) && parent.matches(selector))) && nc.indexOf(parent) < 0) {
+      push1(nc, parent);
+    }
+  }
 
-	return nc;
+  return nc;
 };
 
 /**
@@ -5365,7 +5366,7 @@ NodeCollectionPrototype.prevUntil = getGetDirElementsFunc(HTMLElementPrototype.p
  * @param {Object} properties - An object of property-value pairs to set.
  */
 NodeCollectionPrototype.prop = getFirstSetEachElement(HTMLElementPrototype.prop, function(numArgs, firstArg) {
-	return numArgs < 2 && typeofString(firstArg);
+  return numArgs < 2 && typeofString(firstArg);
 });
 
 /**
@@ -5395,13 +5396,13 @@ NodeCollectionPrototype.putBefore = getNodeCollectionPutToOrReplaceAllFunction('
  * @param {String} [selector] - A selector that filters the set of elements to be removed.
  */
 NodeCollectionPrototype.remove = function(selector) {
-	var nodes = selector ? this.filter(selector) : this,
-		i = 0;
-	for (; i < nodes.length; i++) {
-		NodePrototype.remove.call(nodes[i]);
-	}
+  var nodes = selector ? this.filter(selector) : this,
+    i = 0;
+  for (; i < nodes.length; i++) {
+    NodePrototype.remove.call(nodes[i]);
+  }
 
-	return this;
+  return this;
 };
 
 /**
@@ -5478,17 +5479,17 @@ NodeCollectionPrototype.replaceWith = getNodeCollectionPutOrWithFunction(replace
  * @see {@link http://api.jquery.com/serialize/|.serialize() | jQuery API Documentation}
  */
 NodeCollectionPrototype.serialize = function() {
-	var retStr = '',
-		i = 0,
-		val;
+  var retStr = '',
+    i = 0,
+    val;
 
-	for (; i < this.length; i++) {
-		if (val = this[i].serialize()) {
-			retStr += (retStr ? '&' : '') + val;
-		}
-	}
+  for (; i < this.length; i++) {
+    if (val = this[i].serialize()) {
+      retStr += (retStr ? '&' : '') + val;
+    }
+  }
 
-	return retStr;
+  return retStr;
 };
 
 /**
@@ -5572,21 +5573,21 @@ NodeCollectionPrototype.siblings = getGetDirElementsFunc(HTMLElementPrototype.si
  *     string to be set as each nodes' text content.
  */
 NodeCollectionPrototype.text = function(text) {
-	var len = this.length,
-		i = 0;
-	// Get
-	if (text === _undefined) {
-		for (text = ''; i < len; i++) {
-			text += this[i].textContent;
-		}
-		return text;
-	}
-	// Set
-	for (; i < len; i++) {
-		this[i].textContent = text;
-	}
+  var len = this.length,
+    i = 0;
+  // Get
+  if (text === _undefined) {
+    for (text = ''; i < len; i++) {
+      text += this[i].textContent;
+    }
+    return text;
+  }
+  // Set
+  for (; i < len; i++) {
+    this[i].textContent = text;
+  }
 
-	return this;
+  return this;
 };
 
 /**
@@ -5622,7 +5623,7 @@ NodeCollectionPrototype.toArray = ArrayPrototype.clone;
  * @returns {NodeCollection}
  */
 NodeCollectionPrototype.toNC = function() {
-	return ncFrom(this);
+  return ncFrom(this);
 };
 
 /**
@@ -5663,7 +5664,7 @@ NodeCollectionPrototype.trigger = callOnEach(NodePrototype.trigger);
  *     triggered event handler(s).
  */
 NodeCollectionPrototype.triggerHandler = function(eventType, extraParameters) {
-	return this[0] && this[0].triggerHandler(eventType, extraParameters);
+  return this[0] && this[0].triggerHandler(eventType, extraParameters);
 };
 
 /**
@@ -5673,13 +5674,13 @@ NodeCollectionPrototype.triggerHandler = function(eventType, extraParameters) {
  * @throws {TypeError} Each node must have a {@link ParentNode}, which in turn must also have a ParentNode.
  */
 NodeCollectionPrototype.unwrap = function() {
-	var parents = NodeCollectionPrototype.parent.call(this),
-		i = 0;
-	for (; i < parents.length; i++) {
-		NodePrototype.unwrap.call(parents[i].firstChild);
-	}
+  var parents = NodeCollectionPrototype.parent.call(this),
+    i = 0;
+  for (; i < parents.length; i++) {
+    NodePrototype.unwrap.call(parents[i].firstChild);
+  }
 
-	return this;
+  return this;
 };
 
 /**
@@ -5708,17 +5709,17 @@ NodeCollectionPrototype.unwrap = function() {
  *     should be checked (or selected).
  */
 NodeCollectionPrototype.val = function(value) {
-	// Get first
-	if (value === _undefined) {
-		return this[0].val();
-	}
+  // Get first
+  if (value === _undefined) {
+    return this[0].val();
+  }
 
-	// Set each
-	for (var i = 0; i < this.length; i++) {
-		this[i].val(value);
-	}
+  // Set each
+  for (var i = 0; i < this.length; i++) {
+    this[i].val(value);
+  }
 
-	return this;
+  return this;
 };
 
 /**
@@ -5731,13 +5732,13 @@ NodeCollectionPrototype.val = function(value) {
  * @throws {HierarchyRequestError} The target node(s) must implement the {@link ParentNode} interface.
  */
 NodeCollectionPrototype.wrapInner = function(wrappingElement) {
-	if (wrappingElement = getWrappingElement(wrappingElement)) {
-		for (var i = 0; i < this.length; i++) {
-			this[i].wrapInner(wrappingElement);
-		}
-	}
+  if (wrappingElement = getWrappingElement(wrappingElement)) {
+    for (var i = 0; i < this.length; i++) {
+      this[i].wrapInner(wrappingElement);
+    }
+  }
 
-	return this;
+  return this;
 };
 
 /**
@@ -5750,13 +5751,13 @@ NodeCollectionPrototype.wrapInner = function(wrappingElement) {
  * @throws {TypeError} The target node(s) must have a {@link ParentNode}.
  */
 NodeCollectionPrototype.wrapWith = function(wrappingElement) {
-	if (wrappingElement = getWrappingElement(wrappingElement)) {
-		for (var i = 0; i < this.length; i++) {
-			NodePrototype.wrapWith.call(this[i], wrappingElement);
-		}
-	}
+  if (wrappingElement = getWrappingElement(wrappingElement)) {
+    for (var i = 0; i < this.length; i++) {
+      NodePrototype.wrapWith.call(this[i], wrappingElement);
+    }
+  }
 
-	return this;
+  return this;
 };
 
 //#endregion NodeCollection
@@ -5864,17 +5865,17 @@ NodeCollectionPrototype.wrapWith = function(wrappingElement) {
 
 /* Give NodeLists and HTMLCollections many of the same prototype functions as NodeCollections */
 Object.getOwnPropertyNames(NodeCollectionPrototype)
-	.diff('clear length pop push shift splice unshift'.split(' ')) // These properties should not be added
-	.forEach(function(methodName) {
-		if (!NodeListPrototype[methodName]) {
-			var method = NodeCollectionPrototype[methodName];
+  .diff('clear length pop push shift splice unshift'.split(' ')) // These properties should not be added
+  .forEach(function(methodName) {
+    if (!NodeListPrototype[methodName]) {
+      var method = NodeCollectionPrototype[methodName];
 
-			HTMLCollectionPrototype[methodName] = NodeListPrototype[methodName] =
-			rgxDifferentNL.test(methodName) ? function() {
-				return method.apply(ncFrom(this), arguments); // Convert to a NodeCollection, then apply the method
-			} : method; // Else directly copy the method
-		}
-	});
+      HTMLCollectionPrototype[methodName] = NodeListPrototype[methodName] =
+      rgxDifferentNL.test(methodName) ? function() {
+        return method.apply(ncFrom(this), arguments); // Convert to a NodeCollection, then apply the method
+      } : method; // Else directly copy the method
+    }
+  });
 
 /**
  * Returns the specific node whose ID or, as a fallback, name matches the string specified by `name`.
@@ -5884,13 +5885,13 @@ Object.getOwnPropertyNames(NodeCollectionPrototype)
  * @returns {?Element}
  */
 NodeListPrototype.namedItem = NodeCollectionPrototype.namedItem = function(name) {
-	for (var i = 0, node; i < this.length; i++) {
-		node = this[i];
-		if (node.id == name || node.name == name) {
-			return node;
-		}
-	}
-	return null;
+  for (var i = 0, node; i < this.length; i++) {
+    node = this[i];
+    if (node.id == name || node.name == name) {
+      return node;
+    }
+  }
+  return null;
 };
 
 /**
@@ -5935,11 +5936,11 @@ NodeListPrototype.uniq = HTMLCollectionPrototype.uniq = NodeCollectionPrototype.
  * (-3).toPaddedString(5, 2);   // "-0011"
  */
 Number[prototype].toPaddedString = function(length, radix) {
-	var sNumber = this.toString(radix);
-	if (length > sNumber.length) {
-		sNumber = '0'.repeat(length - sNumber.length) + sNumber;
-	}
-	return this < 0 ? '-' + sNumber.replace('-', '') : sNumber;
+  var sNumber = this.toString(radix);
+  if (length > sNumber.length) {
+    sNumber = '0'.repeat(length - sNumber.length) + sNumber;
+  }
+  return this < 0 ? '-' + sNumber.replace('-', '') : sNumber;
 }; 
 
 //#endregion Number
@@ -5963,11 +5964,11 @@ Number[prototype].toPaddedString = function(length, radix) {
  * @returns {Object} The input object.
  */
 Object.each = function(obj, callback) {
-	for (var i in obj) {
-		if (callback.call(obj[i], obj[i], i, obj) === false) break;
-	}
+  for (var i in obj) {
+    if (callback.call(obj[i], obj[i], i, obj) === false) break;
+  }
 
-	return obj;
+  return obj;
 };
 
 /**
@@ -5994,7 +5995,7 @@ Object.each = function(obj, callback) {
  */
 Object.getClassOf = getClassOf;
 function getClassOf(obj) {
-	return Object.prototype.toString.call(obj).slice(8, -1);
+  return Object.prototype.toString.call(obj).slice(8, -1);
 }
 
 //#endregion Object
@@ -6010,157 +6011,157 @@ function getClassOf(obj) {
 
 // Reuse the prototype extensions variable to hold an object of String extensions
 prototypeExtensions = {
-	/**
-	 * Appends query string parameters to a URL.
-	 *
-	 * @function String#appendParams
-	 * @param {String} params - Query string parameters.
-	 * @returns {String} A reference to the string (chainable).
-	 * @example
-	 * var url = "www.google.com";
-	 * url = url.appendParams('lang=en'); // -> "www.google.com?lang=en"
-	 * url = url.appendParams('a=1&b=2'); // -> "www.google.com?lang=en&a=1&b=2"
-	 */
-	appendParams: function(params) {
-		return this + (this.indexOf('?') >= 0 ? '&' : '?') + params;
-	},
+  /**
+   * Appends query string parameters to a URL.
+   *
+   * @function String#appendParams
+   * @param {String} params - Query string parameters.
+   * @returns {String} A reference to the string (chainable).
+   * @example
+   * var url = "www.google.com";
+   * url = url.appendParams('lang=en'); // -> "www.google.com?lang=en"
+   * url = url.appendParams('a=1&b=2'); // -> "www.google.com?lang=en&a=1&b=2"
+   */
+  appendParams: function(params) {
+    return this + (this.indexOf('?') >= 0 ? '&' : '?') + params;
+  },
 
-	/**
-	 * HTML-encodes the string by converting HTML special characters to their
-	 * entity equivalents and returns the result.
-	 * 
-	 * @example
-	 * '<img src="//somesite.com" />'.escapeHTML();  // -> '&lt;img src="//somesite.com" /&gt;'
-	 * 
-	 * @function String#escapeHTML
-	 * @returns {String} The HTML-escaped text.
-	 */
-	escapeHTML: function() {
-		return createElement('div').text(this).innerHTML;
-	},
+  /**
+   * HTML-encodes the string by converting HTML special characters to their
+   * entity equivalents and returns the result.
+   * 
+   * @example
+   * '<img src="//somesite.com" />'.escapeHTML();  // -> '&lt;img src="//somesite.com" /&gt;'
+   * 
+   * @function String#escapeHTML
+   * @returns {String} The HTML-escaped text.
+   */
+  escapeHTML: function() {
+    return createElement('div').text(this).innerHTML;
+  },
 
-	/**
-	 * Returns the string split into an array of substrings (tokens) that were separated by white-space.
-	 *
-	 * @function String#tokenize
-	 * @returns {String[]} An array of tokens.
-	 * @example
-	 * var str = "The boy who lived.";
-	 * str.tokenize(); // -> ["The", "boy", "who", "lived."]
-	 */
-	tokenize: function() {
-		return this.match(/\S+/g) || [];
-	},
+  /**
+   * Returns the string split into an array of substrings (tokens) that were separated by white-space.
+   *
+   * @function String#tokenize
+   * @returns {String[]} An array of tokens.
+   * @example
+   * var str = "The boy who lived.";
+   * str.tokenize(); // -> ["The", "boy", "who", "lived."]
+   */
+  tokenize: function() {
+    return this.match(/\S+/g) || [];
+  },
 
-	/**
-	 * HTML-decodes the string by converting entities of HTML special
-	 * characters to their normal form and returns the result.
-	 * 
-	 * @example
-	 * '&lt;img src="//somesite.com" /&gt;'.unescapeHTML();  // -> '<img src="//somesite.com" />'
-	 * 
-	 * @function String#unescapeHTML
-	 * @returns {String} The HTML-unescaped text.
-	 */
-	unescapeHTML: function() {
-		return createElement('div').html(this).textContent;
-	}
+  /**
+   * HTML-decodes the string by converting entities of HTML special
+   * characters to their normal form and returns the result.
+   * 
+   * @example
+   * '&lt;img src="//somesite.com" /&gt;'.unescapeHTML();  // -> '<img src="//somesite.com" />'
+   * 
+   * @function String#unescapeHTML
+   * @returns {String} The HTML-unescaped text.
+   */
+  unescapeHTML: function() {
+    return createElement('div').html(this).textContent;
+  }
 };
 
 
 /* Add ES6 functions to String.prototype */
 
 if (!StringPrototype.endsWith) {
-	/**
-	 * Determines if a string ends with the characters of another string.
-	 *
-	 * @function String#endsWith
-	 * @param {String} searchString - The characters to be searched for at the end of this string.
-	 * @param {Number} [position=this.length] - Search within this string as if this string were only this long;
-	 * clamped within the range established by this string's length.
-	 * @returns {Boolean} `true` if this string ends with `searchString`; else `false`.
-	 * @example
-	 * var str = "Who am I, Gamling?";
-	 * alert( str.endsWith("Gamling?") );  // true
-	 * alert( str.endsWith("am I") );      // false
-	 * alert( str.endsWith("am I", 8) );   // true
-	 */
-	prototypeExtensions.endsWith = function(searchString, position) {
-		var str = this.toString(),
-			strLen = str.length;
-		position = (position < strLen ? position : strLen) - searchString.length;
-		return position >= 0 && str.indexOf(searchString, position) === position;
-	};
+  /**
+   * Determines if a string ends with the characters of another string.
+   *
+   * @function String#endsWith
+   * @param {String} searchString - The characters to be searched for at the end of this string.
+   * @param {Number} [position=this.length] - Search within this string as if this string were only this long;
+   * clamped within the range established by this string's length.
+   * @returns {Boolean} `true` if this string ends with `searchString`; else `false`.
+   * @example
+   * var str = "Who am I, Gamling?";
+   * alert( str.endsWith("Gamling?") );  // true
+   * alert( str.endsWith("am I") );      // false
+   * alert( str.endsWith("am I", 8) );   // true
+   */
+  prototypeExtensions.endsWith = function(searchString, position) {
+    var str = this.toString(),
+      strLen = str.length;
+    position = (position < strLen ? position : strLen) - searchString.length;
+    return position >= 0 && str.indexOf(searchString, position) === position;
+  };
 }
 
 if (!StringPrototype.includes) {
-	/**
-	 * Determines whether the passed in string is in the current string.
-	 * 
-	 * @example
-	 * var str = "Winter is coming.";
-	 * alert( str.includes(" is ") );    // true
-	 * alert( str.includes("summer") );  // false
-	 *
-	 * @function String#includes
-	 * @param {String} searchString - The string to be searched for.
-	 * @param {Number} [position=0] - The position in this string at which to begin the search.
-	 * @returns {Boolean} `true` if this string contains the search string, `false` otherwise.
-	 */
-	prototypeExtensions.includes = function() {
-		return StringPrototype.indexOf.apply(this, arguments) >= 0;
-	};
+  /**
+   * Determines whether the passed in string is in the current string.
+   * 
+   * @example
+   * var str = "Winter is coming.";
+   * alert( str.includes(" is ") );    // true
+   * alert( str.includes("summer") );  // false
+   *
+   * @function String#includes
+   * @param {String} searchString - The string to be searched for.
+   * @param {Number} [position=0] - The position in this string at which to begin the search.
+   * @returns {Boolean} `true` if this string contains the search string, `false` otherwise.
+   */
+  prototypeExtensions.includes = function() {
+    return StringPrototype.indexOf.apply(this, arguments) >= 0;
+  };
 }
 
 if (!StringPrototype.repeat) {
-	/**
-	 * Copies the current string a given number of times and returns the new string.
-	 *
-	 * @function String#repeat
-	 * @param {Number} count - An integer between 0 and +∞ : [0, +∞).
-	 * @returns {String}
-	 * @throws {RangeError} The repeat count must be positive and less than infinity.
-	 * @example
-	 * "abc".repeat(0)   // ""
-	 * "abc".repeat(1)   // "abc"
-	 * "abc".repeat(2)   // "abcabc"
-	 * "abc".repeat(3.5) // "abcabcabc" (count will be converted to integer)
-	 * "0".repeat(5)     // "00000"
-	 */
-	prototypeExtensions.repeat = function(count) {
-		count = Math.floor(count) || 0;
-		if (!isFinite(count) || count < 0) {
-			throw new RangeError('Invalid count value');
-		}
+  /**
+   * Copies the current string a given number of times and returns the new string.
+   *
+   * @function String#repeat
+   * @param {Number} count - An integer between 0 and +∞ : [0, +∞).
+   * @returns {String}
+   * @throws {RangeError} The repeat count must be positive and less than infinity.
+   * @example
+   * "abc".repeat(0)   // ""
+   * "abc".repeat(1)   // "abc"
+   * "abc".repeat(2)   // "abcabc"
+   * "abc".repeat(3.5) // "abcabcabc" (count will be converted to integer)
+   * "0".repeat(5)     // "00000"
+   */
+  prototypeExtensions.repeat = function(count) {
+    count = Math.floor(count) || 0;
+    if (!isFinite(count) || count < 0) {
+      throw new RangeError('Invalid count value');
+    }
 
-		var str = this.toString(),
-			retStr = '';
-		for (;;) {
-			if (count & 1) retStr += str;
-			count >>= 1;
-			if (count === 0) return retStr;
-			str += str;
-		}
-	};
+    var str = this.toString(),
+      retStr = '';
+    for (;;) {
+      if (count & 1) retStr += str;
+      count >>= 1;
+      if (count === 0) return retStr;
+      str += str;
+    }
+  };
 }
 
 if (!StringPrototype.startsWith) {
-	/**
-	 * Determines whether a string starts with the characters of another string.
-	 *
-	 * @function String#startsWith
-	 * @param {String} searchString - The characters to be searched for at the start of this string.
-	 * @param {Number} [position=0] - The position in this string at which to begin searching for `searchString`.
-	 * @returns {Boolean} `true` if this string starts with the search string; else `false`.
-	 * @example
-	 * var str = "Who am I, Gamling?";
-	 * alert( str.endsWith("Who") );      // true
-	 * alert( str.endsWith("am I") );     // false
-	 * alert( str.endsWith("am I", 4) );  // true
-	 */
-	prototypeExtensions.startsWith = function(searchString, position) {
-		return this.toString().lastIndexOf(searchString, position = position || 0) === position;
-	};
+  /**
+   * Determines whether a string starts with the characters of another string.
+   *
+   * @function String#startsWith
+   * @param {String} searchString - The characters to be searched for at the start of this string.
+   * @param {Number} [position=0] - The position in this string at which to begin searching for `searchString`.
+   * @returns {Boolean} `true` if this string starts with the search string; else `false`.
+   * @example
+   * var str = "Who am I, Gamling?";
+   * alert( str.endsWith("Who") );      // true
+   * alert( str.endsWith("am I") );     // false
+   * alert( str.endsWith("am I", 4) );  // true
+   */
+  prototypeExtensions.startsWith = function(searchString, position) {
+    return this.toString().lastIndexOf(searchString, position = position || 0) === position;
+  };
 }
 
 // Define the prototype properties on String.prototype

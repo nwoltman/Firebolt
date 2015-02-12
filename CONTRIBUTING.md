@@ -29,7 +29,8 @@ git checkout -b my-branch-name -t origin/master
 
 ### Code
 
-Please attempt to match the code style already in the code base. Some things to note are that single quotes (`'`) are used for strings, browser code (in `src/` and `test/`) is indented with tab characters with a tab width of 4 spaces, and Node code (in `Gruntfile.js` and `build/`) is indented with spaces with a tab width of 2 spaces.
+Please attempt to match the code style already in the code base. Some things to note are that single quotes (`'`) are used for strings and 2-space indentation is used everywhere.
+The [Google JavaScript Style Guide](https://google-styleguide.googlecode.com/svn/trunk/javascriptguide.xml) should be used as a base reference.
 
 When fixing bugs and adding features, when appropriate please:
 
