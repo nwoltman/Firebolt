@@ -458,17 +458,6 @@
     return false;
   }
 
-  function sanitizeCssPropName(name) {
-    // Camelize the property name and check if it exists on the saved iframe's style object
-    name = camelize(name);
-    if (name in iframe.style) {
-      return name;
-    }
-
-    // The camelized input property name is not supported, so make the vendor name
-    return cssVendorPrefix + name[0].toUpperCase() + name.slice(1);
-  }
-
   /*
    * Takes in an Array constructor and polyfills Array.from() and Array.of() if they
    * do not already exist and returns the polyfilled version of Array.from().
@@ -697,13 +686,7 @@
     /* Misc */
     iframe = createElement('iframe'), // Used for subclassing Array and determining default CSS values
     timestamp = Date.now(),
-    readyCallbacks = [],
-
-    /* CSS */
-    cssVendorPrefix = usesWebkit ? 'webkit'
-                    : usesGecko ? 'Moz'
-                    : isIE ? 'ms'
-                    : 'O';
+    readyCallbacks = [];
 
   //#region MODULE_VARS
   //#endregion MODULE_VARS
@@ -2418,86 +2401,6 @@
   };
 
   /**
-   * Gets the value of the specified style property.
-   * 
-   * @function HTMLElement#css
-   * @param {String} propertyName - The name of the style property who's value you want to retrieve.
-   * @returns {String} The value of the specifed style property.
-   */
-  /**
-   * Gets an object of property-value pairs for the input array of CSS properties.
-   * 
-   * @function HTMLElement#css
-   * @param {String[]} propertyNames - An array of one or more CSS property names.
-   * @returns {Object.<String, String>} An object of property-value pairs where the values are
-   *     the computed style values of the input properties.
-   */
-  /**
-   * Sets the specified style property.
-   * 
-   * __Note:__ Unlike jQuery, if the passed in value is a number, it will not be converted to a string with `'px'`
-   * appended to it prior to setting the CSS value. This helps keep the library small and fast and will force
-   * your code to be more obvious as to how it is changing the element's style (which is a good thing).
-   * 
-   * @function HTMLElement#css
-   * @param {String} propertyName - The name of the style property to set.
-   * @param {?String|Number} value - A value to set for the specified property.
-   */
-  /**
-   * Sets CSS style properties.
-   * 
-   * __Note:__ Just like the previous function, if a value in the object is a number, it will not be converted to a
-   * string with `'px'` appended to it to it prior to setting the CSS value.
-   * 
-   * @function HTMLElement#css
-   * @param {Object.<String, String|Number>} properties - An object of CSS property-values.
-   */
-  HTMLElementPrototype.css = function(prop, value) {
-    var _this = this, // Improves minification
-      computedStyle,
-      mustHide,
-      val;
-
-    if (value === _undefined) {
-      // Temporarily use `val` to keep track if the input is an array
-      // (it will get set to the correct return value when needed)
-      if ((val = isArray(prop)) || typeofString(prop)) {
-        computedStyle = getComputedStyle(_this);
-
-        // If the element is not visible, it should be shown before reading its CSS values
-        mustHide = isDisplayNone(0, computedStyle) && _this.show();
-
-        if (val) { // isArray
-          // Build an object with the values specified by the input array of properties
-          val = {};
-          for (value = 0; value < prop.length; value++) { // Reuse the value argument instead of a new var
-            val[prop[value]] = computedStyle[sanitizeCssPropName(prop[value])];
-          }
-        } else {
-          // Get the specified property
-          val = computedStyle[sanitizeCssPropName(prop)];
-        }
-
-        if (mustHide) {
-          _this.hide(); // Hide the element since it was shown temporarily to obtain style values
-        }
-
-        return val;
-      }
-
-      // Set all specifed properties
-      for (val in prop) {
-        _this.style[sanitizeCssPropName(val)] = prop[val];
-      }
-    } else {
-      // Set the specified property
-      _this.style[sanitizeCssPropName(prop)] = value;
-    }
-
-    return _this;
-  };
-
-  /**
    * Determines if the element's class list has the specified class name.
    * 
    * @function HTMLElement#hasClass
@@ -2678,7 +2581,7 @@
           iframe.contentDocument.createElement(this.tagName)
         )
       ).display;
-      iframe.remove(); // Remove the iframe from the document
+      iframe.remove(); // Remove the iframe from the document (requires Node#remove)
     }
 
     return this;
@@ -3795,32 +3698,6 @@
   NodeCollectionPrototype.afterPut = getNodeCollectionPutOrWithFunction(insertAfter);
 
   /**
-   * @summary Performs a custom animation of a set of CSS properties.
-   * 
-   * @description
-   * Just like NodeCollection#css, CSS properties must be specified the same way they would be in a style sheet
-   * since Firebolt does not append "px" to input numeric values (i.e. 1 != 1px).
-   * 
-   * Unlike jQuery, an object that specifies different easing types for different properties is not supported.
-   * (Should it be supported? [Tell me why](https://github.com/woollybogger/Firebolt/issues).)
-   * However, relative properties (indicated with `+=` or `-=`) and the `toggle` indicator are supported.
-   * 
-   * For more `easing` options, use Firebolt's
-   * [easing extension](https://github.com/woollybogger/firebolt-extensions/tree/master/easing)
-   * (or just grab some functions from it and use them as the `easing` parameter).
-   * 
-   * @function NodeCollection#animate
-   * @param {Object} properties - An object of CSS properties and values that the animation will move toward.
-   * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
-   * @param {String} [easing="swing"] - Indicates which easing function to use for the transition. The string can be any
-   *     [CSS transition timing function](https://developer.mozilla.org/en-US/docs/Web/CSS/transition-timing-function)
-   *     or "swing".
-   * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
-   *     refer to the element that was animated.
-   * @see {@link http://api.jquery.com/animate/|.animate() | jQuery API Documentation}
-   */
-
-  /**
    * Appends each node in this collection to the end of the specified target(s).
    * 
    * @function NodeCollection#appendTo
@@ -3987,46 +3864,6 @@
   };
 
   /**
-   * Gets the value of the specified style property of the first element in the collection.
-   * 
-   * @function NodeCollection#css
-   * @param {String} propertyName - The name of the style property who's value you want to retrieve.
-   * @returns {String} The value of the specifed style property.
-   */
-  /**
-   * Gets an object of property-value pairs for the input array of CSS properties
-   * for the first element in the collection.
-   * 
-   * @function NodeCollection#css
-   * @param {String[]} propertyNames - An array of one or more CSS property names.
-   * @returns {Object.<String, String>} An object of property-value pairs where the values are
-   *     the computed style values of the input properties.
-   */
-  /**
-   * Sets the specified style property for each element in the collection.
-   * 
-   * __Note:__ Unlike jQuery, if the passed in value is a number, it will not be converted to a string with `'px'`
-   * appended to it prior to setting the CSS value. This helps keep the library small and fast and will force
-   * your code to be more obvious as to how it is changing the element's style (which is a good thing).
-   * 
-   * @function NodeCollection#css
-   * @param {String} propertyName - The name of the style property to set.
-   * @param {String|Number} value - A value to set for the specified property.
-   */
-  /**
-   * Sets CSS style properties for each element in the collection.
-   * 
-   * __Note:__ Just like the previous function, if a value in the object is a number, it will not be converted to a
-   * string with `'px'` appended to it to it prior to setting the CSS value.
-   * 
-   * @function NodeCollection#css
-   * @param {Object.<String, String|Number>} properties - An object of CSS property-values.
-   */
-  NodeCollectionPrototype.css = getFirstSetEachElement(HTMLElementPrototype.css, function(numArgs, firstArg) {
-    return isArray(firstArg) || numArgs < 2 && typeofString(firstArg);
-  });
-
-  /**
    * Gets the first element's stored data object.
    * 
    * @function NodeCollection#data
@@ -4061,42 +3898,6 @@
    * Removes all child nodes from each element in the list.
    * 
    * @function NodeCollection#empty
-   */
-
-  /**
-   * Displays each element in the collection by fading it to opaque.
-   * 
-   * @function NodeCollection#fadeIn
-   * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
-   * @param {String} [easing="swing"] - Indicates which easing function to use for the transition. The string can be any
-   *     [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp)
-   *     or "swing".
-   * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
-   *     refer to the element that was animated.
-   */
-
-  /**
-   * Hides each element in the collection by fading it to transparent.
-   * 
-   * @function NodeCollection#fadeOut
-   * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
-   * @param {String} [easing="swing"] - Indicates which easing function to use for the transition. The string can be any
-   *     [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp)
-   *     or "swing".
-   * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
-   *     refer to the element that was animated.
-   */
-
-  /**
-   * Displays or hides each element in the collection by animating its opacity.
-   * 
-   * @function NodeCollection#fadeToggle
-   * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
-   * @param {String} [easing="swing"] - Indicates which easing function to use for the transition. The string can be any
-   *     [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp)
-   *     or "swing".
-   * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
-   *     refer to the element that was animated.
    */
 
   /**
@@ -4136,12 +3937,6 @@
    *     `querySelectorAll()` function.
    */
   NodeCollectionPrototype.find = getGetDirElementsFunc(ElementPrototype.find, sortDocOrder);
-
-  /**
-   * Immediately completes the currently running animation for each element in the collection.
-   * 
-   * @function NodeCollection#finish
-   */
 
   /**
    * Calls {@linkcode https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement.focus|HTMLElement#focus()}
@@ -4592,56 +4387,6 @@
   NodeCollectionPrototype.siblings = getGetDirElementsFunc(HTMLElementPrototype.siblings, sortDocOrder);
 
   /**
-   * Displays each element in the collection with a sliding motion.
-   * 
-   * @function NodeCollection#slideDown
-   * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
-   * @param {String} [easing="swing"] - Indicates which easing function to use for the transition. The string can be any
-   *     [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp)
-   *     or "swing".
-   * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
-   *     refer to the element that was animated.
-   */
-
-  /**
-   * Displays or hides each element in the collection with a sliding motion.
-   * 
-   * @function NodeCollection#slideToggle
-   * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
-   * @param {String} [easing="swing"] - Indicates which easing function to use for the transition. The string can be any
-   *     [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp)
-   *     or "swing".
-   * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
-   *     refer to the element that was animated.
-   */
-
-  /**
-   * Hides each element in the collection with a sliding motion.
-   * 
-   * @function NodeCollection#slideUp
-   * @param {Number} [duration=400] - A number of milliseconds that specifies how long the animation will run.
-   * @param {String} [easing="swing"] - Indicates which easing function to use for the transition. The string can be any
-   *     [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp)
-   *     or "swing".
-   * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
-   *     refer to the element that was animated.
-   */
-
-  /**
-   * @summary Stops the animation currently running on each element in the collection.
-   * 
-   * @description
-   * When `.stop()` is called on an element, the currently-running animation (if any) is immediately stopped.
-   * If, for instance, an element is being hidden with `.slideUp()` when `.stop()` is called, the element will
-   * now still be displayed, but will be a fraction of its previous height. Callback functions are not called.
-   * 
-   * If `jumptToEnd` is `true`, this is equivalent to calling `NodeCollection#finish()`.
-   * 
-   * @function NodeCollection#stop
-   * @param {Boolean} [jumpToEnd=false] - A Boolean indicating whether to complete the current animation immediately.
-   */
-
-  /**
    * Gets the combined text contents of each node in the list.
    * 
    * @function NodeCollection#text
@@ -4712,6 +4457,7 @@
    * Triggers a real DOM event on each node in the collection for the given event type.
    * 
    * @function NodeCollection#trigger
+   * @variation 1
    * @param {String} eventType - A string containing a JavaScript event type, such as "click" or "submit".
    * @param {*} extraParameters - Additional parameters that will be passed as the second argument to the
    *     triggered event handler(s).
@@ -4720,6 +4466,7 @@
    * Uses the input Event object to trigger the specified event on each node in the collection.
    * 
    * @function NodeCollection#trigger
+   * @variation 2
    * @param {Event} event - An {@link https://developer.mozilla.org/en-US/docs/Web/API/Event | Event} object.
    * @param {*} extraParameters - Additional parameters that will be passed as the second argument to the
    *     triggered event handler(s).
@@ -4966,15 +4713,16 @@
    * @param {String} name
    * @returns {?Element}
    */
-  NodeListPrototype.namedItem = NodeCollectionPrototype.namedItem = function(name) {
-    for (var i = 0, node; i < this.length; i++) {
-      node = this[i];
-      if (node.id == name || node.name == name) {
-        return node;
+  NodeListPrototype.namedItem =
+    NodeCollectionPrototype.namedItem = function(name) {
+      for (var i = 0, node; i < this.length; i++) {
+        node = this[i];
+        if (node.id == name || node.name == name) {
+          return node;
+        }
       }
-    }
-    return null;
-  };
+      return null;
+    };
 
   /**
    * Returns the NodeCollection equivalent of the NodeList.
@@ -4982,7 +4730,8 @@
    * @function NodeList#toNC
    * @returns {NodeCollection}
    */
-  // This function was added to the NodeList prototype in the loop above (because NodeCollection has this function too)
+  // This function was added to the NodeList prototype in the loop above
+  // (because NodeCollection has this function too)
 
   /*
    * NodeLists/HTMLCollections always contain unique elements, so theses are equivalent to calling

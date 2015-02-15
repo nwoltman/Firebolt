@@ -1,5 +1,6 @@
 {
   "core": true,
   "ajax/basic": true,
-  "animation": true
+  "animation": true,
+  "css": true
 }
