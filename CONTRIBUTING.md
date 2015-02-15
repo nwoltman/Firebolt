@@ -68,17 +68,28 @@ grunt build
 Bug fixes and features should come with tests. Add your tests in the `test/unit/` directory in the file related to your changes (e.g. adding a function to `Array.prototype` means tests should be in the `Array.js` file).
 Look at other tests to see how they should be structured.
 
-To run unit tests, you can simply open `test/index.html` in a browser.
-You can also start a local server and open unit tests with the command:
+To start a local server, open the unit tests page, and automatically rebuild Firebolt when a source file is edited, use the command:
 
 ```sh
 grunt dev
 ```
 
-If you have a [Sauce Labs](https://saucelabs.com/) account and you have exported your credentials as environment variables, you may also run tests with:
+(You'll have to refresh the unit tests page to re-run the tests after Firebolt rebuilds.)
+
+##### Without Sauce Labs Credentials:
+
+To start a local server and run unit tests in your browser
 
 ```sh
-grunt test     # runs a single test (without Sauce credentials this is the same as `grunt dev`)
+grunt test
+```
+
+##### With Sauce Labs Credentials:
+
+If you have a [Sauce Labs](https://saucelabs.com/) account and you have exported your credentials as environment variables, you may run remote tests with:
+
+```sh
+grunt test     # runs tests on a single browser (the most recent, testable version of Chrome)
 # or
 grunt fulltest # runs tests on all browsers configured in the Gruntfile
 ```
@@ -88,6 +99,8 @@ You can also test a particular browser by modifying the `custom` object inside t
 ```sh
 grunt customtest
 ```
+
+Just make sure to revert any changes made to the `custom` object before committing your code.
 
 
 ### Commit

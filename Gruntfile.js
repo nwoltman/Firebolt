@@ -75,13 +75,30 @@ module.exports = function(grunt) {
           port: 9999
         }
       },
-      local: {
+      local_temp: {
+        options: {
+          port: 9999,
+          open: qunitTestsUrl
+        }
+      },
+      local_persistant: {
         options: {
           port: 9999,
           open: qunitTestsUrl,
           keepalive: true
         }
       }
+    },
+
+    watch: {
+      source: {
+        files: ['src/**/*.js'],
+        tasks: ['build:basic'],
+        options: {
+          atBegin: true,
+          spawn: false
+        },
+      },
     },
 
     'saucelabs-qunit': {
@@ -112,13 +129,6 @@ module.exports = function(grunt) {
           testname: 'Firebolt QUnit custom test',
           urls: [qunitTestsUrl]
         }
-      }
-    },
-
-    copy: {
-      all: {
-        src: 'src/firebolt.js',
-        dest: 'dist/firebolt.js'
       }
     },
 
@@ -155,14 +165,13 @@ module.exports = function(grunt) {
   require('load-grunt-tasks')(grunt);
 
   // Load custom build tasks
-  grunt.loadTasks('build');
+  grunt.loadTasks('build/tasks');
 
   // --- Register tasks ---
   grunt.registerTask('lint', ['jsonlint', 'jshint']);
-  grunt.registerTask('dev', ['connect:local']);
-  grunt.registerTask('build:clean', ['tasks.cleandist']);
-  grunt.registerTask('build:basic', ['copy', 'uglify']);
-  grunt.registerTask('build', ['lint', 'build:clean', 'build:basic', 'compare_size']);
+  grunt.registerTask('dev', ['connect:local_temp', 'watch']);
+  grunt.registerTask('build:basic', ['tasks.cleandist', 'tasks.build']);
+  grunt.registerTask('build', ['lint', 'build:basic', 'uglify', 'compare_size']);
   grunt.registerTask('release', ['build', 'tasks.package_release', 'tasks.gen_changelog']);
 
   // Only connect to Sauce if the user has Sauce credentials
@@ -175,7 +184,7 @@ module.exports = function(grunt) {
     grunt.registerTask('default', ['release', 'fulltest']);
 
   } else {
-    grunt.registerTask('test', ['connect:local']); // Same as dev
+    grunt.registerTask('test', ['connect:local_persistant']);
     grunt.registerTask('fulltest', ['tasks.nofulltest']);
 
     // Default for no Sauce credentials: just do a release build
