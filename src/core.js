@@ -4563,7 +4563,7 @@
   NodeCollectionPrototype.wrapInner = function(wrappingElement) {
     if (wrappingElement = getWrappingElement(wrappingElement)) {
       for (var i = 0; i < this.length; i++) {
-        this[i].wrapInner(wrappingElement);
+        NodePrototype.wrapInner.call(this[i], wrappingElement);
       }
     }
 
