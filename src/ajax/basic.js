@@ -285,16 +285,15 @@ Firebolt.ajax = function(url, settings) {
 
   url = settings.url;
 
-  var beforeSend = settings.beforeSend,
-    complete = settings.complete || returnFalse,
-    dataType = settings.dataType,
-    error = settings.error || returnFalse,
-    success = settings.success || returnFalse,
-    timeout = settings.timeout,
-    type = settings.type.toUpperCase(),
-    data = settings.data,
-    textStatus,
-    xhr;
+  var beforeSend = settings.beforeSend;
+  var complete = settings.complete || returnFalse;
+  var dataType = settings.dataType;
+  var error = settings.error || returnFalse;
+  var success = settings.success || returnFalse;
+  var timeout = settings.timeout;
+  var type = settings.type.toUpperCase();
+  var data = settings.data;
+  var textStatus, xhr;
 
   if (data) {
     // Process data if necessary
@@ -368,8 +367,8 @@ Firebolt.ajax = function(url, settings) {
     // Open the request
     xhr.open(type, url, settings.async, settings.username, settings.password);
 
-    var headers = settings.headers || {},
-      contentType = settings.contentType;
+    var headers = settings.headers || {};
+    var contentType = settings.contentType;
 
     // Set the content type header if there is data to submit or the user has specifed a particular content type
     if (data || contentType) {
