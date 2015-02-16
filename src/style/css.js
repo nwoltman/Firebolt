@@ -3,7 +3,7 @@
  * 
  * @module css
  * @requires core
- * @requires show_hide
+ * @requires style/display
  */
 
 /* global getComputedStyle */

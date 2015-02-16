@@ -2,7 +2,7 @@
   "core": true,
   "ajax/basic": true,
   "ajax/convenience": true,
-  "animation": true,
-  "css": true,
-  "show_hide": true
+  "style/animation": true,
+  "style/css": true,
+  "style/display": true
 }

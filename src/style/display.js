@@ -1,7 +1,7 @@
 ﻿/**
  * Show/hide elements by changing their CSS display value.
  * 
- * @module show_hide
+ * @module display
  * @requires core
  * @ncfuncs hide, show, toggle
  */
