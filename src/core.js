@@ -409,15 +409,6 @@
   }
 
   /*
-   * Used to determine if the element's computed display style is "none".
-   * To save time from getting the element's computed style object, a style object may be passed as the second parameter
-   * (useful in places where the computed style object has already been retrieved).
-   */
-  function isDisplayNone(element, styleObject) {
-    return (styleObject || getComputedStyle(element)).display == 'none';
-  }
-
-  /*
    * Determines if the passed in node is an element
    * 
    * @param {Node} node
@@ -2416,18 +2407,6 @@
     };
 
   /**
-   * Hides the element by setting its display style to 'none'.
-   * 
-   * @function HTMLElement#hide
-   */
-  HTMLElementPrototype.hide = function() {
-    this._$DS_ = this.style.display; // Save current display style
-    this.style.display = 'none';     // Hide the element by setting its display style to "none"
-
-    return this;
-  };
-
-  /**
    * Gets the element's current coordinates relative to the document.
    * 
    * @example
@@ -2556,53 +2535,6 @@
   /* For form elements, return the serialization of its form controls */
   HTMLFormElement[prototype].serialize = function() {
     return this.elements.serialize();
-  };
-
-  /**
-   * Shows the element if it is hidden.  
-   * __Note:__ If the element's default display style is 'none' (such as is the case with `<script>` elements),
-   * it will not be shown. Also, this method will not show an element if its `visibility` is set to 'hidden' or
-   * its `opacity` is `0`.
-   * 
-   * @function HTMLElement#show
-   */
-  HTMLElementPrototype.show = function() {
-    var inlineStyle = this.style;
-
-    if (isDisplayNone(0, inlineStyle)) {
-      inlineStyle.display = this._$DS_ || ''; // Use the saved display style or clear the display style
-    }
-
-    if (isDisplayNone(this)) {
-      // Add an element of the same type as this element to the iframe's body
-      // to figure out what the default display value should be
-      inlineStyle.display = getComputedStyle(
-        document.head.appendChild(iframe).contentDocument.body.appendChild(
-          iframe.contentDocument.createElement(this.tagName)
-        )
-      ).display;
-      iframe.remove(); // Remove the iframe from the document (requires Node#remove)
-    }
-
-    return this;
-  };
-
-  /**
-   * Shows the element if it is hidden or hides it if it is currently showing.
-   * 
-   * @function HTMLElement#toggle
-   * @param {Boolean} [showOrHide] - Indicates whether to show or hide the element (`true` => show, `false` => hide).
-   * @see HTMLElement#hide
-   * @see HTMLElement#show
-   */
-  HTMLElementPrototype.toggle = function(showOrHide) {
-    if (showOrHide === true) {
-      return this.show();
-    }
-    if (showOrHide === false) {
-      return this.hide();
-    }
-    return isDisplayNone(this) ? this.show() : this.hide();
   };
 
   /**
@@ -3605,8 +3537,7 @@
 
   // Add a bunch of functions by calling the HTMLElement version on each element in the collection
   (// NCFUNCS
-   'addClass blur click empty focus hide removeAttr removeClass removeData removeProp ' +
-   'show toggle toggleClass')
+   'addClass blur click empty focus removeAttr removeClass removeData removeProp toggleClass')
     .split(' ')
     .forEach(function(fnName) {
       var fn = HTMLElementPrototype[fnName];
@@ -3943,13 +3874,6 @@
    * on each element in the collection.
    * 
    * @function NodeCollection#focus
-   */
-
-  /**
-   * Hides each element in the collection.
-   * 
-   * @function NodeCollection#hide
-   * @see HTMLElement#hide
    */
 
   /**
@@ -4370,13 +4294,6 @@
   };
 
   /**
-   * Shows each element in the collection. For specifics, see {@link HTMLElement#show}.
-   * 
-   * @function NodeCollection#show
-   * @see HTMLElement#show
-   */
-
-  /**
    * Gets the sibling elements of each node in the collection, optionally filtered by a selector.
    * 
    * @function NodeCollection#siblings
@@ -4416,15 +4333,6 @@
 
     return this;
   };
-
-  /**
-   * Shows each element in the collection if it is hidden or hides it if it is currently showing.
-   * 
-   * @function NodeCollection#toggle
-   * @param {Boolean} [showOrHide] - Indicates whether to show or hide the elements (`true` => show, `false` => hide).
-   * @see HTMLElement#hide
-   * @see HTMLElement#show
-   */
 
   /**
    * Toggles the input class name for all elements in the list.
