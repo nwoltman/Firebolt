@@ -346,7 +346,7 @@ Firebolt.ajax = function(url, settings) {
         document.head.appendChild(script);
       },
       abort: function() {
-        textStatus = 'abort';
+        textStatus = textStatus || 'abort';
         script.onerror();
       }
     };
