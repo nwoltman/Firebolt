@@ -45,7 +45,7 @@ module.exports = function (grunt) {
       moduleCode[module] = parts[1];
 
       // Parse dependencies
-      var deps = parts[0].match(/@requires \w+/g) || [];
+      var deps = parts[0].match(/@requires [\w\/]+/g) || [];
       for (var i = 0; i < deps.length; i++) {
         deps[i] = deps[i].slice(10); // Slice off '@requires'
       }
@@ -83,7 +83,7 @@ module.exports = function (grunt) {
       }
     }
 
-    grunt.log.writeln('Building Firebolt with modules:', modules);
+    grunt.log.writeln('Building Firebolt with modules:', '[\n  ' + modules.join(',\n  ') + '\n]');
 
     var vars = [];
     var mains = [];
