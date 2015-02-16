@@ -1661,14 +1661,6 @@
     return object;
   };
 
-  /*
-   * Maps easing types to CSS transition functions.
-   * The easing extension can be used to fill this out more.
-   */
-  Firebolt.easing = {
-    swing: 'cubic-bezier(.36,0,.64,1)' // Essentially the same as jQuery (curve is identical in WolframAlpha)
-  };
-
   /**
    * Creates a new element with the specified tag name and attributes (optional).  
    * Partially an alias of `document.createElement()`.
