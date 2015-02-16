@@ -3,7 +3,6 @@
  * 
  * @module css
  * @requires core
- * @ncfuncs animate, fadeIn, fadeOut, fadeToggle, finish, slideDown, slideToggle, slideUp, stop
  */
 
 /* global getComputedStyle */
