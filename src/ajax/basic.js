@@ -263,8 +263,8 @@ function noop() { }
  *   </dd>
  * </dl>
  * 
- * To get even more AJAX features (such as JSONP support), use the
- * [Firebolt AJAX extension](https://github.com/woollybogger/firebolt-extensions/tree/master/ajax).
+ * To get even more AJAX features (such as JSONP support), use
+ * the {@link module:ajax/advanced|advanced AJAX module}.
  * 
  * @function Firebolt.ajax
  * @variation 2

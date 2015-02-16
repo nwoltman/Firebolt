@@ -83,6 +83,13 @@ module.exports = function (grunt) {
       }
     }
 
+    if (modules.indexOf('ajax/advanced') >= 0) {
+      var basicIndex = modules.indexOf('ajax/basic');
+      if (basicIndex >= 0) {
+        modules.splice(basicIndex, 1);
+      }
+    }
+
     grunt.log.writeln('Building Firebolt with modules:', '[\n  ' + modules.join(',\n  ') + '\n]');
 
     var vars = [];
