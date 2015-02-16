@@ -8,7 +8,6 @@
 /* global Firebolt */
 /* global _undefined */
 /* global timestamp */
-/* global returnFalse */
 /* global isArray */
 /* global isPlainObject */
 /* global typeofString */
@@ -32,6 +31,8 @@ var rgxDataType = /\b(?:xml|json)\b|script\b/; // Matches a data type in a Conte
 
 //#endregion VARS
 
+
+function noop() { }
 
 /**
  * @summary Perform an asynchronous HTTP (AJAX) request.
@@ -286,12 +287,12 @@ Firebolt.ajax = function(url, settings) {
   url = settings.url;
 
   var beforeSend = settings.beforeSend;
-  var complete = settings.complete || returnFalse;
-  var dataType = settings.dataType;
-  var error = settings.error || returnFalse;
-  var success = settings.success || returnFalse;
+  var complete = settings.complete || noop;
+  var error = settings.error || noop;
+  var success = settings.success || noop;
   var timeout = settings.timeout;
   var type = settings.type.toUpperCase();
+  var dataType = settings.dataType;
   var data = settings.data;
   var textStatus, xhr;
 
