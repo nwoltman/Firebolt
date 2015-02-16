@@ -31,7 +31,7 @@ module.exports = function (grunt) {
     );
     var modules = [];
     var moduleCode = Object.create(null);
-    var moduleNCFuncs = [];
+    var moduleNCFuncs = Object.create(null);
     var i;
 
     function readModuleFileSync(module) {
@@ -53,15 +53,14 @@ module.exports = function (grunt) {
       // Parse NodeCollection function names
       var ncfuncsMatch = /@ncfuncs\s+(.*?)\s*$/m.exec(parts[0]);
       if (ncfuncsMatch) {
-        var ncfuncs = '\'' + ncfuncsMatch[1].replace(/,/g, '') + ' \' +';
-        moduleNCFuncs.push(ncfuncs);
+        moduleNCFuncs[module] = '\'' + ncfuncsMatch[1].replace(/,/g, '') + ' \' +';
       }
 
       return deps;
     }
 
     for (var module in config) {
-      if (module === 'core' || config[module] !== true)
+      if (module === 'core' || config[module] !== true || modules.indexOf(module) >= 0)
         continue;
 
       // Get everything the module depends on
@@ -88,11 +87,12 @@ module.exports = function (grunt) {
 
     var vars = [];
     var mains = [];
+    var ncfuncs = [];
     for (i = 0; i < modules.length; i++) {
       var moduleName = modules[i];
-      var match = rgxVarsAndMain.exec(moduleCode[moduleName]);
-      var varCode = match[1];
-      var mainCode = match[2];
+      var parts = rgxVarsAndMain.exec(moduleCode[moduleName]);
+      var varCode = parts[1];
+      var mainCode = parts[2];
 
       if (varCode) {
         vars.push('/* ' + moduleName + ' */' + EOL + varCode);
@@ -103,6 +103,10 @@ module.exports = function (grunt) {
         mainCode + EOLx2 +
         '//#endregion ' + moduleName
       );
+
+      if (moduleName in moduleNCFuncs) {
+        ncfuncs.push(moduleNCFuncs[moduleName]);
+      }
     }
 
     function indent(text) {
@@ -119,10 +123,7 @@ module.exports = function (grunt) {
             return '//#region MODULE_VARS' + EOLx2 + vars.map(indent).join(EOLx2) + EOL;
           }
         )
-        .replace(
-          '// NCFUNCS',
-          moduleNCFuncs.join(EOL + '   ')
-        )
+        .replace('// NCFUNCS', ncfuncs.join(EOL + '   '))
         .replace(
           '//#region MODULES',
           // Use a function to create the replacement string so that `$*` special
