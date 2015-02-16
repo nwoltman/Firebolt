@@ -42,7 +42,7 @@ var rgxDataType = /\b(?:xml|json)\b|script\b/; // Matches a data type in a Conte
  * @param {String} url - A string containing the URL to which the request will be sent.
  * @param {Object} [settings] - A set of key-value pairs that configure the Ajax request. All settings are optional.
  * @returns {XMLHttpRequest} The XMLHttpRequest object this request is using
- *     (only for requests where the `dataType` is not "script").
+ *     (returns a mock XMLHttpRequest object when the `dataType` is `"script"`).
  */
 /**
  * @summary Perform an asynchronous HTTP (AJAX) request.
@@ -269,7 +269,7 @@ var rgxDataType = /\b(?:xml|json)\b|script\b/; // Matches a data type in a Conte
  * @variation 2
  * @param {Object} [settings] - A set of key-value pairs that configure the Ajax request. All settings are optional.
  * @returns {XMLHttpRequest} The XMLHttpRequest object this request is using
- *     (only for requests where the `dataType` is not "script").
+ *     (returns a mock XMLHttpRequest object when the `dataType` is `"script"`).
  */
 Firebolt.ajax = function(url, settings) {
   // Parameter processing
