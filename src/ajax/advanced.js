@@ -2,6 +2,7 @@
  * Provides the Firebolt function for making advanced AJAX calls.
  * 
  * @module ajax/advanced
+ * @overrides ajax/basic
  * @requires core
  */
 

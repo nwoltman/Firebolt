@@ -32,6 +32,7 @@ module.exports = function (grunt) {
     var modules = [];
     var moduleCode = Object.create(null);
     var moduleNCFuncs = Object.create(null);
+    var moduleOverrides = Object.create(null);
     var i;
 
     function readModuleFileSync(module) {
@@ -41,19 +42,26 @@ module.exports = function (grunt) {
     function getDependencies(module) {
       var code = readModuleFileSync(module);
       var parts = code.split('\'use strict\';');
+      var header = parts[0];
 
       moduleCode[module] = parts[1];
 
       // Parse dependencies
-      var deps = parts[0].match(/@requires [\w\/]+/g) || [];
+      var deps = header.match(/@requires [\w\/]+/g) || [];
       for (var i = 0; i < deps.length; i++) {
         deps[i] = deps[i].slice(10); // Slice off '@requires'
       }
 
       // Parse NodeCollection function names
-      var ncfuncsMatch = /@ncfuncs\s+(.*?)\s*$/m.exec(parts[0]);
+      var ncfuncsMatch = /@ncfuncs\s+(.*?)\s*$/m.exec(header);
       if (ncfuncsMatch) {
         moduleNCFuncs[module] = '\'' + ncfuncsMatch[1].replace(/,/g, '') + ' \' +';
+      }
+
+      // Parse override
+      var override = /@overrides ([\w\/]+)/.exec(header);
+      if (override) {
+        moduleOverrides[module] = override[1];
       }
 
       return deps;
@@ -69,7 +77,7 @@ module.exports = function (grunt) {
         var innerDeps = getDependencies(deps[i]);
         for (var j = 0; j < innerDeps.length; j++) {
           var dep = innerDeps[j];
-          if (dep !== 'core' && deps.indexOf(dep) < 0) {
+          if (dep !== 'core' && deps.indexOf(dep) < 0 && modules.indexOf(dep) < 0) {
             deps.push(dep);
           }
         }
@@ -77,17 +85,18 @@ module.exports = function (grunt) {
 
       // Add the dependency modules to the set of modules (most depended on modules first)
       for (i = deps.length - 1; i >= 0; i--) {
-        if (modules.indexOf(deps[i]) < 0) {
-          modules.push(deps[i]);
-        }
+        modules.push(deps[i]);
       }
     }
 
-    if (modules.indexOf('ajax/advanced') >= 0) {
-      var basicIndex = modules.indexOf('ajax/basic');
-      if (basicIndex >= 0) {
-        modules.splice(basicIndex, 1);
-      }
+    // Replace overridden modules with their overrider
+    for (var overrider in moduleOverrides) {
+      var overridee = moduleOverrides[overrider];
+      var overrideeIndex = modules.indexOf(overridee);
+      if (overrideeIndex < 0) continue;
+      var overriderIndex = modules.indexOf(overrider);
+      modules[overrideeIndex] = overrider;
+      modules.splice(overriderIndex, 1);
     }
 
     grunt.log.writeln('Building Firebolt with modules:', '[\n  ' + modules.join(',\n  ') + '\n]');
