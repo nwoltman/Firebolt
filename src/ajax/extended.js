@@ -1,5 +1,5 @@
 /**
- * Provides the Firebolt function for making advanced AJAX calls.
+ * Provides the Firebolt function for making AJAX calls with extended functionality.
  * 
  * @module ajax/extended
  * @overrides ajax/basic
@@ -61,20 +61,11 @@ function getAjaxErrorStatus(xhr) {
 
 /**
  * @summary Perform an asynchronous HTTP (AJAX) request.
- * @description For more information on the `settings` parameter, see the next `$.ajax` section.
- * 
- * @function Firebolt.ajax
- * @variation 1
- * @param {String} url - A string containing the URL to which the request will be sent.
- * @param {Object} [settings] - A set of key-value pairs that configure the Ajax request. All settings are optional.
- * @returns {XMLHttpRequest} The XMLHttpRequest object this request is using
- *     (returns a mock XMLHttpRequest object when the `dataType` is `"script"` or `"jsonp"`).
- */
-/**
- * @summary Perform an asynchronous HTTP (AJAX) request.
  * 
  * @description
- * For documentation, see {@link http://api.jquery.com/jQuery.ajax/ | jQuery.ajax()}.  
+ * This is the extended version of `$.ajax()`, and is closer to jQuery's version of `$.ajax()`.
+ * 
+ * For documentation, see {@link http://api.jquery.com/jQuery.ajax/|jQuery.ajax()}.
  * However, Firebolt AJAX requests differ from jQuery's in the following ways:
  * 
  * + Instead of passing a "jqXHR" to callbacks, the native XMLHttpRequest object is passed.
@@ -87,7 +78,7 @@ function getAjaxErrorStatus(xhr) {
  * + The `global` setting and the global AJAX functions defined by jQuery are not supported.
  * 
  * @function Firebolt.ajax
- * @variation 2
+ * @variation 3
  * @param {Object} [settings] - A set of key-value pairs that configure the Ajax request. All settings are optional.
  * @returns {XMLHttpRequest} The XMLHttpRequest object this request is using
  *     (returns a mock XMLHttpRequest object when the `dataType` is `"script"` or `"jsonp"`).

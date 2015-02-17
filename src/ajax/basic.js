@@ -36,19 +36,23 @@ function noop() { }
 
 /**
  * @summary Perform an asynchronous HTTP (AJAX) request.
- * @description For more information on the `settings` parameter, see the next `$.ajax` section.
+ * @description For more information on the `settings` parameter, see the next `$.ajax()` sections.
  * 
  * @function Firebolt.ajax
  * @variation 1
  * @param {String} url - A string containing the URL to which the request will be sent.
  * @param {Object} [settings] - A set of key-value pairs that configure the Ajax request. All settings are optional.
  * @returns {XMLHttpRequest} The XMLHttpRequest object this request is using
- *     (returns a mock XMLHttpRequest object when the `dataType` is `"script"`).
+ *     (returns a mock XMLHttpRequest object when the `dataType` is `"script"` or `"jsonp"`).
  */
 /**
  * @summary Perform an asynchronous HTTP (AJAX) request.
  * 
  * @description
+ * This is the basic version of `$.ajax()`. For more functionality (such as JSONP support),
+ * use the {@link Firebolt.ajax(3)|extended version} by building Firebolt with the
+ * {@link module:ajax/extended|ajax/extended} module.
+ * 
  * The `settings` object can be used to configure the AJAX request beyond the default functionality.
  * Details for the settings provided by Firebolt's basic AJAX module are as follows:
  * <hr>
@@ -262,9 +266,6 @@ function noop() { }
  *     <hr>
  *   </dd>
  * </dl>
- * 
- * To get even more AJAX features (such as JSONP support), use
- * the {@link module:ajax/advanced|advanced AJAX module}.
  * 
  * @function Firebolt.ajax
  * @variation 2
