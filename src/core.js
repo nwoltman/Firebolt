@@ -689,8 +689,8 @@
 
   /**
    * @class Array
-   * @classdesc The JavaScript Array object.
-   * @mixes Object
+   * @classdesc The native JavaScript Array object.
+   * @augments Object
    * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array|Array - JavaScript | MDN}
    */
 
@@ -1055,8 +1055,12 @@
 
   /**
    * @class Element
-   * @classdesc The HTML DOM Element interface.
-   * @mixes Node
+   * @classdesc
+   * The HTML DOM Element interface.
+   * 
+   * It should be noted that all functions that do not have a specified return value,
+   * return the calling object, allowing for function chaining.
+   * @augments Node
    * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/element|Element - Web API Interfaces | MDN}
    */
 
@@ -2030,7 +2034,7 @@
 
   /**
    * @class Function
-   * @classdesc The JavaScript Function object.
+   * @classdesc The native JavaScript Function object.
    * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function|Function - JavaScript | MDN}
    */
 
@@ -2320,7 +2324,8 @@
   /**
    * @class HTMLCollection
    * @classdesc
-   * The DOM HTMLCollection interface.  
+   * The DOM HTMLCollection interface.
+   * 
    * Has all the same functions as {@link NodeList} (plus one other native function).
    * @see NodeList
    * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/HTMLCollection|HTMLCollection - Web API Interfaces | MDN}
@@ -2336,10 +2341,11 @@
   /**
    * @class HTMLElement
    * @classdesc
-   * The HTML DOM HTMLElement interface.  
-   * It should be noted that all functions that do not have a specified return value, return the calling object,
-   * allowing for function chaining.
-   * @mixes Element
+   * The HTML DOM HTMLElement interface.
+   * 
+   * It should be noted that all functions that do not have a specified return value,
+   * return the calling object, allowing for function chaining.
+   * @augments Element
    * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement|HTMLElement - Web API Interfaces | MDN}
    */
 
@@ -2668,10 +2674,11 @@
   /**
    * @class Node
    * @classdesc
-   * The {@link https://developer.mozilla.org/en-US/docs/Web/API/Node|DOM Node interface}.  
-   * It should be noted that all functions that do not have a specified return value, return the calling object,
-   * allowing for function chaining.
-   * @mixes Object
+   * The {@link https://developer.mozilla.org/en-US/docs/Web/API/Node|DOM Node interface}.
+   * 
+   * It should be noted that all functions that do not have a specified return value,
+   * return the calling object, allowing for function chaining.
+   * @augments Object
    * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Node|Node - Web API Interfaces | MDN}
    */
 
@@ -3489,7 +3496,7 @@
    * Same constructor as {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array|Array}.
    * 
    * @class NodeCollection
-   * @mixes Array
+   * @augments Array
    * @classdesc
    * A mutable collection of DOM nodes. It subclasses the native {@link Array} class (but take note that the `.clone()`,
    * `.remove()`, and `.filter()` functions have been overridden), and has all of the main DOM-manipulating functions.
@@ -3499,7 +3506,7 @@
    * with the way NodeCollection subclasses Array. The `instanceof` operator will not report that NodeCollection is an
    * instance of anything other than a NodeCollection. It also will not report that `NodeCollection` is a function.
    * This is demonstrated in the following code:
-   * ```javascript
+   * ```js
    * var nc = new NodeCollection(); // (or 'new NC()' for short)
    * nc instanceof NodeCollection;  // true
    * nc instanceof NC;     // true
@@ -3510,15 +3517,15 @@
    * All other operations, such as `Array.isArray()` and `typeof`, will work correctly.
    * 
    * It should be noted that all functions that do not have a specified return value, return the calling object,
-   * allowing for function chaining.  
+   * allowing for function chaining.<br />
    * <br />
    */
   var NodeCollection = window.NodeCollection = window.NC =
-      document.head.appendChild(iframe).contentWindow.Array; // <iframe> Array subclassing
+    document.head.appendChild(iframe).contentWindow.Array; // <iframe> Array subclassing
 
   // Extend NodeCollection's prototype with the Array functions and save a reference to it
   var NodeCollectionPrototype = Firebolt.fn =
-      extend(NodeCollection[prototype], prototypeExtensions, getTypedArrayFunctions(NodeCollection));
+    extend(NodeCollection[prototype], prototypeExtensions, getTypedArrayFunctions(NodeCollection));
 
   // Polyfill NodeCollection.from() and .of() and get the custom version of .from()
   var ncFrom = setArrayStaticsAndGetFromFunction(NodeCollection);
@@ -4646,7 +4653,7 @@
 
   /**
    * @class Number
-   * @classdesc The JavaScript Number object.
+   * @classdesc The native JavaScript Number object.
    * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number|Number - JavaScript | MDN}
    */
 
@@ -4681,7 +4688,7 @@
 
   /**
    * @class Object
-   * @classdesc The JavaScript Object class.
+   * @classdesc The native JavaScript Object class.
    * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object|Object - JavaScript | MDN}
    */
 
@@ -4736,7 +4743,7 @@
 
   /**
    * @class String
-   * @classdesc The JavaScript String class.
+   * @classdesc The native JavaScript String class.
    * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String|String - JavaScript | MDN}
    */
 
