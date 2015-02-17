@@ -109,6 +109,11 @@ module.exports = function(grunt) {
           sauceConfig: {'video-upload-on-pass': false, 'record-logs': false},
           tags: ['master', 'full'],
           testname: 'Firebolt QUnit full test',
+          tunnelArgs: [
+            '-D',
+            '\'*.yahoo.com,*.apple.com,*.icloud.com,*.bing.com,*.google.com,' +
+              '*.verisign.com,*.entrust.net,*.symb.com,*.cloudfront.net\''
+          ],
           urls: [qunitTestsUrl]
         }
       },
