@@ -69,6 +69,46 @@ module.exports = function(grunt) {
       }
     },
 
+    build: {
+      'default': {
+        modules: [
+          'core',
+          'ajax/basic',
+          'ajax/convenience',
+          'style/animation',
+          'style/css',
+          'style/display'
+        ]
+      }
+    },
+
+    uglify: {
+      options: {
+        banner: '/*! Firebolt v<%= pkg.version %> | (c)2014-2015 Nathan Woltman | fireboltjs.com/license */',
+        sourceMap: true,
+        sourceMapName: 'dist/firebolt.min.map'
+      },
+      build: {
+        src: 'dist/firebolt.js',
+        dest: 'dist/firebolt.min.js'
+      }
+    },
+
+    compare_size: {
+      files: [
+        'dist/firebolt.js',
+        'dist/firebolt.min.js'
+      ],
+      options: {
+        cache: 'build/.sizecache.json',
+        compress: {
+          gz: function(contents) {
+            return require('gzip-js').zip(contents).length;
+          }
+        }
+      }
+    },
+
     connect: {
       temp: {
         options: {
@@ -93,7 +133,7 @@ module.exports = function(grunt) {
     watch: {
       source: {
         files: ['src/**/*.js'],
-        tasks: ['build:basic'],
+        tasks: ['build:default'],
         options: {
           atBegin: true,
           spawn: false
@@ -130,33 +170,6 @@ module.exports = function(grunt) {
           urls: [qunitTestsUrl]
         }
       }
-    },
-
-    uglify: {
-      options: {
-        banner: '/*! Firebolt v<%= pkg.version %> | (c)2014-2015 Nathan Woltman | fireboltjs.com/license */',
-        sourceMap: true,
-        sourceMapName: 'dist/firebolt.min.map'
-      },
-      build: {
-        src: 'dist/firebolt.js',
-        dest: 'dist/firebolt.min.js'
-      }
-    },
-
-    compare_size: {
-      files: [
-        'dist/firebolt.js',
-        'dist/firebolt.min.js'
-      ],
-      options: {
-        cache: 'build/.sizecache.json',
-        compress: {
-          gz: function(contents) {
-            return require('gzip-js').zip(contents).length;
-          }
-        }
-      }
     }
 
   });
@@ -170,24 +183,22 @@ module.exports = function(grunt) {
   // --- Register tasks ---
   grunt.registerTask('lint', ['jsonlint', 'jshint']);
   grunt.registerTask('dev', ['connect:local_temp', 'watch']);
-  grunt.registerTask('build:basic', ['tasks.cleandist', 'tasks.build']);
-  grunt.registerTask('build', ['lint', 'build:basic', 'uglify', 'compare_size']);
-  grunt.registerTask('release', ['build', 'tasks.package_release', 'tasks.gen_changelog']);
+  grunt.registerTask('release', ['default', 'package_release', 'gen_changelog']);
 
   // Only connect to Sauce if the user has Sauce credentials
   if (process.env.SAUCE_USERNAME && process.env.SAUCE_ACCESS_KEY) {
     grunt.registerTask('test', ['connect:temp', 'saucelabs-qunit:basic']);
-    grunt.registerTask('fulltest', ['connect:temp', 'saucelabs-qunit:full']);
-    grunt.registerTask('customtest', ['connect:temp', 'saucelabs-qunit:custom']);
-
-    // Default: do a release build and run all tests
-    grunt.registerTask('default', ['release', 'fulltest']);
-
+    grunt.registerTask('test_full', ['connect:temp', 'saucelabs-qunit:full']);
+    grunt.registerTask('test_custom', ['connect:temp', 'saucelabs-qunit:custom']);
   } else {
     grunt.registerTask('test', ['connect:local_persistant']);
-    grunt.registerTask('fulltest', ['tasks.nofulltest']);
-
-    // Default for no Sauce credentials: just do a release build
-    grunt.registerTask('default', ['release']);
+    grunt.registerTask('test_full', ['no_test_full']);
+    grunt.registerTask('test_custom', ['no_test_custom']);
   }
+
+  // Travis CI: do a release build and run all tests
+  grunt.registerTask('ci', ['release', 'test_full']);
+
+  // Default
+  grunt.registerTask('default', ['lint', 'build:default', 'uglify', 'compare_size']);
 };

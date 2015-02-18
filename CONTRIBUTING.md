@@ -49,15 +49,21 @@ npm install -g grunt-cli
 # *nix users may need `sudo` in front of these commands
 ```
 
-Then
+Then:
 
-To run the linter:
+To run the linter, build Firebolt, and check how the built size has changed:
+
+```sh
+grunt
+```
+
+To just run the linter:
 
 ```sh
 grunt lint
 ```
 
-To build Firebolt and check how the built size has changed:
+To just build Firebolt:
 
 ```sh
 grunt build
@@ -89,15 +95,15 @@ grunt test
 If you have a [Sauce Labs](https://saucelabs.com/) account and you have exported your credentials as environment variables, you may run remote tests with:
 
 ```sh
-grunt test     # runs tests on a single browser (the most recent, testable version of Chrome)
+grunt test      # runs tests on a single browser (the most recent, testable version of Chrome)
 # or
-grunt fulltest # runs tests on all browsers configured in the Gruntfile
+grunt test_full # runs tests on all browsers configured in the Gruntfile
 ```
 
 You can also test a particular browser by modifying the `custom` object inside the `saucelabs-qunit` configuration object in `Gruntfile.js` and then running:
 
 ```sh
-grunt customtest
+grunt test_custom
 ```
 
 Just make sure to revert any changes made to the `custom` object before committing your code.

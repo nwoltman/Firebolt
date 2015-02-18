@@ -17,36 +17,42 @@ Firebolt is a high performance JavaScript library packed into a very small file 
 ### Setup
 
 1. Clone the repo:
-  ```sh
-  git clone https://github.com/woollybogger/Firebolt.git
-  ```
-  
+   ```sh
+   git clone https://github.com/woollybogger/Firebolt.git
+   ```
+
 2. Install [Node.js](http://nodejs.org/)
 
 3. Install dev dependencies:
-  ```sh
-  npm install
-  npm install -g grunt-cli
-  # *nix users may need `sudo` in front of these commands
-  ```
+   ```sh
+   npm install
+   npm install -g grunt-cli
+   # *nix users may need `sudo` in front of these commands
+   ```
 
-### Building Firebolt
+### Running the General Build Task
 
 ```sh
-grunt build
+grunt
 ```
 
-### Running Unit Tests
+### Creating a Custom Build
 
-Simply open `test/index.html` in a browser to run unit tests.
+Run:
 
-If you have a [Sauce Labs](https://saucelabs.com/) account and you have exported your credentials as environment variables, you may also run tests with:
-
-```bash
-grunt test     # runs a single test
-# or
-grunt fulltest # runs tests on all browsers configured in the Gruntfile
+```sh
+grunt build:<modules>
 ```
+
+where `<modules>` is a comma-separated list of Firebolt modules.
+
+Example:
+
+```sh
+grunt build:ajax/basic,style/css,timing,events
+```
+
+Don't worry if you see extra modules in the build log. That just means that those modules were required by the modules you specified.
 
 ### Contributing
 

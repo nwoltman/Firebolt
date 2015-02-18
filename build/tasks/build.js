@@ -1,9 +1,9 @@
 module.exports = function (grunt) {
   'use strict';
 
-  grunt.registerTask('tasks.cleandist', 'Deletes the contents of the dist folder', function() {
-    var fs = require('fs');
+  var fs = require('fs');
 
+  function clean() {
     // Nothing to do if the folder doesn't exist
     if (!fs.existsSync('dist')) {
       grunt.log.ok('Nothing to do.');
@@ -16,24 +16,35 @@ module.exports = function (grunt) {
     });
 
     grunt.log.ok('Cleaned dist folder.');
-  });
+  }
 
+  grunt.registerTask('clean', 'Deletes the contents of the dist folder', clean);
 
-  grunt.registerTask('tasks.build', 'Builds Firebolt from the source files', function() {
-    var fs = require('fs');
+  grunt.registerTask('build', 'Builds Firebolt from the source files', function(target) {
+    grunt.config.requires(this.name);
+
+    target = target || 'default';
+
+    var config = grunt.config(this.name);
+    var configModules;
+
+    if (target in config) { // Configuration build
+      var configPath = [this.name, target, 'modules'];
+      grunt.config.requires(configPath);
+      configModules = grunt.config(configPath);
+    } else {                // Custom build
+      configModules = target.split(',');
+      grunt.task.run('uglify', 'package_release');
+    }
 
     var EOL = '\n';
     var EOLx2 = EOL + EOL;
 
     var rgxVarsAndMain = /^(?:\s*\/\/#region VARS\s*([\S\s]*?)\s*\/\/#endregion VARS)?\s*([\S\s]*?)\s*$/;
-    var config = JSON.parse(
-      fs.readFileSync('build/config.all.json', {encoding: 'utf8'})
-    );
-    var modules = [];
+    var modules = ['core']; // Core is required
     var moduleCode = Object.create(null);
     var moduleNCFuncs = Object.create(null);
     var moduleOverrides = Object.create(null);
-    var i;
 
     function readModuleFileSync(module) {
       return fs.readFileSync('src/' + module + '.js', {encoding: 'utf8'});
@@ -67,25 +78,27 @@ module.exports = function (grunt) {
       return deps;
     }
 
-    for (var module in config) {
-      if (module === 'core' || config[module] !== true || modules.indexOf(module) >= 0)
+    var i, j, k;
+    for (i = 0; i < configModules.length; i++) {
+      var module = configModules[i];
+      if (modules.indexOf(module) >= 0)
         continue;
 
       // Get everything the module depends on
       var deps = [module]; // Module depends on itself
-      for (i = 0; i < deps.length; i++) {
-        var innerDeps = getDependencies(deps[i]);
-        for (var j = 0; j < innerDeps.length; j++) {
-          var dep = innerDeps[j];
-          if (dep !== 'core' && deps.indexOf(dep) < 0 && modules.indexOf(dep) < 0) {
+      for (j = 0; j < deps.length; j++) {
+        var innerDeps = getDependencies(deps[j]);
+        for (var k = 0; k < innerDeps.length; k++) {
+          var dep = innerDeps[k];
+          if (deps.indexOf(dep) < 0 && modules.indexOf(dep) < 0) {
             deps.push(dep);
           }
         }
       }
 
       // Add the dependency modules to the set of modules (most depended on modules first)
-      for (i = deps.length - 1; i >= 0; i--) {
-        modules.push(deps[i]);
+      for (j = deps.length - 1; j >= 0; j--) {
+        modules.push(deps[j]);
       }
     }
 
@@ -94,12 +107,13 @@ module.exports = function (grunt) {
       var overridee = moduleOverrides[overrider];
       var overrideeIndex = modules.indexOf(overridee);
       if (overrideeIndex < 0) continue;
-      var overriderIndex = modules.indexOf(overrider);
       modules[overrideeIndex] = overrider;
-      modules.splice(overriderIndex, 1);
+      modules.splice(modules.indexOf(overrider), 1);
     }
 
     grunt.log.writeln('Building Firebolt with modules:', '[\n  ' + modules.join(',\n  ') + '\n]');
+
+    modules.shift(); // Remove "core"
 
     var vars = [];
     var mains = [];
@@ -150,7 +164,9 @@ module.exports = function (grunt) {
         )
         .replace(/\r/g, ''); // Force Unix line endings
 
-    if (!fs.existsSync('dist')) {
+    if (fs.existsSync('dist')) {
+      clean();
+    } else {
       fs.mkdirSync('dist');
     }
     fs.writeFileSync('dist/firebolt.js', code);

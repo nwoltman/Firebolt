@@ -1,8 +1,0 @@
-{
-  "core": true,
-  "ajax/basic": true,
-  "ajax/convenience": true,
-  "style/animation": true,
-  "style/css": true,
-  "style/display": true
-}

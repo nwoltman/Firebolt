@@ -1,7 +1,7 @@
 module.exports = function (grunt) {
   'use strict';
 
-  grunt.registerTask('tasks.package_release', 'Generate a release package after a build', function() {
+  grunt.registerTask('package_release', 'Generate a release package after a build', function() {
     var fs = require('fs');
     var AdmZip = require('adm-zip');
 
@@ -25,7 +25,7 @@ module.exports = function (grunt) {
     grunt.log.ok('Removed source map comment from "' + pathMin + '".');
   });
 
-  grunt.registerTask('tasks.gen_changelog', 'Add the changes since the last release to the change log', function() {
+  grunt.registerTask('gen_changelog', 'Add the changes since the last release to the change log', function() {
     var done = this.async();
 
     var pkg = grunt.config.data.pkg;
