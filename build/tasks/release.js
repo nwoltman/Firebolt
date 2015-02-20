@@ -2,27 +2,16 @@ module.exports = function (grunt) {
   'use strict';
 
   grunt.registerTask('package_release', 'Generate a release package after a build', function() {
-    var fs = require('fs');
-    var AdmZip = require('adm-zip');
-
-    var pathJs = 'dist/firebolt.js';
-    var pathMin = 'dist/firebolt.min.js';
-    var pathMap = 'dist/firebolt.min.map';
-    var pathZip = 'dist/Firebolt.zip';
-
-    // Package built Firebolt files into a .zip file
-    var zip = new AdmZip();
-    zip.addLocalFile(pathJs);
-    zip.addLocalFile(pathMin);
-    zip.addLocalFile(pathMap);
-    zip.writeZip(pathZip);
-    grunt.log.ok('Packaged Firebolt into "' + pathZip + '".');
+    // Package built files into a .zip file
+    require('../firebolt-builder')('src', 'dist').zipSync();
+    grunt.log.ok('Packaged Firebolt into "dist/Firebolt.zip".');
 
     // Remove the source map comment from the minified Firebolt file
+    var fs = require('fs');
     var code = fs.readFileSync('dist/firebolt.min.js', {encoding: 'utf8'});
-    code = code.replace(/\r?\n\/\/#.*/, ''); // Remove source map comment
+    code = code.replace(/\s*\/\/#.*/, ''); // Remove source map comment
     fs.writeFileSync('dist/firebolt.min.js', code);
-    grunt.log.ok('Removed source map comment from "' + pathMin + '".');
+    grunt.log.ok('Removed source map comment from "dist/firebolt.min.js".');
   });
 
   grunt.registerTask('gen_changelog', 'Add the changes since the last release to the change log', function() {
