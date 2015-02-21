@@ -38,7 +38,7 @@ module.exports = function (grunt) {
       var versionHeader = '## ' + curVersion + ' (' + date + ')\n';
 
       // Filter out messages that don't need to be in the change log
-      var changes = stdout.replace(/^\+ (?:build:|deps:|grunt:|sauce:|test:|Update).*\r?\n?/gm, '');
+      var changes = stdout.replace(/^\+ (?:build:|deps:|grunt:|sauce:|test:|Update|Merge).*\r?\n?/gm, '');
 
       var changelog = fs.readFileSync('CHANGELOG.md', {encoding: 'utf8'}); // Get current changelog
       changelog = 'CHANGELOG\n' +
