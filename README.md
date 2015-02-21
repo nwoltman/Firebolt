@@ -9,12 +9,12 @@
 
 [![Sauce Test Status](https://saucelabs.com/browser-matrix/nwoltman.svg)](https://saucelabs.com/u/nwoltman)
 
+[![Join the chat at https://gitter.im/woollybogger/Firebolt](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/woollybogger/Firebolt?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Firebolt is a high performance JavaScript library packed into a very small file size. Firebolt's functionality is based off of <a href="http://jquery.com" target="_blank">jQuery</a> (a lot of the [API](http://api.fireboltjs.com) is identical to jQuery's), but is built by extending the `prototype` of native objects, similar to the <a href="http://prototypejs.org" target="_blank">Prototype framework</a>. This opens up a whole new world of coding possibilities, allowing users of the library to write extremely efficient code, but with the simplicity of a jQuery-like API.
 
 
 ## Getting Started
-
-[![Join the chat at https://gitter.im/woollybogger/Firebolt](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/woollybogger/Firebolt?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ### Setup
 
