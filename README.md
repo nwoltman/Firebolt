@@ -14,6 +14,8 @@ Firebolt is a high performance JavaScript library packed into a very small file 
 
 ## Getting Started
 
+[![Join the chat at https://gitter.im/woollybogger/Firebolt](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/woollybogger/Firebolt?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ### Setup
 
 1. Clone the repo:
