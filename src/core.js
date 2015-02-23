@@ -48,17 +48,24 @@
   }
 
   /*
-   * Returns a camelized version of a string
+   * Returns a camelCase version of a string
    */
   function camelize(str) {
-    return str.replace(rgxCamelizables, camelizer);
-  }
+    var parts = str.split('-');
+    var res = parts[0];
+    var part;
 
-  /*
-   * Pre-defined so that an anonymous function does not need to be created each time camelize() is called.
-   */
-  function camelizer(match, p1) {
-    return p1 ? p1.toUpperCase() : '';
+    for (var i = 1; i < parts.length; i++) {
+      if (part = parts[i]) {
+        if (res) {
+          res += part[0].toUpperCase() + part.slice(1);
+        } else {
+          res += part;
+        }
+      }
+    }
+
+    return res;
   }
 
   /*
@@ -647,8 +654,6 @@
     rgxFormButton = /button|file|reset|submit/, // Matches input element types that are buttons
 
     rgxCheckable = /checkbox|radio/, // Matches checkbox or radio input element types
-
-    rgxCamelizables = isIE ? /^-+|-+([a-z])/g : /-+([a-z])/g, // Matches dashed parts of CSS property names
 
     // Matches strings that look like numbers but should remain as strings. Used in Firebolt.data()
     rgxNoParse = /^\d+(?:[^\d.]|\..*\D|\..*0$)/,
