@@ -54,8 +54,6 @@ Example:
 grunt build:ajax/basic,style/css,timing,events
 ```
 
-Don't worry if you see extra modules in the build log. That just means that those modules were required by the modules you specified.
-
 ### Contributing
 
 Please read the [contributing documentation](https://github.com/woollybogger/Firebolt/blob/master/CONTRIBUTING.md).

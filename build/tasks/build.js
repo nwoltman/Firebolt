@@ -25,6 +25,8 @@ module.exports = function (grunt) {
       grunt.task.run('uglify', 'package_release');
     }
 
+    grunt.log.writeln('Building Firebolt with modules:', '[\n  ' + configModules.join(',\n  ') + '\n]');
+
     fbBuilder.buildSync(configModules);
 
     grunt.log.ok('Done building Firebolt');

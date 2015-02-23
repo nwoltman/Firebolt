@@ -96,7 +96,11 @@ FireboltBuilder.prototype.buildSync = function(configModules) {
     modules.splice(modules.indexOf(overrider), 1);
   }
 
-  console.log('Building Firebolt with modules:', '[\n  ' + modules.join(',\n  ') + '\n]');
+  // Really just for debugging
+  console.log(
+    'Building Firebolt with modules (after resolving dependencies):',
+    '[\n  ' + modules.join(',\n  ') + '\n]'
+  );
 
   modules.shift(); // Remove "core"
 
