@@ -542,7 +542,6 @@
 
   var
     // Browser/Engine detection
-    isIE = document.documentMode,
     isIOS = /^iP/.test(navigator.platform), // iPhone, iPad, iPod
     usesWebkit = window.webkitURL,
     webkitNotIOS = usesWebkit && !isIOS,

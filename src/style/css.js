@@ -14,7 +14,6 @@
 /* global isArray */
 /* global usesWebkit */
 /* global usesGecko */
-/* global isIE */
 /* global HTMLElementPrototype */
 /* global NodeCollectionPrototype */
 /* global iframe */
@@ -28,7 +27,7 @@
 var cssVendorPrefix =
   usesWebkit ? 'webkit'
   : usesGecko ? 'Moz'
-  : isIE ? 'ms'
+  : document.documentMode ? 'ms'
   : 'O';
 
 //#endregion VARS
