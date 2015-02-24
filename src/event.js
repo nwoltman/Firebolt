@@ -434,10 +434,13 @@ NodePrototype.trigger = function(event, extraParameters) {
  * @param {String} eventType - A string containing a JavaScript event type, such as "click" or "submit".
  * @param {*} extraParameters - Additional parameters that will be passed as the second argument to the
  *    triggered event handler(s).
+ * @returns {?} The value returned by the event handler. If there is no handler for the specified
+ *     event type, then `undefined` is returned.
  */
 NodePrototype.triggerHandler = function(event, extraParameters) {
   // Only trigger handlers if there are event handlers saved to the node
-  return this._$E_ && this._$E_[event] && nodeEventHandler.call(this, createEventObject(event), extraParameters);
+  return (event in this._$E_) ? nodeEventHandler.call(this, createEventObject(event), extraParameters)
+                              : _undefined;
 };
 
 
@@ -575,7 +578,9 @@ NodeCollectionPrototype.trigger = callOnEach(NodePrototype.trigger);
  * @param {String} eventType - A string containing a JavaScript event type, such as "click" or "submit".
  * @param {*} extraParameters - Additional parameters that will be passed as the second argument to the
  *     triggered event handler(s).
+ * @returns {?} The value returned by the event handler. If there is no handler for the specified
+ *     event type or the NodeCollection is empty, then `undefined` is returned.
  */
-NodeCollectionPrototype.triggerHandler = function(eventType, extraParameters) {
-  return this[0] && this[0].triggerHandler(eventType, extraParameters);
+NodeCollectionPrototype.triggerHandler = function() {
+  return this[0] && NodePrototype.triggerHandler.apply(this[0], arguments);
 };
