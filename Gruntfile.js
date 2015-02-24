@@ -75,6 +75,7 @@ module.exports = function(grunt) {
           'core',
           'ajax/basic',
           'ajax/convenience',
+          'event',
           'style/animation',
           'style/css',
           'style/display',

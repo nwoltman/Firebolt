@@ -51,7 +51,7 @@ where `<modules>` is a comma-separated list of Firebolt modules.
 Example:
 
 ```sh
-grunt build:ajax/basic,style/css,timing,events
+grunt build:ajax/basic,style/css,timing,event
 ```
 
 ### Contributing

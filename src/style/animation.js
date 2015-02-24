@@ -3,6 +3,7 @@
  * 
  * @module animation
  * @requires core
+ * @requires event
  * @requires style/css
  * @requires style/easing/basic
  * @ncfuncs animate, fadeIn, fadeOut, fadeToggle, finish, slideDown, slideToggle, slideUp, stop
