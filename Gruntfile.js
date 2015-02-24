@@ -77,7 +77,8 @@ module.exports = function(grunt) {
           'ajax/convenience',
           'style/animation',
           'style/css',
-          'style/display'
+          'style/display',
+          'timing'
         ]
       }
     },
