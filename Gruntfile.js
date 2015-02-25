@@ -4,18 +4,19 @@ module.exports = function(grunt) {
   // Define the browsers to test with Sauce Labs
   var platforms = {
     'Windows 7': {
-      chrome: ['38', '39'],
+      chrome: ['39', '40'],
       firefox: ['34', '35'],
       'internet explorer': ['9', '10', '11']
     },
     'OS X 10.8': {
+      iphone: ['5.1'],
       safari: ['6']
     },
     'OS X 10.9': {
       safari: ['7']
     },
     'OS X 10.10': {
-      iphone: ['5.1', '8.1'],
+      iphone: ['8.1'],
       safari: ['8']
     },
     Linux: {
