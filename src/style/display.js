@@ -6,9 +6,7 @@
  * @ncfuncs hide, show, toggle
  */
 
-/* global getComputedStyle */
-/* global HTMLElementPrototype */
-/* global iframe */
+/* exported isDisplayNone */
 
 'use strict';
 

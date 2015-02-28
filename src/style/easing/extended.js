@@ -6,8 +6,6 @@
  * @requires core
  */
 
-/* global Firebolt */
-
 'use strict';
 
 

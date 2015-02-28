@@ -5,10 +5,10 @@
   "newcap": false,
   "undef": true,
   "unused": true,
-  "predef": [
-    "HTMLCollection",
-    "Firebolt",
-    "NodeCollection",
-    "QUnit"
-  ]
+  "globals": {
+    "HTMLCollection": true,
+    "Firebolt": true,
+    "NodeCollection": true,
+    "QUnit": true
+  }
 }

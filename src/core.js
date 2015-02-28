@@ -1,11 +1,41 @@
 ﻿/*!
  * Firebolt core file
- * @module core
  * @version 0.13.0
  * @author Nathan Woltman
  * @copyright 2014-2015 Nathan Woltman
  * @license MIT https://github.com/woollybogger/Firebolt/blob/master/LICENSE.txt
  */
+
+/**
+ * The Firebolt core module.
+ * @module core
+ */
+
+/* exported _undefined */
+/* exported camelize */
+/* exported definePrototypeExtensionsOn */
+/* exported getFirstSetEachElement */
+/* exported isNodeElement */
+/* exported push1 */
+/* exported typeofObject */
+/* exported typeofString */
+/* exported usesWebkit */
+/* exported usesGecko */
+/* exported prototype */
+/* exported HTMLElementPrototype */
+/* exported NodePrototype */
+/* exported NodeCollectionPrototype */
+/* exported isArray */
+/* exported arrayFrom */
+/* exported keys */
+/* exported iframe */
+/* exported timestamp */
+/* exported Firebolt */
+/* exported createElement */
+/* exported extend */
+/* exported isEmptyObject */
+/* exported isPlainObject */
+/* exported serialize */
 
 (function(
   window,

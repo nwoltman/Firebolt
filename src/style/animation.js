@@ -9,13 +9,7 @@
  * @ncfuncs animate, fadeIn, fadeOut, fadeToggle, finish, slideDown, slideToggle, slideUp, stop
  */
 
-/* global Firebolt */
-/* global _undefined */
-/* global typeofString */
-/* global HTMLElementPrototype */
-/* global iframe */
 /* global isDisplayNone */
-/* global keys */
 /* global sanitizeCssPropName */
 
 'use strict';

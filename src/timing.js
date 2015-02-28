@@ -5,10 +5,6 @@
  * @requires core
  */
 
-/* global prototype */
-/* global definePrototypeExtensionsOn */
-/* global isArray */
-
 'use strict';
 
 

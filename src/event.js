@@ -5,17 +5,7 @@
  * @requires core
  */
 
-/* global _undefined */
-/* global isNodeElement */
-/* global push1 */
-/* global typeofObject */
-/* global typeofString */
-/* global prototype */
-/* global keys */
-/* global arrayFrom */
 /* global isEmptyObject */
-/* global NodePrototype */
-/* global NodeCollectionPrototype */
 
 'use strict';
 

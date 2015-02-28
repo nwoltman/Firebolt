@@ -6,15 +6,7 @@
  * @requires core
  */
 
-/* global Firebolt */
-/* global _undefined */
-/* global timestamp */
-/* global isArray */
-/* global isPlainObject */
-/* global typeofString */
-/* global createElement */
-/* global extend */
-/* global serialize */
+/* global createElement, extend, isPlainObject */
 
 'use strict';
 

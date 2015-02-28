@@ -6,10 +6,8 @@
  * @requires core
  */
 
-/* global Firebolt */
-/* global typeofString */
-/* global extend */
 /* global ajaxSettings */
+/* global extend */
 
 'use strict';
 

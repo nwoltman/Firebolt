@@ -6,18 +6,9 @@
  * @requires style/display
  */
 
-/* global getComputedStyle */
-/* global _undefined */
-/* global camelize */
-/* global getFirstSetEachElement */
-/* global typeofString */
-/* global isArray */
-/* global usesWebkit */
-/* global usesGecko */
-/* global HTMLElementPrototype */
-/* global NodeCollectionPrototype */
-/* global iframe */
 /* global isDisplayNone */
+
+/* exported sanitizeCssPropName */
 
 'use strict';
 
