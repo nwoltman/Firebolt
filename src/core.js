@@ -603,7 +603,7 @@
 
     rgxFirstTag = /<\w+/, // Matches the first tag in an HTML string
 
-    rgxSingleTag = /^<[A-Za-z]+\/?>$/, // Matches a single HTML tag such as "<div/>"
+    rgxSingleTag = /^<\w+\/?>$/, // Matches a single HTML tag such as "<div/>"
 
     rgxSpaceChars = /[ \t-\f]+/, // From W3C http://www.w3.org/TR/html5/single-page.html#space-character
 
