@@ -599,7 +599,7 @@
 
     rgxAllDots = /\./g,
 
-    rgxNotTag = /[^A-Za-z]/, // Matches a CSS selector that is not selecting by a single tag
+    rgxNotTag = /\W/, // Matches a CSS selector that is not selecting by a single tag
 
     rgxFirstTag = /<\w+/, // Matches the first tag in an HTML string
 
