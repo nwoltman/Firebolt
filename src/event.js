@@ -3,9 +3,11 @@
  * 
  * @module event
  * @requires core
+ * @requires private/keys
  */
 
 /* global isEmptyObject */
+/* global keys */
 
 'use strict';
 
@@ -121,7 +123,7 @@ NodePrototype.off = function off(events, selector, handler) {
 
   // Don't bother doing anything if there haven't been any Firebolt handlers set
   if (eventHandlers) {
-    if (typeofObject(events)) {
+    if (typeof events == 'object') {
       // Call this function for each event and handler in the object
       for (i in events) {
         off.call(this, i, selector, events[i]);
@@ -305,7 +307,7 @@ NodePrototype.on = function on(events, selector, data, handler, /*INTERNAL*/ one
     eventType,
     i;
 
-  if (typeofObject(events)) {
+  if (typeof events == 'object') {
     // Call this function for each event and event handler in the object
     for (i in events) {
       on.call(this, i, selector, data, events[i], one);

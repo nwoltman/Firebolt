@@ -6,11 +6,13 @@
  * @requires event
  * @requires style/css
  * @requires style/easing/basic
+ * @requires private/keys
  * @ncfuncs animate, fadeIn, fadeOut, fadeToggle, finish, slideDown, slideToggle, slideUp, stop
  */
 
 /* global isDisplayNone */
 /* global sanitizeCssPropName */
+/* global keys */
 
 'use strict';
 

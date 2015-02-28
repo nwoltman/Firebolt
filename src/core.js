@@ -12,22 +12,21 @@
  */
 
 /* exported _undefined */
-/* exported camelize */
 /* exported definePrototypeExtensionsOn */
 /* exported getFirstSetEachElement */
 /* exported isNodeElement */
 /* exported push1 */
-/* exported typeofObject */
 /* exported typeofString */
 /* exported usesWebkit */
 /* exported usesGecko */
 /* exported prototype */
+/* exported ElementPrototype */
 /* exported HTMLElementPrototype */
 /* exported NodePrototype */
 /* exported NodeCollectionPrototype */
 /* exported isArray */
 /* exported arrayFrom */
-/* exported keys */
+/* exported defineProperty */
 /* exported iframe */
 /* exported timestamp */
 /* exported Firebolt */
@@ -59,27 +58,6 @@
    */
   function append(newNode, refNode) {
     refNode.appendChild(newNode);
-  }
-
-  /*
-   * Returns a camelCase version of a string
-   */
-  function camelize(str) {
-    var parts = str.split('-');
-    var res = parts[0];
-    var part;
-
-    for (var i = 1; i < parts.length; i++) {
-      if (part = parts[i]) {
-        if (res) {
-          res += part[0].toUpperCase() + part.slice(1);
-        } else {
-          res += part;
-        }
-      }
-    }
-
-    return res;
   }
 
   /*
@@ -508,23 +486,6 @@
          : 1;         // Else node a should come first
   }
 
-  /*
-   * Tries to parse a JSON string into an object and return the result.
-   * Returns the string if parsing results in an error.
-   */
-  function tryParseJson(json) {
-    try {
-      return JSON.parse(json);
-    }
-    catch (e) {
-      return json;
-    }
-  }
-
-  function typeofObject(value) {
-    return typeof value == 'object';
-  }
-
   function typeofString(value) {
     return typeof value == 'string';
   }
@@ -591,8 +552,7 @@
     isArray = Array.isArray,
     arrayFrom = setArrayStaticsAndGetFromFunction(Array),
     array_push = ArrayPrototype.push,
-    defineProperty = Object.defineProperty,
-    keys = Object.keys,
+    defineProperty = Object.defineProperty, // jshint ignore:line
 
     // Local + global selector funtions
     getElementById = window.$$ = window.$ID =
@@ -640,9 +600,6 @@
     rgxFormButton = /button|file|reset|submit/, // Matches input element types that are buttons
 
     rgxCheckable = /checkbox|radio/, // Matches checkbox or radio input element types
-
-    // Matches strings that look like numbers but should remain as strings. Used in Firebolt.data()
-    rgxNoParse = /^\d+(?:[^\d.]|\..*\D|\..*0$)/,
 
     // Determines if the function is different for NodeLists
     rgxDifferentNL = /^(?:af|ap|be|conc|cop|ea|fill|ins|prep|pu|rep|rev|sor|toggleC)|wrap|remove(?:Class)?$/,
@@ -1193,55 +1150,6 @@
   };
 
   /**
-   * @summary Gets the element's stored data object.
-   * 
-   * @description
-   * HTML5 data-* attributes are pulled into the stored data object the first time the data property is accessed
-   * and then are no longer accessed or mutated (they are stored in a private Firebolt property).
-   * 
-   * @function Element#data
-   * @returns {Object} The element's stored data object.
-   */
-  /**
-   * @summary
-   * Get the value at the named data store for the element as set by `.data(key, value)` or by an HTML5 data-* attribute.
-   * 
-   * @description
-   * The HTML5 data-* attributes are pulled into the stored data object the first time the data property is accessed
-   * and then are no longer accessed or mutated (they are stored in a private Firebolt property).
-   * 
-   * @function Element#data
-   * @param {String} key - The name of the stored data.
-   * @returns {*} The value of the stored data.
-   */
-  /**
-   * @summary Stores arbitrary data associated with the element.
-   * 
-   * @description
-   * When setting data properties (either input ones or those pulled from HTML5 data-* attributes), Firebolt will
-   * camelize dashed key names. For example, when pulling a data-* attribute called `data-foo-bar`, Firebolt will
-   * add the data to the element's stored data object with the key `fooBar`.
-   * 
-   * @function Element#data
-   * @param {String} key - A string naming the data to set.
-   * @param {*} value - Any arbitrary data to store.
-   */
-  /**
-   * @summary Stores arbitrary data associated with the element.
-   * 
-   * @description
-   * When setting data properties (either input ones or those pulled from HTML5 data-* attributes), Firebolt will
-   * camelize dashed key names. For example, when pulling a data-* attribute called `data-foo-bar`, Firebolt will
-   * add the data to the element's stored data object with the key `fooBar`.
-   * 
-   * @function Element#data
-   * @param {Object} obj - An object of key-value pairs to add to the element's stored data.
-   */
-  ElementPrototype.data = function(key, value) {
-    return Firebolt.data(this, key, value, 1); // Pass in 1 to tell the generic function the object is an element
-  };
-
-  /**
    * Removes all of the element's child nodes.
    * 
    * @example
@@ -1426,26 +1334,6 @@
   };
 
   /**
-   * Removes a previously stored piece of Firebolt data.  
-   * When called without any arguments, all data is removed.
-   * 
-   * @function Element#removeData
-   * @param {String} [name] - The name of the data to remove.
-   */
-  /**
-   * Removes previously stored Firebolt data.  
-   * When called without any arguments, all data is removed.
-   * 
-   * @function Element#removeData
-   * @param {Array|String} [list] - An array or space-separated string naming the pieces of data to remove.
-   */
-  ElementPrototype.removeData = function(input) {
-    Firebolt.removeData(this, input);
-
-    return this;
-  };
-
-  /**
    * Removes the specified property from the element.
    * 
    * @function Element#removeProp
@@ -1550,110 +1438,6 @@
       }
     }
     return $_GET;
-  };
-
-  /**
-   * Gets the object's stored data object.
-   * 
-   * __Regarding HTML5 data-* attributes:__ This method does NOT retrieve the data-* attributes unless the
-   * {@linkcode Element#data|.data()} method has already retrieved them.
-   * 
-   * @function Firebolt.data
-   * @param {Object} object - An object. This can be anything that has Object in its prototype chain.
-   * @returns {Object} The object's stored data object.
-   */
-  /**
-   * Get the value at the named data store for the object as set by {@linkcode Firebolt.data|Firebolt.data(key, value)}.
-   * 
-   * __Regarding HTML5 data-* attributes:__ This method does NOT retrieve the data-* attributes unless the
-   * {@linkcode Element#data|.data()} method has already retrieved them.
-   * 
-   * @function Firebolt.data
-   * @param {Object} object - An object. This can be anything that has Object in its prototype chain.
-   * @param {String} key - The name of the stored data.
-   * @returns {*} The value of the stored data.
-   */
-  /**
-   * Stores arbitrary data associated with the object.
-   * 
-   * __Note:__ When setting data properties, Firebolt will camelize dashed key names. For example, when setting data
-   * with the key `foo-bar`, Firebolt will add the data to the element's stored data object with the key `fooBar`.
-   * 
-   * @function Firebolt.data
-   * @param {Object} object - An object. This can be anything that has Object in its prototype chain.
-   * @param {String} key - A string naming the data to set.
-   * @param {*} value - Any arbitrary data to store.
-   * @returns {Object} The passed in object.
-   */
-  /**
-   * Stores arbitrary data associated with the object.
-   * 
-   * __Note:__ When setting data properties, Firebolt will camelize dashed key names. For example, when setting data
-   * with the key `foo-bar`, Firebolt will add the data to the element's stored data object with the key `fooBar`.
-   * 
-   * @function Firebolt.data
-   * @param {Object} object - An object. This can be anything that has Object in its prototype chain.
-   * @param {Object} data - An object of key-value pairs to add to the object's stored data.
-   * @returns {Object} The passed in object.
-   */
-  Firebolt.data = function(object, key, value, isElement) {
-    var expando = Firebolt.expando,
-      dataStore = object[expando];
-
-    if (!dataStore) {
-      // Define the data store object at a non-enumerable property
-      defineProperty(object, expando, {
-        value: dataStore = {}
-      });
-
-      // If the object is an Element, try loading "data-*" attributes
-      if (isElement) {
-        var attributes = object.attributes,
-          dataAttributes = {},
-          i = 0,
-          attrib,
-          val;
-
-        for (; i < attributes.length; i++) {
-          attrib = attributes[i];
-          if (attrib.name.startsWith('data-')) {
-            if (!rgxNoParse.test(val = attrib.value)) {
-              val = tryParseJson(val); // Try to parse the string into a native object
-            }
-            // Set the value in the data attributes object and data store
-            attrib = camelize(attrib.name.slice(5));
-            dataStore[attrib] = dataAttributes[attrib] = val;
-          }
-        }
-
-        // Save the data attributes if there are any
-        if (!isEmptyObject(dataAttributes)) {
-          object._$DA_ = dataAttributes;
-        }
-      }
-    }
-
-    if (value === _undefined) {
-      if (typeofObject(key)) {
-        extend(dataStore, key); // Set multiple
-      } else {
-        if (key === _undefined) {
-          return dataStore; // Get the data store object
-        }
-
-        // Get the data at the specified name
-        if ((value = dataStore[key = camelize(key)]) === _undefined && object._$DA_) {
-          // Save the data-* attribute value to the data store and return it
-          return dataStore[key] = object._$DA_[key];
-        }
-
-        return value;
-      }
-    } else {
-      dataStore[camelize(key)] = value; // Set value
-    }
-
-    return object;
   };
 
   /**
@@ -1782,17 +1566,6 @@
     document.head.appendChild(
       createElement('script').prop('text', code)
     ).remove();
-  };
-
-  /**
-   * Determines if the object has any Firebolt data associated with it.
-   * 
-   * @function Firebolt.hasData
-   * @param {Object} object - An object. This can be anything that has Object in its prototype chain.
-   * @returns {Boolean} `true` if the object has stored Firebolt data; else `false`.
-   */
-  Firebolt.hasData = function(object) {
-    return !isEmptyObject(object[Firebolt.expando]);
   };
 
   /**
@@ -1970,40 +1743,6 @@
       readyCallbacks.push(callback);
     } else {
       callback();
-    }
-  };
-
-  /**
-   * Removes a previously stored piece of Firebolt data from an object.  
-   * When called without any arguments, all data is removed.
-   * 
-   * @function Firebolt.removeData
-   * @param {Object} object - An object. This can be anything that has Object in its prototype chain.
-   * @param {String} [name] - The name of the data to remove.
-   */
-  /**
-   * Removes previously stored Firebolt data from an object.  
-   * When called without any arguments, all data is removed.
-   * 
-   * @function Firebolt.removeData
-   * @param {Object} object - An object. This can be anything that has Object in its prototype chain.
-   * @param {Array|String} [list] - An array or space-separated string naming the pieces of data to remove.
-   */
-  Firebolt.removeData = function(object, list) {
-    var dataStore = object[Firebolt.expando],
-      i = 0;
-
-    // First make sure the data store object exists
-    if (dataStore) {
-      if (typeofString(list)) {
-        list = list.split(' ');
-      } else if (!list) {
-        list = keys(dataStore); // Select all items for removal
-      }
-
-      for (; i < list.length; i++) {
-        delete dataStore[camelize(list[i])];
-      }
     }
   };
 
@@ -3008,7 +2747,7 @@
 
   // Add a bunch of functions by calling the HTMLElement version on each element in the collection
   (// NCFUNCS
-   'addClass blur click empty focus removeAttr removeClass removeData removeProp toggleClass')
+   'addClass blur click empty focus removeAttr removeClass removeProp toggleClass')
     .split(' ')
     .forEach(function(fnName) {
       var fn = HTMLElementPrototype[fnName];
@@ -3264,37 +3003,6 @@
 
     return nc;
   };
-
-  /**
-   * Gets the first element's stored data object.
-   * 
-   * @function NodeCollection#data
-   * @returns {Object} The element's stored data object.
-   */
-  /**
-   * Get the value at the named data store for the first element as set by
-   * `.data(key, value)` or by an HTML5 data-* attribute.
-   * 
-   * @function NodeCollection#data
-   * @param {String} key - The name of the stored data.
-   * @returns {*} The value of the stored data.
-   */
-  /**
-   * Stores arbitrary data associated with each element in the collection.
-   * 
-   * @function NodeCollection#data
-   * @param {String} key - A string naming the data to set.
-   * @param {*} value - Any arbitrary data to store.
-   */
-  /**
-   * Stores arbitrary data associated with each element in the collection
-   * 
-   * @function NodeCollection#data
-   * @param {Object} obj - An object of key-value pairs to add to each element's stored data.
-   */
-  NodeCollectionPrototype.data = getFirstSetEachElement(ElementPrototype.data, function(numArgs, firstArg) {
-    return !numArgs || numArgs < 2 && typeofString(firstArg);
-  });
 
   /**
    * Removes all child nodes from each element in the list.
@@ -3593,21 +3301,6 @@
    * 
    * @function NodeCollection#removeClass
    * @param {String} className - The class to be removed from each element in the collection.
-   */
-
-  /**
-   * Removes a previously stored piece of Firebolt data from each element.  
-   * When called without any arguments, all data is removed.
-   * 
-   * @function NodeCollection#removeData
-   * @param {String} [name] - The name of the data to remove.
-   */
-  /**
-   * Removes previously stored Firebolt data from each element.  
-   * When called without any arguments, all data is removed.
-   * 
-   * @function NodeCollection#removeData
-   * @param {Array|String} [list] - An array or space-separated string naming the pieces of data to remove.
    */
 
   /**
