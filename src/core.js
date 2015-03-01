@@ -701,6 +701,7 @@
      * 1. `this` always refers to the current item in the iteration (the `value` argument to the callback).
      * 2. Returning `false` in the callback will cancel the iteration (similar to a `break` statement).
      * 3. The array is returned to allow for function chaining.
+     * 4. The callback __is__ invoked for indexes that have been deleted or elided.
      * 
      * @function Array#each
      * @param {function(*, Number, Array)} callback(value,index,array) - A function to be executed on each
@@ -2749,7 +2750,7 @@
   (// NCFUNCS
    'addClass blur click empty focus removeAttr removeClass removeProp toggleClass')
     .split(' ')
-    .forEach(function(fnName) {
+    .each(function(fnName) {
       var fn = HTMLElementPrototype[fnName];
       NodeCollectionPrototype[fnName] = function() {
         for (var i = 0, len = this.length; i < len; i++) {
@@ -3629,7 +3630,7 @@
   /* Give NodeLists and HTMLCollections many of the same prototype functions as NodeCollections */
   Object.getOwnPropertyNames(NodeCollectionPrototype)
     .diff('clear length pop push shift splice unshift'.split(' ')) // These properties should not be added
-    .forEach(function(methodName) {
+    .each(function(methodName) {
       if (!NodeListPrototype[methodName]) {
         var method = NodeCollectionPrototype[methodName];
 

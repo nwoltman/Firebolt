@@ -239,7 +239,7 @@ function nodeEventHandler(eventObject, extraParameters) {
       if (isNodeElement(target)) {
         for (i = 0; i < numSelectors; i++) {
           if (target.matches(selector = selectors[i])) {
-            selectorHandlersCopy[selector].forEach(callHandlerOnTarget);
+            selectorHandlersCopy[selector].each(callHandlerOnTarget);
           }
         }
       }
@@ -252,7 +252,7 @@ function nodeEventHandler(eventObject, extraParameters) {
   if (selectorHandlers && !eventObject.propagationStopped) {
     target = _this;
     // Use a clone so the handlers array won't be altered if `off()` is ever called
-    arrayFrom(selectorHandlers).forEach(callHandlerOnTarget);
+    arrayFrom(selectorHandlers).each(callHandlerOnTarget);
   }
 
   return result;
