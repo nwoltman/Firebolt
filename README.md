@@ -46,13 +46,15 @@ Run:
 grunt build:<modules>
 ```
 
-where `<modules>` is a comma-separated list of Firebolt modules.
+where `<modules>` is either a comma-separated list of Firebolt modules, or the name of a preset list of modules (currently either `ALL` or `DEFAULT`).
 
 Example:
 
 ```sh
 grunt build:ajax/basic,style/css,timing,event
 ```
+
+(Tip: Running `grunt build` is the same as running `grunt build:DEFAULT`)
 
 ### Contributing
 

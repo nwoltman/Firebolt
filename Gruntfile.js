@@ -71,7 +71,21 @@ module.exports = function(grunt) {
     },
 
     build: {
-      'default': {
+      ALL: {
+        modules: [
+          'core',
+          'ajax/basic',
+          'ajax/convenience',
+          'data',
+          'event',
+          'number',
+          'style/animation',
+          'style/css',
+          'style/display',
+          'timing'
+        ]
+      },
+      DEFAULT: {
         modules: [
           'core',
           'ajax/basic',
@@ -137,7 +151,7 @@ module.exports = function(grunt) {
     watch: {
       source: {
         files: ['src/**/*.js'],
-        tasks: ['build:default'],
+        tasks: ['build:ALL'],
         options: {
           atBegin: true,
           spawn: false
@@ -191,11 +205,11 @@ module.exports = function(grunt) {
 
   // Only connect to Sauce if the user has Sauce credentials
   if (process.env.SAUCE_USERNAME && process.env.SAUCE_ACCESS_KEY) {
-    grunt.registerTask('test', ['connect:temp', 'saucelabs-qunit:basic']);
-    grunt.registerTask('test_full', ['connect:temp', 'saucelabs-qunit:full']);
-    grunt.registerTask('test_custom', ['connect:temp', 'saucelabs-qunit:custom']);
+    grunt.registerTask('test', ['build:ALL', 'connect:temp', 'saucelabs-qunit:basic']);
+    grunt.registerTask('test_full', ['build:ALL', 'connect:temp', 'saucelabs-qunit:full']);
+    grunt.registerTask('test_custom', ['build:ALL', 'connect:temp', 'saucelabs-qunit:custom']);
   } else {
-    grunt.registerTask('test', ['connect:local_persistant']);
+    grunt.registerTask('test', ['build:ALL', 'connect:local_persistant']);
     grunt.registerTask('test_full', ['no_test_full']);
     grunt.registerTask('test_custom', ['no_test_custom']);
   }
@@ -204,5 +218,5 @@ module.exports = function(grunt) {
   grunt.registerTask('ci', ['release', 'test_full']);
 
   // Default
-  grunt.registerTask('default', ['lint', 'build:default', 'uglify', 'compare_size']);
+  grunt.registerTask('default', ['lint', 'build:DEFAULT', 'uglify', 'compare_size']);
 };

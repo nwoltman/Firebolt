@@ -11,12 +11,12 @@ module.exports = function (grunt) {
   grunt.registerTask('build', 'Builds Firebolt from the source files', function(target) {
     grunt.config.requires(this.name);
 
-    target = target || 'default';
+    target = target || 'DEFAULT';
 
     var config = grunt.config(this.name);
     var configModules;
 
-    if (target in config) { // Configuration build
+    if (target in config) { // Preset build
       var configPath = [this.name, target, 'modules'];
       grunt.config.requires(configPath);
       configModules = grunt.config(configPath);
