@@ -77,7 +77,7 @@ HTMLElementPrototype.css = function(prop, value) {
   var _this = this; // Improves minification
   var computedStyle, mustHide, val;
 
-  if (value === _undefined) {
+  if (value === UNDEFINED) {
     // Temporarily use `val` to keep track if the input is an array
     // (it will get set to the correct return value when needed)
     if ((val = isArray(prop)) || typeofString(prop)) {

@@ -11,7 +11,7 @@
  * @module core
  */
 
-/* exported _undefined */
+/* exported UNDEFINED */
 /* exported definePrototypeExtensionsOn */
 /* exported getFirstSetEachElement */
 /* exported isNodeElement */
@@ -47,7 +47,7 @@
   parseFloat,
   setTimeout,
   clearTimeout,
-  _undefined
+  UNDEFINED
 ) {
   'use strict';
 
@@ -465,7 +465,7 @@
    * the attribute if the value is `null` or `undefined`.
    */
   function setAttribute(element, key, value) {
-    if (value != _undefined) {
+    if (value != UNDEFINED) {
       element.setAttribute(key, value);
     } else {
       element.removeAttribute(key);
@@ -495,11 +495,11 @@
     isIOS = /^iP/.test(navigator.platform), // iPhone, iPad, iPod
     usesWebkit = window.webkitURL,
     webkitNotIOS = usesWebkit && !isIOS,
-    usesGecko = window.mozInnerScreenX != _undefined,
+    usesGecko = window.mozInnerScreenX != UNDEFINED,
 
     // Some browser compatibility functions
     characterData = document.createTextNode(''),
-    getNextElementSibling = (characterData.nextElementSibling === _undefined)
+    getNextElementSibling = (characterData.nextElementSibling === UNDEFINED)
       ? function(el) {
         while ((el = el.nextSibling) && el.nodeType !== 1);
         return el;
@@ -507,7 +507,7 @@
       : function(el) {
         return el.nextElementSibling;
       },
-    getPreviousElementSibling = (characterData.previousElementSibling === _undefined)
+    getPreviousElementSibling = (characterData.previousElementSibling === UNDEFINED)
       ? function(el) {
         while ((el = el.previousSibling) && el.nodeType !== 1);
         return el;
@@ -515,7 +515,7 @@
       : function(el) {
         return el.previousElementSibling;
       },
-    getParentElement = (characterData.parentElement === _undefined)
+    getParentElement = (characterData.parentElement === UNDEFINED)
       ? function(el) {
         el = el.parentNode;
         return el && isNodeElement(el) ? el : null;
@@ -1248,7 +1248,7 @@
    * @param {String} htmlString
    */
   ElementPrototype.html = function(htmlString) {
-    if (htmlString === _undefined) {
+    if (htmlString === UNDEFINED) {
       return this.innerHTML; // Get
     }
     this.innerHTML = htmlString; // Set
@@ -1309,7 +1309,7 @@
    * @param {Object} properties - An object of property-value pairs to set.
    */
   ElementPrototype.prop = function(prop, value) {
-    if (value === _undefined) {
+    if (value === UNDEFINED) {
       if (typeofString(prop)) {
         return this[prop]; // Get
       }
@@ -1484,7 +1484,7 @@
 
       for (key in arg) {
         val = arg[key];
-        if (val === _undefined)
+        if (val === UNDEFINED)
           continue;
 
         if (deep) {
@@ -1581,7 +1581,7 @@
    * @returns {Boolean} - `true` if the object is deemed empty, `false` otherwise.
    */
   Firebolt.isEmpty = function(value, className) {
-    return value == _undefined || (
+    return value == UNDEFINED || (
       isArray(value) || typeofString(value) ||
       (className = getClassOf(value)) == 'NodeList' || className == 'HTMLCollection'
         ? !value.length
@@ -1641,7 +1641,7 @@
       if (typeof value == 'function') {
         value = value();
       }
-      if (value == _undefined) {
+      if (value == UNDEFINED) {
         value = '';
       }
 
@@ -1654,7 +1654,7 @@
           for (cur = 0; cur < value.length; cur++) {
             // Add key again for multiple array values
             queryString += (cur ? '&' + encodeURIComponent(key) : '') +
-                           '=' + encodeURIComponent(value[cur] == _undefined ? '' : value[cur]);
+                           '=' + encodeURIComponent(value[cur] == UNDEFINED ? '' : value[cur]);
           }
         } else {
           queryString += '=' + encodeURIComponent(value);
@@ -1737,7 +1737,7 @@
           for (var i = 0; i < readyCallbacks.length; i++) {
             readyCallbacks[i]();
           }
-          readyCallbacks = _undefined; // Undefine the callbacks array to indicate that the ready event has fired
+          readyCallbacks = UNDEFINED; // Undefine the callbacks array to indicate that the ready event has fired
         });
       }
       readyCallbacks.push(callback);
@@ -1754,7 +1754,7 @@
    * @returns {TextNode}
    */
   Firebolt.text = function(text) {
-    return document.createTextNode(text === _undefined ? '' : text);
+    return document.createTextNode(text === UNDEFINED ? '' : text);
   };
 
   //#endregion Firebolt
@@ -1766,7 +1766,7 @@
    * Global Firebolt references.
    */
   window.FB = window.Firebolt = Firebolt;
-  if (window.$ === _undefined) {
+  if (window.$ === UNDEFINED) {
     window.$ = Firebolt;
   }
 
@@ -2056,7 +2056,7 @@
    */
   HTMLElementPrototype.removeClass = function(value) {
     if (this.className) { // Can only remove classes if there are classes to remove
-      if (value === _undefined) {
+      if (value === UNDEFINED) {
         this.className = ''; // Remove all classes
       } else {
         var remClasses = value.split(' '),
@@ -2100,7 +2100,7 @@
 
     if (!name ||                                    // Doesn't have a name
         this.disabled ||                            // Is disabled
-        value == _undefined ||                      // Is a <select> element and has no value or is not a form control
+        value == UNDEFINED ||                       // Is a <select> element and has no value or is not a form control
         rgxFormButton.test(type) ||                 // Is a form button (button|file|reset|submit)
         rgxCheckable.test(type) && !this.checked) { // Is a checkbox or radio button and is not checked
       return '';
@@ -2217,7 +2217,7 @@
       options = this.options,
       i = 0;
 
-    if (value === _undefined) {
+    if (value === UNDEFINED) {
       // If multiple selection is allowed and there is at least one selected item, return an array of selected values
       if (multiple && this.selectedIndex >= 0) {
         value = [];
@@ -2625,7 +2625,7 @@
    * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Node.textContent|Node.textContent - Web API Interfaces | MDN}
    */
   NodePrototype.text = function(text) {
-    if (text === _undefined) {
+    if (text === UNDEFINED) {
       return this.textContent; // Get
     }
 
@@ -3388,7 +3388,7 @@
     var len = this.length,
       i = 0;
     // Get
-    if (text === _undefined) {
+    if (text === UNDEFINED) {
       for (text = ''; i < len; i++) {
         text += this[i].textContent;
       }
@@ -3472,7 +3472,7 @@
    */
   NodeCollectionPrototype.val = function(value) {
     // Get first
-    if (value === _undefined) {
+    if (value === UNDEFINED) {
       return this[0].val();
     }
 

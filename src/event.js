@@ -132,10 +132,10 @@ NodePrototype.off = function off(events, selector, handler) {
       // If events was passed in, remove those events, else remove all events
       events = events ? events.split(' ') : keys(eventHandlers);
 
-      if (selector !== _undefined && !typeofString(selector)) {
+      if (selector !== UNDEFINED && !typeofString(selector)) {
         // The handler was in the selector argument and there is no real selector argument
         handler = selector;
-        selector = _undefined;
+        selector = UNDEFINED;
       }
 
       // If the handler is the value false, the handler should be a function that returns false
@@ -171,7 +171,7 @@ NodePrototype.off = function off(events, selector, handler) {
 
       // If there are no handlers left for any events, delete the event handler store
       if (isEmptyObject(eventHandlers)) {
-        this._$E_ = _undefined;
+        this._$E_ = UNDEFINED;
       }
     }
   }
@@ -200,7 +200,7 @@ function nodeEventHandler(eventObject, extraParameters) {
     result;
 
   // If the extra parameters are not defined (by `.triggerHandler()`), perhaps they were defined by `.trigger()`
-  if (extraParameters === _undefined) {
+  if (extraParameters === UNDEFINED) {
     extraParameters = eventObject._$P_;
   }
 
@@ -316,12 +316,12 @@ NodePrototype.on = function on(events, selector, data, handler, /*INTERNAL*/ one
     events = events.split(' ');
 
     // Organize arguments into their proper places
-    if (handler === _undefined) {
-      if (data === _undefined) {
+    if (handler === UNDEFINED) {
+      if (data === UNDEFINED) {
         handler = selector; // The handler was in the selector argument
       } else {
         handler = data;     // The handler was in the data argument
-        data = selectorIsString ? _undefined : selector; // Data was undefined or was in the selector argument
+        data = selectorIsString ? UNDEFINED : selector; // Data was undefined or was in the selector argument
       }
     }
 
@@ -432,7 +432,7 @@ NodePrototype.trigger = function(event, extraParameters) {
 NodePrototype.triggerHandler = function(event, extraParameters) {
   // Only trigger handlers if there are event handlers saved to the node
   return (event in this._$E_) ? nodeEventHandler.call(this, createEventObject(event), extraParameters)
-                              : _undefined;
+                              : UNDEFINED;
 };
 
 

@@ -117,16 +117,16 @@ Firebolt.data = function(object, key, value, isElement) {
     }
   }
 
-  if (value === _undefined) {
+  if (value === UNDEFINED) {
     if (typeof key == 'object') {
       extend(dataStore, key); // Set multiple
     } else {
-      if (key === _undefined) {
+      if (key === UNDEFINED) {
         return dataStore; // Get the data store object
       }
 
       // Get the data at the specified name
-      if ((value = dataStore[key = camelize(key)]) === _undefined && object._$DA_) {
+      if ((value = dataStore[key = camelize(key)]) === UNDEFINED && object._$DA_) {
         // Save the data-* attribute value to the data store and return it
         return dataStore[key] = object._$DA_[key];
       }

@@ -208,7 +208,7 @@ Firebolt.ajax = function(url, settings) {
         overwritten(responseContainer[0]);
       }
 
-      responseContainer = overwritten = _undefined;
+      responseContainer = overwritten = UNDEFINED;
     });
   }
 

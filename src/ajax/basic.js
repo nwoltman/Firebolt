@@ -298,7 +298,7 @@ Firebolt.ajax = function(url, settings) {
     // If the request is not a POST request, append the data string to the URL
     if (type != 'POST') {
       url = url.appendParams(data);
-      data = _undefined; // Clear the data so it is not sent later on
+      data = UNDEFINED; // Clear the data so it is not sent later on
     }
   }
 

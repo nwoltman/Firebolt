@@ -16,7 +16,7 @@
     "CharacterData": true,
     "DocumentType": true,
     "HTMLCollection": true,
-    "_undefined": true,
+    "UNDEFINED": true,
     "definePrototypeExtensionsOn": true,
     "getFirstSetEachElement": true,
     "isNodeElement": true,

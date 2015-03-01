@@ -24,7 +24,7 @@ var ANIMATION_DEFAULT_EASING = 'swing';
 var TOGGLE = 'toggle';
 
 var cssTransitionKey = sanitizeCssPropName('transition');
-var noCssTransitionSupport = iframe.style[cssTransitionKey] === _undefined;
+var noCssTransitionSupport = iframe.style[cssTransitionKey] === UNDEFINED;
 var transitionendEventName = cssTransitionKey + (cssTransitionKey[0] === 'w' ? 'End' : 'end');
 
 var rgxDasherizables = /[A-Z]/g; // Matches capitol letters in a camel case string
@@ -103,7 +103,7 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
   /* jshint expr:true */
 
   // Massage arguments into their proper places
-  if (duration === _undefined || typeof duration == 'function') {
+  if (duration === UNDEFINED || typeof duration == 'function') {
     complete = duration;
     duration = ANIMATION_DEFAULT_DURATION;
     easing = ANIMATION_DEFAULT_EASING;
@@ -152,7 +152,7 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
       val = properties[prop];
 
       // Should set overflow to "hidden" when animating height or width properties
-      if ((prop == 'height' || prop == 'width') && valsToRestore.overflow === _undefined) {
+      if ((prop == 'height' || prop == 'width') && valsToRestore.overflow === UNDEFINED) {
         valsToRestore.overflow = inlineStyle.overflow;
         inlineStyle.overflow = 'hidden';
       }
