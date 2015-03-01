@@ -6,7 +6,6 @@
  * @requires private/keys
  */
 
-/* global isEmptyObject */
 /* global keys */
 
 'use strict';

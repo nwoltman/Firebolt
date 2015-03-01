@@ -36,6 +36,10 @@
     "timestamp": true,
     "Firebolt": true,
     "$_GET": true,
+    "createElement": true,
+    "extend": true,
+    "isEmptyObject": true,
+    "isPlainObject": true,
     "$1": true
   }
 }

@@ -1449,11 +1449,11 @@
    * @param {Object} [attributes] - The JSON-formatted attributes that the element should have once constructed.
    * @returns {Element}
    */
-  Firebolt.elem = createElement;
-  function createElement(tagName, attributes) {
+  function createElement(tagName, attributes) { // jshint ignore:line
     var el = document.createElement(tagName);
     return attributes ? el.attr(attributes) : el;
   }
+  Firebolt.elem = createElement;
 
   /* The key where Firebolt stores data using $.data() */
   Firebolt.expando = 'FB' + Date.now() + 1 / Math.random();
@@ -1469,8 +1469,7 @@
    * @param {...Object} objectN - One or more objects whose properties will be added to the `target` object.
    * @returns {Object} The `target` object.
    */
-  Firebolt.extend = extend;
-  function extend() {
+  function extend() { // jshint ignore:line
     var deep = (arguments[0] === true),
       i = 1,
       target = arguments[deep ? i++ : 0],
@@ -1510,6 +1509,7 @@
 
     return target;
   }
+  Firebolt.extend = extend;
 
   /**
    * Creates a new DocumentFragment and (optionally) appends the passed in content to it.
@@ -1519,7 +1519,6 @@
    *     of nodes to append to the fragment.
    * @returns {DocumentFragment} The newly created document fragment.
    */
-  Firebolt.frag = createFragment;
   function createFragment() {
     var fragment = document.createDocumentFragment(),
       i = 0,
@@ -1555,6 +1554,7 @@
 
     return fragment;
   }
+  Firebolt.frag = createFragment;
 
   /**
    * Executes some JavaScript code globally.
@@ -1596,13 +1596,13 @@
    * @param {Object} object - The object to be tested.
    * @returns {Boolean}
    */
-  Firebolt.isEmptyObject = isEmptyObject;
   function isEmptyObject(object) {
     for (object in object) {
       return false;
     }
     return true;
   }
+  Firebolt.isEmptyObject = isEmptyObject;
 
   /**
    * Determines if a variable is a plain object.
@@ -1610,10 +1610,10 @@
    * @function Firebolt.isPlainObject
    * @param {*} obj - The item to test.
    */
-  Firebolt.isPlainObject = isPlainObject;
   function isPlainObject(obj) {
     return obj && (obj = obj.constructor) && obj.toString().trim().slice(9, 16) == 'Object(';
   }
+  Firebolt.isPlainObject = isPlainObject;
 
   /**
    * Creates a serialized representation of an array or object, suitable for
@@ -1681,7 +1681,6 @@
    *     is specified, you must also pass in a value for `context` (but it can just be falsy to use the default value).
    * @returns {NodeCollection|Node} The collection of created nodes (or single Node if `single` was truthy).
    */
-  Firebolt.parseHTML = parseHTML;
   function parseHTML(html, context, single, /*INTERNAL*/ doNotDetachNodes) {
     var elem;
     context = context || document;
@@ -1717,6 +1716,7 @@
 
     return doNotDetachNodes ? html : ncFrom(html).remove();
   }
+  Firebolt.parseHTML = parseHTML;
 
   /**
    * Specify a function to execute when the DOM is fully loaded.  

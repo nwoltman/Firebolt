@@ -7,7 +7,6 @@
  */
 
 /* global ajaxSettings */
-/* global extend */
 
 'use strict';
 

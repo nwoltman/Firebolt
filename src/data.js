@@ -8,7 +8,6 @@
  * @ncfuncs removeData
  */
 
-/* global extend, isEmptyObject */
 /* global camelize */
 /* global keys */
 

@@ -6,8 +6,6 @@
  * @requires core
  */
 
-/* global createElement, extend, isPlainObject */
-
 'use strict';
 
 

@@ -5,8 +5,6 @@
  * @requires core
  */
 
-/* global prototype */
-
 'use strict';
 
 
