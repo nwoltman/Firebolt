@@ -34,7 +34,6 @@
 /* exported extend */
 /* exported isEmptyObject */
 /* exported isPlainObject */
-/* exported serialize */
 
 (function(
   window,
@@ -1617,20 +1616,15 @@
   }
 
   /**
-   * Creates a serialized representation of an array or object, suitable for use in a URL query string or Ajax request.  
-   * Unlike jQuery, arrays will be serialized like objects when `traditional` is not `true`, with the indices of
-   * the array becoming the keys of the query string parameters.
+   * Creates a serialized representation of an array or object, suitable for
+   * use in a URL query string or AJAX request.
    * 
    * @function Firebolt.param
    * @param {Array|Object} obj - An array or object to serialize.
    * @param {Boolean} traditional - A Boolean indicating whether to perform a traditional "shallow" serialization.
    * @returns {String} The serialized string representation of the array or object.
    */
-  Firebolt.param = function(obj, traditional) {
-    return serialize(obj, 0, traditional);
-  };
-
-  function serialize(obj, prefix, traditional) {
+  Firebolt.param = function serialize(obj, traditional, /*INTERNAL*/ prefix) {
     var queryString = '',
       valueIsObject,
       key,
@@ -1664,13 +1658,13 @@
         /* Inspired by: http://stackoverflow.com/questions/1714786/querystring-encoding-of-a-javascript-object */
         cur = prefix ? prefix + '[' + key + ']' : key;
         queryString += (queryString ? '&' : '') +
-                       (valueIsObject ? serialize(value, cur)
+                       (valueIsObject ? serialize(value, traditional, cur)
                                       : encodeURIComponent(cur) + '=' + encodeURIComponent(value));
       }
     }
 
     return queryString;
-  }
+  };
 
   /**
    * Parses a string into an array of DOM nodes.
@@ -2109,7 +2103,7 @@
 
     // Check if the value is a string because <select> elements may return an array of selected options
     return typeofString(value) ? encodeURIComponent(name) + '=' + encodeURIComponent(value)
-                               : serialize(HTMLElementPrototype.prop.call({}, name, value));
+                               : Firebolt.param(HTMLElementPrototype.prop.call({}, name, value));
   };
 
   /* For form elements, return the serialization of its form controls */

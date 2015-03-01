@@ -292,7 +292,7 @@ Firebolt.ajax = function(url, settings) {
   if (data) {
     // Process data if necessary
     if (isArray(data) || isPlainObject(data)) {
-      data = serialize(data, 0, settings.traditional);
+      data = Firebolt.param(data, settings.traditional);
     }
 
     // If the request is not a POST request, append the data string to the URL

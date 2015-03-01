@@ -36,7 +36,6 @@
     "timestamp": true,
     "Firebolt": true,
     "$_GET": true,
-    "serialize": true,
     "$1": true
   }
 }
