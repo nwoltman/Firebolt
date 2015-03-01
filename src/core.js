@@ -3584,8 +3584,9 @@
    * ncBlueThing.length === 10; // -> true (since `removeClass` returned the NodeList as a NodeCollection)
    * ```
    * 
-   * Returning a NodeCollection allows for correct functionality when chaining calls originally made on a NodeList,
-   * but be aware that a live NodeList saved as a variable may be altered by these functions.
+   * Returning a NodeCollection guarantees predictable functionality when chaining calls originally
+   * made on a NodeList. When working with a live NodeList saved as a variable, be aware that it
+   * may be altered by these functions.
    * 
    * <u>__3.__</u>
    * Since it is not possible to manually create a new NodeList in JavaScript (there are tricks but
@@ -3614,9 +3615,9 @@
    * `.toNC()` on the NodeList/HTMLCollection when passing it as a parameter to `concat` like so:
    * 
    * ```javascript
-   * var nodes = $QSA('div.special'),
-   *     moreNodes = $TAG('p'),
-   *     concatenation = nodes.concat( moreNodes.toNC() );
+   * var nodes = $QSA('div.special');                    // `nodes` is a NodeList
+   * var moreNodes = $TAG('p');                          // `moreNodes` is a HTMLCollection
+   * var concatenation = nodes.concat(moreNodes.toNC()); // `concatenation` is a NodeCollection
    * ```
    * <br />
    * 
