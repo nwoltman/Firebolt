@@ -1418,29 +1418,6 @@
   }
 
   /**
-   * Returns a PHP-style associative array (Object) of URL parameters and updates
-   * the global {@linkcode $_GET} object at the same time.
-   * 
-   * @function Firebolt._GET
-   * @returns {Object.<String, String>}
-   * @see $_GET
-   * @see {@link http://www.php.net/manual/en/reserved.variables.get.php|PHP: $_GET - Manual}
-   */
-  Firebolt._GET = function() {
-    window.$_GET = {};
-    var params = location.search.slice(1).split('&');
-    var param, equalsIndex;
-    for (var i = 0; i < params.length; i++) {
-      if (param = params[i]) {
-        equalsIndex = param.indexOf('=');
-        $_GET[decodeURIComponent(equalsIndex < 0 ? param : param.slice(0, equalsIndex))] =
-          equalsIndex < 0 ? '' : decodeURIComponent(param.slice(equalsIndex + 1));
-      }
-    }
-    return $_GET;
-  };
-
-  /**
    * Creates a new element with the specified tag name and attributes (optional).  
    * Partially an alias of `document.createElement()`.
    * 
@@ -1764,23 +1741,6 @@
   if (window.$ === UNDEFINED) {
     window.$ = Firebolt;
   }
-
-  /**
-   * @summary PHP-style associative array (Object) of URL parameters.
-   * 
-   * @description
-   * This object is created when the page loads and thus contains the URL's query parameters at that time.
-   * However, it is possible to change the URL through JavaScript functions such as `history.pushState()`.
-   * If the URL may have changed and you need to the most recent query parameters, use Firebolt's
-   * {@linkcode Firebolt._GET|$._GET()} function, which also updates the $_GET object when it is called.
-   * 
-   * @global
-   * @constant
-   * @name $_GET
-   * @type {Object.<String, String>}
-   * @see {@link http://www.php.net/manual/en/reserved.variables.get.php|PHP: $_GET - Manual}
-   */
-  Firebolt._GET(); // Just call the function to update the global $_GET object
 
   /**
    * Returns the first element within the document with the specified ID. Can also be called by the alias `$ID()`.  

@@ -59,7 +59,8 @@ if (window.readyTestVal !== 0 || ('readyTestVal2' in window)) {
   'NodeList_HTMLCollection',
   'Number',
   'Object',
-  'String'
+  'String',
+  'php'
 ].forEach(function(module) {
   Firebolt.getScript('unit/' + module + '.js');
 });

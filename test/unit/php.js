@@ -1,0 +1,63 @@
+﻿/**
+ * Unit tests for the php module
+ */
+
+// References for Resharper
+/// <reference path="../node_modules/qunitjs/qunit/qunit.js"/>
+/// <reference path="../../src/firebolt.js"/>
+
+QUnit.module('php');
+
+QUnit.test('Firebolt._GET()', function(assert) {
+  // Can't run these tests if the history.replaceState function does not exist (just IE 9)
+  if (!history.replaceState) return;
+
+  var queryString = location.search; // Preserve for cleanup
+
+  [
+    { // 1
+      string: '?',
+      result: {}
+    },
+    { // 2
+      string: '?a',
+      result: { a: '' }
+    },
+    { // 3
+      string: '?a&b',
+      result: { a: '', b: '' }
+    },
+    { // 4
+      string: '?hi=ho&oh=hi',
+      result: { hi: 'ho', oh: 'hi' }
+    },
+    { // 5
+      string: '?hi=ho&no&oh=hi',
+      result: { hi: 'ho', no: '', oh: 'hi' }
+    },
+    { // 6
+      string: '?hi=ho&no&oh=',
+      result: { hi: 'ho', no: '', oh: '' }
+    },
+    { // 7
+      string: '?&hi=ho&&&&no&&&oh=&&',
+      result: { hi: 'ho', no: '', oh: '' }
+    },
+    { // 8
+      string: '?url-encoded%3F=this%20%26%20that%2Fstuff',
+      result: { 'url-encoded?': 'this & that/stuff' }
+    },
+    { // 9
+      string: '?b==2',
+      result: { b: '=2' }
+    }
+  ].forEach(function(query, index) {
+    history.replaceState('', '', query.string);
+    assert.deepEqual(Firebolt._GET(), query.result, 'Correctly parses query string #' + (index + 1) + '.');
+  });
+
+  assert.strictEqual(Firebolt._GET(), Firebolt._GET(),
+    'Returns the cached map when the value has not changed.');
+
+  history.replaceState('', '', queryString); // Cleanup
+});

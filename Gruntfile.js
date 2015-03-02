@@ -79,6 +79,7 @@ module.exports = function(grunt) {
           'data',
           'event',
           'number',
+          'php',
           'style/animation',
           'style/css',
           'style/display',
