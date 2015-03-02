@@ -21,35 +21,35 @@ QUnit.test('Firebolt._GET()', function(assert) {
     },
     { // 2
       string: '?a',
-      result: { a: '' }
+      result: {a: ''}
     },
     { // 3
       string: '?a&b',
-      result: { a: '', b: '' }
+      result: {a: '', b: ''}
     },
     { // 4
       string: '?hi=ho&oh=hi',
-      result: { hi: 'ho', oh: 'hi' }
+      result: {hi: 'ho', oh: 'hi'}
     },
     { // 5
       string: '?hi=ho&no&oh=hi',
-      result: { hi: 'ho', no: '', oh: 'hi' }
+      result: {hi: 'ho', no: '', oh: 'hi'}
     },
     { // 6
       string: '?hi=ho&no&oh=',
-      result: { hi: 'ho', no: '', oh: '' }
+      result: {hi: 'ho', no: '', oh: ''}
     },
     { // 7
       string: '?&hi=ho&&&&no&&&oh=&&',
-      result: { hi: 'ho', no: '', oh: '' }
+      result: {hi: 'ho', no: '', oh: ''}
     },
     { // 8
       string: '?url-encoded%3F=this%20%26%20that%2Fstuff',
-      result: { 'url-encoded?': 'this & that/stuff' }
+      result: {'url-encoded?': 'this & that/stuff'}
     },
     { // 9
       string: '?b==2',
-      result: { b: '=2' }
+      result: {b: '=2'}
     }
   ].forEach(function(query, index) {
     history.replaceState('', '', query.string);
@@ -60,4 +60,35 @@ QUnit.test('Firebolt._GET()', function(assert) {
     'Returns the cached map when the value has not changed.');
 
   history.replaceState('', '', queryString); // Cleanup
+});
+
+QUnit.test('Firebolt._COOKIE()', function(assert) {
+  [
+    { // 1
+      string: 'hi=ho',
+      result: {hi: 'ho'}
+    },
+    { // 2
+      string: 'oh=hi',
+      result: {hi: 'ho', oh: 'hi'}
+    },
+    { // 3
+      string: 'url-encoded%3F=this%20%26%20that%2Fstuff',
+      result: {hi: 'ho', oh: 'hi', 'url-encoded?': 'this & that/stuff'}
+    },
+    { // 4
+      string: 'url-encoded%3F=',
+      result: {hi: 'ho', oh: 'hi', 'url-encoded?': ''}
+    },
+    { // 5
+      string: 'b==2',
+      result: {hi: 'ho', oh: 'hi', 'url-encoded?': '', b: '=2'}
+    }
+  ].forEach(function(cookie, index) {
+    document.cookie = cookie.string + '; max-age=1';
+    assert.deepEqual(Firebolt._COOKIE(), cookie.result, 'Correctly parses cookie #' + (index + 1) + '.');
+  });
+
+  assert.strictEqual(Firebolt._COOKIE(), Firebolt._COOKIE(),
+    'Returns the cached map when the value has not changed.');
 });

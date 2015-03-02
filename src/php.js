@@ -14,6 +14,10 @@ var getCache = {
   raw: UNDEFINED,
   map: UNDEFINED
 };
+var cookieCache = {
+  raw: UNDEFINED,
+  map: UNDEFINED
+};
 
 //#endregion VARS
 
@@ -32,13 +36,13 @@ function getCachedOrParse(value, cache, split) {
     cache.map = {};
 
     var params = value.split(split);
-    var param, equalsIndex;
+    var param, eqIndex;
 
     for (var i = 0; i < params.length; i++) {
       if (param = params[i]) {
-        equalsIndex = param.indexOf('=');
-        cache.map[decodeURIComponent(equalsIndex < 0 ? param : param.slice(0, equalsIndex))] =
-          equalsIndex < 0 ? '' : decodeURIComponent(param.slice(equalsIndex + 1));
+        eqIndex = param.indexOf('=');
+        cache.map[decodeURIComponent(eqIndex < 0 ? param : param.slice(0, eqIndex))] =
+          eqIndex < 0 ? '' : decodeURIComponent(param.slice(eqIndex + 1));
       }
     }
   }
@@ -55,4 +59,15 @@ function getCachedOrParse(value, cache, split) {
  */
 Firebolt._GET = function() {
   return getCachedOrParse(location.search.slice(1), getCache, '&');
+};
+
+/**
+ * Returns a PHP-style Object of the cookies that can be accessed with JavaScript.
+ * 
+ * @function Firebolt._COOKIE
+ * @returns {Object.<String, String>}
+ * @see {@link http://php.net/manual/en/reserved.variables.cookies.php|PHP: $_COOKIE - Manual}
+ */
+Firebolt._COOKIE = function() {
+  return getCachedOrParse(document.cookie, cookieCache, '; ');
 };
