@@ -143,28 +143,6 @@ QUnit.test('attr', function(assert) {
     'Removes an attribute if attempting to set it to undefined when setting multiple attributes.');
 });
 
-QUnit.test('data', function(assert) {
-  var el = document.createElement('div'),
-    key = 'key',
-    value = 'value',
-    data = Firebolt.data;
-
-  // Spy on Firebolt.data()
-  Firebolt.data = function(_obj, _key, _value, _isElement) {
-    assert.strictEqual(_obj, el);
-    assert.strictEqual(_key, key);
-    assert.strictEqual(_value, value);
-    assert.strictEqual(_isElement, 1);
-
-    return 'retVal';
-  };
-
-  assert.strictEqual(el.data(key, value), 'retVal', 'Returns what Firebolt.data() returns.');
-
-  // Restore the function
-  Firebolt.data = data;
-});
-
 QUnit.test('empty', function(assert) {
   var element = document.getElementById('qunit-fixture');
 
@@ -278,23 +256,6 @@ QUnit.test('removeAttr', function(assert) {
 
   assert.strictEqual(el.removeAttr('class'), el, 'Returns the element.');
   assert.strictEqual(el.getAttribute('class'), null, 'Successfully removes the attribute from the element.');
-});
-
-QUnit.test('removeData', function(assert) {
-  var el = document.createElement('div'),
-    key = 'key',
-    removeData = Firebolt.removeData;
-
-  // Spy on Firebolt.removeData()
-  Firebolt.removeData = function(_obj, _key) {
-    assert.strictEqual(_obj, el);
-    assert.strictEqual(_key, key);
-  };
-
-  assert.strictEqual(el.removeData(key), el, 'Returns the element.');
-
-  // Restore the function
-  Firebolt.removeData = removeData;
 });
 
 QUnit.test('removeProp', function(assert) {

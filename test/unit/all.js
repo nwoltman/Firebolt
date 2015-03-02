@@ -60,6 +60,7 @@ if (window.readyTestVal !== 0 || ('readyTestVal2' in window)) {
   'Number',
   'Object',
   'String',
+  'data',
   'php'
 ].forEach(function(module) {
   Firebolt.getScript('unit/' + module + '.js');
