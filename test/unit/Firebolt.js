@@ -79,7 +79,10 @@ QUnit.test('_GET', function(assert) {
     {string: '?&hi=ho&&&&no&&&oh=&&', result: {hi: 'ho', no: '', oh: ''}},
 
     // 8
-    {string: '?url-encoded%3F=this%20%26%20that%2Fstuff', result: {'url-encoded?': 'this & that/stuff'}}
+    {string: '?url-encoded%3F=this%20%26%20that%2Fstuff', result: {'url-encoded?': 'this & that/stuff'}},
+
+    // 9
+    {string: '?b==2', result: {b: '=2'}}
 
   ].forEach(function(query, index) {
     history.replaceState('', '', query.string);

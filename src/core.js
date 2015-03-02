@@ -1428,13 +1428,13 @@
    */
   Firebolt._GET = function() {
     window.$_GET = {};
-    var params = location.search.slice(1).split('&'),
-      i = 0,
-      key_val;
-    for (; i < params.length; i++) {
-      key_val = params[i].split('=');
-      if (key_val[0]) {
-        $_GET[decodeURIComponent(key_val[0])] = decodeURIComponent(key_val[1] || '');
+    var params = location.search.slice(1).split('&');
+    var param, equalsIndex;
+    for (var i = 0; i < params.length; i++) {
+      if (param = params[i]) {
+        equalsIndex = param.indexOf('=');
+        $_GET[decodeURIComponent(equalsIndex < 0 ? param : param.slice(0, equalsIndex))] =
+          equalsIndex < 0 ? '' : decodeURIComponent(param.slice(equalsIndex + 1));
       }
     }
     return $_GET;
