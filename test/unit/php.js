@@ -92,3 +92,43 @@ QUnit.test('Firebolt._COOKIE()', function(assert) {
   assert.strictEqual(Firebolt._COOKIE(), Firebolt._COOKIE(),
     'Returns the cached map when the value has not changed.');
 });
+
+QUnit.test('Firebolt.setcookie()', function(assert) {
+  assert.expect(6);
+
+  Firebolt.setcookie('a b', 'b a');
+  assert.ok(
+    document.cookie.indexOf('a%20b=b%20a') >= 0,
+    'Sets a normal cookie.'
+  );
+
+  Firebolt.setcookie('a b', '1', Infinity);
+  assert.ok(
+    document.cookie.indexOf('a%20b=1') >= 0,
+    'Passing Infinity as the expirey time works.'
+  );
+
+  Firebolt.setcookie('a b', '2', '3015-03-05T09:14:53');
+  assert.ok(
+    document.cookie.indexOf('a%20b=2') >= 0,
+    'Passing a date string as the expirey time works.'
+  );
+
+  Firebolt.setcookie('a b', '3', new Date(9999, 2));
+  assert.ok(
+    document.cookie.indexOf('a%20b=3') >= 0,
+    'Passing a Date object as the expirey time works.'
+  );
+
+  Firebolt.setcookie('a b', '4', 1);
+  assert.ok(
+    document.cookie.indexOf('a%20b=4') >= 0,
+    'Passing a number as the expirey time works.'
+  );
+
+  Firebolt.setcookie('a b', '5', -1);
+  assert.ok(
+    document.cookie.indexOf('a%20b=5') === -1,
+    'Passing a negative expirey time removes a cookie.'
+  );
+});
