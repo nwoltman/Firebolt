@@ -4,6 +4,7 @@
  * @module ajax/extended
  * @overrides ajax/basic
  * @requires core
+ * @requires string/extras
  */
 
 'use strict';

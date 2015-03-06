@@ -34,6 +34,7 @@
     "defineProperty": true,
     "iframe": true,
     "timestamp": true,
+    "prototypeExtensions": true,
     "Firebolt": true,
     "$_GET": true,
     "createElement": true,

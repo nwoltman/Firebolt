@@ -29,6 +29,7 @@
 /* exported defineProperty */
 /* exported iframe */
 /* exported timestamp */
+/* exported prototypeExtensions */
 /* exported Firebolt */
 /* exported createElement */
 /* exported extend */
@@ -545,7 +546,6 @@
     NodePrototype = Node[prototype],
     NodeListPrototype = NodeList[prototype],
     HTMLCollectionPrototype = HTMLCollection[prototype],
-    StringPrototype = String[prototype],
 
     // Helpers
     isArray = Array.isArray,
@@ -3684,175 +3684,6 @@
   }
 
   //#endregion Object
-
-
-  //#region ============================ String ================================
-
-  /**
-   * @class String
-   * @classdesc The native JavaScript String class.
-   * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String|String - JavaScript | MDN}
-   */
-
-  // Reuse the prototype extensions variable to hold an object of String extensions
-  prototypeExtensions = {
-    /**
-     * Appends query string parameters to a URL.
-     *
-     * @function String#appendParams
-     * @param {String} params - Query string parameters.
-     * @returns {String} A reference to the string (chainable).
-     * @example
-     * var url = "www.google.com";
-     * url = url.appendParams('lang=en'); // -> "www.google.com?lang=en"
-     * url = url.appendParams('a=1&b=2'); // -> "www.google.com?lang=en&a=1&b=2"
-     */
-    appendParams: function(params) {
-      return this + (this.indexOf('?') >= 0 ? '&' : '?') + params;
-    },
-
-    /**
-     * HTML-encodes the string by converting HTML special characters to their
-     * entity equivalents and returns the result.
-     * 
-     * @example
-     * '<img src="//somesite.com" />'.escapeHTML();  // -> '&lt;img src="//somesite.com" /&gt;'
-     * 
-     * @function String#escapeHTML
-     * @returns {String} The HTML-escaped text.
-     */
-    escapeHTML: function() {
-      return createElement('div').text(this).innerHTML;
-    },
-
-    /**
-     * Returns the string split into an array of substrings (tokens) that were separated by white-space.
-     *
-     * @function String#tokenize
-     * @returns {String[]} An array of tokens.
-     * @example
-     * var str = "The boy who lived.";
-     * str.tokenize(); // -> ["The", "boy", "who", "lived."]
-     */
-    tokenize: function() {
-      return this.match(/\S+/g) || [];
-    },
-
-    /**
-     * HTML-decodes the string by converting entities of HTML special
-     * characters to their normal form and returns the result.
-     * 
-     * @example
-     * '&lt;img src="//somesite.com" /&gt;'.unescapeHTML();  // -> '<img src="//somesite.com" />'
-     * 
-     * @function String#unescapeHTML
-     * @returns {String} The HTML-unescaped text.
-     */
-    unescapeHTML: function() {
-      return createElement('div').html(this).textContent;
-    }
-  };
-
-
-  /* Add ES6 functions to String.prototype */
-
-  if (!StringPrototype.endsWith) {
-    /**
-     * Determines if a string ends with the characters of another string.
-     *
-     * @function String#endsWith
-     * @param {String} searchString - The characters to be searched for at the end of this string.
-     * @param {Number} [position=this.length] - Search within this string as if this string were only this long;
-     * clamped within the range established by this string's length.
-     * @returns {Boolean} `true` if this string ends with `searchString`; else `false`.
-     * @example
-     * var str = "Who am I, Gamling?";
-     * alert( str.endsWith("Gamling?") );  // true
-     * alert( str.endsWith("am I") );      // false
-     * alert( str.endsWith("am I", 8) );   // true
-     */
-    prototypeExtensions.endsWith = function(searchString, position) {
-      var str = this.toString(),
-        strLen = str.length;
-      position = (position < strLen ? position : strLen) - searchString.length;
-      return position >= 0 && str.indexOf(searchString, position) === position;
-    };
-  }
-
-  if (!StringPrototype.includes) {
-    /**
-     * Determines whether the passed in string is in the current string.
-     * 
-     * @example
-     * var str = "Winter is coming.";
-     * alert( str.includes(" is ") );    // true
-     * alert( str.includes("summer") );  // false
-     *
-     * @function String#includes
-     * @param {String} searchString - The string to be searched for.
-     * @param {Number} [position=0] - The position in this string at which to begin the search.
-     * @returns {Boolean} `true` if this string contains the search string, `false` otherwise.
-     */
-    prototypeExtensions.includes = function() {
-      return StringPrototype.indexOf.apply(this, arguments) >= 0;
-    };
-  }
-
-  if (!StringPrototype.repeat) {
-    /**
-     * Copies the current string a given number of times and returns the new string.
-     *
-     * @function String#repeat
-     * @param {Number} count - An integer between 0 and +∞ : [0, +∞).
-     * @returns {String}
-     * @throws {RangeError} The repeat count must be positive and less than infinity.
-     * @example
-     * "abc".repeat(0)   // ""
-     * "abc".repeat(1)   // "abc"
-     * "abc".repeat(2)   // "abcabc"
-     * "abc".repeat(3.5) // "abcabcabc" (count will be converted to integer)
-     * "0".repeat(5)     // "00000"
-     */
-    prototypeExtensions.repeat = function(count) {
-      count = Math.floor(count) || 0;
-      if (!isFinite(count) || count < 0) {
-        throw new RangeError('Invalid count value');
-      }
-
-      var str = this.toString(),
-        retStr = '';
-      for (; ;) {
-        if (count & 1) retStr += str;
-        count >>= 1;
-        if (count === 0) return retStr;
-        str += str;
-      }
-    };
-  }
-
-  if (!StringPrototype.startsWith) {
-    /**
-     * Determines whether a string starts with the characters of another string.
-     *
-     * @function String#startsWith
-     * @param {String} searchString - The characters to be searched for at the start of this string.
-     * @param {Number} [position=0] - The position in this string at which to begin searching for `searchString`.
-     * @returns {Boolean} `true` if this string starts with the search string; else `false`.
-     * @example
-     * var str = "Who am I, Gamling?";
-     * alert( str.endsWith("Who") );      // true
-     * alert( str.endsWith("am I") );     // false
-     * alert( str.endsWith("am I", 4) );  // true
-     */
-    prototypeExtensions.startsWith = function(searchString, position) {
-      return this.toString().lastIndexOf(searchString, position = position || 0) === position;
-    };
-  }
-
-  // Define the prototype properties on String.prototype
-  definePrototypeExtensionsOn(StringPrototype, prototypeExtensions);
-
-  //#endregion String
 
 
   //#region MODULES
