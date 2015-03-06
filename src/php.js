@@ -100,10 +100,10 @@ Firebolt._COOKIE = function() {
 Firebolt.setcookie = function(name, value, expire, path, domain, secure) {
   document.cookie =
     encodeURIComponent(name) + '=' + encodeURIComponent(value) +
-    (expire ?
+    (expire ? ';expires=' + (
       typeof expire == 'number'
-        ? expire === Infinity ? ';expires=Fri, 31 Dec 9999 23:59:59 GMT' : ';max-age=' + expire
-        : ';expires=' + (expire instanceof Date ? expire.toUTCString() : expire)
+        ? expire === Infinity ? 'Fri, 31 Dec 9999 23:59:59 GMT' : new Date(Date.now() + expire * 1000).toUTCString()
+        : (expire instanceof Date ? expire.toUTCString() : expire))
      : '') +
     (domain ? ';domain=' + domain : '') + (path ? ';path=' + path : '') + (secure ? ';secure' : '');
 };

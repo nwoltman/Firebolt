@@ -51,7 +51,6 @@ if (window.readyTestVal !== 0 || ('readyTestVal2' in window)) {
   'Array',
   'Element',
   'Firebolt',
-  'Function',
   'Globals',
   'HTMLElement',
   'NodeCollection',

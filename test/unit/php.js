@@ -63,6 +63,14 @@ QUnit.test('Firebolt._GET', function(assert) {
 });
 
 QUnit.test('Firebolt._COOKIE', function(assert) {
+  function hasSameValues(less, more) {
+    for (var i in less) {
+      if (less[i] !== more[i])
+        return false;
+    }
+    return true;
+  }
+
   [
     { // 1
       string: 'hi=ho',
@@ -85,8 +93,9 @@ QUnit.test('Firebolt._COOKIE', function(assert) {
       result: {hi: 'ho', oh: 'hi', 'url-encoded?': '', b: '=2'}
     }
   ].forEach(function(cookie, index) {
-    document.cookie = cookie.string + '; max-age=1';
-    assert.deepEqual(Firebolt._COOKIE(), cookie.result, 'Correctly parses cookie #' + (index + 1) + '.');
+    document.cookie = cookie.string + ';expires=' + (new Date(Date.now() + 1000).toUTCString());
+    assert.ok(hasSameValues(cookie.result, Firebolt._COOKIE()),
+      'Correctly parses cookie #' + (index + 1) + '.');
   });
 
   assert.strictEqual(Firebolt._COOKIE(), Firebolt._COOKIE(),
