@@ -1,5 +1,5 @@
 ﻿/**
- * Unit tests for AJAX functionality
+ * Unit tests for the ajax/shared module
  */
 
 // References for Resharper
@@ -8,7 +8,7 @@
 
 QUnit.module('ajax/shared');
 
-QUnit.test('Firebolt.ajaxSetup()', function(assert) {
+QUnit.test('Firebolt.ajaxSetup', function(assert) {
   var ajaxSettings = Firebolt.ajaxSetup(),
     testObject = {
       a: [1, 2, 3],

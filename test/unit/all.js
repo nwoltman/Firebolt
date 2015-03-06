@@ -62,7 +62,8 @@ if (window.readyTestVal !== 0 || ('readyTestVal2' in window)) {
   'data',
   'php',
   'string/es6',
-  'string/extras'
+  'string/extras',
+  'timing'
 ].forEach(function(module) {
   Firebolt.getScript('unit/' + module + '.js');
 });

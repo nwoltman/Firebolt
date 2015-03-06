@@ -1,14 +1,14 @@
 ﻿/**
- * Unit tests for Function.prototype
+ * Unit tests for the timing module
  */
 
 // References for Resharper
 /// <reference path="../node_modules/qunitjs/qunit/qunit.js"/>
 /// <reference path="../../src/firebolt.js"/>
 
-QUnit.module('Function.prototype');
+QUnit.module('timing');
 
-QUnit.test('delay', function(assert) {
+QUnit.test('Function#delay', function(assert) {
   assert.expect(16);
 
   var args = ['a', 2, {arg: 3}];
@@ -110,7 +110,7 @@ QUnit.test('delay', function(assert) {
   }, 50);
 });
 
-QUnit.test('every', function(assert) {
+QUnit.test('Function#every', function(assert) {
   assert.expect(18);
 
   var args = ['a', 2, {arg: 3}];

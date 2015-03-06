@@ -1,14 +1,14 @@
 /**
- * Unit tests for String.prototype
+ * Unit tests for the string/es6 module
  */
 
 // References for Resharper
 /// <reference path="../node_modules/qunitjs/qunit/qunit.js"/>
 /// <reference path="../../src/firebolt.js"/>
 
-QUnit.module('String.prototype');
+QUnit.module('string/es6');
 
-QUnit.test('endsWith', function(assert) {
+QUnit.test('String#endsWith', function(assert) {
   var str = 'Who am I, Gamling?';
 
   // True
@@ -29,7 +29,7 @@ QUnit.test('endsWith', function(assert) {
   assert.strictEqual(str.endsWith('?', 0), false);         // 13
 });
 
-QUnit.test('includes', function(assert) {
+QUnit.test('String#includes', function(assert) {
   var str = 'Winter is coming.';
 
   // True
@@ -59,7 +59,7 @@ QUnit.test('includes', function(assert) {
     'Works (false version) when called on a non-string.');
 });
 
-QUnit.test('repeat', function(assert) {
+QUnit.test('String#repeat', function(assert) {
   var str = 'abc';
 
   // Test return value
@@ -85,7 +85,7 @@ QUnit.test('repeat', function(assert) {
   }, RangeError, 'Throws a RangeError when given infinity as input.');
 });
 
-QUnit.test('startsWith', function(assert) {
+QUnit.test('String#startsWith', function(assert) {
   var str = 'Who am I, Gamling?';
 
   // True

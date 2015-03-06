@@ -6,9 +6,9 @@
 /// <reference path="../node_modules/qunitjs/qunit/qunit.js"/>
 /// <reference path="../../src/firebolt.js"/>
 
-QUnit.module('Number.prototype');
+QUnit.module('Number');
 
-QUnit.test('toPaddedString', function(assert) {
+QUnit.test('Number#toPaddedString', function(assert) {
   assert.expect(7);
 
   assert.strictEqual((255).toPaddedString(4), '0255', 'Pads a positive number.');

@@ -1,14 +1,14 @@
 /**
- * Unit tests for String.prototype
+ * Unit tests for the string/extras module
  */
 
 // References for Resharper
 /// <reference path="../node_modules/qunitjs/qunit/qunit.js"/>
 /// <reference path="../../src/firebolt.js"/>
 
-QUnit.module('String.prototype');
+QUnit.module('string/extras');
 
-QUnit.test('appendParams', function(assert) {
+QUnit.test('String#appendParams', function(assert) {
   var url = 'www.fireboltjs.com';
 
   url = url.appendParams('p1=a');
@@ -19,14 +19,14 @@ QUnit.test('appendParams', function(assert) {
     'Correctly appends parameters to a url that already has a query string.');
 });
 
-QUnit.test('escapeHTML', function(assert) {
+QUnit.test('String#escapeHTML', function(assert) {
   assert.equal('<img src="site.com" data-a="a&b\'c" />'.escapeHTML(), '&lt;img src="site.com" data-a="a&amp;b\'c" /&gt;',
     'Escapes "<", ">", and "&".');
 
   assert.equal('  a& \n\t  '.escapeHTML(), '  a&amp; \n\t  ', 'Preserves whitespace.');
 });
 
-QUnit.test('tokenize', function(assert) {
+QUnit.test('String#tokenize', function(assert) {
   assert.deepEqual('The boy who lived.'.tokenize(), ['The', 'boy', 'who', 'lived.'],
     'Tokenizes a simple string.');
 
@@ -40,7 +40,7 @@ QUnit.test('tokenize', function(assert) {
     'Returns an empty array when tokenizing a string made up of only whitespace.');
 });
 
-QUnit.test('unescapeHTML', function(assert) {
+QUnit.test('String#unescapeHTML', function(assert) {
   assert.equal('&lt;img src="site.com" data-a="a&amp;b\'c" /&gt;'.unescapeHTML(), '<img src="site.com" data-a="a&b\'c" />',
     'Unescapes "<", ">", and "&".');
 

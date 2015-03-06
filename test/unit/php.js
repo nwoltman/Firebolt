@@ -8,7 +8,7 @@
 
 QUnit.module('php');
 
-QUnit.test('Firebolt._GET()', function(assert) {
+QUnit.test('Firebolt._GET', function(assert) {
   // Can't run these tests if the history.replaceState function does not exist (just IE 9)
   if (!('replaceState' in window.history)) return;
 
@@ -62,7 +62,7 @@ QUnit.test('Firebolt._GET()', function(assert) {
   history.replaceState('', '', queryString); // Cleanup
 });
 
-QUnit.test('Firebolt._COOKIE()', function(assert) {
+QUnit.test('Firebolt._COOKIE', function(assert) {
   [
     { // 1
       string: 'hi=ho',
@@ -93,7 +93,7 @@ QUnit.test('Firebolt._COOKIE()', function(assert) {
     'Returns the cached map when the value has not changed.');
 });
 
-QUnit.test('Firebolt.setcookie()', function(assert) {
+QUnit.test('Firebolt.setcookie', function(assert) {
   assert.expect(6);
 
   Firebolt.setcookie('a b', 'b a');

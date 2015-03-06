@@ -8,7 +8,7 @@
 
 QUnit.module('Object');
 
-QUnit.test('each', function(assert) {
+QUnit.test('.each', function(assert) {
   assert.expect(9);
 
   var seen = {};
@@ -48,7 +48,7 @@ QUnit.test('each', function(assert) {
   assert.strictEqual(Object.each(i, function() { }), i, 'Returns the object.');
 });
 
-QUnit.test('getClassOf', function(assert) {
+QUnit.test('.getClassOf', function(assert) {
   /* jshint -W053, -W054 */
 
   assert.expect(19);
