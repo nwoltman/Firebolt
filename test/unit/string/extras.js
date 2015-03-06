@@ -26,6 +26,18 @@ QUnit.test('String#escapeHTML', function(assert) {
   assert.equal('  a& \n\t  '.escapeHTML(), '  a&amp; \n\t  ', 'Preserves whitespace.');
 });
 
+QUnit.test('String#toCamelCase', function(assert) {
+  var styleObject = getComputedStyle(document.documentElement);
+
+  assert.expect(styleObject.length);
+
+  for (var i = 0; i < styleObject.length; i++) {
+    var camel = styleObject[i].toCamelCase();
+    assert.ok((camel in styleObject) || camel === 'MozOsxFontSmoothing',
+      'Correctly camelizes "' + styleObject[i] + '"');
+  }
+});
+
 QUnit.test('String#tokenize', function(assert) {
   assert.deepEqual('The boy who lived.'.tokenize(), ['The', 'boy', 'who', 'lived.'],
     'Tokenizes a simple string.');

@@ -3,7 +3,7 @@
  * 
  * @module data
  * @requires core
- * @requires private/camelize
+ * @requires string/extras
  * @requires private/keys
  * @ncfuncs removeData
  */

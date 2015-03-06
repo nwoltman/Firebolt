@@ -5,6 +5,8 @@
  * @requires core
  */
 
+/* exported camelize */
+
 'use strict';
 
 
@@ -13,6 +15,27 @@
   * @classdesc The native JavaScript String class.
   * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String|String - JavaScript | MDN}
   */
+
+/**
+ * Returns a camelCase version of a string.
+ * 
+ * @private
+ * @param {String} str
+ * @returns {String}
+ * @see String#toCamelCase
+ */
+function camelize(str) {
+  var parts = str.split('-');
+  var res = parts[0];
+  var part;
+
+  for (var i = 1; i < parts.length; i++) {
+    part = parts[i];
+    res += part[0].toUpperCase() + part.slice(1);
+  }
+
+  return res;
+}
 
 definePrototypeExtensionsOn(String[prototype], {
   /**
@@ -42,6 +65,28 @@ definePrototypeExtensionsOn(String[prototype], {
    */
   escapeHTML: function() {
     return createElement('div').text(this).innerHTML;
+  },
+
+  /**
+   * Converts a [kebab-case](http://c2.com/cgi/wiki?KebabCase) string to camelCase.
+   * 
+   * @function String#toCamelCase
+   * @returns {String}
+   * 
+   * @description
+   * __Note:__ This is not a gerneral purpose functions like [lodash's](https://lodash.com/docs#camelCase)
+   * version. This function is designed to convert CSS property names to their IDL attribute equivalent.
+   * @see http://www.w3.org/TR/cssom/#css-property-to-idl-attribute 
+   * 
+   * @example
+   * 'margin-top'.toCamelCase();
+   * // -> 'marginTop'
+   * 
+   * '-moz-binding'.toCamelCase();
+   * // -> 'MozBinding'
+   */
+  toCamelCase: function() {
+    return camelize(this);
   },
 
   /**

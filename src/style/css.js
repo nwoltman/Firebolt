@@ -4,7 +4,7 @@
  * @module css
  * @requires core
  * @requires style/display
- * @requires private/camelize
+ * @requires string/extras
  */
 
 /* global isDisplayNone */
