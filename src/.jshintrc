@@ -41,6 +41,7 @@
     "extend": true,
     "isEmptyObject": true,
     "isPlainObject": true,
-    "$1": true
+    "$1": true,
+    "getClassOf": true
   }
 }

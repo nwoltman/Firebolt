@@ -3,6 +3,7 @@
  * 
  * @module ajax/basic
  * @requires core
+ * @requires ajax/shared
  * @requires string/extras
  */
 

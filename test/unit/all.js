@@ -49,7 +49,6 @@ if (window.readyTestVal !== 0 || ('readyTestVal2' in window)) {
 // Load the test modules
 [
   'Array',
-  'AJAX',
   'Element',
   'Firebolt',
   'Function',
@@ -59,9 +58,11 @@ if (window.readyTestVal !== 0 || ('readyTestVal2' in window)) {
   'NodeList_HTMLCollection',
   'Number',
   'Object',
-  'String',
+  'ajax/shared',
   'data',
-  'php'
+  'php',
+  'string/es6',
+  'string/extras'
 ].forEach(function(module) {
   Firebolt.getScript('unit/' + module + '.js');
 });

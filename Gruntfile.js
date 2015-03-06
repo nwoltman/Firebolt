@@ -75,7 +75,6 @@ module.exports = function(grunt) {
         modules: [
           'core',
           'ajax/basic',
-          'ajax/convenience',
           'data',
           'event',
           'number',
@@ -92,7 +91,6 @@ module.exports = function(grunt) {
         modules: [
           'core',
           'ajax/basic',
-          'ajax/convenience',
           'data',
           'event',
           'string/extras',

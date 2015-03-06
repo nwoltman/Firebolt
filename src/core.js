@@ -35,6 +35,7 @@
 /* exported extend */
 /* exported isEmptyObject */
 /* exported isPlainObject */
+/* exported getClassOf */
 
 (function(
   window,
@@ -1591,57 +1592,6 @@
     return obj && (obj = obj.constructor) && obj.toString().trim().slice(9, 16) == 'Object(';
   }
   Firebolt.isPlainObject = isPlainObject;
-
-  /**
-   * Creates a serialized representation of an array or object, suitable for
-   * use in a URL query string or AJAX request.
-   * 
-   * @function Firebolt.param
-   * @param {Array|Object} obj - An array or object to serialize.
-   * @param {Boolean} traditional - A Boolean indicating whether to perform a traditional "shallow" serialization.
-   * @returns {String} The serialized string representation of the array or object.
-   */
-  Firebolt.param = function serialize(obj, traditional, /*INTERNAL*/ prefix) {
-    var queryString = '',
-      valueIsObject,
-      key,
-      value,
-      cur;
-
-    for (key in obj) {
-      value = obj[key];
-      if (typeof value == 'function') {
-        value = value();
-      }
-      if (value == UNDEFINED) {
-        value = '';
-      }
-
-      if (traditional) {
-        // Add the key
-        queryString += (queryString ? '&' : '') + encodeURIComponent(key);
-
-        // Add the value
-        if (isArray(value)) {
-          for (cur = 0; cur < value.length; cur++) {
-            // Add key again for multiple array values
-            queryString += (cur ? '&' + encodeURIComponent(key) : '') +
-                           '=' + encodeURIComponent(value[cur] == UNDEFINED ? '' : value[cur]);
-          }
-        } else {
-          queryString += '=' + encodeURIComponent(value);
-        }
-      } else if (!(valueIsObject = isArray(value) || getClassOf(value) == 'Object') || !isEmptyObject(value)) {
-        /* Inspired by: http://stackoverflow.com/questions/1714786/querystring-encoding-of-a-javascript-object */
-        cur = prefix ? prefix + '[' + key + ']' : key;
-        queryString += (queryString ? '&' : '') +
-                       (valueIsObject ? serialize(value, traditional, cur)
-                                      : encodeURIComponent(cur) + '=' + encodeURIComponent(value));
-      }
-    }
-
-    return queryString;
-  };
 
   /**
    * Parses a string into an array of DOM nodes.
@@ -3678,10 +3628,10 @@
    * @param {*} obj - Any object/value.
    * @returns {String} The passed in object's [[class]] name.
    */
-  Object.getClassOf = getClassOf;
   function getClassOf(obj) {
     return Object.prototype.toString.call(obj).slice(8, -1);
   }
+  Object.getClassOf = getClassOf;
 
   //#endregion Object
 
