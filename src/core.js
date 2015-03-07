@@ -1010,7 +1010,7 @@
    */
 
   /**
-   * Returns a list of the elements within the element with the specified class name.  
+   * Returns a list of the elements within the element with the specified class name.<br />
    * Alias of `Element.getElementsByClassName()`.
    * 
    * @function Element#CLS
@@ -1020,7 +1020,7 @@
   ElementPrototype.CLS = ElementPrototype.getElementsByClassName;
 
   /**
-   * Returns a list of the elements within the element with the specified tag name.  
+   * Returns a list of the elements within the element with the specified tag name.<br />
    * Alias of `Element.getElementsByTagName()`.
    * 
    * @function Element#TAG
@@ -1030,7 +1030,7 @@
   ElementPrototype.TAG = ElementPrototype.getElementsByTagName;
 
   /**
-   * Returns the first element within the element that matches the specified CSS selector.  
+   * Returns the first element within the element that matches the specified CSS selector.<br />
    * Alias of `Element.querySelector()`.
    * 
    * @function Element#QS
@@ -1040,7 +1040,7 @@
   ElementPrototype.QS = ElementPrototype.querySelector;
 
   /**
-   * Returns a list of the elements within the element that match the specifed CSS selector.  
+   * Returns a list of the elements within the element that match the specifed CSS selector.<br />
    * Alias of `Element.querySelectorAll()`.
    * 
    * @function Element#QSA
@@ -1415,7 +1415,7 @@
   }
 
   /**
-   * Creates a new element with the specified tag name and attributes (optional).  
+   * Creates a new element with the specified tag name and attributes (optional).<br />
    * Partially an alias of `document.createElement()`.
    * 
    * @function Firebolt.elem
@@ -1642,7 +1642,7 @@
   Firebolt.parseHTML = parseHTML;
 
   /**
-   * Specify a function to execute when the DOM is fully loaded.  
+   * Specify a function to execute when the DOM is fully loaded.<br />
    * Executes the function immediately (synchronously) if the DOM has already finished loading.
    * 
    * @function Firebolt.ready
@@ -1689,7 +1689,8 @@
   }
 
   /**
-   * Returns the first element within the document with the specified ID. Can also be called by the alias `$ID()`.  
+   * Returns the first element within the document with the specified ID.
+   * Can also be called by the alias `$ID()`.<br />
    * Alias of `document.getElementById()`.
    * 
    * @global
@@ -1700,7 +1701,8 @@
 
   /**
    * Returns the first element within the document that matches the specified
-   * CSS selector or the element created from the input HTML string.  
+   * CSS selector or the element created from the input HTML string.
+   * 
    * Basically the same thing as `$()`, but only dealing with a single element.
    * 
    * @example
@@ -1736,7 +1738,7 @@
   };
 
   /**
-   * Returns a list of the elements within the document with the specified class name.  
+   * Returns a list of the elements within the document with the specified class name.<br />
    * Alias of `document.getElementsByClassName()`.
    * 
    * @global
@@ -1746,7 +1748,8 @@
    */
 
   /**
-   * Returns the first element within the document with the specified ID. Can also be called by the alias `$$()`.  
+   * Returns the first element within the document with the specified ID.
+   * Can also be called by the alias `$$()`.<br />
    * Alias of `document.getElementById()`.
    * 
    * @global
@@ -1756,7 +1759,7 @@
    */
 
   /**
-   * Returns a set of the elements within the document with the specified name attribute.  
+   * Returns a set of the elements within the document with the specified name attribute.<br />
    * Alias of `document.getElementsByName()`.
    * 
    * @global
@@ -1769,7 +1772,7 @@
   };
 
   /**
-   * Returns the first element within the document that matches the specified CSS selector.  
+   * Returns the first element within the document that matches the specified CSS selector.<br />
    * Alias of `document.querySelector()`.
    * 
    * @global
@@ -1779,7 +1782,7 @@
    */
 
   /**
-   * Returns all elements within the document that match the specified CSS selector.  
+   * Returns all elements within the document that match the specified CSS selector.<br />
    * Alias of `document.querySelectorAll()`.
    * 
    * @global
@@ -1789,7 +1792,7 @@
    */
 
   /**
-   * Returns a set of the elements within the document with the specified tag name.  
+   * Returns a set of the elements within the document with the specified tag name.<br />
    * Alias of `document.getElementsByTagName()`.
    * 
    * @global
@@ -3184,7 +3187,8 @@
   NodeCollectionPrototype.toArray = ArrayPrototype.clone;
 
   /**
-   * Returns a shallow copy of the NodeCollection.  
+   * Returns a shallow copy of the NodeCollection.
+   * 
    * This is mainly just so it can be inherited by {@link NodeList}, but can also be used like {@linkcode Array#clone}.
    * 
    * @function NodeCollection#toNC

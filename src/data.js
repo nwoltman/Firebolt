@@ -151,7 +151,7 @@ Firebolt.hasData = function(object) {
 };
 
 /**
- * Removes a previously stored piece of Firebolt data from an object.  
+ * Removes a previously stored piece of Firebolt data from an object.
  * When called without any arguments, all data is removed.
  * 
  * @function Firebolt.removeData
@@ -159,7 +159,7 @@ Firebolt.hasData = function(object) {
  * @param {String} [name] - The name of the data to remove.
  */
 /**
- * Removes previously stored Firebolt data from an object.  
+ * Removes previously stored Firebolt data from an object.
  * When called without any arguments, all data is removed.
  * 
  * @function Firebolt.removeData
@@ -234,14 +234,14 @@ ElementPrototype.data = function(key, value) {
 };
 
 /**
- * Removes a previously stored piece of Firebolt data.  
+ * Removes a previously stored piece of Firebolt data.
  * When called without any arguments, all data is removed.
  * 
  * @function Element#removeData
  * @param {String} [name] - The name of the data to remove.
  */
 /**
- * Removes previously stored Firebolt data.  
+ * Removes previously stored Firebolt data.
  * When called without any arguments, all data is removed.
  * 
  * @function Element#removeData
@@ -285,14 +285,14 @@ NodeCollectionPrototype.data = getFirstSetEachElement(ElementPrototype.data, fun
 });
 
 /**
- * Removes a previously stored piece of Firebolt data from each element.  
+ * Removes a previously stored piece of Firebolt data from each element.
  * When called without any arguments, all data is removed.
  * 
  * @function NodeCollection#removeData
  * @param {String} [name] - The name of the data to remove.
  */
 /**
- * Removes previously stored Firebolt data from each element.  
+ * Removes previously stored Firebolt data from each element.
  * When called without any arguments, all data is removed.
  * 
  * @function NodeCollection#removeData

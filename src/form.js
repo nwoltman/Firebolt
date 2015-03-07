@@ -46,13 +46,7 @@ HTMLFormElement[prototype].serialize = function() {
 };
 
 /**
- * Encode a set of form elements or form control elements as a string for submission in an HTTP request.  
- * Note that only [successful controls](http://www.w3.org/TR/html401/interact/forms.html#h-17.13.2) will
- * have their values added to the serialized string. All button elements (including file input buttons)
- * are also ignored.
- * 
- * __ProTip:__ The best way to serialize a single form is to select the form element and  call `.serialize()`
- * directly on it (see {@link HTMLElement#serialize}).
+ * @summary Encode a set of form elements or form control elements as a string for submission in a HTTP request.
  * 
  * @function NodeCollection#serialize
  * @returns {String} A URL-encoded string of the elements' serialized values or an empty string if no element
@@ -60,6 +54,14 @@ HTMLFormElement[prototype].serialize = function() {
  * @throws {TypeError} Each element in the collection must be an HTMLElement.
  * @see HTMLElement#serialize
  * @see {@link http://api.jquery.com/serialize/|.serialize() | jQuery API Documentation}
+ * 
+ * @description
+ * Note that only [successful controls](http://www.w3.org/TR/html401/interact/forms.html#h-17.13.2) will
+ * have their values added to the serialized string. All button elements (including file input buttons)
+ * are also ignored.
+ * 
+ * __ProTip:__ The best way to serialize a single form is to select the form element and
+ * call `.serialize()` directly on it (see {@link HTMLElement#serialize}).
  */
 NodeCollectionPrototype.serialize = function() {
   var retStr = '';
@@ -75,8 +77,9 @@ NodeCollectionPrototype.serialize = function() {
 };
 
 /**
- * Retrieves the element's current value. If the element is a `<select>` element, `null` is returned if none of its
- * options are selected and an array of selected options is returned if the element's `multiple` attribute is present.
+ * Retrieves the element's current value. If the element is a `<select>` element,
+ * `null` is returned if none of its options are selected and an array of selected
+ * options is returned if the element's `multiple` attribute is present.
  * 
  * @function HTMLElement#val
  * @returns {String|Array|null} The element's value.
@@ -85,18 +88,24 @@ NodeCollectionPrototype.serialize = function() {
  * Sets the element's value.
  * 
  * @function HTMLElement#val
- * @param {String} value - The value to give to the element.
+ * @param {String|Number} value - The value to give to the element.
  */
 /**
- * Checks the element if its current value is in the input array of values and deselects it otherwise
- * (only `<input>` elements with type `checkbox` or `radio`).  
- * If the element is a `<select>` element, all of its options with a value matching one in the input
- * array of values will be selected and all others deselected. If the select element does not allow
- * multiple selection, only the first matching element is selected.
+ * @summary
+ * Selects and deselects the element (or it's child `<option>` elements)
+ * depending on if its value is in the input array.
  * 
  * @function HTMLElement#val
  * @param {String[]} values - The array of values used to determine if the element (or its options)
  *     should be checked (or selected).
+ * 
+ * @description
+ * For checkbox and radio `<input>` elements, selects the element if its current value is in the
+ * input array of values and deselects it otherwise.
+ * 
+ * If the element is a `<select>` element, all of its `<option>` elements with a value matching one
+ * in the input array of values will be selected and all others deselected. If the select element
+ * does not allow multiple selection, only the first matching element is selected.
  */
 HTMLElementPrototype.val = function(value) {
   // If `value` is not an array with values to check
@@ -146,9 +155,9 @@ HTMLSelectElement[prototype].val = function(value) {
 };
 
 /**
- * Retrieves the current value of the first element in the collection. If the element is a `<select>` element,
- * `null` is returned if none of its options are selected, and an array of selected options is returned if the
- * element's `multiple` attribute is present.
+ * Retrieves the current value of the first element in the collection. If the element is a
+ * `<select>` element, `null` is returned if none of its options are selected, and an array
+ * of selected options is returned if the element's `multiple` attribute is present.
  * 
  * @function NodeCollection#val
  * @returns {String|Array|null} The first element's value.
@@ -157,18 +166,24 @@ HTMLSelectElement[prototype].val = function(value) {
  * Sets the value of each element in the collection.
  * 
  * @function NodeCollection#val
- * @param {String} value - The value to give to each element.
+ * @param {String|Number} value - The value to give to each element.
  */
 /**
- * Checks each element in the collection if its current value is in the input array of values
- * and deselects it otherwise (only `<input>` elements with type `checkbox` or `radio`).  
- * If an element is a `<select>` element, all of its options with a value matching one in the
- * input array of values will be selected and all others deselected. If the `<select>` element
- * does not allow multiple selection, only the first matching element is selected.
+ * @summary
+ * Selects and deselects the element (or it's child `<option>` elements)
+ * depending on if its value is in the input array.
  * 
  * @function NodeCollection#val
  * @param {String[]} values - The array of values used to determine if each element (or its options)
  *     should be checked (or selected).
+ * 
+ * @description
+ * For each checkbox and radio `<input>` element in the collection, selects it if its current value
+ * is in the input array of values and deselects it otherwise.
+ * 
+ * For each `<select>` element in the collection, all of its options with a value matching one in
+ * the input array of values will be selected and all others deselected. If the `<select>` element
+ * does not allow multiple selection, only the first matching element is selected.
  */
 NodeCollectionPrototype.val = function(value) {
   // Get first

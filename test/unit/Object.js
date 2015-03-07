@@ -52,9 +52,9 @@ QUnit.test('.getClassOf', function(assert) {
   /* jshint -W053, -W054 */
 
   assert.expect(19);
-  
+
   assert.ok(Object.getClassOf([]) === 'Array', 'Gets the class of an array.');
-  
+
   assert.ok(Object.getClassOf(false) === 'Boolean', 'Gets the class of a boolean literal.');
 
   assert.ok(Object.getClassOf(new Boolean()) === 'Boolean', 'Gets the class of a constructed boolean.');
@@ -62,21 +62,21 @@ QUnit.test('.getClassOf', function(assert) {
   assert.ok(Object.getClassOf(new Date()) === 'Date', 'Gets the class of a Date object.');
 
   assert.ok(Object.getClassOf(new Error()) === 'Error', 'Gets the class of an Error object.');
-  
+
   assert.ok(Object.getClassOf(function() { }) === 'Function', 'Gets the class of a function literal.');
 
   assert.ok(Object.getClassOf(new Function()) === 'Function', 'Gets the class of a constructed function.');
-  
+
   assert.ok(Object.getClassOf(JSON) === 'JSON', 'Gets the class of the JSON object.');
 
   assert.ok(Object.getClassOf(Math) === 'Math', 'Gets the class of the Math object.');
 
   assert.ok(Object.getClassOf(document.body.childNodes) === 'NodeList', 'Gets the class of a NodeList.');
-  
+
   assert.ok(Object.getClassOf(null) === 'Null', 'Get the the class of `null`.');
-  
+
   assert.ok(Object.getClassOf(1) === 'Number', 'Gets the class of a number literal.');
-  
+
   assert.ok(Object.getClassOf(Infinity) === 'Number', 'Gets the class of `infinity`.');
 
   assert.ok(Object.getClassOf(new Number()) === 'Number', 'Gets the class of a constructed number.');

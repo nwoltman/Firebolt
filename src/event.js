@@ -356,8 +356,10 @@ NodePrototype.on = function on(events, selector, data, handler, /*INTERNAL*/ one
 };
 
 /**
- * Attaches a handler to an event for the node. The handler is executed at most once per event type.  
- * Exactly the same as `Node#on()` except the event handler is removed after it executes for the first time.
+ * Attaches a handler to an event for the node. The handler is executed at most once per event type.
+ * 
+ * This fuction is the same as `Node#on()`, except the event handler is removed after it executes
+ * for the first time.
  * 
  * @function Node#one
  * @param {String} events
@@ -367,8 +369,10 @@ NodePrototype.on = function on(events, selector, data, handler, /*INTERNAL*/ one
  * @see {@link http://api.jquery.com/one/#one-events-selector-data-handler|.one() | jQuery API Documentation}
  */
 /**
- * Attaches a handler to an event for the node. The handler is executed at most once per event type.  
- * Exactly the same as `Node#on()` except the event handler is removed after it executes for the first time.
+ * Attaches a handler to an event for the node. The handler is executed at most once per event type.
+ * 
+ * This function is the same as `Node#on()`, except the event handler is removed after it executes
+ * for the first time.
  * 
  * @function Node#one
  * @param {Object} events
@@ -507,9 +511,11 @@ NodeCollectionPrototype.off = callOnEach(NodePrototype.off);
 NodeCollectionPrototype.on = callOnEach(NodePrototype.on);
 
 /**
- * Attaches a handler to an event for each node in the collection. The handler is executed at most once per node, per
- * event type.  
- * Exactly the same as `NodeCollection#on()` except the event handler is removed after it executes for the first time.
+ * Attaches a handler to an event for each node in the collection.
+ * The handler is executed at most once per node, per event type.
+ * 
+ * This function is the same as `NodeCollection#on()`, except the
+ * event handler is removed after it executes for the first time.
  * 
  * @function NodeCollection#one
  * @param {String} events
@@ -519,9 +525,11 @@ NodeCollectionPrototype.on = callOnEach(NodePrototype.on);
  * @see {@link http://api.jquery.com/one/#one-events-selector-data-handler|.one() | jQuery API Documentation}
  */
 /**
- * Attaches a handler to an event for each node in the collection. The handler is executed at most once per node, per
- * event type.  
- * Exactly the same as `NodeCollection#on()` except the event handler is removed after it executes for the first time.
+ * Attaches a handler to an event for each node in the collection.
+ * The handler is executed at most once per node, per event type.
+ * 
+ * This function is the same as `NodeCollection#on()`, except the
+ * event handler is removed after it executes for the first time.
  * 
  * @function NodeCollection#one
  * @param {Object} events

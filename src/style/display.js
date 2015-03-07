@@ -33,7 +33,8 @@ HTMLElementPrototype.hide = function() {
 };
 
 /**
- * Shows the element if it is hidden.  
+ * Shows the element if it is hidden.
+ *
  * __Note:__ If the element's default display style is 'none' (such as is the case with `<script>` elements),
  * it will not be shown. Also, this method will not show an element if its `visibility` is set to 'hidden' or
  * its `opacity` is `0`.
