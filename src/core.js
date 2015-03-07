@@ -492,9 +492,12 @@
   }
 
   var
+    // Used for subclassing Array and determining things about the browser
+    iframe = createElement('iframe'),
+
     // Browser/Engine detection
     isIOS = /^iP/.test(navigator.platform), // iPhone, iPad, iPod
-    usesWebkit = window.webkitURL,
+    usesWebkit = iframe.style.webkitAppearance !== UNDEFINED,
     webkitNotIOS = usesWebkit && !isIOS,
     usesGecko = window.mozInnerScreenX != UNDEFINED,
 
@@ -619,7 +622,6 @@
     },
 
     /* Misc */
-    iframe = createElement('iframe'), // Used for subclassing Array and determining default CSS values
     timestamp = Date.now(),
     readyCallbacks = [];
 
