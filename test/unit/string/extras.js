@@ -27,18 +27,14 @@ QUnit.test('String#escapeHTML', function(assert) {
 });
 
 QUnit.test('String#toCamelCase', function(assert) {
-  if (document.documentMode) { // Fuck IE
-    assert.expect(0);
-    return;
-  }
+  assert.equal('background-color'.toCamelCase(), 'backgroundColor',
+    'correctly converts "background-color" to camelCase.');
 
-  var styleObject = getComputedStyle(document.documentElement);
+  assert.equal('z-index'.toCamelCase(), 'zIndex',
+    'correctly converts "z-index" to camelCase.');
 
-  for (var i = 0; i < styleObject.length; i++) {
-    var camel = styleObject[i].toCamelCase();
-    assert.ok((camel in styleObject) || camel === 'MozOsxFontSmoothing' || camel === 'float',
-      'Correctly camelizes "' + styleObject[i] + '"');
-  }
+  assert.equal('-moz-osx-font-smoothing'.toCamelCase(), 'MozOsxFontSmoothing',
+    'correctly converts "-moz-osx-font-smoothing" to camelCase.');
 });
 
 QUnit.test('String#tokenize', function(assert) {
