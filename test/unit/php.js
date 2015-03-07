@@ -10,7 +10,10 @@ QUnit.module('php');
 
 QUnit.test('Firebolt._GET', function(assert) {
   // Can't run these tests if the history.replaceState function does not exist (just IE 9)
-  if (!('replaceState' in window.history)) return;
+  if (!('replaceState' in window.history)) {
+    assert.expect(0);
+    return;
+  }
 
   var queryString = location.search; // Preserve for cleanup
 
