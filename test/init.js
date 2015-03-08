@@ -48,21 +48,23 @@ if (window.readyTestVal !== 0 || ('readyTestVal2' in window)) {
 
 // Load the test modules
 [
-  'Array',
-  'Element',
-  'Firebolt',
-  'Globals',
-  'HTMLElement',
-  'NodeCollection',
-  'NodeList_HTMLCollection',
-  'Number',
-  'Object',
   'ajax/shared',
+  'core/Array',
+  'core/Element',
+  'core/Firebolt',
+  'core/Globals',
+  'core/HTMLElement',
+  'core/NodeCollection',
+  'core/NodeList_HTMLCollection',
+  'core/Object',
   'data',
+  'Number',
   'php',
   'string/es6',
   'string/extras',
   'timing'
 ].forEach(function(module) {
-  Firebolt.getScript('unit/' + module + '.js');
+  var script = document.createElement('script');
+  script.src = 'unit/' + module + '.js';
+  document.body.appendChild(script);
 });
