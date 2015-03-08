@@ -3441,7 +3441,9 @@
    * browsers (mainly just the `window` and `document` objects). The only objects
    * that are guaranteed to produce consistent results are those that are defined
    * in the ECMAScript specification, but modern browsers are consistent enough
-   * that this function will produce consistent output for most inputs.
+   * that this function will produce consistent output for most inputs. Also,
+   * getting the class of `null` or `undefined` does not work on browsers that
+   * do not support strict mode.
    * 
    * @example
    * Object.getClassOf([]);       // -> "Array"
