@@ -48,7 +48,9 @@ QUnit.test('$1', function(assert) {
 });
 
 QUnit.test('$CLS', function(assert) {
-  assert.equal(window.$CLS('class1'), document.getElementsByClassName('class1'),
+  var result = window.$CLS('class1');
+  var expected = document.getElementsByClassName('class1');
+  assert.ok(result.constructor === expected.constructor && result.equals(expected),
     'Acts as an alias for document.getElementsByClassName');
 });
 
@@ -57,7 +59,9 @@ QUnit.test('$ID', function(assert) {
 });
 
 QUnit.test('$NAME', function(assert) {
-  assert.equal(window.$NAME('name1'), document.getElementsByName('name1'),
+  var result = window.$NAME('name1');
+  var expected = document.getElementsByName('name1');
+  assert.ok(result.constructor === expected.constructor && result.equals(expected),
     'Acts as an alias for document.getElementsByName');
 });
 
@@ -67,11 +71,15 @@ QUnit.test('$QS', function(assert) {
 });
 
 QUnit.test('$QSA', function(assert) {
-  assert.deepEqual(window.$QSA('body > div'), document.querySelectorAll('body > div'),
+  var result = window.$QSA('body > div');
+  var expected = document.querySelectorAll('body > div');
+  assert.ok(result.constructor === expected.constructor && result.equals(expected),
     'Acts as an alias for document.querySelectorAll');
 });
 
 QUnit.test('$TAG', function(assert) {
-  assert.equal(window.$TAG('div'), document.getElementsByTagName('div'),
+  var result = window.$TAG('div');
+  var expected = document.getElementsByTagName('div');
+  assert.ok(result.constructor === expected.constructor && result.equals(expected),
     'Acts as an alias for document.getElementsByTagName');
 });
