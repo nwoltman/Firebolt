@@ -1159,7 +1159,7 @@
    * // </div>
    * 
    * // JavaScript
-   * $ID('mydiv').empty();
+   * $$('mydiv').empty();
    *
    * // HTML (after)
    * // <div id="mydiv"></div>
