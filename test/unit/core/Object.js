@@ -6,7 +6,7 @@
 /// <reference path="../node_modules/qunitjs/qunit/qunit.js"/>
 /// <reference path="../../src/firebolt.js"/>
 
-QUnit.module('Object');
+QUnit.module('core/Object');
 
 QUnit.test('.each', function(assert) {
   assert.expect(9);

@@ -1,34 +1,34 @@
 ﻿/**
- * Unit tests for Element.prototype
+ * Unit tests for Element
  */
 
 // References for Resharper
 /// <reference path="../node_modules/qunitjs/qunit/qunit.js"/>
 /// <reference path="../../src/firebolt.js"/>
 
-QUnit.module('Element.prototype');
+QUnit.module('core/Element');
 
-QUnit.test('CLS', function(assert) {
+QUnit.test('#CLS', function(assert) {
   assert.strictEqual(Element.prototype.CLS, Element.prototype.getElementsByClassName,
     'Has the `getElementsByClassName()` alias function.');
 });
 
-QUnit.test('TAG', function(assert) {
+QUnit.test('#TAG', function(assert) {
   assert.strictEqual(Element.prototype.TAG, Element.prototype.getElementsByTagName,
     'Has the `getElementsByTagName()` alias function.');
 });
 
-QUnit.test('QS', function(assert) {
+QUnit.test('#QS', function(assert) {
   assert.strictEqual(Element.prototype.QS, Element.prototype.querySelector,
     'Has the `querySelector()` alias function.');
 });
 
-QUnit.test('QSA', function(assert) {
+QUnit.test('#QSA', function(assert) {
   assert.strictEqual(Element.prototype.QSA, Element.prototype.querySelectorAll,
     'Has the `querySelectorAll()` alias function.');
 });
 
-QUnit.test('afterPut', function(assert) {
+QUnit.test('#afterPut', function(assert) {
   var element = document.createElement('div');
   document.getElementById('qunit-fixture').appendChild(element);
 
@@ -57,7 +57,7 @@ QUnit.test('afterPut', function(assert) {
     'Can put several arguments of different types after the element.');
 });
 
-QUnit.test('appendWith', function(assert) {
+QUnit.test('#appendWith', function(assert) {
   var element = document.getElementById('qunit-fixture');
 
   var node = document.createElement('span');
@@ -85,7 +85,7 @@ QUnit.test('appendWith', function(assert) {
     'Can append several arguments of different types to the element.');
 });
 
-QUnit.test('beforePut', function(assert) {
+QUnit.test('#beforePut', function(assert) {
   var element = document.createElement('div');
   document.getElementById('qunit-fixture').appendChild(element);
 
@@ -114,7 +114,7 @@ QUnit.test('beforePut', function(assert) {
     'Can put several arguments of different types before the element.');
 });
 
-QUnit.test('attr', function(assert) {
+QUnit.test('#attr', function(assert) {
   var el = document.createElement('div');
 
   assert.equal(el.attr('data-test', 'a'), el, 'Returns the element when setting a single attribute.');
@@ -143,7 +143,7 @@ QUnit.test('attr', function(assert) {
     'Removes an attribute if attempting to set it to undefined when setting multiple attributes.');
 });
 
-QUnit.test('empty', function(assert) {
+QUnit.test('#empty', function(assert) {
   var element = document.getElementById('qunit-fixture');
 
   element.innerHTML = '<div>\n  <p>para<span>graph</span></p> text?\n</div>\n<ul><li>list</li></ul>';
@@ -153,7 +153,7 @@ QUnit.test('empty', function(assert) {
   assert.strictEqual(element.firstChild, null, 'Removes all of the element\'s contents.');
 });
 
-QUnit.test('find', function(assert) {
+QUnit.test('#find', function(assert) {
   assert.expect(4);
 
   var div = document.createElement('div'),
@@ -179,7 +179,7 @@ QUnit.test('find', function(assert) {
   } 
 });
 
-QUnit.test('html', function(assert) {
+QUnit.test('#html', function(assert) {
   var element = document.getElementById('qunit-fixture');
   var htmlString = '<div>\n  <p>para<span>graph</span></p> text?\n</div>\n<ul><li>list</li></ul>'; 
 
@@ -192,7 +192,7 @@ QUnit.test('html', function(assert) {
   assert.strictEqual(element.html(), element.innerHTML, 'Directly returns the element\'s inner HTML string.');
 });
 
-QUnit.test('matches', function(assert) {
+QUnit.test('#matches', function(assert) {
   var iframe = document.createElement('iframe');
   document.getElementById('qunit-fixture').appendChild(iframe);
 
@@ -211,7 +211,7 @@ QUnit.test('matches', function(assert) {
   }
 });
 
-QUnit.test('prependWith', function(assert) {
+QUnit.test('#prependWith', function(assert) {
   var element = document.getElementById('qunit-fixture');
 
   var node = document.createElement('span');
@@ -239,7 +239,7 @@ QUnit.test('prependWith', function(assert) {
     'Can prepend the element with several arguments of different types.');
 });
 
-QUnit.test('prop', function(assert) {
+QUnit.test('#prop', function(assert) {
   var el = document.createElement('div');
 
   assert.strictEqual(el.prop('testProp', 1), el, 'Returns the element when setting a single property.');
@@ -250,7 +250,7 @@ QUnit.test('prop', function(assert) {
   assert.ok(el.p1 === 1 && el.p2 === 2, 'Sets multiple properties when passed in an object of key-value pairs.');
 });
 
-QUnit.test('removeAttr', function(assert) {
+QUnit.test('#removeAttr', function(assert) {
   var el = document.createElement('div');
   el.setAttribute('class', 'mydiv');
 
@@ -258,7 +258,7 @@ QUnit.test('removeAttr', function(assert) {
   assert.strictEqual(el.getAttribute('class'), null, 'Successfully removes the attribute from the element.');
 });
 
-QUnit.test('removeProp', function(assert) {
+QUnit.test('#removeProp', function(assert) {
   var el = document.createElement('div');
   el.testProp = 1;
 

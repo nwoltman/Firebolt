@@ -6,7 +6,7 @@
 /// <reference path="../node_modules/qunitjs/qunit/qunit.js"/>
 /// <reference path="../../src/firebolt.js"/>
 
-QUnit.module('HTMLElement.prototype');
+QUnit.module('core/HTMLElement');
 
 function areClassNamesEquivalent(classA, classB) {
   var rgxWhitespace = /\s+/;
@@ -23,7 +23,7 @@ function areClassNamesEquivalent(classA, classB) {
   return true;
 }
 
-QUnit.test('addClass', function(assert) {
+QUnit.test('#addClass', function(assert) {
   var element = document.createElement('div');
   var tests = [
     // #1
@@ -62,7 +62,7 @@ QUnit.test('addClass', function(assert) {
   }
 });
 
-QUnit.test('removeClass', function(assert) {
+QUnit.test('#removeClass', function(assert) {
   var element = document.createElement('div');
   var tests = [
     // #1
@@ -104,7 +104,7 @@ QUnit.test('removeClass', function(assert) {
   }
 });
 
-QUnit.test('toggleClass', function(assert) {
+QUnit.test('#toggleClass', function(assert) {
   var element = document.createElement('div');
   var tests = [
     // #1

@@ -6,7 +6,7 @@
 /// <reference path="../node_modules/qunitjs/qunit/qunit.js"/>
 /// <reference path="../../src/firebolt.js"/>
 
-QUnit.module('Array');
+QUnit.module('core/Array');
 
 QUnit.test('.from', function(assert) {
   var arrayLike = {0: 'a', 1: 'b', length: 2};

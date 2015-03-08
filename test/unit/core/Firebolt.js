@@ -6,7 +6,7 @@
 /// <reference path="../node_modules/qunitjs/qunit/qunit.js"/>
 /// <reference path="../../src/firebolt.js"/>
 
-QUnit.module('Firebolt');
+QUnit.module('core/Firebolt');
 
 QUnit.test('Firebolt', function(assert) {
   var selectors = {
@@ -47,7 +47,7 @@ QUnit.test('Firebolt', function(assert) {
     'Creates elements when the first character in the string is a "<".');
 });
 
-QUnit.test('elem', function(assert) {
+QUnit.test('.elem', function(assert) {
   var element = Firebolt.elem('div');
   assert.ok(element.nodeType === 1 && element.nodeName === 'DIV', 'Creates a new Element.');
 
@@ -56,7 +56,7 @@ QUnit.test('elem', function(assert) {
     'Creates a new element with the specified properties');
 });
 
-QUnit.test('extend', function(assert) {
+QUnit.test('.extend', function(assert) {
   assert.expect(30);
 
   var empty, optionsWithLength, optionsWithDate, MyKlass,
@@ -179,12 +179,12 @@ QUnit.test('extend', function(assert) {
   assert.ok(!Array.isArray(result.object), 'result.object was not paved with an empty array');
 });
 
-QUnit.test('fn', function(assert) {
+QUnit.test('.fn', function(assert) {
   assert.strictEqual(Firebolt.fn, NodeCollection.prototype,
     'Firebolt.fn is an alias for NodeCollection.prototype');
 });
 
-QUnit.test('frag', function(assert) {
+QUnit.test('.frag', function(assert) {
   var fragment = Firebolt.frag(),
     nodes,
     node;
@@ -223,7 +223,7 @@ QUnit.test('frag', function(assert) {
                + ' its size by more than 1 when an element in it is appended to the fragment.');
 });
 
-QUnit.test('globalEval', function(assert) {
+QUnit.test('.globalEval', function(assert) {
   Firebolt.globalEval('var globalEvalTest1 = true;');
   assert.strictEqual(window.globalEvalTest1, true, 'Executes the passed in code in the global context.');
 
@@ -232,7 +232,7 @@ QUnit.test('globalEval', function(assert) {
     'Executes code with a strict mode pragma in the global context.');
 });
 
-QUnit.test('isEmpty', function func(assert) {
+QUnit.test('.isEmpty', function func(assert) {
   // False
   assert.ok(!Firebolt.isEmpty(0));
   assert.ok(!Firebolt.isEmpty(1));
@@ -262,7 +262,7 @@ QUnit.test('isEmpty', function func(assert) {
   assert.ok(Firebolt.isEmpty(new CustomObject()));
 });
 
-QUnit.test('isEmptyObject', function(assert) {
+QUnit.test('.isEmptyObject', function(assert) {
   // True
   assert.equal(Firebolt.isEmptyObject({}), true, 'An object with no properties is an empty object.');
   assert.equal(Firebolt.isEmptyObject([]), true, 'An empty array is an empty object.');
@@ -271,7 +271,7 @@ QUnit.test('isEmptyObject', function(assert) {
   assert.equal(Firebolt.isEmptyObject({a: 1}), false, 'An object with a property is not an empty object.');
 });
 
-QUnit.test('isPlainObject', function func(assert) {
+QUnit.test('.isPlainObject', function func(assert) {
   // False
   assert.ok(!Firebolt.isPlainObject(1));
   assert.ok(!Firebolt.isPlainObject('string'));
@@ -296,7 +296,7 @@ QUnit.test('isPlainObject', function func(assert) {
   assert.ok(Firebolt.isPlainObject({}));
 });
 
-QUnit.test("param", function(assert) {
+QUnit.test('.param', function(assert) {
   assert.expect(25);
 
   var params = {foo: 'bar', 'baz': 42, quux: 'All your base are belong to us'};
@@ -400,7 +400,7 @@ QUnit.test("param", function(assert) {
     'Allow non-native constructed objects');
 });
 
-QUnit.test('parseHTML', function(assert) {
+QUnit.test('.parseHTML', function(assert) {
   var fixture = document.getElementById('qunit-fixture'),
     iframe = document.createElement('iframe'),
     element, elements;
@@ -458,7 +458,7 @@ QUnit.test('parseHTML', function(assert) {
     'Can make and return a single node in the context of another document.');
 });
 
-QUnit.test('ready', function(assert) {
+QUnit.test('.ready', function(assert) {
   assert.expect(3);
 
   assert.strictEqual(window.readyTestVal, 1, 'Calls a callback when the page is ready.');
@@ -472,7 +472,7 @@ QUnit.test('ready', function(assert) {
     'The ready function is called immediately if the ready event has already fired.');
 });
 
-QUnit.test('text', function(assert) {
+QUnit.test('.text', function(assert) {
   var text = Firebolt.text('hello');
   assert.ok(text.nodeType === 3 && text.nodeValue === 'hello',
     'Creates a new TextNode with the specified string value.');

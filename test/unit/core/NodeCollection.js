@@ -6,7 +6,7 @@
 /// <reference path="../node_modules/qunitjs/qunit/qunit.js"/>
 /// <reference path="../../src/firebolt.js"/>
 
-QUnit.module('NodeCollection');
+QUnit.module('core/NodeCollection');
 
 QUnit.test('#toArray', function(assert) {
   assert.expect(2);
