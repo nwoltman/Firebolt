@@ -10,6 +10,13 @@
 'use strict';
 
 
+//#region VARS
+
+var rgxHtmlEnc = /[<>&"'\x00]/g;
+
+//#endregion VARS
+
+
 /**
   * @class String
   * @classdesc The native JavaScript String class.
@@ -37,6 +44,23 @@ function camelize(str) {
   return res;
 }
 
+/**
+ * Returns the HTML-encoding of certain characters.
+ * 
+ * @private
+ * @param {String} c - The character to encode.
+ * @returns {String}
+ * @see String#escapeHTML
+ */
+function encodeChar(c) {
+  return c == '<' ? '&lt;' :
+         c == '>' ? '&gt;' :
+         c == '&' ? '&amp;' :
+         c == '"' ? '&quot;' :
+         c == "'" ? '&#39;' : // jshint ignore:line
+         '';
+}
+
 definePrototypeExtensionsOn(String[prototype], {
   /**
    * Appends query string parameters to a URL.
@@ -54,17 +78,26 @@ definePrototypeExtensionsOn(String[prototype], {
   },
 
   /**
-   * HTML-encodes the string by converting HTML special characters to their
-   * entity equivalents and returns the result.
+   * HTML-encodes the string by converting special characters to their
+   * HTML entity equivalent and returns the result.
+   * 
+   * Specifically, the following encodings occur:
+   * 
+   * + `<` -> `&lt;`
+   * + `>` -> `&gt;`
+   * + `&` -> `&amp;`
+   * + `"` -> `&quot;`
+   * + `'` -> `&#39;`
    * 
    * @example
-   * '<img src="//somesite.com" />'.escapeHTML();  // -> '&lt;img src="//somesite.com" /&gt;'
+   * '<img src="//somesite.com" />'.escapeHTML();
+   * // -> '&lt;img src=&quote;//somesite.com&quote; /&gt;'
    * 
    * @function String#escapeHTML
    * @returns {String} The HTML-escaped text.
    */
   escapeHTML: function() {
-    return createElement('div').text(this).innerHTML;
+    return this.replace(rgxHtmlEnc, encodeChar);
   },
 
   /**
@@ -103,11 +136,12 @@ definePrototypeExtensionsOn(String[prototype], {
   },
 
   /**
-   * HTML-decodes the string by converting entities of HTML special
+   * HTML-decodes the string by converting HTML entities of special
    * characters to their normal form and returns the result.
    * 
    * @example
-   * '&lt;img src="//somesite.com" /&gt;'.unescapeHTML();  // -> '<img src="//somesite.com" />'
+   * '&lt;img src=&quote;//somesite.com&quote; /&gt;'.unescapeHTML();
+   * // -> '<img src="//somesite.com" />'
    * 
    * @function String#unescapeHTML
    * @returns {String} The HTML-unescaped text.

@@ -20,8 +20,11 @@ QUnit.test('String#appendParams', function(assert) {
 });
 
 QUnit.test('String#escapeHTML', function(assert) {
-  assert.equal('<img src="site.com" data-a="a&b\'c" />'.escapeHTML(), '&lt;img src="site.com" data-a="a&amp;b\'c" /&gt;',
-    'Escapes "<", ">", and "&".');
+  assert.equal(
+    '<img src="site.com" data-a="a&b\'c" />'.escapeHTML(),
+    '&lt;img src=&quot;site.com&quot; data-a=&quot;a&amp;b&#39;c&quot; /&gt;',
+    'Escapes `<`, `>`, `&`, `"`, and `\'`.'
+  );
 
   assert.equal('  a& \n\t  '.escapeHTML(), '  a&amp; \n\t  ', 'Preserves whitespace.');
 });
@@ -52,8 +55,11 @@ QUnit.test('String#tokenize', function(assert) {
 });
 
 QUnit.test('String#unescapeHTML', function(assert) {
-  assert.equal('&lt;img src="site.com" data-a="a&amp;b\'c" /&gt;'.unescapeHTML(), '<img src="site.com" data-a="a&b\'c" />',
-    'Unescapes "<", ">", and "&".');
+  assert.equal(
+    '&lt;img src=&quot;site.com&quot; data-a=&quot;a&amp;b&#39;c&quot; /&gt;'.unescapeHTML(),
+    '<img src="site.com" data-a="a&b\'c" />',
+    'Unescapes `<`, `>`, `&`, `"`, and `\'`.'
+  );
 
   assert.equal('  a&amp; \n\t  '.unescapeHTML(), '  a& \n\t  ', 'Preserves whitespace.');
 });
