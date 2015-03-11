@@ -1,11 +1,3 @@
-/**
- * Unit tests for NodeList/HTMLCollection
- */
-
-// References for Resharper
-/// <reference path="../node_modules/qunitjs/qunit/qunit.js"/>
-/// <reference path="../../src/firebolt.js"/>
-
 QUnit.module('core/NodeList_HTMLCollection');
 
 QUnit.test('has correct functions', function(assert) {

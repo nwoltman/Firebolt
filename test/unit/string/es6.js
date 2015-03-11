@@ -1,11 +1,3 @@
-/**
- * Unit tests for the string/es6 module
- */
-
-// References for Resharper
-/// <reference path="../node_modules/qunitjs/qunit/qunit.js"/>
-/// <reference path="../../src/firebolt.js"/>
-
 QUnit.module('string/es6');
 
 QUnit.test('String#endsWith', function(assert) {

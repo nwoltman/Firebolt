@@ -1,12 +1,4 @@
-﻿/**
- * Unit tests for HTMLElement
- */
-
-// References for Resharper
-/// <reference path="../node_modules/qunitjs/qunit/qunit.js"/>
-/// <reference path="../../src/firebolt.js"/>
-
-QUnit.module('core/HTMLElement');
+﻿QUnit.module('core/HTMLElement');
 
 function areClassNamesEquivalent(classA, classB) {
   var rgxWhitespace = /\s+/;

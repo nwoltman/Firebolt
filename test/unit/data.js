@@ -1,12 +1,4 @@
-﻿/**
- * Unit tests for the data module
- */
-
-// References for Resharper
-/// <reference path="../node_modules/qunitjs/qunit/qunit.js"/>
-/// <reference path="../../src/firebolt.js"/>
-
-QUnit.module('data');
+﻿QUnit.module('data');
 
 QUnit.test('Firebolt.data()', function(assert) {
   var object = {};

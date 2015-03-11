@@ -1,12 +1,4 @@
-﻿/**
- * Unit tests for Element
- */
-
-// References for Resharper
-/// <reference path="../node_modules/qunitjs/qunit/qunit.js"/>
-/// <reference path="../../src/firebolt.js"/>
-
-QUnit.module('core/Element');
+﻿QUnit.module('core/Element');
 
 QUnit.test('#CLS', function(assert) {
   assert.strictEqual(Element.prototype.CLS, Element.prototype.getElementsByClassName,

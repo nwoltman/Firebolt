@@ -1,12 +1,4 @@
-﻿/**
- * Unit tests for the number/extras module
- */
-
-// References for Resharper
-/// <reference path="../node_modules/qunitjs/qunit/qunit.js"/>
-/// <reference path="../../src/firebolt.js"/>
-
-QUnit.module('number/extras');
+﻿QUnit.module('number/extras');
 
 QUnit.test('Number#toPaddedString', function(assert) {
   assert.expect(7);

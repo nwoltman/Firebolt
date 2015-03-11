@@ -1,12 +1,4 @@
-﻿/**
- * Unit tests for Object
- */
-
-// References for Resharper
-/// <reference path="../node_modules/qunitjs/qunit/qunit.js"/>
-/// <reference path="../../src/firebolt.js"/>
-
-QUnit.module('core/Object');
+﻿QUnit.module('core/Object');
 
 QUnit.test('.each', function(assert) {
   assert.expect(9);

@@ -1,12 +1,4 @@
-﻿/**
- * Unit tests for the php module
- */
-
-// References for Resharper
-/// <reference path="../node_modules/qunitjs/qunit/qunit.js"/>
-/// <reference path="../../src/firebolt.js"/>
-
-QUnit.module('php');
+﻿QUnit.module('php');
 
 QUnit.test('Firebolt._GET', function(assert) {
   // Can't run these tests if the history.replaceState function does not exist (just IE 9)

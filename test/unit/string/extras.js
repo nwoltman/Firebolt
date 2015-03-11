@@ -1,11 +1,3 @@
-/**
- * Unit tests for the string/extras module
- */
-
-// References for Resharper
-/// <reference path="../node_modules/qunitjs/qunit/qunit.js"/>
-/// <reference path="../../src/firebolt.js"/>
-
 QUnit.module('string/extras');
 
 QUnit.test('String#appendParams', function(assert) {

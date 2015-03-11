@@ -1,12 +1,4 @@
-﻿/**
- * Unit tests for the timing module
- */
-
-// References for Resharper
-/// <reference path="../node_modules/qunitjs/qunit/qunit.js"/>
-/// <reference path="../../src/firebolt.js"/>
-
-QUnit.module('timing');
+﻿QUnit.module('timing');
 
 QUnit.test('Function#delay', function(assert) {
   assert.expect(16);

@@ -1,11 +1,3 @@
-/**
- * Unit tests for the Firebolt function and namespace
- */
-
-// References for Resharper
-/// <reference path="../node_modules/qunitjs/qunit/qunit.js"/>
-/// <reference path="../../src/firebolt.js"/>
-
 QUnit.module('core/Firebolt');
 
 QUnit.test('Firebolt', function(assert) {
