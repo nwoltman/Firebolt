@@ -111,7 +111,7 @@ QUnit.test('Function#delay', function(assert) {
 });
 
 QUnit.test('Function#every', function(assert) {
-  assert.expect(18);
+  assert.expect(19);
 
   var args = ['a', 2, {arg: 3}];
 
@@ -193,22 +193,26 @@ QUnit.test('Function#every', function(assert) {
   }).every(50);
 
   ref6.exec(false);
+  assert.equal(testVal6, 1, 'Calling `.exec(false)` executes the function immediately.');
 
   setTimeout(function() {
     assert.equal(testVal6, 2,
-      'Calling `.exec()` with the parameter `false` does not cancel the delayed callback.');
+      'Calling `.exec(false)` does not cancel the delayed callback.');
 
-    // Actually test that every() is using setInterval()
+    // Set to `false` to test if it will get set to `true` on the next interval
     ref6.hasExecuted = false;
-    setTimeout(function() {
-      assert.equal(testVal6, 3, 'Causes the function to be executed repeatedly at regular intervals.');
-
-      assert.equal(ref6.hasExecuted, true, 'Resets `.hasExecuted` to `true` each time the function runs.');
-
-      ref6.cancel();
-      done6();
-    }, 50);
   }, 50);
+
+  setTimeout(function() {
+    assert.equal(testVal6, 3,
+      'Causes the function to be executed repeatedly at regular intervals.');
+
+    assert.strictEqual(ref6.hasExecuted, true,
+      'Resets `.hasExecuted` to `true` each time the function executes.');
+
+    ref6.cancel();
+    done6();
+  }, 120);
 
 
   var done7 = assert.async();
