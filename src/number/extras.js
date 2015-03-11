@@ -1,7 +1,7 @@
 ﻿/**
  * Extends Number.prototype with extra functionality.
  * 
- * @module number
+ * @module number/extras
  * @requires core
  */
 
