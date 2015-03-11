@@ -204,7 +204,7 @@ QUnit.test('Function#every', function(assert) {
 
     ref6.cancel();
     done6();
-  }, 120);
+  }, 130);
 
 
   var done7 = assert.async();
