@@ -137,7 +137,14 @@ function getTimingFunction(setTiming, clearTiming) {
       }
     };
 
-    thisArg = thisArg || !isArray(args) && args || callbackObject;
+    if (!thisArg) {
+      if (isArray(args)) {
+        thisArg = callbackObject;
+      } else {
+        thisArg = args;
+        args = UNDEFINED;
+      }
+    }
 
     return callbackObject;
   };
