@@ -58,6 +58,7 @@ if (window.readyTestVal !== 0 || ('readyTestVal2' in window)) {
   'core/NodeList_HTMLCollection',
   'core/Object',
   'data',
+  'number/es6',
   'number/extras',
   'php',
   'string/es6',
