@@ -27,9 +27,10 @@ FireboltBuilder.prototype.buildSync = function(configModules) {
   var src = this.src;
   var rgxVarsAndMain = /^(?:\s*\/\/#region VARS\s*([\S\s]*?)\s*\/\/#endregion VARS)?\s*([\S\s]*?)\s*$/;
   var modules = ['core']; // Core is required
-  var moduleCode = Object.create(null);
-  var moduleNCFuncs = Object.create(null);
-  var moduleOverrides = Object.create(null);
+  var moduleCode = {};
+  var moduleNCFuncs = {};
+  var moduleOverrides = {};
+  var moduleClosureGlobals = {};
 
   function readModuleFileSync(module) {
     return fs.readFileSync(src + '/' + module + '.js', {encoding: 'utf8'});
@@ -39,8 +40,6 @@ FireboltBuilder.prototype.buildSync = function(configModules) {
     var code = readModuleFileSync(module);
     var parts = code.split('\'use strict\';');
     var header = parts[0];
-
-    moduleCode[module] = parts[1];
 
     // Parse dependencies
     var deps = header.match(/@requires [\w\/]+/g) || [];
@@ -54,11 +53,19 @@ FireboltBuilder.prototype.buildSync = function(configModules) {
       moduleNCFuncs[module] = '\'' + ncfuncsMatch[1].replace(/,/g, '') + ' \' +';
     }
 
+    // Parse required global closure variables
+    var closureGlobalsMatch = /@closure_globals\s+(.*?)\s*$/m.exec(header);
+    if (closureGlobalsMatch) {
+      moduleClosureGlobals[module] = closureGlobalsMatch[1].split(/,\s*/);
+    }
+
     // Parse override
     var override = /@overrides ([\w\/]+)/.exec(header);
     if (override) {
       moduleOverrides[module] = override[1];
     }
+
+    moduleCode[module] = parts[1];
 
     return deps;
   }
@@ -107,6 +114,7 @@ FireboltBuilder.prototype.buildSync = function(configModules) {
   var vars = [];
   var mains = [];
   var ncfuncs = [];
+  var closureGlobals = [];
   for (i = 0; i < modules.length; i++) {
     var moduleName = modules[i];
     var parts = rgxVarsAndMain.exec(moduleCode[moduleName]);
@@ -126,14 +134,31 @@ FireboltBuilder.prototype.buildSync = function(configModules) {
     if (moduleName in moduleNCFuncs) {
       ncfuncs.push(moduleNCFuncs[moduleName]);
     }
+
+    if (moduleName in moduleClosureGlobals) {
+      var modClosureGlobals = moduleClosureGlobals[moduleName];
+      for (j = 0; j < modClosureGlobals.length; j++) {
+        var closureGlobal = modClosureGlobals[j];
+        if (closureGlobals.indexOf(closureGlobal) < 0) {
+          closureGlobals.push(closureGlobal);
+        }
+      }
+    }
   }
 
   function indent(text) {
     return text.replace(/^.+/gm, '  $&');
   }
 
+  var closureGlobalsString = '';
+  if (closureGlobals.length) {
+    closureGlobalsString = EOL + '  ' + closureGlobals.join(',' + EOL + '  ');
+  }
+
   var code =
     readModuleFileSync('core')
+      .replace(/\s*\/\/ CLOSURE_GLOBALS/, closureGlobalsString ? closureGlobalsString + ',' : '')
+      .replace(/\s*\/\/ CLOSURE_GLOBALS/, closureGlobalsString ? ',' + closureGlobalsString : '')
       .replace(
         '//#region MODULE_VARS',
         // Use a function to create the replacement string so that `$*` special

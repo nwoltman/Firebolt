@@ -3,6 +3,8 @@
  * 
  * @module php
  * @requires core
+ * 
+ * @closure_globals decodeURIComponent, encodeURIComponent
  */
 
 'use strict';

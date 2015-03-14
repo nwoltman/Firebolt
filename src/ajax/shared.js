@@ -4,6 +4,8 @@
  * @module ajax/shared
  * @requires core
  * @requiredBy ajax/basic, ajax/extended
+ * 
+ * @closure_globals encodeURIComponent
  */
 
 /* global ajaxSettings */

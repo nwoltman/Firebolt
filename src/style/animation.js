@@ -7,6 +7,8 @@
  * @requires style/css
  * @requires style/easing/basic
  * @requires private/keys
+ *
+ * @closure_globals parseFloat
  * @ncfuncs animate, fadeIn, fadeOut, fadeToggle, finish, slideDown, slideToggle, slideUp, stop
  */
 

@@ -5,6 +5,8 @@
  * @module form
  * @requires core
  * @requires ajax/basic
+ * 
+ * @closure_globals encodeURIComponent
  */
 
 'use strict';

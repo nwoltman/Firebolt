@@ -3,6 +3,8 @@
  * 
  * @module display
  * @requires core
+ * 
+ * @closure_globals getComputedStyle
  * @ncfuncs hide, show, toggle
  */
 

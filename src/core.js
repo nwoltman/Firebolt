@@ -40,14 +40,9 @@
 (function(
   window,
   document,
-  Array,
   Object,
-  decodeURIComponent,
-  encodeURIComponent,
-  getComputedStyle,
-  parseFloat,
-  setTimeout,
-  clearTimeout,
+  Array,
+  // CLOSURE_GLOBALS
   UNDEFINED
 ) {
   'use strict';
@@ -3468,14 +3463,9 @@
   //#region MODULES
   //#endregion MODULES
 })(
-  self,
+  self, // (window)
   document,
-  Array,
   Object,
-  decodeURIComponent,
-  encodeURIComponent,
-  getComputedStyle,
-  parseFloat,
-  setTimeout,
-  clearTimeout
+  Array
+  // CLOSURE_GLOBALS
 );

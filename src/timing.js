@@ -3,6 +3,8 @@
  * 
  * @module timing
  * @requires core
+ *
+ * @closure_globals setTimeout, clearTimeout
  */
 
 'use strict';

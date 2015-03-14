@@ -6,6 +6,8 @@
  * @requires core
  * @requires ajax/shared
  * @requires string/extras
+ * 
+ * @closure_globals setTimeout, clearTimeout
  */
 
 'use strict';
