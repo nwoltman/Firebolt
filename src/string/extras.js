@@ -53,11 +53,11 @@ function camelize(str) {
  * @see String#escapeHTML
  */
 function encodeChar(c) {
-  return c == '<' ? '&lt;' :
-         c == '>' ? '&gt;' :
-         c == '&' ? '&amp;' :
-         c == '"' ? '&quot;' :
-         c == "'" ? '&#39;' : // jshint ignore:line
+  return c === '<' ? '&lt;' :
+         c === '>' ? '&gt;' :
+         c === '&' ? '&amp;' :
+         c === '"' ? '&quot;' :
+         c === '\'' ? '&#39;' :
          '';
 }
 
