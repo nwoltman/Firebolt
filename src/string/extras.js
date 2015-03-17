@@ -147,6 +147,6 @@ definePrototypeExtensionsOn(String[prototype], {
    * @returns {String} The HTML-unescaped text.
    */
   unescapeHTML: function() {
-    return createElement('div').html(this).textContent;
+    return bodyEl.html(this).textContent;
   }
 });

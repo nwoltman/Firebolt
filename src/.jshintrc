@@ -33,6 +33,7 @@
     "arrayFrom": true,
     "defineProperty": true,
     "iframe": true,
+    "bodyEl": true,
     "timestamp": true,
     "prototypeExtensions": true,
     "Firebolt": true,

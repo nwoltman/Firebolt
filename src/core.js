@@ -28,6 +28,7 @@
 /* exported arrayFrom */
 /* exported defineProperty */
 /* exported iframe */
+/* exported bodyEl */
 /* exported timestamp */
 /* exported prototypeExtensions */
 /* exported Firebolt */
@@ -489,6 +490,7 @@
   var
     // Used for subclassing Array and determining things about the browser
     iframe = createElement('iframe'),
+    bodyEl = createElement('body'),
 
     // Browser/Engine detection
     isIOS = /^iP/.test(navigator.platform), // iPhone, iPad, iPod
@@ -589,9 +591,9 @@
 
     rgxNotTag = /\W/, // Matches a CSS selector that is not selecting by a single tag
 
-    rgxFirstTag = /<\w+/, // Matches the first tag in an HTML string
+    rgxFirstTag = /<(\w+)/, // Matches the first tag in an HTML string
 
-    rgxSingleTag = /^<\w+\/?>$/, // Matches a single HTML tag such as "<div/>"
+    rgxSingleTag = /^<([\w-]+)\s*\/?>(?:<\/\1>)?$/, // Matches a single HTML tag such as "<div/>"
 
     rgxSpaceChars = /[ \t-\f]+/, // From W3C http://www.w3.org/TR/html5/single-page.html#space-character
 
@@ -603,17 +605,17 @@
     tableData = [1, '<table>', '</table>'],
     cellData = [3, '<table><tbody><tr>', '</tr></tbody></table>'],
     specialElementsMap = {
-      '<option': optData,
-      '<optgroup': optData,
-      '<thead': tableData,
-      '<tbody': tableData,
-      '<tfoot': tableData,
-      '<colgroup': tableData,
-      '<caption': tableData,
-      '<tr': [2, '<table><tbody>', '</tbody></table>'],
-      '<col': [2, '<table><colgroup>', '</colgroup></table>'],
-      '<td': cellData,
-      '<th': cellData
+      option: optData,
+      optgroup: optData,
+      thead: tableData,
+      tbody: tableData,
+      tfoot: tableData,
+      colgroup: tableData,
+      caption: tableData,
+      tr: [2, '<table><tbody>', '</tbody></table>'],
+      col: [2, '<table><colgroup>', '</colgroup></table>'],
+      td: cellData,
+      th: cellData
     },
 
     /* Misc */
@@ -1602,25 +1604,21 @@
    * @returns {NodeCollection|Node} The collection of created nodes (or single Node if `single` was truthy).
    */
   function parseHTML(html, context, single, /*INTERNAL*/ doNotDetachNodes) {
-    var elem;
-    context = context || document;
+    var tag = rgxSingleTag.exec(html);
+    var elem, collection, i;
 
-    // If the HTML is just a single element without attributes, using document.createElement is much faster
-    if (rgxSingleTag.test(html)) {
-      // Create a new element from the tag name, found by stripping "<" from the front and "/>" or ">" from the back
-      elem = context.createElement(
-        html.slice(1, html.length - (html[html.length - 2] === '/' ? 2 : 1))
-      );
-      return single ? elem : (html = new NodeCollection())[0] = elem, html;
+    if (tag) {
+      elem = (context || document).createElement(tag[1]);
+      return single ? elem : NodeCollection.of(elem);
     }
 
     // Parse the HTML, taking care to handle special elements
-    elem = context.createElement('body');
-    context = rgxFirstTag.exec(html);
-    if (context && (context = specialElementsMap[context[0]])) {
-      elem.innerHTML = context[1] + html + context[2];
-      context = context[0];
-      while (context--) {
+    elem = context ? context.createElement('body') : bodyEl;
+    collection = rgxFirstTag.exec(html);
+    if (collection && (collection = specialElementsMap[collection[1]])) {
+      elem.innerHTML = collection[1] + html + collection[2];
+      i = collection[0];
+      while (i--) {
         elem = elem.firstChild;
       }
     } else {
@@ -1632,9 +1630,7 @@
       return elem.removeChild(elem.firstChild);
     }
 
-    html = elem.childNodes;
-
-    return doNotDetachNodes ? html : ncFrom(html).remove();
+    return doNotDetachNodes ? elem.childNodes : ncFrom(elem.childNodes).remove();
   }
   Firebolt.parseHTML = parseHTML;
 
