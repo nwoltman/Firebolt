@@ -86,7 +86,8 @@ module.exports = function(grunt) {
           'style/animation',
           'style/css',
           'style/display',
-          'timing'
+          'timing',
+          'tmpl'
         ]
       },
       DEFAULT: {

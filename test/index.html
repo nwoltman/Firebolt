@@ -7,6 +7,19 @@
 <body>
   <div id="qunit" class="class1 first" name="name1"></div>
   <div id="qunit-fixture" class="class1" name="name1"></div>
+<script id="tmpl-test" type="text/x-fb-tmpl">
+  <h3><%= o.title %></h3>
+  <p>
+    Released under the
+    <a href="<%= o.license.url %>"><%= o.license.name %></a>.
+  </p>
+  <h4>Features</h4>
+  <ul>
+  <% for (var i = 0; i < o.features.length; i++) { %>
+    <li><%= o.features[i] %></li>
+  <% } %>
+  </ul>
+</script>
   <script src="../dist/firebolt.js"></script>
   <script src="../node_modules/qunitjs/qunit/qunit.js"></script>
   <script src="init.js"></script>

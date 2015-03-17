@@ -63,7 +63,8 @@ if (window.readyTestVal !== 0 || ('readyTestVal2' in window)) {
   'php',
   'string/es6',
   'string/extras',
-  'timing'
+  'timing',
+  'tmpl'
 ].forEach(function(module) {
   var script = document.createElement('script');
   script.src = 'unit/' + module + '.js';
