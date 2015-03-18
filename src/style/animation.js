@@ -118,22 +118,22 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
     easing = ANIMATION_DEFAULT_EASING;
   }
 
-  var _this = this,
-    i = 0,
-    propertyNames = keys(properties),
-    numProperties = propertyNames.length,
-    numChangingProps = numProperties,
-    inlineStyle = _this.style,
-    currentStyle = getComputedStyle(_this),
-    isCurrentDisplayNone = isDisplayNone(0, currentStyle),
-    valsToRestore = {},
-    cssIncrementProps,
-    framesLeft,
-    hideOnComplete,
-    sanitaryProp,
-    prop,
-    val,
-    temp;
+  var _this = this;
+  var i = 0;
+  var propertyNames = keys(properties);
+  var numProperties = propertyNames.length;
+  var numChangingProps = numProperties;
+  var inlineStyle = _this.style;
+  var currentStyle = getComputedStyle(_this);
+  var isCurrentDisplayNone = isDisplayNone(0, currentStyle);
+  var valsToRestore = {};
+  var cssIncrementProps;
+  var framesLeft;
+  var hideOnComplete;
+  var sanitaryProp;
+  var prop;
+  var val;
+  var temp;
 
   // Only perform the animation if there are properties to animate
   if (numProperties) {

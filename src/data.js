@@ -80,8 +80,8 @@ function tryParseJson(json) {
  * @returns {Object} The passed in object.
  */
 Firebolt.data = function(object, key, value, isElement) {
-  var expando = Firebolt.expando,
-    dataStore = object[expando];
+  var expando = Firebolt.expando;
+  var dataStore = object[expando];
 
   if (!dataStore) {
     // Define the data store object at a non-enumerable property
@@ -91,11 +91,11 @@ Firebolt.data = function(object, key, value, isElement) {
 
     // If the object is an Element, try loading "data-*" attributes
     if (isElement) {
-      var attributes = object.attributes,
-        dataAttributes = {},
-        i = 0,
-        attrib,
-        val;
+      var attributes = object.attributes;
+      var dataAttributes = {};
+      var i = 0;
+      var attrib;
+      var val;
 
       for (; i < attributes.length; i++) {
         attrib = attributes[i];
@@ -167,8 +167,8 @@ Firebolt.hasData = function(object) {
  * @param {Array|String} [list] - An array or space-separated string naming the pieces of data to remove.
  */
 Firebolt.removeData = function(object, list) {
-  var dataStore = object[Firebolt.expando],
-    i = 0;
+  var dataStore = object[Firebolt.expando];
+  var i = 0;
 
   // First make sure the data store object exists
   if (dataStore) {

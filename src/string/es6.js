@@ -33,8 +33,8 @@ if (!StringPrototype.endsWith) {
    * alert( str.endsWith("am I", 8) );   // true
    */
   prototypeExtensions.endsWith = function(searchString, position) {
-    var str = this.toString(),
-      strLen = str.length;
+    var str = this.toString();
+    var strLen = str.length;
     position = (position < strLen ? position : strLen) - searchString.length;
     return position >= 0 && str.indexOf(searchString, position) === position;
   };

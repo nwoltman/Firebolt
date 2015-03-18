@@ -114,11 +114,11 @@ function removeSelectorHandler(selectorHandlers, selector, handler) {
  * @see {@link http://api.jquery.com/off/#off|.off() | jQuery API Documentation}
  */
 NodePrototype.off = function off(events, selector, handler) {
-  var eventHandlers = this._$E_,
-    eventType,
-    selectorHandlers,
-    sel,
-    i;
+  var eventHandlers = this._$E_;
+  var eventType;
+  var selectorHandlers;
+  var sel;
+  var i;
 
   // Don't bother doing anything if there haven't been any Firebolt handlers set
   if (eventHandlers) {
@@ -187,16 +187,16 @@ EventPrototype.propagationStopped = false; // Set the default value on the Event
 
 /* This is the function that will be invoked for each event type when a handler is set with Node#on() */
 function nodeEventHandler(eventObject, extraParameters) {
-  var _this = this,
-    target = eventObject.target,
-    eType = eventObject.type,
-    selectorHandlers = _this._$E_[eType],
-    selectorHandlersCopy = {},
-    selectors = keys(selectorHandlers).remove(''), // Don't want the selector for non-delegated handlers
-    numSelectors = selectors.length,
-    i = 0,
-    selector,
-    result;
+  var _this = this;
+  var target = eventObject.target;
+  var eType = eventObject.type;
+  var selectorHandlers = _this._$E_[eType];
+  var selectorHandlersCopy = {};
+  var selectors = keys(selectorHandlers).remove(''); // Don't want the selector for non-delegated handlers
+  var numSelectors = selectors.length;
+  var i = 0;
+  var selector;
+  var result;
 
   // If the extra parameters are not defined (by `.triggerHandler()`), perhaps they were defined by `.trigger()`
   if (extraParameters === UNDEFINED) {
@@ -300,11 +300,11 @@ function nodeEventHandler(eventObject, extraParameters) {
  * @see {@link http://api.jquery.com/on/#on-events-selector-data|.on() | jQuery API Documentation}
  */
 NodePrototype.on = function on(events, selector, data, handler, /*INTERNAL*/ one) {
-  var eventHandlers = this._$E_ || (this._$E_ = {}),
-    selectorIsString = typeofString(selector),
-    selectorHandlers,
-    eventType,
-    i;
+  var eventHandlers = this._$E_ || (this._$E_ = {});
+  var selectorIsString = typeofString(selector);
+  var selectorHandlers;
+  var eventType;
+  var i;
 
   if (typeof events == 'object') {
     // Call this function for each event and event handler in the object

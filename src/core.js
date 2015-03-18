@@ -101,9 +101,8 @@
         }
 
         // Build a list of NodeCollections
-        var collections = [],
-          i = 0;
-        for (; i < len; i++) {
+        var collections = [];
+        for (var i = 0; i < len; i++) {
           collections[i] = getDirectionElement.apply(this[i], arguments);
         }
 
@@ -116,9 +115,10 @@
     return sorter === 0
       // nextUntil, prevUntil, parentsUntil
       ? function(until, filter) {
-        var nc = new NodeCollection(),
-          node = this,
-          stop = typeofString(until) // Until match by CSS selector
+        var nc = new NodeCollection();
+        var node = this;
+        var stop =
+          typeofString(until) // Until match by CSS selector
             ? function() {
               return node.matches(until);
             }
@@ -144,8 +144,8 @@
 
       // nextAll, prevAll, parents
       : function(selector) {
-        var nc = new NodeCollection(),
-          node = this;
+        var nc = new NodeCollection();
+        var node = this;
 
         // Traverse all nodes in the direction and add them (or if there is a selector the ones that match it)
         // to the NodeCollection
@@ -173,10 +173,8 @@
         return (!selector || sibling && sibling.matches(selector)) ? sibling : null;
       }
       : function(selector) {
-        var nc = new NodeCollection(),
-          i = 0,
-          sibling;
-        for (; i < this.length; i++) {
+        var nc = new NodeCollection();
+        for (var i = 0, sibling; i < this.length; i++) {
           sibling = getDirElementSibling(this[i]);
           if (sibling && (!selector || sibling.matches(selector))) {
             push1(nc, sibling);
@@ -267,11 +265,10 @@
    */
   function setArrayStaticsAndGetFromFunction(constructor) {
     function from(arrayLike) {
-      var len = arrayLike.length || 0,
-        array = new constructor(len),
-        i = 0;
+      var len = arrayLike.length || 0;
+      var array = new constructor(len);
 
-      for (; i < len; i++) {
+      for (var i = 0; i < len; i++) {
         array[i] = arrayLike[i];
       }
 
@@ -279,11 +276,10 @@
     }
 
     constructor.of = constructor.of || function() {
-      var len = arguments.length,
-        array = new constructor(len),
-        i = 0;
+      var len = arguments.length;
+      var array = new constructor(len);
 
-      for (; i < len; i++) {
+      for (var i = 0; i < len; i++) {
         array[i] = arguments[i];
       }
 
@@ -299,140 +295,142 @@
     return typeof value == 'string';
   }
 
-  var
     // Used for subclassing Array and determining things about the browser
-    iframe = createElement('iframe'),
-    bodyEl = createElement('body'),
+  var iframe = createElement('iframe');
+  var bodyEl = createElement('body');
 
     // Browser/Engine detection
-    isIOS = /^iP/.test(navigator.platform), // iPhone, iPad, iPod
-    usesWebkit = iframe.style.webkitAppearance !== UNDEFINED,
-    webkitNotIOS = usesWebkit && !isIOS,
-    usesGecko = window.mozInnerScreenX != UNDEFINED,
+  var isIOS = /^iP/.test(navigator.platform); // iPhone, iPad, iPod
+  var usesWebkit = iframe.style.webkitAppearance !== UNDEFINED;
+  var webkitNotIOS = usesWebkit && !isIOS;
+  var usesGecko = window.mozInnerScreenX != UNDEFINED;
 
     // Some browser compatibility functions
-    characterData = document.createTextNode(''),
-    getNextElementSibling = (characterData.nextElementSibling === UNDEFINED)
+  var characterData = document.createTextNode('');
+  var getNextElementSibling =
+    (characterData.nextElementSibling === UNDEFINED)
       ? function(el) {
         while ((el = el.nextSibling) && el.nodeType !== 1);
         return el;
       }
       : function(el) {
         return el.nextElementSibling;
-      },
-    getPreviousElementSibling = (characterData.previousElementSibling === UNDEFINED)
+      };
+  var getPreviousElementSibling =
+    (characterData.previousElementSibling === UNDEFINED)
       ? function(el) {
         while ((el = el.previousSibling) && el.nodeType !== 1);
         return el;
       }
       : function(el) {
         return el.previousElementSibling;
-      },
-    getParentElement = (characterData.parentElement === UNDEFINED)
+      };
+  var getParentElement =
+    (characterData.parentElement === UNDEFINED)
       ? function(el) {
         el = el.parentNode;
         return el && isNodeElement(el) ? el : null;
       }
       : function(el) {
         return el.parentElement;
-      },
+      };
 
     /*
      * Determines if an item is a Node.
      * Gecko's instanceof Node is faster (but might want to check if that's because it caches previous calls).
      */
-    isNode = usesGecko
-      ? function(obj) {
-        return obj instanceof Node;
-      }
-      : function(obj) {
-        return obj && obj.nodeType;
-      },
+  var isNode = usesGecko
+    ? function(obj) {
+      return obj instanceof Node;
+    }
+    : function(obj) {
+      return obj && obj.nodeType;
+    };
 
     // Property strings
-    prototype = 'prototype',
+  var prototype = 'prototype';
 
     // Prototype references
-    ArrayPrototype = Array[prototype],
-    ElementPrototype = Element[prototype],
-    HTMLElementPrototype = HTMLElement[prototype],
-    NodePrototype = Node[prototype],
-    NodeListPrototype = NodeList[prototype],
-    HTMLCollectionPrototype = HTMLCollection[prototype],
+  var ArrayPrototype = Array[prototype];
+  var ElementPrototype = Element[prototype];
+  var HTMLElementPrototype = HTMLElement[prototype];
+  var NodePrototype = Node[prototype];
+  var NodeListPrototype = NodeList[prototype];
+  var HTMLCollectionPrototype = HTMLCollection[prototype];
 
     // Helpers
-    isArray = Array.isArray,
-    arrayFrom = setArrayStaticsAndGetFromFunction(Array),
-    array_push = ArrayPrototype.push,
-    defineProperty = Object.defineProperty, // jshint ignore:line
+  var isArray = Array.isArray;
+  var arrayFrom = setArrayStaticsAndGetFromFunction(Array);
+  var array_push = ArrayPrototype.push;
+  var defineProperty = Object.defineProperty; // jshint ignore:line
 
     // Local + global selector funtions
-    getElementById = window.$$ = window.$ID =
-      webkitNotIOS ? function(id) {
-        return document.getElementById(id);
-      } : getElementSelectionFunction(document.getElementById),
+  var getElementById = window.$$ = window.$ID =
+    webkitNotIOS ? function(id) {
+      return document.getElementById(id);
+    } : getElementSelectionFunction(document.getElementById);
 
-    getElementsByClassName = window.$CLS =
-      webkitNotIOS ? function(className) {
-        return document.getElementsByClassName(className);
-      } : getElementSelectionFunction(document.getElementsByClassName),
+  var getElementsByClassName = window.$CLS =
+    webkitNotIOS ? function(className) {
+      return document.getElementsByClassName(className);
+    } : getElementSelectionFunction(document.getElementsByClassName);
 
-    getElementsByTagName = window.$TAG =
-      webkitNotIOS ? function(tagName) {
-        return document.getElementsByTagName(tagName);
-      } : getElementSelectionFunction(document.getElementsByTagName),
+  var getElementsByTagName = window.$TAG =
+    webkitNotIOS ? function(tagName) {
+      return document.getElementsByTagName(tagName);
+    } : getElementSelectionFunction(document.getElementsByTagName);
 
-    querySelector = window.$QS =
-      webkitNotIOS ? function(selector) {
-        return document.querySelector(selector);
-      } : getElementSelectionFunction(document.querySelector),
+  var querySelector = window.$QS =
+    webkitNotIOS ? function(selector) {
+      return document.querySelector(selector);
+    } : getElementSelectionFunction(document.querySelector);
 
-    querySelectorAll = window.$QSA =
-      webkitNotIOS ? function(selector) {
-        return document.querySelectorAll(selector);
-      } : getElementSelectionFunction(document.querySelectorAll),
+  var querySelectorAll = window.$QSA =
+    webkitNotIOS ? function(selector) {
+      return document.querySelectorAll(selector);
+    } : getElementSelectionFunction(document.querySelectorAll);
 
 
     /* Pre-built RegExps */
 
-    rgxNotId = /[ .,>:[+~\t-\f]/, // Matches other characters that cannot be in an id selector
+  var rgxNotId = /[ .,>:[+~\t-\f]/; // Matches other characters that cannot be in an id selector
 
-    rgxNotClass = /[ #,>:[+~\t-\f]/, // Matches other characters that cannot be in a class selector
+  var rgxNotClass = /[ #,>:[+~\t-\f]/; // Matches other characters that cannot be in a class selector
 
-    rgxAllDots = /\./g,
+  var rgxAllDots = /\./g;
 
-    rgxNotTag = /\W/, // Matches a CSS selector that is not selecting by a single tag
+  var rgxNotTag = /\W/; // Matches a CSS selector that is not selecting by a single tag
 
-    rgxFirstTag = /<(\w+)/, // Matches the first tag in an HTML string
+  var rgxFirstTag = /<(\w+)/; // Matches the first tag in an HTML string
 
-    rgxSingleTag = /^<([\w-]+)\s*\/?>(?:<\/\1>)?$/, // Matches a single HTML tag such as "<div/>"
+  var rgxSingleTag = /^<([\w-]+)\s*\/?>(?:<\/\1>)?$/; // Matches a single HTML tag such as "<div/>"
 
-    rgxSpaceChars = /[ \t-\f]+/, // From W3C http://www.w3.org/TR/html5/single-page.html#space-character
+  var rgxSpaceChars = /[ \t-\f]+/; // From W3C http://www.w3.org/TR/html5/single-page.html#space-characte;
 
     // Determines if the function is different for NodeLists
-    rgxDifferentNL = /^(?:af|ap|be|conc|cop|ea|fill|ins|prep|pu|rep|rev|sor|toggleC)|wrap|remove(?:Class)?$/,
+  var rgxDifferentNL = /^(?:af|ap|be|conc|cop|ea|fill|ins|prep|pu|rep|rev|sor|toggleC)|wrap|remove(?:Class)?$/;
 
     /* Needed for parsing HTML */
-    optData = [1, '<select multiple>', '</select>'],
-    tableData = [1, '<table>', '</table>'],
-    cellData = [3, '<table><tbody><tr>', '</tr></tbody></table>'],
-    specialElementsMap = {
-      option: optData,
-      optgroup: optData,
-      thead: tableData,
-      tbody: tableData,
-      tfoot: tableData,
-      colgroup: tableData,
-      caption: tableData,
-      tr: [2, '<table><tbody>', '</tbody></table>'],
-      col: [2, '<table><colgroup>', '</colgroup></table>'],
-      td: cellData,
-      th: cellData
-    },
+  var optData = [1, '<select multiple>', '</select>'];
+  var tableData = [1, '<table>', '</table>'];
+  var cellData = [3, '<table><tbody><tr>', '</tr></tbody></table>'];
+  var specialElementsMap = {
+    option: optData,
+    optgroup: optData,
+    thead: tableData,
+    tbody: tableData,
+    tfoot: tableData,
+    colgroup: tableData,
+    caption: tableData,
+    tr: [2, '<table><tbody>', '</tbody></table>'],
+    col: [2, '<table><colgroup>', '</colgroup></table>'],
+    td: cellData,
+    th: cellData
+  };
 
     /* Misc */
-    timestamp = Date.now(),
-    readyCallbacks = [];
+  var timestamp = Date.now();
+  var readyCallbacks = [];
 
   //#region MODULE_VARS
   //#endregion MODULE_VARS
@@ -623,12 +621,11 @@
      * @returns {Array} An array that is the union of this array and the input array(s).
      */
     union: function() {
-      var union = this.uniq(),
-        i = 0,
-        j,
-        array;
+      var union = this.uniq();
+      var j;
+      var array;
 
-      for (; i < arguments.length; i++) {
+      for (var i = 0; i < arguments.length; i++) {
         array = arguments[i];
         for (j = 0; j < array.length; j++) {
           if (union.indexOf(array[j]) < 0) {
@@ -653,10 +650,9 @@
        * @see Firebolt.isEmpty
        */
       clean: function() {
-        var cleaned = new constructor(),
-          i = 0;
+        var cleaned = new constructor();
 
-        for (; i < this.length; i++) {
+        for (var i = 0; i < this.length; i++) {
           if (!Firebolt.isEmpty(this[i])) {
             push1(cleaned, this[i]);
           }
@@ -677,12 +673,12 @@
        * @returns {Array}
        */
       diff: function() {
-        var difference = new constructor(),
-          i = 0,
-          j,
-          k,
-          item,
-          array;
+        var difference = new constructor();
+        var i = 0;
+        var j;
+        var k;
+        var item;
+        var array;
 
         next: for (; i < this.length; i++) {
           item = this[i];
@@ -716,10 +712,10 @@
        * @returns {Array} An array that is the intersection of this array and the input array(s).
        */
       intersect: function() {
-        var intersection = new constructor(),
-          i = 0,
-          j,
-          item;
+        var intersection = new constructor();
+        var i = 0;
+        var j;
+        var item;
 
         next: for (; i < this.length; i++) {
           // The current item can only be added if it is not already in the intersection
@@ -756,10 +752,9 @@
        * @returns {Array}
        */
       uniq: function(isSorted) {
-        var unique = new constructor(),
-          i = 0;
+        var unique = new constructor();
 
-        for (; i < this.length; i++) {
+        for (var i = 0; i < this.length; i++) {
           if (isSorted) {
             if (this[i] !== this[i + 1]) {
               push1(unique, this[i]);
@@ -783,9 +778,9 @@
        * @returns {Array}
        */
       without: function() {
-        var array = new constructor(),
-          i = 0,
-          j;
+        var array = new constructor();
+        var i = 0;
+        var j;
 
         next: for (; i < this.length; i++) {
           for (j = 0; j < arguments.length; j++) {
@@ -883,10 +878,7 @@
    * @see Node#afterPut
    */
   ElementPrototype.afterPut = function() {
-    var i = arguments.length - 1,
-      arg;
-
-    for (; i >= 0; i--) {
+    for (var i = arguments.length - 1, arg; i >= 0; i--) {
       if (typeofString(arg = arguments[i])) {
         this.insertAdjacentHTML('afterend', arg);
       } else {
@@ -1100,10 +1092,7 @@
    * @see Node#prependWith
    */
   ElementPrototype.prependWith = function() {
-    var i = arguments.length - 1,
-      arg;
-
-    for (; i >= 0; i--) {
+    for (var i = arguments.length - 1, arg; i >= 0; i--) {
       if (typeofString(arg = arguments[i])) {
         this.insertAdjacentHTML('afterbegin', arg);
       } else {
@@ -1273,13 +1262,13 @@
    * @returns {Object} The `target` object.
    */
   function extend() { // jshint ignore:line
-    var deep = (arguments[0] === true),
-      i = 1,
-      target = arguments[deep ? i++ : 0],
-      arg,
-      key,
-      val,
-      curval;
+    var deep = (arguments[0] === true);
+    var i = 1;
+    var target = arguments[deep ? i++ : 0];
+    var arg;
+    var key;
+    var val;
+    var curval;
 
     for (; i < arguments.length; i++) {
       arg = arguments[i];
@@ -1323,11 +1312,11 @@
    * @returns {DocumentFragment} The newly created document fragment.
    */
   function createFragment() {
-    var fragment = document.createDocumentFragment(),
-      i = 0,
-      item,
-      len,
-      j;
+    var fragment = document.createDocumentFragment();
+    var i = 0;
+    var item;
+    var len;
+    var j;
 
     for (; i < arguments.length; i++) {
       if (isNode(item = arguments[i])) {
@@ -1670,10 +1659,10 @@
     if (value) {
       // Only need to determine which classes should be added if this element's className has a value
       if (this.className) {
-        var newClasses = value.split(' '),
-          changed = 0,
-          i = 0,
-          clazz;
+        var newClasses = value.split(' ');
+        var changed = 0;
+        var i = 0;
+        var clazz;
 
         value = this.className; // Reuse the value argument to build the new class name
 
@@ -1786,10 +1775,10 @@
       if (value === UNDEFINED) {
         this.className = ''; // Remove all classes
       } else {
-        var remClasses = value.split(' '),
-          curClasses = this.className.split(rgxSpaceChars),
-          classesLeft = 0,
-          i = 0;
+        var remClasses = value.split(' ');
+        var curClasses = this.className.split(rgxSpaceChars);
+        var classesLeft = 0;
+        var i = 0;
 
         value = '';
         for (; i < curClasses.length; i++) {
@@ -1831,10 +1820,10 @@
 
     if (className && value !== true) {
       if (value) {
-        var curClasses = className.split(rgxSpaceChars),
-          togClasses = value.split(' '),
-          i = 0,
-          j;
+        var curClasses = className.split(rgxSpaceChars);
+        var togClasses = value.split(' ');
+        var i = 0;
+        var j;
 
         // Find the symmetric difference between the current class names and the names to toggle
         value = '';
@@ -2022,9 +2011,8 @@
       return ncFrom(children);
     }
 
-    var nc = new NodeCollection(),
-      i = 0;
-    for (; i < children.length; i++) {
+    var nc = new NodeCollection();
+    for (var i = 0; i < children.length; i++) {
       if (children[i].matches(selector)) {
         push1(nc, children[i]);
       }
@@ -2345,8 +2333,8 @@
    * @throws {TypeError} The subject node must have a {@link ParentNode}, which in turn must also have a ParentNode.
    */
   NodePrototype.unwrap = function() {
-    var parent = this.parentNode,
-      grandparent = parent.parentNode;
+    var parent = this.parentNode;
+    var grandparent = parent.parentNode;
 
     if (parent.nodeName != 'BODY') {
       while (parent.firstChild) {
@@ -2418,9 +2406,9 @@
    */
   function getFirstSetEachElement(fn, isSetter) {
     return function(firstArg) {
-      var items = this,
-        len = items.length,
-        i = 0;
+      var items = this;
+      var len = items.length;
+      var i = 0;
 
       if (!isSetter(arguments.length, firstArg)) {
         // Set each
@@ -2451,10 +2439,10 @@
       // Determine if this function was called by a function created with `getNodeCollectionPutToOrReplaceAllFunction()`
       addClones = addClones === 0;
 
-      var len = this.length,
-        i = 1,
-        fragment,
-        clone;
+      var len = this.length;
+      var i = 1;
+      var fragment;
+      var clone;
 
       // Only create the DocumentFragment and do insertions if this NodeCollection isn't empty
       if (len) {
@@ -2745,11 +2733,10 @@
    * @returns {NodeCollection}
    */
   NodeCollectionPrototype.clone = function(withDataAndEvents, deepWithDataAndEvents) {
-    var len = this.length,
-      clone = new NodeCollection(len),
-      i = 0;
+    var len = this.length;
+    var clone = new NodeCollection(len);
 
-    for (; i < len; i++) {
+    for (var i = 0; i < len; i++) {
       clone[i] = this[i].clone(withDataAndEvents, deepWithDataAndEvents);
     }
 
@@ -2773,11 +2760,9 @@
    * @returns {Node[]} - A collection of "closest" nodes.
    */
   NodeCollectionPrototype.closest = function(selector) {
-    var nc = new NodeCollection(),
-      i = 0,
-      node;
+    var nc = new NodeCollection();
 
-    for (; i < this.length; i++) {
+    for (var i = 0, node; i < this.length; i++) {
       if ((node = this[i].closest(selector)) && nc.indexOf(node) < 0) {
         push1(nc, node);
       }
@@ -2795,10 +2780,9 @@
    * @returns {NodeCollection} The collection of all the child nodes of the elements in the collection.
    */
   NodeCollectionPrototype.contents = function() {
-    var nc = new NodeCollection(),
-      i = 0;
+    var nc = new NodeCollection();
 
-    for (; i < this.length; i++) {
+    for (var i = 0; i < this.length; i++) {
       // Call Node#contents() on the current node, passing in the
       // NodeCollection so the nodes are added directly to it
       NodePrototype.contents.call(this[i], nc);
@@ -2946,11 +2930,9 @@
    *     set may include Document and DocumentFragment nodes.
    */
   NodeCollectionPrototype.parent = function(selector) {
-    var nc = new NodeCollection(),
-      i = 0,
-      parent;
+    var nc = new NodeCollection();
 
-    for (; i < this.length; i++) {
+    for (var i = 0, parent; i < this.length; i++) {
       parent = this[i].parentNode;
       if ((!selector || (isNodeElement(parent) && parent.matches(selector))) && nc.indexOf(parent) < 0) {
         push1(nc, parent);
@@ -3083,9 +3065,8 @@
    * @param {String} [selector] - A selector that filters the set of elements to be removed.
    */
   NodeCollectionPrototype.remove = function(selector) {
-    var nodes = selector ? this.filter(selector) : this,
-      i = 0;
-    for (; i < nodes.length; i++) {
+    var nodes = selector ? this.filter(selector) : this;
+    for (var i = 0; i < nodes.length; i++) {
       NodePrototype.remove.call(nodes[i]);
     }
 
@@ -3158,8 +3139,9 @@
    *     string to be set as each nodes' text content.
    */
   NodeCollectionPrototype.text = function(text) {
-    var len = this.length,
-      i = 0;
+    var len = this.length;
+    var i = 0;
+
     // Get
     if (text === UNDEFINED) {
       for (text = ''; i < len; i++) {
@@ -3210,9 +3192,8 @@
    * @throws {TypeError} Each node must have a {@link ParentNode}, which in turn must also have a ParentNode.
    */
   NodeCollectionPrototype.unwrap = function() {
-    var parents = NodeCollectionPrototype.parent.call(this),
-      i = 0;
-    for (; i < parents.length; i++) {
+    var parents = NodeCollectionPrototype.parent.call(this);
+    for (var i = 0; i < parents.length; i++) {
       NodePrototype.unwrap.call(parents[i].firstChild);
     }
 

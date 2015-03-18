@@ -18,10 +18,10 @@
 //#region VARS
 
 var cssVendorPrefix =
-  usesWebkit ? 'webkit'
-  : usesGecko ? 'Moz'
-  : document.documentMode ? 'ms'
-  : 'O';
+  usesWebkit ? 'webkit' :
+  usesGecko ? 'Moz' :
+  document.documentMode ? 'ms' :
+  'O';
 
 //#endregion VARS
 
