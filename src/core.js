@@ -58,47 +58,6 @@
   }
 
   /*
-   * Given two Nodes who are clones of each other, this function copies data and events from node A to node B.
-   * This function will run recursively on the children of the nodes unless `doNotCopyChildNodes` is `true`.
-   * 
-   * @param {Node} nodeA - The node being copied.
-   * @param {Node} nodeB - The node that will receive nodeA's data and events.
-   * @param {!Boolean} doNotCopyChildNodes - Inidicates if data and events for child notes should not be copied.
-   */
-  function copyDataAndEvents(nodeA, nodeB, doNotCopyChildNodes) {
-    var data = nodeA[Firebolt.expando],
-      events = nodeA._$E_;
-
-    // Data
-    if (data) {
-      // Use Firebolt.data in case the node was created in a different window
-      extend(true, Firebolt.data(nodeB), data);
-    }
-
-    /* From this point on, the `data` variable is reused as the counter (or property name) in loops */
-
-    // Events
-    if (events) {
-      // Copy event data and set the handler for each type of event
-      nodeB._$E_ = extend(true, {}, events);
-      for (data in events) {
-        /* global nodeEventHandler */ // Requires the event module (this code won't be reached if it is not required)
-        nodeB.addEventListener(data, nodeEventHandler);
-      }
-    }
-
-    // Copy data and events for child nodes
-    if (!doNotCopyChildNodes && (nodeA = nodeA.childNodes)) {
-      nodeB = nodeB.childNodes;
-
-      // The nodeA and nodeB variables are now the childNodes NodeLists of the original nodes
-      for (data = 0; data < nodeA.length; data++) {
-        copyDataAndEvents(nodeA[data], nodeB[data]);
-      }
-    }
-  }
-
-  /*
    * Uses Object.defineProperty to define the values in the prototypeExtension object on the passed in prototype object
    */
   function definePrototypeExtensionsOn(proto, extensions) {
@@ -120,39 +79,6 @@
     return isIOS ? function(selector) {
       return fn.call(document, selector);
     } : fn.bind(document);
-  }
-
-  /*
-   * Returns a function that calls the passed in function on each element in a NodeCollection unless the callback
-   * returns true, in which case the result of calling the function on the first element is returned.
-   * 
-   * @param {Function} fn - The function to use as the getter or setter.
-   * @param {Function} isSetter(numArgs, firstArg) - Function to determine if the value of the first
-   *     element should be returned.
-   */
-  function getFirstSetEachElement(fn, isSetter) {
-    return function(firstArg) {
-      var items = this,
-        len = items.length,
-        i = 0;
-
-      if (!isSetter(arguments.length, firstArg)) {
-        // Set each
-        for (; i < len; i++) {
-          if (isNodeElement(items[i])) {
-            fn.apply(items[i], arguments);
-          }
-        }
-        return items;
-      }
-
-      // Get first
-      for (; i < len; i++) {
-        if (isNodeElement(items[i])) {
-          return fn.call(items[i], firstArg); // Only need first arg for getting
-        }
-      }
-    };
   }
 
   /*
@@ -258,94 +184,6 @@
         }
         return nc;
       };
-  }
-
-  /* 
-   * Returns the function body for NodeCollection#[afterPut, appendWith, beforePut, prependWith, replaceWith]
-   * 
-   * @param {Function} inserter(newNode, refNode) - The function that performs the insertion.
-   */
-  function getNodeCollectionPutOrWithFunction(inserter) {
-    return function(nc, addClones) {
-      // Determine if this function was called by a function created with `getNodeCollectionPutToOrReplaceAllFunction()`
-      addClones = addClones === 0;
-
-      var len = this.length,
-        i = 1,
-        fragment,
-        clone;
-
-      // Only create the DocumentFragment and do insertions if this NodeCollection isn't empty
-      if (len) {
-        fragment = addClones ? createFragment(nc) : createFragment.apply(this, arguments);
-        for (; i < len; i++) {
-          clone = fragment.cloneNode(true);
-          if (addClones) {
-            array_push.apply(nc, clone.childNodes);
-          }
-          inserter(clone, this[i]);
-        }
-        inserter(fragment, this[0]); // The first node always gets the original fragment
-      }
-
-      return this;
-    };
-  }
-
-  /* Returns the function body for NodeCollection#[appendTo, putAfter, putBefore, prependTo, replaceAll] */
-  function getNodeCollectionPutToOrReplaceAllFunction(funcName) {
-    var NodeInserter = NodePrototype[funcName];
-
-    return function(target) {
-      var copy = ncFrom(this);
-
-      if (typeofString(target)) {
-        Firebolt(target)[funcName](copy, 0); // Pass in 0 to tell the function to add clones to the copy
-      } else {
-        NodeInserter.call(target, copy);
-      }
-
-      return copy;
-    };
-  }
-
-  /* 
-   * Returns the function body for Node#[appendTo, putAfter, putBefore, prependTo, replaceAll]
-   * 
-   * @param {Function} inserter(newNode, refNode) - The function that performs the insertion.
-   */
-  function getNodeInsertingFunction(inserter) {
-    return function(target) {
-      if (typeofString(target)) {
-        target = Firebolt(target);
-      } else if (isNode(target)) {
-        inserter(this, target);
-        return this;
-      }
-
-      var i = target.length;
-      if (i--) {
-        for (; i > 0; i--) {
-          inserter(this.cloneNode(true), target[i]);
-        }
-        inserter(this, target[0]);
-      }
-
-      return this;
-    };
-  }
-
-  /* 
-   * Returns the function body for Node#[afterPut, appendWith, beforePut, prependWith, replaceWith]
-   * 
-   * @param {Function} inserter(newNode, refNode) - The function that performs the insertion.
-   */
-  function getNodePutOrWithFunction(inserter) {
-    return function() {
-      inserter(createFragment.apply(this, arguments), this);
-
-      return this;
-    };
   }
 
   /*
@@ -455,32 +293,6 @@
     constructor.from = constructor.from || from;
 
     return from;
-  }
-
-  /*
-   * Sets an attribute on an element to the specified value, or removes
-   * the attribute if the value is `null` or `undefined`.
-   */
-  function setAttribute(element, key, value) {
-    if (value != UNDEFINED) {
-      element.setAttribute(key, value);
-    } else {
-      element.removeAttribute(key);
-    }
-  }
-
-  function sortDocOrder(a, b) {
-    b = a.compareDocumentPosition(b);
-    return b & 4 ? -1 // Node a should come first
-         : b & 1 ? 0  // Nodes are in different documents
-         : 1;         // Else node b should come first
-  }
-
-  function sortRevDocOrder(a, b) {
-    b = a.compareDocumentPosition(b);
-    return b & 2 ? -1 // Node b should come first
-         : b & 1 ? 0  // Nodes are in different documents
-         : 1;         // Else node a should come first
   }
 
   function typeofString(value) {
@@ -1007,6 +819,24 @@
    * @augments Node
    * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/element|Element - Web API Interfaces | MDN}
    */
+
+  /**
+   * Sets an attribute on an element to the specified value, or removes
+   * the attribute if the value is `null` or `undefined`.
+   * 
+   * @private
+   * @param {Element} element - A DOM element.
+   * @param {String} key - The name of the attribute.
+   * @param {?String} value - The value to set the attribute to.
+   *     If `null` or `undefined`, the attribute is removed.
+   */
+  function setAttribute(element, key, value) {
+    if (value != UNDEFINED) {
+      element.setAttribute(key, value);
+    } else {
+      element.removeAttribute(key);
+    }
+  }
 
   /**
    * Returns a list of the elements within the element with the specified class name.<br />
@@ -2055,6 +1885,89 @@
    */
 
   /**
+   * Given two Nodes who are clones of each other, this function copies data and events from node A to node B.
+   * This function will run recursively on the children of the nodes unless `doNotCopyChildNodes` is `true`.
+   * 
+   * @private
+   * @param {Node} nodeA - The node being copied.
+   * @param {Node} nodeB - The node that will receive nodeA's data and events.
+   * @param {!Boolean} doNotCopyChildNodes - Inidicates if data and events for child notes should not be copied.
+   */
+  function copyDataAndEvents(nodeA, nodeB, doNotCopyChildNodes) {
+    var data = nodeA[Firebolt.expando];
+    var events = nodeA._$E_;
+
+    // Data
+    if (data) {
+      // Use Firebolt.data in case the node was created in a different window
+      extend(true, Firebolt.data(nodeB), data);
+    }
+
+    /* From this point on, the `data` variable is reused as the counter (or property name) in loops */
+
+    // Events
+    if (events) {
+      // Copy event data and set the handler for each type of event
+      nodeB._$E_ = extend(true, {}, events);
+      for (data in events) {
+        /* global nodeEventHandler */ // Requires the event module (this code won't be reached if it is not required)
+        nodeB.addEventListener(data, nodeEventHandler);
+      }
+    }
+
+    // Copy data and events for child nodes
+    if (!doNotCopyChildNodes && (nodeA = nodeA.childNodes)) {
+      nodeB = nodeB.childNodes;
+
+      // The nodeA and nodeB variables are now the childNodes NodeLists of the original nodes
+      for (data = 0; data < nodeA.length; data++) {
+        copyDataAndEvents(nodeA[data], nodeB[data]);
+      }
+    }
+  }
+
+  /**
+   * Returns the function body for Node#[appendTo, putAfter, putBefore, prependTo, replaceAll]
+   * 
+   * @private
+   * @param {Function} inserter(newNode, refNode) - The function that performs the insertion.
+   */
+  function getNodeInsertingFunction(inserter) {
+    return function(target) {
+      if (typeofString(target)) {
+        target = Firebolt(target);
+      } else if (isNode(target)) {
+        inserter(this, target);
+        return this;
+      }
+
+      var i = target.length;
+      if (i--) {
+        for (; i > 0; i--) {
+          inserter(this.cloneNode(true), target[i]);
+        }
+        inserter(this, target[0]);
+      }
+
+      return this;
+    };
+  }
+
+  /**
+   * Returns the function body for Node#[afterPut, appendWith, beforePut, prependWith, replaceWith]
+   * 
+   * @private
+   * @param {Function} inserter(newNode, refNode) - The function that performs the insertion.
+   */
+  function getNodePutOrWithFunction(inserter) {
+    return function() {
+      inserter(createFragment.apply(this, arguments), this);
+
+      return this;
+    };
+  }
+
+  /**
    * Inserts content after the node.
    * 
    * @function Node#afterPut
@@ -2493,6 +2406,105 @@
 
 
   //#region ======================== NodeCollection ============================
+
+  /**
+   * Returns a function that calls the passed in function on each element in a NodeCollection unless the callback
+   * returns true, in which case the result of calling the function on the first element is returned.
+   * 
+   * @private
+   * @param {Function} fn - The function to use as the getter or setter.
+   * @param {Function} isSetter(numArgs, firstArg) - Function to determine if the value of the first
+   *     element should be returned.
+   */
+  function getFirstSetEachElement(fn, isSetter) {
+    return function(firstArg) {
+      var items = this,
+        len = items.length,
+        i = 0;
+
+      if (!isSetter(arguments.length, firstArg)) {
+        // Set each
+        for (; i < len; i++) {
+          if (isNodeElement(items[i])) {
+            fn.apply(items[i], arguments);
+          }
+        }
+        return items;
+      }
+
+      // Get first
+      for (; i < len; i++) {
+        if (isNodeElement(items[i])) {
+          return fn.call(items[i], firstArg); // Only need first arg for getting
+        }
+      }
+    };
+  }
+
+  /* 
+   * Returns the function body for NodeCollection#[afterPut, appendWith, beforePut, prependWith, replaceWith]
+   * 
+   * @param {Function} inserter(newNode, refNode) - The function that performs the insertion.
+   */
+  function getNodeCollectionPutOrWithFunction(inserter) {
+    return function(nc, addClones) {
+      // Determine if this function was called by a function created with `getNodeCollectionPutToOrReplaceAllFunction()`
+      addClones = addClones === 0;
+
+      var len = this.length,
+        i = 1,
+        fragment,
+        clone;
+
+      // Only create the DocumentFragment and do insertions if this NodeCollection isn't empty
+      if (len) {
+        fragment = addClones ? createFragment(nc) : createFragment.apply(this, arguments);
+        for (; i < len; i++) {
+          clone = fragment.cloneNode(true);
+          if (addClones) {
+            array_push.apply(nc, clone.childNodes);
+          }
+          inserter(clone, this[i]);
+        }
+        inserter(fragment, this[0]); // The first node always gets the original fragment
+      }
+
+      return this;
+    };
+  }
+
+  /* Returns the function body for NodeCollection#[appendTo, putAfter, putBefore, prependTo, replaceAll] */
+  function getNodeCollectionPutToOrReplaceAllFunction(funcName) {
+    var NodeInserter = NodePrototype[funcName];
+
+    return function(target) {
+      var copy = ncFrom(this);
+
+      if (typeofString(target)) {
+        Firebolt(target)[funcName](copy, 0); // Pass in 0 to tell the function to add clones to the copy
+      } else {
+        NodeInserter.call(target, copy);
+      }
+
+      return copy;
+    };
+  }
+
+  /* Used for sorting nodes in a NodeCollection in document-order */
+  function sortDocOrder(a, b) {
+    b = a.compareDocumentPosition(b);
+    return b & 4 ? -1 // Node a should come first
+         : b & 1 ? 0  // Nodes are in different documents
+         : 1;         // Else node b should come first
+  }
+
+  /* Used for sorting nodes in a NodeCollection in reverse document-order */
+  function sortRevDocOrder(a, b) {
+    b = a.compareDocumentPosition(b);
+    return b & 2 ? -1 // Node b should come first
+         : b & 1 ? 0  // Nodes are in different documents
+         : 1;         // Else node a should come first
+  }
 
   /**
    * Same constructor as {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array|Array}.
