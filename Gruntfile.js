@@ -108,6 +108,7 @@ module.exports = function(grunt) {
     uglify: {
       options: {
         banner: '/*! Firebolt v<%= pkg.version %> | (c)2014-2015 Nathan Woltman | fireboltjs.com/license */',
+        screwIE8: true,
         sourceMap: true,
         sourceMapName: 'dist/firebolt.min.map'
       },
