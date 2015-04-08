@@ -1,5 +1,66 @@
 ﻿QUnit.module('timing');
 
+QUnit.test('Function#debounce(wait, leading=false)', function(assert) {
+  assert.expect(4);
+
+  var args = ['a', 2, { arg: 3 }];
+  var context = {};
+  var done = assert.async();
+  var callCount = 0;
+  var debounced = (function() {
+    callCount++;
+
+    assert.deepEqual(Array.from(arguments), args, 'Invokes the function with the proper arguments.');
+
+    assert.equal(this, context, 'Invokes the function with the proper context.');
+  }).debounce(50);
+
+  debounced.apply(context, args);
+  debounced.apply(context, args);
+
+  assert.equal(callCount, 0, 'Debounces the function invocation to a later time.');
+
+  setTimeout(function() {
+    assert.equal(callCount, 1, 'Invokes the function after `wait` milliseconds.');
+    done();
+  }, 50);
+});
+
+QUnit.test('Function#debounce(wait, leading=true)', function(assert) {
+  assert.expect(8);
+
+  var args = ['a', 2, { arg: 3 }];
+  var context = {};
+  var done = assert.async();
+  var callCount = 0;
+  var debounced = (function() {
+    callCount++;
+
+    assert.deepEqual(Array.from(arguments), args, 'Invokes the function with the proper arguments.');
+
+    assert.equal(this, context, 'Invokes the function with the proper context.');
+  }).debounce(50, true);
+
+  debounced.apply(context, args);
+
+  assert.equal(callCount, 1, 'Invokes the function immediately the first time the debounced function is called.');
+
+  debounced.apply(context, args);
+  debounced.apply(context, args);
+
+  assert.equal(callCount, 1, 'Debounces subsequent calls made within `wait` milliseconds.');
+
+  setTimeout(function() {
+    assert.equal(callCount, 1, 'The function is not invoked on the trailing edge of the wait timeout.');
+
+    debounced.apply(context, args);
+
+    assert.equal(callCount, 2, 'Invokes the function when called after `wait` milliseconds.');
+
+    done();
+  }, 50);
+});
+
 QUnit.test('Function#delay', function(assert) {
   assert.expect(16);
 

@@ -54,8 +54,55 @@ function getTimingFunction(setTiming, clearTiming) {
   };
 }
 
-// Define the delay and every functions on the Function prototype
 definePrototypeExtensionsOn(Function[prototype], {
+  /**
+   * Creates a new function that delays invoking this function until after
+   * `wait` milliseconds have elapsed since the last time it was invoked.
+   * 
+   * @function Function#debounce
+   * @param {Number} wait - The number of milliseconds to delay until this function can be invoked.
+   * @param {Boolean} [leading=false] - If `true`, this function will be invoked on the leading
+   *     edge of the debounce timeout instead of the trailing edge.
+   * @returns {Function} A function that sets a timeout each time it is called and only invokes
+   *     this function on the trailing edge or leading edge (depending on the value of `leading`)
+   *     of a chain of calls to the function that happen in under `wait` milliseconds since the
+   *     last call.
+   * @see {@link http://benalman.com/projects/jquery-throttle-debounce-plugin/|A visual representation of debounce}
+   * 
+   * @example <caption>Avoid costly calculations while the window size is in flux</caption>
+   * window.on('resize', calculateLayout.debounce(150));
+   * 
+   * @example <caption>Invoke `sendMail` when the click event is fired, debouncing subsequent calls</caption>
+   * $$('send-btn').on('click', sendMail.debounce(300, true));
+   */
+  debounce: function(wait, leading) {
+    var fn = this;
+    var timer;
+    var context;
+    var args;
+
+    function bounce() {
+      if (leading) {
+        timer = UNDEFINED;
+      } else {
+        fn.apply(context, args);
+      }
+    }
+
+    return function() {
+      context = this;
+      args = arguments;
+
+      clearTimeout(timer);
+
+      if (leading && !timer) {
+        fn.apply(context, args);
+      }
+
+      timer = setTimeout(bounce, wait);
+    };
+  },
+
   /**
    * Delays a function call for the specified number of milliseconds.
    * 
