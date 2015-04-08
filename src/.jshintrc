@@ -15,6 +15,7 @@
     "self": true,
     "CharacterData": true,
     "DocumentType": true,
+    "EventTarget": true,
     "HTMLCollection": true,
     "UNDEFINED": true,
     "definePrototypeExtensionsOn": true,
