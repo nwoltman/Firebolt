@@ -257,15 +257,14 @@ QUnit.test('Function#every', function(assert) {
   }, 50);
 
   setTimeout(function() {
-    assert.equal(testVal6, 3,
-      'Causes the function to be executed repeatedly at regular intervals.');
+    assert.ok(testVal6 > 2, 'Causes the function to be executed repeatedly at regularish intervals.');
 
     assert.strictEqual(ref6.hasExecuted, true,
       'Resets `.hasExecuted` to `true` each time the function executes.');
 
     ref6.cancel();
     done6();
-  }, 130);
+  }, 150);
 
 
   var done7 = assert.async();
