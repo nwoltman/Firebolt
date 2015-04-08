@@ -201,5 +201,52 @@ definePrototypeExtensionsOn(Function[prototype], {
    *     </dl>
    * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Window.setInterval|window.setInterval - Web API Interfaces | MDN}
    */
-  every: getTimingFunction(setInterval, clearInterval)
+  every: getTimingFunction(setInterval, clearInterval),
+
+  /**
+   * Creates a function that only invokes this function at most once per every `wait` milliseconds.
+   * 
+   * @function Function#throttle
+   * @param {Number} wait - The number of milliseconds to which invocations will be throttled.
+   * @param {Boolean} [noTrailing=false] - If `true`, this function will only be invoked when
+   *     the returned function is called (i.e. when an event occurs) and never after by use
+   *     of a delayed call (i.e. that is set when an event occurs).
+   * @returns {Function} A function that, when invoked, calls this function, but only once
+   *     within `wait` milliseconds.
+   * @see {@link http://benalman.com/projects/jquery-throttle-debounce-plugin/|A visual representation of throttle}
+   * 
+   * @example <caption>Avoid excessively updating some position while scrolling</caption>
+   * window.on('scroll', updatePosition.throttle(100));
+   * 
+   * @example <caption>Invoke `renewToken` when the click event is fired, but not more than once every 5 minutes</caption>
+   * $CLS('interactive').on('click', renewToken.throttle(300000, true));
+   */
+  throttle: function(wait, noTrailing) {
+    var fn = this;
+    var timeoutSet = false;
+    var eventReceived;
+    var context;
+    var args;
+
+    function throttleTimeout() {
+      if (!noTrailing && eventReceived || !timeoutSet) {
+        fn.apply(context, args);
+        eventReceived = false;
+        setTimeout(throttleTimeout, wait);
+      } else {
+        timeoutSet = false;
+      }
+    }
+
+    return function() {
+      eventReceived = true;
+      if (timeoutSet) return;
+
+      context = this;
+      args = arguments;
+
+      throttleTimeout();
+      timeoutSet = true;
+    };
+  }
 });

@@ -55,7 +55,7 @@ QUnit.test('Function#debounce(wait, leading=true)', function(assert) {
 
     debounced.apply(context, args);
 
-    assert.equal(callCount, 2, 'Invokes the function when called after `wait` milliseconds.');
+    assert.equal(callCount, 2, 'Invokes the function when debounced is called after `wait` milliseconds.');
 
     done();
   }, 50);
@@ -282,5 +282,81 @@ QUnit.test('Function#every', function(assert) {
     assert.equal(ref7.hasExecuted, false, '`.hasExecuted` remains `false` when a callback is cancelled.');
 
     done7();
+  }, 50);
+});
+
+QUnit.test('Function#throttle(wait, noTrailing=false)', function(assert) {
+  assert.expect(13);
+
+  var args = ['a', 2, { arg: 3 }];
+  var context = {};
+  var done = assert.async();
+  var callCount = 0;
+  var throttled = (function() {
+    callCount++;
+
+    assert.deepEqual(Array.from(arguments), args, 'Invokes the function with the proper arguments.');
+
+    assert.equal(this, context, 'Invokes the function with the proper context.');
+  }).throttle(50);
+
+  throttled.apply(context, args);
+
+  assert.equal(callCount, 1, 'Invokes the function immediately the first time the throttled function is called.');
+
+  throttled.apply(context, args);
+  throttled.apply(context, args);
+
+  assert.equal(callCount, 1, 'Throttles subsequent calls made within `wait` milliseconds.');
+
+  setTimeout(function() {
+    assert.equal(callCount, 2, 'The function is invoked on the trailing edge of the wait timeout.');
+
+    throttled.apply(context, args);
+
+    assert.equal(callCount, 2, 'Throttles calls after the wait timeout if invoked during the wait period.');
+
+    setTimeout(function() {
+      throttled.apply(context, args);
+
+      assert.equal(callCount, 4, 'Calls immediately after a wait period when `throttled` was not called.');
+
+      done();
+    }, 150);
+  }, 50);
+});
+
+QUnit.test('Function#throttle(wait, noTrailing=true)', function(assert) {
+  assert.expect(8);
+
+  var args = ['a', 2, { arg: 3 }];
+  var context = {};
+  var done = assert.async();
+  var callCount = 0;
+  var throttled = (function() {
+    callCount++;
+
+    assert.deepEqual(Array.from(arguments), args, 'Invokes the function with the proper arguments.');
+
+    assert.equal(this, context, 'Invokes the function with the proper context.');
+  }).throttle(50, true);
+
+  throttled.apply(context, args);
+
+  assert.equal(callCount, 1, 'Invokes the function immediately the first time the throttled function is called.');
+
+  throttled.apply(context, args);
+  throttled.apply(context, args);
+
+  assert.equal(callCount, 1, 'Throttles subsequent calls made within `wait` milliseconds.');
+
+  setTimeout(function() {
+    assert.equal(callCount, 1, 'The function is not invoked on the trailing edge of the wait timeout.');
+
+    throttled.apply(context, args);
+
+    assert.equal(callCount, 2, 'Invokes the function when throttled is called after `wait` milliseconds.');
+
+    done();
   }, 50);
 });
