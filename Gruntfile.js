@@ -100,8 +100,7 @@ module.exports = function(grunt) {
           'string/extras',
           'style/animation',
           'style/css',
-          'style/display',
-          'timing'
+          'style/display'
         ]
       }
     },
