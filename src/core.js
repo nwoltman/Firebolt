@@ -488,10 +488,10 @@
     },
 
     /**
-     * Returns a duplicate of the array.
+     * Creates a shallow copy of the array.
      * 
      * @function Array#clone
-     * @returns {Array} A shallow copy of the array.
+     * @returns {Array} A clone of the array.
      */
     clone: function() {
       return arrayFrom(this);
