@@ -753,14 +753,19 @@
        */
       uniq: function(isSorted) {
         var unique = new constructor();
+        var i = 1;
+        var len = this.length;
 
-        for (var i = 0; i < this.length; i++) {
-          if (isSorted) {
-            if (this[i] !== this[i + 1]) {
+        if (len) {
+          unique[0] = this[0];
+          for (; i < len; i++) {
+            if (isSorted) {
+              if (this[i] !== this[i - 1]) {
+                push1(unique, this[i]);
+              }
+            } else if (unique.indexOf(this[i]) < 0) {
               push1(unique, this[i]);
             }
-          } else if (unique.indexOf(this[i]) < 0) {
-            push1(unique, this[i]);
           }
         }
 

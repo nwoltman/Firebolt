@@ -232,7 +232,10 @@ QUnit.test('#uniq', function(assert) {
     'Returns a unique set when called on a sorted array with duplicates.');
 
   assert.deepEqual([1, 2, 2, 3, 4, 4].uniq(true), [1, 2, 3, 4],
-    'Returns a unique set when called on a sorted array with duplicates and the `isSorted` parameter is `true`.');
+    'Returns a unique set when called on a sorted array with duplicates and `isSorted` is `true`.');
+
+  assert.deepEqual([1, 2, 2, 3, undefined].uniq(true), [1, 2, 3, undefined],
+    'Returns a unique set when called on an array with `undefined` as the last element and `isSorted` is `true`.');
 });
 
 QUnit.test('#without', function(assert) {
