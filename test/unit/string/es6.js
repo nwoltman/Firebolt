@@ -75,6 +75,10 @@ QUnit.test('String#repeat', function(assert) {
   assert.throws(function() {
     str.repeat(1/0);
   }, RangeError, 'Throws a RangeError when given infinity as input.');
+
+  assert.throws(function() {
+    str.repeat(2147483648);
+  }, RangeError, 'Throws a RangeError when given a number > 2147483647 as input.');
 });
 
 QUnit.test('String#startsWith', function(assert) {

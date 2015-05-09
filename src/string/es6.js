@@ -76,17 +76,20 @@ if (!StringPrototype.repeat) {
    * "0".repeat(5)     // "00000"
    */
   prototypeExtensions.repeat = function(count) {
-    count = Math.floor(count) || 0;
-    if (!isFinite(count) || count < 0) {
+    if (count < 0 || count > 0x7fffffff) {
       throw new RangeError('Invalid count value');
     }
 
     var str = this.toString();
     var retStr = '';
     for (;;) {
-      if (count & 1) retStr += str;
+      if (count & 1) {
+        retStr += str;
+      }
       count >>= 1;
-      if (count === 0) return retStr;
+      if (!count) {
+        return retStr;
+      }
       str += str;
     }
   };
