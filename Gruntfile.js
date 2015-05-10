@@ -4,8 +4,8 @@ module.exports = function(grunt) {
   // Define the browsers to test with Sauce Labs
   var platforms = {
     'Windows 7': {
-      chrome: ['39', '40'],
-      firefox: ['34', '35'],
+      chrome: ['26', '41', '42'],
+      firefox: ['16', '36', /* latest */ ''],
       'internet explorer': ['9', '10', '11']
     },
     'OS X 10.8': {
@@ -16,11 +16,11 @@ module.exports = function(grunt) {
       safari: ['7']
     },
     'OS X 10.10': {
-      iphone: ['8.1'],
+      iphone: ['7.1', '8.2'],
       safari: ['8']
     },
     Linux: {
-      android: ['4.0', '4.4'],
+      android: ['4.1', '4.4'],
       opera: ['12.15']
     }
   };
@@ -178,7 +178,7 @@ module.exports = function(grunt) {
       },
       basic: {
         options: {
-          browsers: [sauceBrowsers[1]],
+          browsers: [sauceBrowsers[2]],
           concurrency: 1,
           tags: ['master', 'basic'],
           testname: 'Firebolt QUnit basic test',
