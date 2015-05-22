@@ -39,7 +39,7 @@ QUnit.test('Function#debounce(wait, leading=true)', function(assert) {
     assert.deepEqual(Array.from(arguments), args, 'Invokes the function with the proper arguments.');
 
     assert.equal(this, context, 'Invokes the function with the proper context.');
-  }).debounce(50, true);
+  }).debounce(40, true);
 
   debounced.apply(context, args);
 
@@ -78,7 +78,7 @@ QUnit.test('Function#delay', function(assert) {
     assert.equal(ref1.hasExecuted, false, '`.hasExecuted` is `false` while the function executes.');
 
     done1();
-  }).delay(50, args);
+  }).delay(40, args);
 
   assert.equal(ref1.hasExecuted, false, '`.hasExecuted` is `false` before the function executes.');
 
@@ -137,7 +137,7 @@ QUnit.test('Function#delay', function(assert) {
   var testVal6 = 0;
   (function() {
     testVal6++;
-  }).delay(50).exec(false);
+  }).delay(45).exec(false);
 
   setTimeout(function() {
     assert.equal(testVal6, 2,
@@ -181,7 +181,7 @@ QUnit.test('Function#every', function(assert) {
 
     this.cancel();
     done1();
-  }).every(50, args);
+  }).every(40, args);
 
   assert.equal(ref1.hasExecuted, false, '`.hasExecuted` is `false` before the function executes.');
 
