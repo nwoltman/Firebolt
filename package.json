@@ -1,7 +1,7 @@
 {
   "name": "Firebolt",
-  "description": "A fast and lightweight JavaScript library for modern browsers.",
   "version": "0.12.0",
+  "description": "A fast and lightweight JavaScript library for modern browsers",
   "author": "Nathan Woltman <nwoltman@outlook.com>",
   "homepage": "http://fireboltjs.com",
   "repository": {
@@ -20,7 +20,7 @@
     "url": "https://github.com/woollybogger/Firebolt/issues",
     "email": "info@fireboltjs.com"
   },
-  "licenses": "MIT",
+  "license": "MIT",
   "devDependencies": {
     "adm-zip": "0.4.7",
     "grunt": "~0.4.5",
@@ -32,7 +32,7 @@
     "grunt-jsonlint": "1.0.4",
     "grunt-saucelabs": "~8.6.0",
     "gzip-js": "0.3.2",
-    "load-grunt-tasks": "3.1.0",
+    "load-grunt-tasks": "3.2.0",
     "qunitjs": "1.18.0"
   },
   "scripts": {
