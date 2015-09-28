@@ -154,8 +154,8 @@ module.exports = function(grunt) {
     },
 
     watch: {
-      source: {
-        files: ['src/**/*.js'],
+      main: {
+        files: ['src/**/*.js', 'test/**/*.js'],
         tasks: ['build:ALL'],
         options: {
           atBegin: true,
