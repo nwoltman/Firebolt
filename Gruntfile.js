@@ -9,7 +9,6 @@ module.exports = function(grunt) {
       'internet explorer': ['9', '10', '11']
     },
     'OS X 10.8': {
-      iphone: ['5.1'],
       safari: ['6']
     },
     'OS X 10.9': {
@@ -187,7 +186,7 @@ module.exports = function(grunt) {
       },
       custom: {
         options: {
-          browsers: [ ['OS X 10.8', 'iPhone', '5.1'] ],
+          browsers: [ ['Windows 7', 'chrome', 'beta'] ],
           concurrency: 1,
           tags: ['master', 'custom'],
           testname: 'Firebolt QUnit custom test',
