@@ -13,7 +13,7 @@ QUnit.test('Function#debounce(wait, leading=false)', function(assert) {
     assert.deepEqual(Array.from(arguments), args, 'Invokes the function with the proper arguments.');
 
     assert.equal(this, context, 'Invokes the function with the proper context.');
-  }).debounce(50);
+  }).debounce(40);
 
   debounced.apply(context, args);
   debounced.apply(context, args);
@@ -322,7 +322,7 @@ QUnit.test('Function#throttle(wait, noTrailing=false)', function(assert) {
 
       done();
     }, 150);
-  }, 50);
+  }, 55);
 });
 
 QUnit.test('Function#throttle(wait, noTrailing=true)', function(assert) {
@@ -357,5 +357,5 @@ QUnit.test('Function#throttle(wait, noTrailing=true)', function(assert) {
     assert.equal(callCount, 2, 'Invokes the function when throttled is called after `wait` milliseconds.');
 
     done();
-  }, 50);
+  }, 55);
 });
