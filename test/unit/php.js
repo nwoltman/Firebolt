@@ -58,12 +58,12 @@ QUnit.test('Firebolt._GET', function(assert) {
 });
 
 QUnit.test('Firebolt._COOKIE', function(assert) {
-  function hasSameValues(less, more) {
-    for (var i in less) {
-      if (less[i] !== more[i])
-        return false;
+  function copyWithValues(object, values) {
+    var result = {};
+    for (var i = 0; i < values.length; i++) {
+      result[values[i]] = object[values[i]];
     }
-    return true;
+    return result;
   }
 
   [
@@ -89,7 +89,8 @@ QUnit.test('Firebolt._COOKIE', function(assert) {
     }
   ].forEach(function(cookie, index) {
     document.cookie = cookie.string + ';expires=' + (new Date(Date.now() + 1000).toUTCString());
-    assert.ok(hasSameValues(cookie.result, Firebolt._COOKIE()),
+    var reducedCookie = copyWithValues(Firebolt._COOKIE(), Object.keys(cookie.result));
+    assert.deepEqual(reducedCookie, cookie.result,
       'Correctly parses cookie #' + (index + 1) + '.');
   });
 
