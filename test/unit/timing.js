@@ -119,7 +119,7 @@ QUnit.test('Function#delay', function(assert) {
   var testVal5 = 0;
   var ref5 = (function() {
     testVal5++;
-  }).delay(50);
+  }).delay(40);
 
   ref5.exec();
   assert.equal(testVal5, 1, 'Calling `.exec()` executes the function immediately.');
@@ -137,7 +137,7 @@ QUnit.test('Function#delay', function(assert) {
   var testVal6 = 0;
   (function() {
     testVal6++;
-  }).delay(45).exec(false);
+  }).delay(40).exec(false);
 
   setTimeout(function() {
     assert.equal(testVal6, 2,
@@ -150,7 +150,7 @@ QUnit.test('Function#delay', function(assert) {
   var testVal7 = 0;
   var ref7 = (function() {
     testVal7++;
-  }).delay(50);
+  }).delay(40);
 
   ref7.cancel();
 
