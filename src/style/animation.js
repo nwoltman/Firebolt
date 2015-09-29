@@ -72,6 +72,19 @@ function dasherize(str) {
   return str.replace(rgxDasherizables, '-$&').toLowerCase();
 }
 
+// A special version of debounce just for .animate()
+function debounce(fn) {
+  var timer;
+
+  return function(e) {
+    if (!e || !e.propertyName) { // Called by .finish() or .stop()
+      return fn(e);
+    }
+    // Only call setTimeout the first time
+    timer = timer || setTimeout(fn.bind(UNDEFINED, e), 0);
+  };
+}
+
 /**
  * @summary Performs a custom animation of a set of CSS properties.
  * 
@@ -122,10 +135,11 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
   var i = 0;
   var propertyNames = keys(properties);
   var numProperties = propertyNames.length;
-  var numChangingProps = numProperties;
   var inlineStyle = _this.style;
   var currentStyle = getComputedStyle(_this);
   var isCurrentDisplayNone = isDisplayNone(0, currentStyle);
+  var initialProps = {};
+  var dasherizedProps = '';
   var valsToRestore = {};
   var cssIncrementProps;
   var framesLeft;
@@ -140,9 +154,6 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
     // The original transition style should be restored after the animation completes
     valsToRestore[cssTransitionKey] = inlineStyle[cssTransitionKey];
 
-    // Force the transition style to be 'none' in case the element already has a transition style
-    inlineStyle[cssTransitionKey] = 'none';
-
     if (noCssTransitionSupport) {
       framesLeft = parseInt(duration / 25); // Total animation frames = duration / frame period
       cssIncrementProps = {};
@@ -152,11 +163,13 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
     for (; i < numProperties; i++) {
       sanitaryProp = sanitizeCssPropName(prop = propertyNames[i]);
       val = properties[prop];
+      initialProps[sanitaryProp] = currentStyle[sanitaryProp];
+      dasherizedProps += (dasherizedProps ? ',' : '') + dasherize(sanitaryProp);
 
       // Should set overflow to "hidden" when animating height or width properties
       if ((prop == 'height' || prop == 'width') && valsToRestore.overflow === UNDEFINED) {
         valsToRestore.overflow = inlineStyle.overflow;
-        inlineStyle.overflow = 'hidden';
+        initialProps.overflow = 'hidden';
       }
 
       if (val == TOGGLE) {
@@ -166,7 +179,7 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
           }
           val = currentStyle[sanitaryProp];
           valsToRestore[sanitaryProp] = inlineStyle[sanitaryProp];
-          inlineStyle[sanitaryProp] = 0;
+          initialProps[sanitaryProp] = 0;
         } else {
           val = 0;
           valsToRestore[sanitaryProp] = inlineStyle[sanitaryProp];
@@ -177,23 +190,19 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
         temp = inlineStyle[sanitaryProp];  // Save the current inline value of the property
         inlineStyle[sanitaryProp] = val;   // Set the style to the input value ('auto')
         val = _this.css(sanitaryProp);     // Get the computed style that will be used as the target value
-        // (use .css in case the element is hidden)
+                                           // (use .css() in case the element is hidden)
         inlineStyle[sanitaryProp] = temp;  // Restore the current inline value of the property
-
       } else if (val[1] === '=') { // "+=value" or "-=value"
-        val = cssMath(parseFloat(currentStyle[sanitaryProp]),
-                      parseFloat(val.replace('=', '')),
-                      val.replace(rgxUpToUnits, ''),
-                      _this,
-                      sanitaryProp);
+        val = cssMath(
+          parseFloat(currentStyle[sanitaryProp]),
+          parseFloat(val.replace('=', '')),
+          val.replace(rgxUpToUnits, ''),
+          _this,
+          sanitaryProp
+        );
       }
 
       properties[prop] = val; // Set the value back into the object of properties in case it changed
-
-      // If the value is the same as the current value, decrement the number of properties that are changing
-      if ((val === 0 ? val + 'px' : val) === currentStyle[sanitaryProp]) {
-        numChangingProps--;
-      }
 
       if (noCssTransitionSupport) {
         // The amount of linear change per frame = total change amount / num frames
@@ -213,14 +222,19 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
       }
     }
 
-    // Inline the element's current CSS styles
-    // (even if some properties were set to 0 in the loop because setting all at once here prevents bugs)
-    _this.css(_this.css(propertyNames));
+    // Prevent starting the transtion early in case the element already has a transition style
+    inlineStyle[cssTransitionKey] = 'none';
+
+    // Inline the element's current CSS styles because they need to be changed to trigger the animation
+    for (sanitaryProp in initialProps) {
+      inlineStyle[sanitaryProp] = initialProps[sanitaryProp];
+    }
+
+    _this.offsetWidth; // Trigger reflow
 
     // Set the CSS transition style
     inlineStyle[cssTransitionKey] = duration + 'ms ' + (Firebolt.easing[easing] || easing);
-    inlineStyle[cssTransitionKey + 'Property'] = propertyNames.map(dasherize).toString();
-    _this.offsetWidth; // Trigger reflow
+    inlineStyle[cssTransitionKey + 'Property'] = dasherizedProps;
 
     // Start the transition
     if (noCssTransitionSupport) {
@@ -243,15 +257,10 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
     }
 
     // Set an event that cleans up the animation and calls the complete callback after the transition is done
-    _this.addEventListener(transitionendEventName, _this._$A_ = function onTransitionEnd(animationCompleted) {
-      // When multiple properties are being animated at once, there will be multiple transitionend events.
-      // Only continue if this is the last transitionend event or the animation was stopped early
-      if (!noCssTransitionSupport && animationCompleted && animationCompleted.propertyName && --numChangingProps)
-        return;
-
+    _this.addEventListener(transitionendEventName, _this._$A_ = debounce(function(animationCompleted) {
       // Immediately remove the event listener and delete its saved reference
-      _this.removeEventListener(transitionendEventName, onTransitionEnd);
-      delete _this._$A_;
+      _this.removeEventListener(transitionendEventName, _this._$A_);
+      _this._$A_ = UNDEFINED;
 
       if (!animationCompleted) {
         // Get the current values of the CSS properties being animated
@@ -264,26 +273,20 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
         _this.css(properties);
       }
 
-      // Force the animation to stop now by setting the transition style to 'none'
-      inlineStyle[cssTransitionKey] = 'none';
-      _this.offsetWidth; // Trigger reflow
-
       // Restore any CSS properties that need to be restored
       _this.css(valsToRestore);
 
       if (!animationCompleted) {
-        // Set all the current CSS property values
-        _this.css(properties);
+        _this.css(properties); // Set all of the current CSS property values
       } else {
         if (hideOnComplete) {
           _this.hide();
         }
-
         if (complete) {
           complete.call(_this);
         }
       }
-    });
+    }));
   }
 
   return _this;
