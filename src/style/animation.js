@@ -27,7 +27,7 @@ var TOGGLE = 'toggle';
 
 var cssTransitionKey = sanitizeCssPropName('transition');
 var noCssTransitionSupport = iframe.style[cssTransitionKey] === UNDEFINED;
-var transitionendEventName = cssTransitionKey + (cssTransitionKey[0] === 'w' ? 'End' : 'end');
+var transitionendEventName = cssTransitionKey[0] === 'W' ? 'webkitTransitionEnd' : 'transitionend';
 
 var rgxDasherizables = /[A-Z]/g; // Matches capitol letters in a camel case string
 

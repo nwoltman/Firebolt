@@ -18,7 +18,7 @@
 //#region VARS
 
 var cssVendorPrefix =
-  usesWebkit ? 'webkit' :
+  usesWebkit ? 'Webkit' :
   usesGecko ? 'Moz' :
   document.documentMode ? 'ms' :
   'O';
