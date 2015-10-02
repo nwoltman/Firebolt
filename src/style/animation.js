@@ -445,8 +445,8 @@ HTMLElementPrototype.stop = function(jumpToEnd) {
  * @param {String} [easing="swing"] - Indicates which easing function to use for the transition. The string can be any
  *     [CSS transition timing function](https://developer.mozilla.org/en-US/docs/Web/CSS/transition-timing-function)
  *     or "swing".
- * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
- *     refer to the element that was animated.
+ * @param {Function} [complete()] - A function to call once the animation is complete; called once for each
+ *     node in the collection. Inside the function, `this` will refer to the element that was animated.
  * @see {@link http://api.jquery.com/animate/|.animate() | jQuery API Documentation}
  */
 
@@ -458,8 +458,8 @@ HTMLElementPrototype.stop = function(jumpToEnd) {
  * @param {String} [easing="swing"] - Indicates which easing function to use for the transition. The string can be any
  *     [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp)
  *     or "swing".
- * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
- *     refer to the element that was animated.
+ * @param {Function} [complete()] - A function to call once the animation is complete; called once for each
+ *     node in the collection. Inside the function, `this` will refer to the element that was animated.
  */
 
 /**
@@ -470,8 +470,8 @@ HTMLElementPrototype.stop = function(jumpToEnd) {
  * @param {String} [easing="swing"] - Indicates which easing function to use for the transition. The string can be any
  *     [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp)
  *     or "swing".
- * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
- *     refer to the element that was animated.
+ * @param {Function} [complete()] - A function to call once the animation is complete; called once for each
+ *     node in the collection. Inside the function, `this` will refer to the element that was animated.
  */
 
 /**
@@ -482,8 +482,8 @@ HTMLElementPrototype.stop = function(jumpToEnd) {
  * @param {String} [easing="swing"] - Indicates which easing function to use for the transition. The string can be any
  *     [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp)
  *     or "swing".
- * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
- *     refer to the element that was animated.
+ * @param {Function} [complete()] - A function to call once the animation is complete; called once for each
+ *     node in the collection. Inside the function, `this` will refer to the element that was animated.
  */
 
 /**
@@ -500,8 +500,8 @@ HTMLElementPrototype.stop = function(jumpToEnd) {
  * @param {String} [easing="swing"] - Indicates which easing function to use for the transition. The string can be any
  *     [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp)
  *     or "swing".
- * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
- *     refer to the element that was animated.
+ * @param {Function} [complete()] - A function to call once the animation is complete; called once for each
+ *     node in the collection. Inside the function, `this` will refer to the element that was animated.
  */
 
 /**
@@ -512,8 +512,8 @@ HTMLElementPrototype.stop = function(jumpToEnd) {
  * @param {String} [easing="swing"] - Indicates which easing function to use for the transition. The string can be any
  *     [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp)
  *     or "swing".
- * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
- *     refer to the element that was animated.
+ * @param {Function} [complete()] - A function to call once the animation is complete; called once for each
+ *     node in the collection. Inside the function, `this` will refer to the element that was animated.
  */
 
 /**
@@ -524,8 +524,8 @@ HTMLElementPrototype.stop = function(jumpToEnd) {
  * @param {String} [easing="swing"] - Indicates which easing function to use for the transition. The string can be any
  *     [CSS transition timing function](http://www.w3schools.com/cssref/css3_pr_transition-timing-function.asp)
  *     or "swing".
- * @param {Function} [complete()] - A function to call once the animation is complete. Inside the function, `this` will
- *     refer to the element that was animated.
+ * @param {Function} [complete()] - A function to call once the animation is complete; called once for each
+ *     node in the collection. Inside the function, `this` will refer to the element that was animated.
  */
 
 /**
