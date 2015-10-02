@@ -25,9 +25,9 @@ var ANIMATION_DEFAULT_DURATION = 400;
 var ANIMATION_DEFAULT_EASING = 'swing';
 var TOGGLE = 'toggle';
 
-var cssTransitionKey = sanitizeCssPropName('transition');
-var noCssTransitionSupport = iframe.style[cssTransitionKey] === UNDEFINED;
-var transitionendEventName = cssTransitionKey[0] === 'W' ? 'webkitTransitionEnd' : 'transitionend';
+var CSS_TRANSITION_KEY = sanitizeCssPropName('transition');
+var NO_CSS_TRANSITION_SUPPORT = iframe.style[CSS_TRANSITION_KEY] === UNDEFINED;
+var TRANSITION_END = CSS_TRANSITION_KEY[0] === 'W' ? 'webkitTransitionEnd' : 'transitionend';
 
 var rgxDasherizables = /[A-Z]/g; // Matches capitol letters in a camel case string
 
@@ -152,9 +152,9 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
   // Only perform the animation if there are properties to animate
   if (numProperties) {
     // The original transition style should be restored after the animation completes
-    valsToRestore[cssTransitionKey] = inlineStyle[cssTransitionKey];
+    valsToRestore[CSS_TRANSITION_KEY] = inlineStyle[CSS_TRANSITION_KEY];
 
-    if (noCssTransitionSupport) {
+    if (NO_CSS_TRANSITION_SUPPORT) {
       framesLeft = parseInt(duration / 25); // Total animation frames = duration / frame period
       cssIncrementProps = {};
     }
@@ -204,7 +204,7 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
 
       properties[prop] = val; // Set the value back into the object of properties in case it changed
 
-      if (noCssTransitionSupport) {
+      if (NO_CSS_TRANSITION_SUPPORT) {
         // The amount of linear change per frame = total change amount / num frames
         // Where
         // num frames = (newValue - currentValue) * framesLeft
@@ -223,7 +223,7 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
     }
 
     // Prevent starting the transtion early in case the element already has a transition style
-    inlineStyle[cssTransitionKey] = 'none';
+    inlineStyle[CSS_TRANSITION_KEY] = 'none';
 
     // Inline the element's current CSS styles because they need to be changed to trigger the animation
     for (sanitaryProp in initialProps) {
@@ -233,11 +233,11 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
     _this.offsetWidth; // Trigger reflow
 
     // Set the CSS transition style
-    inlineStyle[cssTransitionKey] = duration + 'ms ' + (Firebolt.easing[easing] || easing);
-    inlineStyle[cssTransitionKey + 'Property'] = dasherizedProps;
+    inlineStyle[CSS_TRANSITION_KEY] = duration + 'ms ' + (Firebolt.easing[easing] || easing);
+    inlineStyle[CSS_TRANSITION_KEY + 'Property'] = dasherizedProps;
 
     // Start the transition
-    if (noCssTransitionSupport) {
+    if (NO_CSS_TRANSITION_SUPPORT) {
       // Increment the CSS properties by their respective amounts each frame period
       // until all frames have been rendered
       (function renderFrame() {
@@ -249,7 +249,7 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
         if (--framesLeft) {
           temp = setTimeout(renderFrame, 25);
         } else {
-          _this.trigger(transitionendEventName);
+          _this.trigger(TRANSITION_END);
         }
       })();
     } else {
@@ -257,9 +257,9 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
     }
 
     // Set an event that cleans up the animation and calls the complete callback after the transition is done
-    _this.addEventListener(transitionendEventName, _this._$A_ = debounce(function(animationCompleted) {
+    _this.addEventListener(TRANSITION_END, _this._$A_ = debounce(function(animationCompleted) {
       // Immediately remove the event listener and delete its saved reference
-      _this.removeEventListener(transitionendEventName, _this._$A_);
+      _this.removeEventListener(TRANSITION_END, _this._$A_);
       _this._$A_ = UNDEFINED;
 
       if (!animationCompleted) {
@@ -267,7 +267,7 @@ HTMLElementPrototype.animate = function(properties, duration, easing, complete) 
         properties = _this.css(propertyNames);
       }
 
-      if (noCssTransitionSupport) {
+      if (NO_CSS_TRANSITION_SUPPORT) {
         // End the frame rendering and set all the final CSS values
         clearTimeout(temp);
         _this.css(properties);
@@ -334,7 +334,7 @@ HTMLElementPrototype.fadeOut = function(duration, easing, complete) {
  *     refer to the element that was animated.
  */
 HTMLElementPrototype.fadeToggle = function(duration, easing, complete) {
-  return this.animate({ opacity: TOGGLE }, duration, easing, complete);
+  return this.animate({opacity: TOGGLE}, duration, easing, complete);
 };
 
 /**
@@ -348,7 +348,7 @@ HTMLElementPrototype.fadeToggle = function(duration, easing, complete) {
  * @function HTMLElement#finish
  */
 HTMLElementPrototype.finish = function() {
-  return this._$A_ ? this.trigger(transitionendEventName) : this;
+  return this._$A_ ? this.trigger(TRANSITION_END) : this;
 };
 
 /**
