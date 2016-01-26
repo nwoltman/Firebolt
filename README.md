@@ -4,10 +4,11 @@
   </a>
 </h1>
 
-[![Join the chat at https://gitter.im/woollybogger/Firebolt](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/woollybogger/Firebolt?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+### This project is no longer being maintained. You should not use it in a production environment.
 
 [![Build Status](https://travis-ci.org/woollybogger/Firebolt.svg)](https://travis-ci.org/woollybogger/Firebolt)
 [![devDependency Status](https://david-dm.org/woollybogger/Firebolt/dev-status.svg)](https://david-dm.org/woollybogger/Firebolt#info=devDependencies)
+[![Join the chat at https://gitter.im/woollybogger/Firebolt](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/woollybogger/Firebolt?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 [![Sauce Test Status](https://saucelabs.com/browser-matrix/nwoltman.svg)](https://saucelabs.com/u/nwoltman)
 
